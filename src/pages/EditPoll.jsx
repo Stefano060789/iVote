@@ -7,7 +7,7 @@ export default function EditPoll() {
   const navigate = useNavigate();
 
   const [question, setQuestion] = useState("");
-  const [answers, setAnswers] = useState("");
+  const [answers, setAnswers] = useState([""]);
 
   useEffect(() => {
     async function loadPoll() {
@@ -22,26 +22,56 @@ export default function EditPoll() {
         return;
       }
 
-      setQuestion(data.question);
-      setAnswers(data.answers);
+      setQuestion(data.question ?? "");
+
+      if (Array.isArray(data.answers) && data.answers.length > 0) {
+        const loadedAnswers = data.answers.slice(0, 10);
+        if (loadedAnswers.length < 10) loadedAnswers.push("");
+        setAnswers(loadedAnswers);
+      } else {
+        setAnswers([""]);
+      }
     }
 
     loadPoll();
   }, [pollId]);
 
+  function updateAnswer(index, value) {
+    const newAnswers = [...answers];
+    newAnswers[index] = value;
+
+    if (index === answers.length - 1 && value.trim() !== "" && answers.length < 10) {
+      newAnswers.push("");
+    }
+
+    setAnswers(newAnswers);
+  }
+
   async function updatePoll() {
-    const answersArray = answers
-      .split(",")
-      .map((answer) => answer.trim())
-      .filter(Boolean);
+    const {
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      console.error(userError || "User not authenticated");
+      return;
+    }
+
+    const cleanedAnswers = answers
+      .map((a) => a.trim())
+      .filter((a) => a.length > 0);
+
+    if (!question.trim() || cleanedAnswers.length === 0) return;
 
     const { error } = await supabase
       .from("polls")
       .update({
-        question,
-        answers: answersArray
+        question: question.trim(),
+        answers: cleanedAnswers
       })
-      .eq("id", pollId);
+      .eq("id", pollId)
+      .eq("creator_id", user.id);
 
     if (error) {
       console.error(error);
@@ -59,15 +89,26 @@ export default function EditPoll() {
       <input
         value={question}
         onChange={(e) => setQuestion(e.target.value)}
-        className="w-full border p-2 rounded mb-4"
+        className="w-full border p-2 rounded mb-4 text-black"
       />
 
-      <label className="block mb-2 font-semibold">Answers (comma separated)</label>
-      <input
-        value={answers}
-        onChange={(e) => setAnswers(e.target.value)}
-        className="w-full border p-2 rounded mb-4"
-      />
+      <label className="block mb-2 font-semibold">Answers</label>
+      <div className="space-y-2 mb-4">
+        {answers.map((answer, index) => (
+          <input
+            key={index}
+            type="text"
+            value={answer}
+            onChange={(e) => updateAnswer(index, e.target.value)}
+            className="w-full border p-2 rounded text-black"
+            placeholder={`Answer ${index + 1}`}
+          />
+        ))}
+      </div>
+
+      {answers.length >= 10 && (
+        <p className="text-red-600 text-sm mb-4">Maximum of 10 answers reached.</p>
+      )}
 
       <button
         onClick={updatePoll}

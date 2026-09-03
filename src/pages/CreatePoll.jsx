@@ -5,13 +5,24 @@ import QRCode from "qrcode";
 
 export default function CreatePoll() {
   const [question, setQuestion] = useState("");
-  const [answers, setAnswers] = useState("");
+  const [answers, setAnswers] = useState([""]);
   const [expiresAt, setExpiresAt] = useState("");
   const [pollId, setPollId] = useState(null);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
 
+  function updateAnswer(index, value) {
+    const newAnswers = [...answers];
+    newAnswers[index] = value;
+
+    if (index === answers.length - 1 && value.trim() !== "" && answers.length < 10) {
+      newAnswers.push("");
+    }
+
+    setAnswers(newAnswers);
+  }
+
   async function createPoll() {
-    if (!question || !answers) return;
+    if (!question.trim()) return;
 
     const {
       data: { user },
@@ -23,18 +34,17 @@ export default function CreatePoll() {
       return;
     }
 
-    const parsedAnswers = answers
-      .split(",")
+    const cleanedAnswers = answers
       .map((a) => a.trim())
       .filter((a) => a.length > 0);
 
-    if (parsedAnswers.length === 0) return;
+    if (cleanedAnswers.length === 0) return;
 
     const { data, error } = await supabase
       .from("polls")
       .insert({
-        question,
-        answers: parsedAnswers,
+        question: question.trim(),
+        answers: cleanedAnswers,
         creator_id: user.id,
         expires_at: expiresAt ? new Date(expiresAt).toISOString() : null
       })
@@ -67,14 +77,23 @@ export default function CreatePoll() {
           onChange={(e) => setQuestion(e.target.value)}
         />
 
-        <label className="block mb-2 font-semibold">Answers (comma separated)</label>
-        <input
-          type="text"
-          className="w-full border p-2 rounded mb-4 text-black placeholder-black"
-          placeholder="Yes, No, Maybe"
-          value={answers}
-          onChange={(e) => setAnswers(e.target.value)}
-        />
+        <label className="block mb-2 font-semibold">Answers</label>
+        <div className="space-y-2 mb-4">
+          {answers.map((answer, index) => (
+            <input
+              key={index}
+              type="text"
+              value={answer}
+              onChange={(e) => updateAnswer(index, e.target.value)}
+              className="w-full border p-2 rounded text-black"
+              placeholder={`Answer ${index + 1}`}
+            />
+          ))}
+        </div>
+
+        {answers.length >= 10 && (
+          <p className="text-red-600 text-sm mb-4">Maximum of 10 answers reached.</p>
+        )}
 
         <label className="block mb-2 font-semibold">Expiration Date</label>
         <input
@@ -103,9 +122,7 @@ export default function CreatePoll() {
                   alt="QR Code"
                   className="mx-auto mb-4 border p-2 bg-white"
                 />
-                <p className="text-sm text-gray-600">
-                  Scan this QR code to vote.
-                </p>
+                <p className="text-sm text-gray-600">Scan this QR code to vote.</p>
               </>
             )}
 
