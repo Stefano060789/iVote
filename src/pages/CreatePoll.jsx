@@ -45,8 +45,8 @@ export default function CreatePoll() {
         <label className="block mb-2 font-semibold">Question</label>
         <input
           type="text"
-          className="w-full p-2 border rounded mb-4 text-black"
-          placeholder="What do you think about…?"
+          className="w-full border p-2 rounded mb-4 text-black placeholder-black"
+          placeholder="What do you think about...?"
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
         />
@@ -54,7 +54,7 @@ export default function CreatePoll() {
         <label className="block mb-2 font-semibold">Answers (comma separated)</label>
         <input
           type="text"
-          className="w-full p-2 border rounded mb-4 text-black"
+          className="w-full border p-2 rounded mb-4 text-black placeholder-black"
           placeholder="Yes, No, Maybe"
           value={answers}
           onChange={(e) => setAnswers(e.target.value)}
@@ -65,7 +65,7 @@ export default function CreatePoll() {
           type="datetime-local"
           value={expiresAt}
           onChange={(e) => setExpiresAt(e.target.value)}
-          className="w-full border p-2 rounded mb-4 text-black"
+          className="w-full border p-2 rounded mb-4 text-black placeholder-black"
         />
 
         <button
@@ -102,3 +102,4 @@ export default function CreatePoll() {
     </Layout>
   );
 }
+
