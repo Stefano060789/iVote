@@ -59,6 +59,10 @@ export default function Vote() {
           >
             View Results
           </a>
+
+          <div className="mt-4">
+            <a href="/admin" className="text-blue-600 underline">Back to Admin</a>
+          </div>
         </div>
       </Layout>
     );

@@ -8,20 +8,9 @@ export default function NavBar() {
           iVote
         </Link>
 
-        <div className="space-x-6 text-lg">
-          <Link
-            to="/"
-            className="hover:text-brand.light transition"
-          >
-            Create Poll
-          </Link>
-
-          <Link
-            to="/admin"
-            className="hover:text-brand.light transition"
-          >
-            Admin
-          </Link>
+        <div className="space-x-4">
+          <Link to="/admin" className="text-gray-700 hover:text-blue-600 font-medium">Admin</Link>
+          <Link to="/create" className="text-gray-700 hover:text-blue-600 font-medium">Create Poll</Link>
         </div>
       </div>
     </nav>

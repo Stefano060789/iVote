@@ -79,6 +79,10 @@ export default function CreatePoll() {
                 </p>
               </>
             )}
+
+            <div className="mt-6">
+              <a href="/admin" className="text-blue-600 underline">Go to Admin</a>
+            </div>
           </div>
         )}
       </div>

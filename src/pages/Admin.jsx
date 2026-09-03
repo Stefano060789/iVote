@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Layout from "../components/Layout";
 import { supabase } from "../lib/supabase";
 
 export default function Admin() {
@@ -27,7 +26,7 @@ export default function Admin() {
 
   async function deletePoll(id) {
     await supabase.from("polls").delete().eq("id", id);
-    setPolls(polls.filter((p) => p.id !== id));
+    setPolls(polls.filter(p => p.id !== id));
   }
 
   function copyQR(id) {
@@ -36,51 +35,63 @@ export default function Admin() {
     alert("QR link copied to clipboard!");
   }
 
-  if (loading) return <Layout><p className="text-center p-6">Loading polls…</p></Layout>;
+  if (loading) return <p className="text-center p-6">Loading polls…</p>;
 
   return (
-    <Layout>
-      <div className="max-w-3xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-6 text-center">Admin Dashboard</h1>
+    <div className="max-w-3xl mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6 text-center">Admin Dashboard</h1>
 
-        {polls.length === 0 && (
-          <p className="text-center text-gray-600">No polls created yet.</p>
-        )}
+      {polls.length === 0 && (
+        <p className="text-center text-gray-600">No polls created yet.</p>
+      )}
 
-        <div className="space-y-4">
-          {polls.map((poll) => (
-            <div key={poll.id} className="border p-4 rounded shadow-sm">
-              <h2 className="text-xl font-semibold">{poll.question}</h2>
-              <p className="text-gray-600 text-sm mb-3">
-                Created: {new Date(poll.created_at).toLocaleString()}
-              </p>
+      <div className="space-y-4">
+        {polls.map((poll) => (
+          <div key={poll.id} className="border p-4 rounded shadow-sm">
+            <h2 className="text-xl font-semibold">{poll.question}</h2>
+            <p className="text-gray-600 text-sm mb-3">
+              Created: {new Date(poll.created_at).toLocaleString()}
+            </p>
 
-              <div className="flex gap-3">
-                <a
-                  href={`/results/${poll.id}`}
-                  className="bg-blue-600 text-white px-3 py-2 rounded font-semibold"
-                >
-                  View Results
-                </a>
+            <div className="flex gap-3">
+              <a
+                href={`/results/${poll.id}`}
+                className="bg-blue-600 text-white px-3 py-2 rounded font-semibold"
+              >
+                View Results
+              </a>
 
-                <button
-                  onClick={() => copyQR(poll.id)}
-                  className="bg-gray-700 text-white px-3 py-2 rounded font-semibold"
-                >
-                  Copy QR Link
-                </button>
+              <a
+                href={`/vote/${poll.id}`}
+                className="bg-green-600 text-white px-3 py-2 rounded font-semibold"
+              >
+                Vote Page
+              </a>
 
-                <button
-                  onClick={() => deletePoll(poll.id)}
-                  className="bg-red-600 text-white px-3 py-2 rounded font-semibold"
-                >
-                  Delete
-                </button>
-              </div>
+              <a
+                href={`/edit/${poll.id}`}
+                className="bg-yellow-500 text-white px-3 py-2 rounded font-semibold"
+              >
+                Edit
+              </a>
+
+              <button
+                onClick={() => copyQR(poll.id)}
+                className="bg-gray-700 text-white px-3 py-2 rounded font-semibold"
+              >
+                Copy QR Link
+              </button>
+
+              <button
+                onClick={() => deletePoll(poll.id)}
+                className="bg-red-600 text-white px-3 py-2 rounded font-semibold"
+              >
+                Delete
+              </button>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
-    </Layout>
+    </div>
   );
 }
