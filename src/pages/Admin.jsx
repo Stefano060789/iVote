@@ -1,12 +1,30 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
 export default function Admin() {
+  const navigate = useNavigate();
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadPolls() {
+      const {
+        data: { user },
+        error: userError
+      } = await supabase.auth.getUser();
+
+      if (userError) {
+        console.error(userError);
+        setLoading(false);
+        return;
+      }
+
+      if (!user) {
+        navigate("/login");
+        return;
+      }
+
       const { data, error } = await supabase
         .from("polls")
         .select("*")
@@ -14,6 +32,7 @@ export default function Admin() {
 
       if (error) {
         console.error(error);
+        setLoading(false);
         return;
       }
 
@@ -22,7 +41,7 @@ export default function Admin() {
     }
 
     loadPolls();
-  }, []);
+  }, [navigate]);
 
   async function deletePoll(id) {
     await supabase.from("polls").delete().eq("id", id);
