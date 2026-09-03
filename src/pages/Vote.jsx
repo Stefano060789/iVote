@@ -110,12 +110,19 @@ export default function Vote() {
     return <Layout><p className="text-center p-6">Error: Poll answers are invalid.</p></Layout>;
   }
 
-  if (poll.expires_at && new Date(poll.expires_at) < new Date()) {
+  const isExpired =
+    poll.expires_at && new Date(poll.expires_at) < new Date();
+
+  if (isExpired) {
     return (
-      <div className="max-w-xl mx-auto p-6 text-center">
-        <h1 className="text-3xl font-bold mb-4">This poll has expired</h1>
-        <a href="/admin" className="text-blue-600 underline">Back to Admin</a>
-      </div>
+      <Layout>
+        <div className="text-center p-6">
+          <h2 className="text-2xl font-bold mb-4">This poll has expired</h2>
+          <p className="text-gray-600 mb-6">
+            Voting is no longer possible.
+          </p>
+        </div>
+      </Layout>
     );
   }
 
