@@ -14,7 +14,7 @@ import "./style.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
-    {/* <NavBar /> */}
+    <NavBar />
     <Routes>
       <Route path="/" element={<CreatePoll />} />
       <Route path="/create" element={<CreatePoll />} />
@@ -26,4 +26,3 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     </Routes>
   </BrowserRouter>
 );
-
