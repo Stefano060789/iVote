@@ -1,26 +1,23 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
-import Layout from "../components/Layout";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  async function handleSubmit(e) {
+  async function handleLogin(e) {
     e.preventDefault();
-    setErrorMessage("");
-    setIsSubmitting(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-    setIsSubmitting(false);
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
 
     if (error) {
-      setErrorMessage(error.message);
+      setError(error.message);
       return;
     }
 
@@ -28,42 +25,35 @@ export default function Login() {
   }
 
   return (
-    <Layout>
-      <div className="max-w-md mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-6 text-center">Admin Login</h1>
+    <div className="max-w-md mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6 text-center">Admin Login</h1>
 
-        <form onSubmit={handleSubmit}>
-          <label className="block mb-2 font-semibold">Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border rounded mb-4"
-            required
-          />
+      {error && <p className="text-red-600 mb-4">{error}</p>}
 
-          <label className="block mb-2 font-semibold">Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border rounded mb-4"
-            required
-          />
+      <form onSubmit={handleLogin} className="space-y-4">
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full border p-2 rounded text-black"
+        />
 
-          {errorMessage && (
-            <p className="mb-4 text-sm text-red-600">{errorMessage}</p>
-          )}
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full border p-2 rounded text-black"
+        />
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-blue-600 text-white p-3 rounded font-semibold disabled:opacity-60"
-          >
-            {isSubmitting ? "Signing in..." : "Sign In"}
-          </button>
-        </form>
-      </div>
-    </Layout>
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white p-2 rounded font-semibold"
+        >
+          Login
+        </button>
+      </form>
+    </div>
   );
 }
