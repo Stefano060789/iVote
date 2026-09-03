@@ -46,9 +46,7 @@ export default function Admin() {
       )}
 
       <div className="space-y-4">
-        {polls
-          .filter(p => !p.expires_at || new Date(p.expires_at) > new Date())
-          .map((poll) => (
+        {polls.map((poll) => (
           <div key={poll.id} className="border p-4 rounded shadow-sm">
             <h2 className="text-xl font-semibold">{poll.question}</h2>
 
