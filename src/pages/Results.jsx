@@ -1,7 +1,28 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Bar, Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend
+} from "chart.js";
 import Layout from "../components/Layout";
 import { supabase } from "../lib/supabase";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend
+);
 
 export default function Results() {
   const { pollId } = useParams();
@@ -63,9 +84,55 @@ export default function Results() {
     return <Layout><p className="text-center p-6">Error: Poll answers are invalid.</p></Layout>;
   }
 
-  const counts = poll.answers.map((answer) => {
+  const voteCounts = poll.answers.map((answer) => {
     return votes.filter((v) => v.answer === answer).length;
   });
+  const percentageTotalVotes = voteCounts.reduce((a, b) => a + b, 0);
+  const percentages = voteCounts.map((count) =>
+    percentageTotalVotes === 0 ? 0 : Number(((count / percentageTotalVotes) * 100).toFixed(1))
+  );
+  const maxVotes = voteCounts.length > 0 ? Math.max(...voteCounts) : 0;
+  const topAnswerIndex = voteCounts.indexOf(maxVotes);
+  const topAnswer = topAnswerIndex >= 0 ? poll.answers[topAnswerIndex] : "N/A";
+  const topPercentage = topAnswerIndex >= 0 ? percentages[topAnswerIndex] : 0;
+  const barColors = voteCounts.map((_count, i) =>
+    i === topAnswerIndex ? "rgba(75, 192, 192, 0.8)" : "rgba(54, 162, 235, 0.6)"
+  );
+  const borderColors = barColors.map((c) => c.replace("0.6", "1").replace("0.8", "1"));
+
+  const timeline = {};
+  votes.forEach((v) => {
+    const minute = v.created_at?.substring(0, 16);
+    if (!minute) return;
+    timeline[minute] = (timeline[minute] || 0) + 1;
+  });
+  const timelineLabels = Object.keys(timeline).sort();
+  const timelineCounts = timelineLabels.map((label) => timeline[label]);
+
+  const chartData = {
+    labels: poll.answers.map((a, i) => `${a} (${percentages[i]}%)`),
+    datasets: [
+      {
+        label: "Votes",
+        data: voteCounts,
+        backgroundColor: barColors,
+        borderColor: borderColors,
+        borderWidth: 1
+      }
+    ]
+  };
+  const lineData = {
+    labels: timelineLabels,
+    datasets: [
+      {
+        label: "Votes Over Time",
+        data: timelineCounts,
+        fill: false,
+        borderColor: "rgba(255, 99, 132, 1)",
+        tension: 0.2
+      }
+    ]
+  };
 
   return (
     <Layout>
@@ -82,9 +149,22 @@ export default function Results() {
           </p>
         </div>
 
+        <div className="mt-6 mb-8 bg-white p-4 rounded">
+          <div className="text-center mt-2 mb-4">
+            <h3 className="text-xl font-bold text-green-600">
+              Top answer: {topAnswer} ({topPercentage}%)
+            </h3>
+          </div>
+          <Bar data={chartData} />
+        </div>
+
+        <div className="mt-10 mb-8 bg-white p-4 rounded">
+          <Line data={lineData} />
+        </div>
+
         <div className="space-y-4">
           {poll.answers.map((answer, index) => {
-            const count = counts[index];
+            const count = voteCounts[index];
             const percent = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
 
             return (
