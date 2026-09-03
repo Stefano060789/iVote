@@ -46,6 +46,10 @@ export default function Vote() {
 
   if (!poll) return <Layout><p className="text-center p-6">Poll not found.</p></Layout>;
 
+  if (!Array.isArray(poll.answers)) {
+    return <Layout><p className="text-center p-6">Error: Poll answers are invalid.</p></Layout>;
+  }
+
   if (poll.expires_at && new Date(poll.expires_at) < new Date()) {
     return (
       <div className="max-w-xl mx-auto p-6 text-center">

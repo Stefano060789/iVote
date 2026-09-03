@@ -46,6 +46,9 @@ export default function Results() {
 
   if (loading) return <Layout><p className="text-center p-6">Loading results…</p></Layout>;
   if (!poll) return <Layout><p className="text-center p-6">Poll not found.</p></Layout>;
+  if (!Array.isArray(poll.answers)) {
+    return <Layout><p className="text-center p-6">Error: Poll answers are invalid.</p></Layout>;
+  }
 
   const totalVotes = votes.length;
 

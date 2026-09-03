@@ -13,23 +13,31 @@ export default function CreatePoll() {
   async function createPoll() {
     if (!question || !answers) return;
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser();
 
     if (userError || !user) {
       console.error(userError || "User not authenticated");
       return;
     }
 
-    const answersArray = answers.split(",").map((a) => a.trim());
+    const parsedAnswers = answers
+      .split(",")
+      .map((a) => a.trim())
+      .filter((a) => a.length > 0);
+
+    if (parsedAnswers.length === 0) return;
 
     const { data, error } = await supabase
       .from("polls")
-      .insert([{
+      .insert({
         question,
-        answers: answersArray,
+        answers: parsedAnswers,
         creator_id: user.id,
         expires_at: expiresAt ? new Date(expiresAt).toISOString() : null
-      }])
+      })
       .select()
       .single();
 
