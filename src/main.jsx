@@ -7,6 +7,7 @@ import CreatePoll from "./pages/CreatePoll";
 import Vote from "./pages/Vote";
 import Results from "./pages/Results";
 import Admin from "./pages/Admin";
+import AdminAnalytics from "./pages/AdminAnalytics";
 import EditPoll from "./pages/EditPoll";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -26,6 +27,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Route path="/register" element={<Register />} />
       <Route path="/thanks" element={<ThankYou />} />
       <Route path="/admin" element={<Admin />} />
+      <Route path="/admin/analytics" element={<AdminAnalytics />} />
       <Route path="/edit/:pollId" element={<EditPoll />} />
     </Routes>
   </BrowserRouter>

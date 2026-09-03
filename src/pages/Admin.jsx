@@ -69,6 +69,15 @@ export default function Admin() {
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6 text-center">Admin Dashboard</h1>
 
+      <div className="flex justify-center mb-6">
+        <Link
+          to="/admin/analytics"
+          className="bg-purple-600 text-white px-3 py-2 rounded font-semibold"
+        >
+          Analytics
+        </Link>
+      </div>
+
       {polls.length === 0 && (
         <p className="text-center text-gray-600">No polls created yet.</p>
       )}
