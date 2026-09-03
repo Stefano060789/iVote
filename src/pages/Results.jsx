@@ -8,6 +8,8 @@ export default function Results() {
   const [poll, setPoll] = useState(null);
   const [votes, setVotes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [totalVotes, setTotalVotes] = useState(0);
+  const [votesToday, setVotesToday] = useState(0);
 
   useEffect(() => {
     async function loadPoll() {
@@ -25,7 +27,7 @@ export default function Results() {
       setPoll(data);
     }
 
-    async function loadVotes() {
+    async function fetchVotes() {
       const { data, error } = await supabase
         .from("votes")
         .select("*")
@@ -37,11 +39,22 @@ export default function Results() {
       }
 
       setVotes(data);
+      const total = data.length;
+      const today = new Date().toISOString().split("T")[0];
+      const todayVotes = data.filter((v) => v.created_at?.startsWith(today)).length;
+      setTotalVotes(total);
+      setVotesToday(todayVotes);
       setLoading(false);
     }
 
     loadPoll();
-    loadVotes();
+    fetchVotes();
+
+    const interval = setInterval(() => {
+      fetchVotes();
+    }, 2000);
+
+    return () => clearInterval(interval);
   }, [pollId]);
 
   if (loading) return <Layout><p className="text-center p-6">Loading results…</p></Layout>;
@@ -49,8 +62,6 @@ export default function Results() {
   if (!Array.isArray(poll.answers)) {
     return <Layout><p className="text-center p-6">Error: Poll answers are invalid.</p></Layout>;
   }
-
-  const totalVotes = votes.length;
 
   const counts = poll.answers.map((answer) => {
     return votes.filter((v) => v.answer === answer).length;
@@ -61,9 +72,15 @@ export default function Results() {
       <div className="max-w-xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-6 text-center">{poll.question}</h1>
 
-        <p className="text-center text-gray-600 mb-6">
-          Total votes: {totalVotes}
-        </p>
+        <div className="text-center mb-6">
+          <h3 className="text-xl font-bold">Live Results</h3>
+          <p className="text-gray-600">
+            Total votes: <span className="font-semibold">{totalVotes}</span>
+          </p>
+          <p className="text-gray-600">
+            Votes today: <span className="font-semibold">{votesToday}</span>
+          </p>
+        </div>
 
         <div className="space-y-4">
           {poll.answers.map((answer, index) => {
