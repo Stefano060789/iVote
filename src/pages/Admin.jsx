@@ -59,8 +59,9 @@ export default function Admin() {
     }
   }
 
-  function copyShareLink(id) {
-    navigator.clipboard.writeText(`${window.location.origin}/vote/${id}`);
+  function copyShareLink(poll) {
+    const shareLink = poll.short_url || `${window.location.origin}/vote/${poll.id}`;
+    navigator.clipboard.writeText(shareLink);
   }
 
   if (loading) return <p className="text-center p-6">Loading polls…</p>;
@@ -120,7 +121,7 @@ export default function Admin() {
               </Link>
 
               <button
-                onClick={() => copyShareLink(poll.id)}
+                onClick={() => copyShareLink(poll)}
                 className="bg-gray-700 text-white px-3 py-2 rounded font-semibold"
               >
                 Copy Share Link
@@ -144,10 +145,18 @@ export default function Admin() {
             {showQR === poll.id && (
               <div className="mt-4">
                 <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/vote/${poll.id}`)}`}
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(poll.short_url || `${window.location.origin}/vote/${poll.id}`)}`}
                   alt="QR Code"
                   className="mx-auto"
                 />
+                {poll.short_url && (
+                  <p
+                    className="text-blue-400 underline cursor-pointer text-center mt-3"
+                    onClick={() => navigator.clipboard.writeText(poll.short_url)}
+                  >
+                    {poll.short_url}
+                  </p>
+                )}
               </div>
             )}
           </div>

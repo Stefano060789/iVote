@@ -139,6 +139,18 @@ export default function Results() {
       <div className="max-w-xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-6 text-center">{poll.question}</h1>
 
+        <div className="flex gap-3 mt-6 mb-6 justify-center">
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(poll.short_url || window.location.href);
+              alert("Results link copied!");
+            }}
+            className="bg-blue-600 text-white px-4 py-2 rounded font-semibold"
+          >
+            Share Results
+          </button>
+        </div>
+
         <div className="text-center mb-6">
           <h3 className="text-xl font-bold">Live Results</h3>
           <p className="text-gray-600">
