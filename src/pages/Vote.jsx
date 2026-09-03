@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import { supabase } from "../lib/supabase";
 
 export default function Vote() {
   const { pollId } = useParams();
+  const navigate = useNavigate();
   const [poll, setPoll] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
@@ -38,6 +39,9 @@ export default function Vote() {
       answer
     }));
 
+    const { data: { user } } = await supabase.auth.getUser();
+    const isAdmin = !!user;
+
     const { error } = await supabase
       .from("votes")
       .insert(rows);
@@ -48,6 +52,12 @@ export default function Vote() {
     }
 
     setSubmitted(true);
+
+    if (isAdmin) {
+      navigate("/admin");
+    } else {
+      navigate("/thanks");
+    }
   }
 
   function toggleAnswer(answer) {
@@ -132,3 +142,4 @@ export default function Vote() {
     </Layout>
   );
 }
+
