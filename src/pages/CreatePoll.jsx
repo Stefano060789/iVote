@@ -6,6 +6,7 @@ import QRCode from "qrcode";
 export default function CreatePoll() {
   const [question, setQuestion] = useState("");
   const [answers, setAnswers] = useState("");
+  const [expiresAt, setExpiresAt] = useState("");
   const [pollId, setPollId] = useState(null);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
 
@@ -16,7 +17,11 @@ export default function CreatePoll() {
 
     const { data, error } = await supabase
       .from("polls")
-      .insert([{ question, answers: answersArray }])
+      .insert([{
+        question,
+        answers: answersArray,
+        expires_at: expiresAt ? new Date(expiresAt).toISOString() : null
+      }])
       .select()
       .single();
 
@@ -53,6 +58,14 @@ export default function CreatePoll() {
           placeholder="Yes, No, Maybe"
           value={answers}
           onChange={(e) => setAnswers(e.target.value)}
+        />
+
+        <label className="block mb-2 font-semibold">Expiration Date</label>
+        <input
+          type="datetime-local"
+          value={expiresAt}
+          onChange={(e) => setExpiresAt(e.target.value)}
+          className="w-full border p-2 rounded mb-4"
         />
 
         <button

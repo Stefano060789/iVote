@@ -46,6 +46,15 @@ export default function Vote() {
 
   if (!poll) return <Layout><p className="text-center p-6">Poll not found.</p></Layout>;
 
+  if (poll.expires_at && new Date(poll.expires_at) < new Date()) {
+    return (
+      <div className="max-w-xl mx-auto p-6 text-center">
+        <h1 className="text-3xl font-bold mb-4">This poll has expired</h1>
+        <a href="/admin" className="text-blue-600 underline">Back to Admin</a>
+      </div>
+    );
+  }
+
   if (submitted)
     return (
       <Layout>

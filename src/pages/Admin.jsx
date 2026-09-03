@@ -46,9 +46,18 @@ export default function Admin() {
       )}
 
       <div className="space-y-4">
-        {polls.map((poll) => (
+        {polls
+          .filter(p => !p.expires_at || new Date(p.expires_at) > new Date())
+          .map((poll) => (
           <div key={poll.id} className="border p-4 rounded shadow-sm">
             <h2 className="text-xl font-semibold">{poll.question}</h2>
+
+            {poll.expires_at && new Date(poll.expires_at) < new Date() && (
+              <span className="inline-block bg-red-600 text-white px-2 py-1 rounded text-sm mb-3">
+                Expired
+              </span>
+            )}
+
             <p className="text-gray-600 text-sm mb-3">
               Created: {new Date(poll.created_at).toLocaleString()}
             </p>
