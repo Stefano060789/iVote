@@ -22,11 +22,22 @@ export default function NavBar() {
       <Link to="/" className="text-blue-600 font-semibold">Home</Link>
 
       {!user && (
-        <Link to="/login" className="text-blue-600 font-semibold">Login</Link>
+        <>
+          <Link to="/register" className="text-blue-600 font-semibold">Register</Link>
+          <Link to="/login" className="text-blue-600 font-semibold">Login</Link>
+        </>
       )}
 
       {user && (
-        <Link to="/admin" className="text-blue-600 font-semibold">Admin</Link>
+        <>
+          <Link to="/admin" className="text-blue-600 font-semibold">Admin</Link>
+          <button
+            onClick={() => supabase.auth.signOut()}
+            className="text-red-600 font-semibold"
+          >
+            Logout
+          </button>
+        </>
       )}
     </nav>
   );

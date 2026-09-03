@@ -9,6 +9,7 @@ import Results from "./pages/Results";
 import Admin from "./pages/Admin";
 import EditPoll from "./pages/EditPoll";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 import "./style.css";
 
@@ -21,6 +22,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Route path="/vote/:pollId" element={<Vote />} />
       <Route path="/results/:pollId" element={<Results />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route path="/admin" element={<Admin />} />
       <Route path="/edit/:pollId" element={<EditPoll />} />
     </Routes>

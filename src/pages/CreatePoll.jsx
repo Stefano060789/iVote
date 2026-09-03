@@ -13,6 +13,13 @@ export default function CreatePoll() {
   async function createPoll() {
     if (!question || !answers) return;
 
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      console.error(userError || "User not authenticated");
+      return;
+    }
+
     const answersArray = answers.split(",").map((a) => a.trim());
 
     const { data, error } = await supabase
@@ -20,6 +27,7 @@ export default function CreatePoll() {
       .insert([{
         question,
         answers: answersArray,
+        creator_id: user.id,
         expires_at: expiresAt ? new Date(expiresAt).toISOString() : null
       }])
       .select()
@@ -102,4 +110,3 @@ export default function CreatePoll() {
     </Layout>
   );
 }
-
