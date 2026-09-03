@@ -8,6 +8,7 @@ export default function Vote() {
   const [poll, setPoll] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
+  const [selected, setSelected] = useState([]);
 
   useEffect(() => {
     async function loadPoll() {
@@ -29,10 +30,17 @@ export default function Vote() {
     loadPoll();
   }, [pollId]);
 
-  async function submitVote(answer) {
+  async function submitVote(answersToSubmit) {
+    if (!Array.isArray(answersToSubmit) || answersToSubmit.length === 0) return;
+
+    const rows = answersToSubmit.map((answer) => ({
+      poll_id: poll.id,
+      answer
+    }));
+
     const { error } = await supabase
       .from("votes")
-      .insert([{ poll_id: pollId, answer }]);
+      .insert(rows);
 
     if (error) {
       console.error(error);
@@ -40,6 +48,18 @@ export default function Vote() {
     }
 
     setSubmitted(true);
+  }
+
+  function toggleAnswer(answer) {
+    if (!poll.allow_multiple) {
+      setSelected([answer]);
+      submitVote([answer]);
+      return;
+    }
+
+    setSelected((prev) =>
+      prev.includes(answer) ? prev.filter((a) => a !== answer) : [...prev, answer]
+    );
   }
 
   if (loading) return <Layout><p className="text-center p-6">Loading poll…</p></Layout>;
@@ -89,13 +109,25 @@ export default function Vote() {
           {poll.answers.map((answer, index) => (
             <button
               key={index}
-              onClick={() => submitVote(answer)}
-              className="w-full bg-blue-600 text-white p-3 rounded font-semibold"
+              onClick={() => toggleAnswer(answer)}
+              className={`w-full p-3 rounded font-semibold text-left ${
+                selected.includes(answer) ? "bg-blue-600 text-white" : "bg-gray-700 text-white"
+              }`}
             >
               {answer}
             </button>
           ))}
         </div>
+
+        {poll.allow_multiple && (
+          <button
+            onClick={() => submitVote(selected)}
+            disabled={selected.length === 0}
+            className="bg-green-600 text-white p-3 rounded mt-4 w-full disabled:opacity-60"
+          >
+            Submit Vote
+          </button>
+        )}
       </div>
     </Layout>
   );

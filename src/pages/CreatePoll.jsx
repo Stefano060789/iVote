@@ -6,6 +6,7 @@ import QRCode from "qrcode";
 export default function CreatePoll() {
   const [question, setQuestion] = useState("");
   const [answers, setAnswers] = useState([""]);
+  const [allowMultiple, setAllowMultiple] = useState(false);
   const [expiresAt, setExpiresAt] = useState("");
   const [pollId, setPollId] = useState(null);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
@@ -45,6 +46,7 @@ export default function CreatePoll() {
       .insert({
         question: question.trim(),
         answers: cleanedAnswers,
+        allow_multiple: allowMultiple,
         creator_id: user.id,
         expires_at: expiresAt ? new Date(expiresAt).toISOString() : null
       })
@@ -94,6 +96,15 @@ export default function CreatePoll() {
         {answers.length >= 10 && (
           <p className="text-red-600 text-sm mb-4">Maximum of 10 answers reached.</p>
         )}
+
+        <label className="flex items-center gap-2 mt-4 mb-4">
+          <input
+            type="checkbox"
+            checked={allowMultiple}
+            onChange={(e) => setAllowMultiple(e.target.checked)}
+          />
+          <span className="text-white">Allow multiple answers</span>
+        </label>
 
         <label className="block mb-2 font-semibold">Expiration Date</label>
         <input
