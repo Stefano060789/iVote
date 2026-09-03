@@ -10,14 +10,11 @@ export default function Vote() {
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
   const [selected, setSelected] = useState([]);
+  const [duplicate, setDuplicate] = useState(false);
+
+  const alreadyVoted = localStorage.getItem(`voted_${pollId}`);
 
   useEffect(() => {
-    const alreadyVoted = localStorage.getItem(`voted_${pollId}`);
-    if (alreadyVoted) {
-      navigate("/thanks");
-      return;
-    }
-
     async function loadPoll() {
       const { data, error } = await supabase
         .from("polls")
@@ -27,6 +24,7 @@ export default function Vote() {
 
       if (error) {
         console.error(error);
+        setLoading(false);
         return;
       }
 
@@ -35,7 +33,7 @@ export default function Vote() {
     }
 
     loadPoll();
-  }, [navigate, pollId]);
+  }, [pollId]);
 
   async function submitVote(answersToSubmit) {
     if (!Array.isArray(answersToSubmit) || answersToSubmit.length === 0) return;
@@ -57,6 +55,11 @@ export default function Vote() {
       .insert(rows);
 
     if (error) {
+      if (error.code === "23505") {
+        setDuplicate(true);
+        return;
+      }
+
       console.error(error);
       return;
     }
@@ -87,6 +90,19 @@ export default function Vote() {
   }
 
   if (loading) return <Layout><p className="text-center p-6">Loading poll…</p></Layout>;
+
+  if (duplicate || alreadyVoted) {
+    return (
+      <Layout>
+        <div className="text-center p-6">
+          <h2 className="text-2xl font-bold mb-4">You already voted</h2>
+          <p className="text-gray-600 mb-6">
+            Thank you! Your vote has already been recorded.
+          </p>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!poll) return <Layout><p className="text-center p-6">Poll not found.</p></Layout>;
 
@@ -156,4 +172,3 @@ export default function Vote() {
     </Layout>
   );
 }
-
