@@ -2,7 +2,7 @@ import { useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useNavigate } from "react-router-dom";
 
-export default function Login() {
+console.log("LOGIN PAGE LOADED");`r`n`r`nexport default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -57,3 +57,4 @@ export default function Login() {
     </div>
   );
 }
+
