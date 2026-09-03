@@ -12,6 +12,12 @@ export default function Vote() {
   const [selected, setSelected] = useState([]);
 
   useEffect(() => {
+    const alreadyVoted = localStorage.getItem(`voted_${pollId}`);
+    if (alreadyVoted) {
+      navigate("/thanks");
+      return;
+    }
+
     async function loadPoll() {
       const { data, error } = await supabase
         .from("polls")
@@ -29,17 +35,21 @@ export default function Vote() {
     }
 
     loadPoll();
-  }, [pollId]);
+  }, [navigate, pollId]);
 
   async function submitVote(answersToSubmit) {
     if (!Array.isArray(answersToSubmit) || answersToSubmit.length === 0) return;
 
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
     const rows = answersToSubmit.map((answer) => ({
       poll_id: poll.id,
-      answer
+      answer,
+      user_id: user?.id || null
     }));
 
-    const { data: { user } } = await supabase.auth.getUser();
     const isAdmin = !!user;
 
     const { error } = await supabase
@@ -49,6 +59,10 @@ export default function Vote() {
     if (error) {
       console.error(error);
       return;
+    }
+
+    if (!isAdmin) {
+      localStorage.setItem(`voted_${poll.id}`, "true");
     }
 
     setSubmitted(true);
