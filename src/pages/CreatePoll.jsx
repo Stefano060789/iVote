@@ -137,6 +137,22 @@ export default function CreatePoll() {
               </>
             )}
 
+            <p className="text-white mt-4">
+              Share link:{" "}
+              <span
+                className="text-blue-400 underline cursor-pointer"
+                onClick={() => navigator.clipboard.writeText(`${window.location.origin}/vote/${pollId}`)}
+              >
+                {window.location.origin}/vote/{pollId}
+              </span>
+              <button
+                onClick={() => navigator.clipboard.writeText(`${window.location.origin}/vote/${pollId}`)}
+                className="ml-2 bg-blue-600 text-white px-2 py-1 rounded"
+              >
+                Copy
+              </button>
+            </p>
+
             <div className="mt-6">
               <a href="/admin" className="text-blue-600 underline">Go to Admin</a>
             </div>

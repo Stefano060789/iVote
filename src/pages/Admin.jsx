@@ -6,6 +6,7 @@ export default function Admin() {
   const navigate = useNavigate();
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showQR, setShowQR] = useState(null);
 
   useEffect(() => {
     async function loadPolls() {
@@ -52,13 +53,14 @@ export default function Admin() {
 
   async function deletePoll(id) {
     await supabase.from("polls").delete().eq("id", id);
-    setPolls(polls.filter(p => p.id !== id));
+    setPolls(polls.filter((p) => p.id !== id));
+    if (showQR === id) {
+      setShowQR(null);
+    }
   }
 
-  function copyQR(id) {
-    const url = `${window.location.origin}/vote/${id}`;
-    navigator.clipboard.writeText(url);
-    alert("QR link copied to clipboard!");
+  function copyShareLink(id) {
+    navigator.clipboard.writeText(`${window.location.origin}/vote/${id}`);
   }
 
   if (loading) return <p className="text-center p-6">Loading polls…</p>;
@@ -86,7 +88,7 @@ export default function Admin() {
               Created: {new Date(poll.created_at).toLocaleString()}
             </p>
 
-            <div className="flex gap-3">
+            <div className="flex gap-3 flex-wrap">
               <Link
                 to={`/results/${poll.id}`}
                 className="bg-blue-600 text-white px-3 py-2 rounded font-semibold"
@@ -109,10 +111,17 @@ export default function Admin() {
               </Link>
 
               <button
-                onClick={() => copyQR(poll.id)}
+                onClick={() => copyShareLink(poll.id)}
                 className="bg-gray-700 text-white px-3 py-2 rounded font-semibold"
               >
-                Copy QR Link
+                Copy Share Link
+              </button>
+
+              <button
+                onClick={() => setShowQR(showQR === poll.id ? null : poll.id)}
+                className="bg-yellow-500 text-white px-3 py-2 rounded font-semibold"
+              >
+                Show QR Code
               </button>
 
               <button
@@ -122,10 +131,19 @@ export default function Admin() {
                 Delete
               </button>
             </div>
+
+            {showQR === poll.id && (
+              <div className="mt-4">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/vote/${poll.id}`)}`}
+                  alt="QR Code"
+                  className="mx-auto"
+                />
+              </div>
+            )}
           </div>
         ))}
       </div>
     </div>
   );
 }
-
