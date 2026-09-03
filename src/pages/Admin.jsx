@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
 export default function Admin() {
@@ -28,7 +28,7 @@ export default function Admin() {
       const { data, error } = await supabase
         .from("polls")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("id", { ascending: false });
 
       if (error) {
         console.error(error);
@@ -36,7 +36,14 @@ export default function Admin() {
         return;
       }
 
-      setPolls(data);
+      setPolls((data ?? []).filter((poll) => {
+        if (!poll?.id) {
+          console.error("Poll missing required id:", poll);
+          return false;
+        }
+
+        return true;
+      }));
       setLoading(false);
     }
 
@@ -80,26 +87,26 @@ export default function Admin() {
             </p>
 
             <div className="flex gap-3">
-              <a
-                href={`/results/${poll.id}`}
+              <Link
+                to={`/results/${poll.id}`}
                 className="bg-blue-600 text-white px-3 py-2 rounded font-semibold"
               >
                 View Results
-              </a>
+              </Link>
 
-              <a
-                href={`/vote/${poll.id}`}
+              <Link
+                to={`/vote/${poll.id}`}
                 className="bg-green-600 text-white px-3 py-2 rounded font-semibold"
               >
                 Vote Page
-              </a>
+              </Link>
 
-              <a
-                href={`/edit/${poll.id}`}
+              <Link
+                to={`/edit/${poll.id}`}
                 className="bg-yellow-500 text-white px-3 py-2 rounded font-semibold"
               >
                 Edit
-              </a>
+              </Link>
 
               <button
                 onClick={() => copyQR(poll.id)}
@@ -121,3 +128,4 @@ export default function Admin() {
     </div>
   );
 }
+

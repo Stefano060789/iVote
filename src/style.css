@@ -26,3 +26,7 @@ body {
   min-height: 100vh;
   background: #020617;
 }
+
+input {
+  color: black !important;
+}
