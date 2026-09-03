@@ -15,7 +15,6 @@ import "./style.css";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <NavBar />
-    <div className="bg-red-500 text-white p-4">TEST</div>
     <Routes>
       <Route path="/" element={<CreatePoll />} />
       <Route path="/create" element={<CreatePoll />} />
