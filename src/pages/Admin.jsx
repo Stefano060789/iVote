@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
 export default function Admin() {
   const navigate = useNavigate();
+  const qrRef = useRef(null);
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showQR, setShowQR] = useState(null);
@@ -62,6 +63,60 @@ export default function Admin() {
   function copyShareLink(poll) {
     const shareLink = poll.short_url || `${window.location.origin}/vote/${poll.id}`;
     navigator.clipboard.writeText(shareLink);
+  }
+
+  function downloadQR(pollId) {
+    const img = qrRef.current;
+    if (!img) {
+      console.error("QR image is not available for download.");
+      return;
+    }
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    if (!ctx) {
+      console.error("Unable to prepare QR image for download.");
+      return;
+    }
+
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    ctx.drawImage(img, 0, 0);
+
+    const link = document.createElement("a");
+    link.download = `poll-${pollId}-qr.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  }
+
+  function printQR() {
+    const img = qrRef.current;
+    if (!img) {
+      console.error("QR image is not available for printing.");
+      return;
+    }
+
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      console.error("Unable to open print window.");
+      return;
+    }
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Print QR</title>
+        </head>
+        <body style="text-align:center; margin-top:50px;">
+          <img src="${img.src}" style="width:200px; height:200px;" />
+        </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
   }
 
   if (loading) return <p className="text-center p-6">Loading polls…</p>;
@@ -145,9 +200,10 @@ export default function Admin() {
             {showQR === poll.id && (
               <div className="mt-4">
                 <img
+                  ref={qrRef}
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(poll.short_url || `${window.location.origin}/vote/${poll.id}`)}`}
                   alt="QR Code"
-                  className="mx-auto"
+                  className="mx-auto w-40 h-40"
                 />
                 {poll.short_url && (
                   <p
@@ -157,6 +213,21 @@ export default function Admin() {
                     {poll.short_url}
                   </p>
                 )}
+                <div className="flex gap-3 mt-4 justify-center">
+                  <button
+                    onClick={() => downloadQR(poll.id)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded font-semibold"
+                  >
+                    Download QR
+                  </button>
+
+                  <button
+                    onClick={printQR}
+                    className="bg-green-600 text-white px-4 py-2 rounded font-semibold"
+                  >
+                    Print QR
+                  </button>
+                </div>
               </div>
             )}
           </div>
