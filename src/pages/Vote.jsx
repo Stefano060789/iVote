@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import { supabase } from "../lib/supabase";
+import { isRestrictedTopic } from "../lib/restrictedContent";
 
 export default function Vote() {
   const { pollId } = useParams();
@@ -9,10 +10,27 @@ export default function Vote() {
   const [poll, setPoll] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
-  const [selected, setSelected] = useState([]);
+  const [selectedAnswers, setSelectedAnswers] = useState([]);
   const [duplicate, setDuplicate] = useState(false);
+  const [showAddField, setShowAddField] = useState(false);
+  const [newAnswer, setNewAnswer] = useState("");
+  const [userAnswers, setUserAnswers] = useState([]);
 
   const alreadyVoted = localStorage.getItem(`voted_${pollId}`);
+
+  async function loadUserAnswers(targetPollId = pollId) {
+    const { data, error } = await supabase
+      .from("user_answers")
+      .select("answer")
+      .eq("poll_id", targetPollId);
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    setUserAnswers((data ?? []).filter((row) => typeof row.answer === "string" && row.answer.trim()));
+  }
 
   useEffect(() => {
     async function loadPoll() {
@@ -29,6 +47,7 @@ export default function Vote() {
       }
 
       setPoll(data);
+      await loadUserAnswers(pollId);
       setLoading(false);
     }
 
@@ -77,19 +96,46 @@ export default function Vote() {
     }
   }
 
-  function toggleAnswer(answer) {
-    if (!poll.allow_multiple) {
-      setSelected([answer]);
-      submitVote([answer]);
+  function handleSelect(answer) {
+    const isMultipleChoice = Boolean(poll.multiple_choice ?? poll.allow_multiple);
+    if (isMultipleChoice) {
+      setSelectedAnswers((prev) =>
+        prev.includes(answer) ? prev.filter((a) => a !== answer) : [...prev, answer]
+      );
       return;
     }
 
-    setSelected((prev) =>
-      prev.includes(answer) ? prev.filter((a) => a !== answer) : [...prev, answer]
-    );
+    setSelectedAnswers([answer]);
   }
 
-  if (loading) return <Layout><p className="text-center p-6">Loading poll…</p></Layout>;
+  async function submitNewAnswer() {
+    const trimmed = newAnswer.trim();
+    if (!trimmed) return;
+
+    if (isRestrictedTopic(trimmed)) {
+      alert("This answer contains political, religious, or sexual content.");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("user_answers")
+      .insert({
+        poll_id: poll.id,
+        answer: trimmed
+      });
+
+    if (error) {
+      console.error(error);
+      alert("Error saving answer");
+      return;
+    }
+
+    setNewAnswer("");
+    setShowAddField(false);
+    await loadUserAnswers(poll.id);
+  }
+
+  if (loading) return <Layout><p className="text-center p-6">Loading poll...</p></Layout>;
 
   if (duplicate || alreadyVoted) {
     return (
@@ -147,34 +193,73 @@ export default function Vote() {
       </Layout>
     );
 
+  const allAnswers = Array.from(
+    new Set([
+      ...poll.answers,
+      ...userAnswers.map((u) => u.answer)
+    ])
+  );
+
   return (
     <Layout>
       <div className="max-w-xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-6 text-center">{poll.question}</h1>
+        <p className="text-gray-500 text-sm mb-4">
+          {poll.multiple_choice ? "Multiple-choice poll" : "Single-choice poll"}
+        </p>
 
         <div className="space-y-4">
-          {poll.answers.map((answer, index) => (
-            <button
-              key={index}
-              onClick={() => toggleAnswer(answer)}
-              className={`w-full p-3 rounded font-semibold text-left ${
-                selected.includes(answer) ? "bg-blue-600 text-white" : "bg-gray-700 text-white"
-              }`}
-            >
+          {allAnswers.map((answer) => (
+            <label key={answer} className="flex items-center gap-2">
+              <input
+                type={(poll.multiple_choice ?? poll.allow_multiple) ? "checkbox" : "radio"}
+                checked={selectedAnswers.includes(answer)}
+                onChange={() => handleSelect(answer)}
+              />
               {answer}
-            </button>
+            </label>
           ))}
         </div>
 
-        {poll.allow_multiple && (
-          <button
-            onClick={() => submitVote(selected)}
-            disabled={selected.length === 0}
-            className="bg-green-600 text-white p-3 rounded mt-4 w-full disabled:opacity-60"
-          >
-            Submit Vote
-          </button>
+        {poll.allow_user_answers && (
+          <div className="mt-4">
+            {!showAddField && (
+              <button
+                onClick={() => setShowAddField(true)}
+                className="bg-gray-200 px-3 py-2 rounded"
+              >
+                Add your own answer
+              </button>
+            )}
+
+            {showAddField && (
+              <div className="mt-3">
+                <input
+                  type="text"
+                  value={newAnswer}
+                  onChange={(e) => setNewAnswer(e.target.value)}
+                  className="border p-2 rounded w-full text-black"
+                  placeholder="Type your answer..."
+                />
+
+                <button
+                  onClick={submitNewAnswer}
+                  className="bg-blue-600 text-white px-3 py-2 rounded mt-2"
+                >
+                  Submit answer
+                </button>
+              </div>
+            )}
+          </div>
         )}
+
+        <button
+          onClick={() => submitVote(selectedAnswers)}
+          disabled={selectedAnswers.length === 0}
+          className="bg-green-600 text-white p-3 rounded mt-4 w-full disabled:opacity-60"
+        >
+          Submit Vote
+        </button>
       </div>
     </Layout>
   );

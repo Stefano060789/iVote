@@ -2,14 +2,26 @@ import { useState } from "react";
 import Layout from "../components/Layout";
 import { supabase } from "../lib/supabase";
 import QRCode from "qrcode";
+import { isRestrictedTopic } from "../lib/restrictedContent";
 
 export default function CreatePoll() {
   const [question, setQuestion] = useState("");
   const [answers, setAnswers] = useState([""]);
-  const [allowMultiple, setAllowMultiple] = useState(false);
+  const [multipleChoice, setMultipleChoice] = useState(false);
+  const [allowUserAnswers, setAllowUserAnswers] = useState(false);
   const [expiresAt, setExpiresAt] = useState("");
   const [pollId, setPollId] = useState(null);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
+
+  async function createShortLink(longUrl) {
+    const response = await fetch(
+      `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`
+    );
+    if (!response.ok) {
+      throw new Error(`TinyURL request failed with status ${response.status}`);
+    }
+    return response.text();
+  }
 
   function updateAnswer(index, value) {
     const newAnswers = [...answers];
@@ -41,12 +53,25 @@ export default function CreatePoll() {
 
     if (cleanedAnswers.length === 0) return;
 
+    if (isRestrictedTopic(question.trim())) {
+      alert("The question contains political, religious, or sexual content.");
+      return;
+    }
+
+    for (const ans of cleanedAnswers) {
+      if (isRestrictedTopic(ans)) {
+        alert(`The answer "${ans}" contains restricted content.`);
+        return;
+      }
+    }
+
     const { data, error } = await supabase
       .from("polls")
       .insert({
         question: question.trim(),
         answers: cleanedAnswers,
-        allow_multiple: allowMultiple,
+        multiple_choice: multipleChoice,
+        allow_user_answers: allowUserAnswers,
         creator_id: user.id,
         expires_at: expiresAt ? new Date(expiresAt).toISOString() : null
       })
@@ -61,6 +86,20 @@ export default function CreatePoll() {
     setPollId(data.id);
 
     const voteUrl = `${window.location.origin}/vote/${data.id}`;
+    try {
+      const shortUrl = await createShortLink(voteUrl);
+      const { error: shortUrlError } = await supabase
+        .from("polls")
+        .update({ short_url: shortUrl })
+        .eq("id", data.id);
+
+      if (shortUrlError) {
+        console.error(shortUrlError);
+      }
+    } catch (shortUrlError) {
+      console.error(shortUrlError);
+    }
+
     const qr = await QRCode.toDataURL(voteUrl);
     setQrCodeUrl(qr);
   }
@@ -100,10 +139,19 @@ export default function CreatePoll() {
         <label className="flex items-center gap-2 mt-4 mb-4">
           <input
             type="checkbox"
-            checked={allowMultiple}
-            onChange={(e) => setAllowMultiple(e.target.checked)}
+            checked={multipleChoice}
+            onChange={(e) => setMultipleChoice(e.target.checked)}
           />
-          <span className="text-white">Allow multiple answers</span>
+          <span>Allow multiple answers</span>
+        </label>
+
+        <label className="flex items-center gap-2 mt-4 mb-4">
+          <input
+            type="checkbox"
+            checked={allowUserAnswers}
+            onChange={(e) => setAllowUserAnswers(e.target.checked)}
+          />
+          <span>Allow users to add their own answers</span>
         </label>
 
         <label className="block mb-2 font-semibold">Expiration Date</label>
@@ -162,3 +210,4 @@ export default function CreatePoll() {
     </Layout>
   );
 }
+

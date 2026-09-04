@@ -9,46 +9,56 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [showQR, setShowQR] = useState(null);
 
-  useEffect(() => {
-    async function loadPolls() {
-      const {
-        data: { user },
-        error: userError
-      } = await supabase.auth.getUser();
+  async function createShortLink(longUrl) {
+    const response = await fetch(
+      `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`
+    );
+    if (!response.ok) {
+      throw new Error(`TinyURL request failed with status ${response.status}`);
+    }
+    return response.text();
+  }
 
-      if (userError) {
-        console.error(userError);
-        setLoading(false);
-        return;
-      }
+  async function loadPolls() {
+    const {
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser();
 
-      if (!user) {
-        navigate("/login");
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("polls")
-        .select("*")
-        .order("id", { ascending: false });
-
-      if (error) {
-        console.error(error);
-        setLoading(false);
-        return;
-      }
-
-      setPolls((data ?? []).filter((poll) => {
-        if (!poll?.id) {
-          console.error("Poll missing required id:", poll);
-          return false;
-        }
-
-        return true;
-      }));
+    if (userError) {
+      console.error(userError);
       setLoading(false);
+      return;
     }
 
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("polls")
+      .select("*")
+      .order("id", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      setLoading(false);
+      return;
+    }
+
+    setPolls((data ?? []).filter((poll) => {
+      if (!poll?.id) {
+        console.error("Poll missing required id:", poll);
+        return false;
+      }
+
+      return true;
+    }));
+    setLoading(false);
+  }
+
+  useEffect(() => {
     loadPolls();
   }, [navigate]);
 
@@ -60,8 +70,84 @@ export default function Admin() {
     }
   }
 
+  async function duplicatePoll(poll) {
+    const { data: newPoll, error } = await supabase
+      .from("polls")
+      .insert({
+        question: poll.question,
+        answers: poll.answers,
+        expires_at: poll.expires_at,
+        multiple_choice: poll.multiple_choice,
+        creator_id: poll.creator_id
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error(error);
+      alert("Error duplicating poll");
+      return;
+    }
+
+    try {
+      const longUrl = `${window.location.origin}/vote/${newPoll.id}`;
+      const shortUrl = await createShortLink(longUrl);
+      const { error: shortUrlError } = await supabase
+        .from("polls")
+        .update({ short_url: shortUrl })
+        .eq("id", newPoll.id);
+
+      if (shortUrlError) {
+        console.error(shortUrlError);
+      }
+    } catch (shortUrlError) {
+      console.error(shortUrlError);
+    }
+
+    await loadPolls();
+    alert("Poll duplicated successfully!");
+  }
+
+  async function reuseQR(oldPoll) {
+    if (!oldPoll.stable_short_url) {
+      alert("This poll has no reusable QR yet.");
+      return;
+    }
+
+    const newPollId = prompt("Enter the ID of the poll that will reuse this QR:");
+    if (!newPollId) {
+      return;
+    }
+
+    const { error: clearOldError } = await supabase
+      .from("polls")
+      .update({ stable_short_url: null })
+      .eq("id", oldPoll.id);
+
+    if (clearOldError) {
+      console.error(clearOldError);
+      alert("Failed to remove reusable QR from the old poll.");
+      return;
+    }
+
+    const { error: assignNewError } = await supabase
+      .from("polls")
+      .update({ stable_short_url: oldPoll.stable_short_url })
+      .eq("id", newPollId.trim());
+
+    if (assignNewError) {
+      console.error(assignNewError);
+      alert("Failed to assign reusable QR to the new poll.");
+      return;
+    }
+
+    await loadPolls();
+    alert("QR successfully reassigned!");
+  }
+
   function copyShareLink(poll) {
-    const shareLink = poll.short_url || `${window.location.origin}/vote/${poll.id}`;
+    const shareLink =
+      poll.stable_short_url || poll.short_url || `${window.location.origin}/vote/${poll.id}`;
     navigator.clipboard.writeText(shareLink);
   }
 
@@ -119,7 +205,7 @@ export default function Admin() {
     printWindow.print();
   }
 
-  if (loading) return <p className="text-center p-6">Loading polls…</p>;
+  if (loading) return <p className="text-center p-6">Loading polls...</p>;
 
   return (
     <div className="max-w-3xl mx-auto p-6">
@@ -183,6 +269,20 @@ export default function Admin() {
               </button>
 
               <button
+                onClick={() => duplicatePoll(poll)}
+                className="bg-yellow-500 text-white px-3 py-2 rounded font-semibold"
+              >
+                Duplicate
+              </button>
+
+              <button
+                onClick={() => reuseQR(poll)}
+                className="bg-purple-600 text-white px-3 py-1 rounded font-semibold"
+              >
+                Reuse QR for another poll
+              </button>
+
+              <button
                 onClick={() => setShowQR(showQR === poll.id ? null : poll.id)}
                 className="bg-yellow-500 text-white px-3 py-2 rounded font-semibold"
               >
@@ -201,16 +301,16 @@ export default function Admin() {
               <div className="mt-4">
                 <img
                   ref={qrRef}
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(poll.short_url || `${window.location.origin}/vote/${poll.id}`)}`}
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(poll.stable_short_url || poll.short_url || `${window.location.origin}/vote/${poll.id}`)}`}
                   alt="QR Code"
                   className="mx-auto w-40 h-40"
                 />
-                {poll.short_url && (
+                {(poll.stable_short_url || poll.short_url) && (
                   <p
                     className="text-blue-400 underline cursor-pointer text-center mt-3"
-                    onClick={() => navigator.clipboard.writeText(poll.short_url)}
+                    onClick={() => navigator.clipboard.writeText(poll.stable_short_url || poll.short_url)}
                   >
-                    {poll.short_url}
+                    {poll.stable_short_url || poll.short_url}
                   </p>
                 )}
                 <div className="flex gap-3 mt-4 justify-center">
