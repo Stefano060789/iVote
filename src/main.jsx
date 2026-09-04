@@ -12,6 +12,7 @@ import EditPoll from "./pages/EditPoll";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ThankYou from "./pages/ThankYou";
+import QrRedirect from "./pages/QrRedirect";
 
 import "./style.css";
 
@@ -22,6 +23,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Route path="/" element={<CreatePoll />} />
       <Route path="/create" element={<CreatePoll />} />
       <Route path="/vote/:pollId" element={<Vote />} />
+      <Route path="/qr/:token" element={<QrRedirect />} />
       <Route path="/results/:pollId" element={<Results />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />

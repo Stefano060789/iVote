@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
+import { createStableQrUrl } from "../lib/pollLinks";
+import { isRestrictedTopic } from "../lib/restrictedContent";
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -47,14 +49,7 @@ export default function Admin() {
       return;
     }
 
-    setPolls((data ?? []).filter((poll) => {
-      if (!poll?.id) {
-        console.error("Poll missing required id:", poll);
-        return false;
-      }
-
-      return true;
-    }));
+    setPolls((data ?? []).filter((poll) => Boolean(poll?.id)));
     setLoading(false);
   }
 
@@ -63,59 +58,164 @@ export default function Admin() {
   }, [navigate]);
 
   async function deletePoll(id) {
-    await supabase.from("polls").delete().eq("id", id);
-    setPolls(polls.filter((p) => p.id !== id));
-    if (showQR === id) {
-      setShowQR(null);
+    const { error } = await supabase.from("polls").delete().eq("id", id);
+    if (error) {
+      console.error(error);
+      alert(`Error deleting poll: ${error.message}`);
+      return;
     }
+
+    setPolls((prev) => prev.filter((p) => p.id !== id));
+    if (showQR === id) setShowQR(null);
   }
 
   async function duplicatePoll(poll) {
+    const {
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      console.error(userError || "User not authenticated");
+      alert("You must be logged in to duplicate a poll.");
+      return;
+    }
+
+    const sourceQuestion = String(poll.question ?? "").trim();
+    if (!sourceQuestion) {
+      alert("Cannot duplicate poll without a valid question.");
+      return;
+    }
+
+    let duplicateQuestion = sourceQuestion;
+    if (isRestrictedTopic(duplicateQuestion)) {
+      const replacementQuestion = prompt(
+        "This poll question is blocked by restricted-topic rules. Enter a new safe question for the duplicate:"
+      );
+
+      if (!replacementQuestion || !replacementQuestion.trim()) {
+        alert("Duplication canceled: a replacement question is required.");
+        return;
+      }
+
+      if (isRestrictedTopic(replacementQuestion.trim())) {
+        alert("The replacement question still contains restricted content.");
+        return;
+      }
+
+      duplicateQuestion = replacementQuestion.trim();
+    }
+
+    const duplicateAnswers = Array.isArray(poll.answers)
+      ? poll.answers.map((answer) => String(answer).trim()).filter((answer) => answer.length > 0)
+      : [];
+
+    if (duplicateAnswers.length === 0) {
+      alert("Cannot duplicate poll because it has no valid answers.");
+      return;
+    }
+
+    for (const answer of duplicateAnswers) {
+      if (isRestrictedTopic(answer)) {
+        alert(`Cannot duplicate because answer \"${answer}\" contains restricted content.`);
+        return;
+      }
+    }
+
     const { data: newPoll, error } = await supabase
       .from("polls")
       .insert({
-        question: poll.question,
-        answers: poll.answers,
+        question: duplicateQuestion,
+        answers: duplicateAnswers,
         expires_at: poll.expires_at,
-        multiple_choice: poll.multiple_choice,
-        creator_id: poll.creator_id
+        multiple_choice: Boolean(poll.multiple_choice),
+        allow_user_answers: Boolean(poll.allow_user_answers),
+        creator_id: user.id
       })
       .select()
       .single();
 
     if (error) {
       console.error(error);
-      alert("Error duplicating poll");
+      alert(`Error duplicating poll: ${error.message}`);
       return;
     }
 
-    try {
-      const longUrl = `${window.location.origin}/vote/${newPoll.id}`;
-      const shortUrl = await createShortLink(longUrl);
-      const { error: shortUrlError } = await supabase
-        .from("polls")
-        .update({ short_url: shortUrl })
-        .eq("id", newPoll.id);
+    const stableShortUrl = createStableQrUrl();
+    const { error: stableError } = await supabase
+      .from("polls")
+      .update({ stable_short_url: stableShortUrl })
+      .eq("id", newPoll.id);
 
-      if (shortUrlError) {
-        console.error(shortUrlError);
-      }
-    } catch (shortUrlError) {
+    if (stableError) {
+      console.error(stableError);
+    }
+
+    const voteUrl = `${window.location.origin}/vote/${newPoll.id}`;
+    const shortUrlResult = await createShortLink(voteUrl).catch((shortUrlError) => {
       console.error(shortUrlError);
+      return null;
+    });
+
+    let shortError = null;
+    if (shortUrlResult) {
+      const { error: updateShortError } = await supabase
+        .from("polls")
+        .update({ short_url: shortUrlResult })
+        .eq("id", newPoll.id);
+      shortError = updateShortError;
+      if (shortError) console.error(shortError);
+    }
+
+    if (stableError || shortError) {
+      const messages = [];
+      if (stableError) messages.push(`QR link: ${stableError.message}`);
+      if (shortError) messages.push(`Share link: ${shortError.message}`);
+      alert(`Poll duplicated, but some updates failed: ${messages.join("; ")}`);
+    } else {
+      alert("Poll duplicated successfully!");
     }
 
     await loadPolls();
-    alert("Poll duplicated successfully!");
   }
 
   async function reuseQR(oldPoll) {
-    if (!oldPoll.stable_short_url) {
-      alert("This poll has no reusable QR yet.");
-      return;
+    let sourceStableUrl = oldPoll.stable_short_url;
+
+    if (!sourceStableUrl) {
+      sourceStableUrl = createStableQrUrl();
+      const { error: createStableError } = await supabase
+        .from("polls")
+        .update({ stable_short_url: sourceStableUrl })
+        .eq("id", oldPoll.id);
+
+      if (createStableError) {
+        console.error(createStableError);
+        alert(`Failed to prepare reusable QR for this poll: ${createStableError.message}`);
+        return;
+      }
     }
 
     const newPollId = prompt("Enter the ID of the poll that will reuse this QR:");
-    if (!newPollId) {
+    if (!newPollId) return;
+
+    const trimmedNewPollId = newPollId.trim();
+    if (!trimmedNewPollId) return;
+
+    if (String(oldPoll.id) === trimmedNewPollId) {
+      alert("Please choose a different poll ID.");
+      return;
+    }
+
+    const { data: targetPoll, error: targetError } = await supabase
+      .from("polls")
+      .select("id")
+      .eq("id", trimmedNewPollId)
+      .single();
+
+    if (targetError || !targetPoll) {
+      console.error(targetError);
+      alert("Target poll not found.");
       return;
     }
 
@@ -126,18 +226,22 @@ export default function Admin() {
 
     if (clearOldError) {
       console.error(clearOldError);
-      alert("Failed to remove reusable QR from the old poll.");
+      alert(`Failed to remove reusable QR from the old poll: ${clearOldError.message}`);
       return;
     }
 
     const { error: assignNewError } = await supabase
       .from("polls")
-      .update({ stable_short_url: oldPoll.stable_short_url })
-      .eq("id", newPollId.trim());
+      .update({ stable_short_url: sourceStableUrl })
+      .eq("id", targetPoll.id);
 
     if (assignNewError) {
       console.error(assignNewError);
-      alert("Failed to assign reusable QR to the new poll.");
+      await supabase
+        .from("polls")
+        .update({ stable_short_url: sourceStableUrl })
+        .eq("id", oldPoll.id);
+      alert(`Failed to assign reusable QR to the new poll: ${assignNewError.message}`);
       return;
     }
 
@@ -146,8 +250,7 @@ export default function Admin() {
   }
 
   function copyShareLink(poll) {
-    const shareLink =
-      poll.stable_short_url || poll.short_url || `${window.location.origin}/vote/${poll.id}`;
+    const shareLink = poll.stable_short_url || poll.short_url || `${window.location.origin}/vote/${poll.id}`;
     navigator.clipboard.writeText(shareLink);
   }
 
@@ -191,9 +294,7 @@ export default function Admin() {
 
     printWindow.document.write(`
       <html>
-        <head>
-          <title>Print QR</title>
-        </head>
+        <head><title>Print QR</title></head>
         <body style="text-align:center; margin-top:50px;">
           <img src="${img.src}" style="width:200px; height:200px;" />
         </body>
@@ -212,17 +313,12 @@ export default function Admin() {
       <h1 className="text-3xl font-bold mb-6 text-center">Admin Dashboard</h1>
 
       <div className="flex justify-center mb-6">
-        <Link
-          to="/admin/analytics"
-          className="bg-purple-600 text-white px-3 py-2 rounded font-semibold"
-        >
+        <Link to="/admin/analytics" className="bg-purple-600 text-white px-3 py-2 rounded font-semibold">
           Analytics
         </Link>
       </div>
 
-      {polls.length === 0 && (
-        <p className="text-center text-gray-600">No polls created yet.</p>
-      )}
+      {polls.length === 0 && <p className="text-center text-gray-600">No polls created yet.</p>}
 
       <div className="space-y-4">
         {polls.map((poll) => (
@@ -240,59 +336,35 @@ export default function Admin() {
             </p>
 
             <div className="flex gap-3 flex-wrap">
-              <Link
-                to={`/results/${poll.id}`}
-                className="bg-blue-600 text-white px-3 py-2 rounded font-semibold"
-              >
+              <Link to={`/results/${poll.id}`} className="bg-blue-600 text-white px-3 py-2 rounded font-semibold">
                 View Results
               </Link>
 
-              <Link
-                to={`/vote/${poll.id}`}
-                className="bg-green-600 text-white px-3 py-2 rounded font-semibold"
-              >
+              <Link to={`/vote/${poll.id}`} className="bg-green-600 text-white px-3 py-2 rounded font-semibold">
                 Vote Page
               </Link>
 
-              <Link
-                to={`/edit/${poll.id}`}
-                className="bg-yellow-500 text-white px-3 py-2 rounded font-semibold"
-              >
+              <Link to={`/edit/${poll.id}`} className="bg-yellow-500 text-white px-3 py-2 rounded font-semibold">
                 Edit
               </Link>
 
-              <button
-                onClick={() => copyShareLink(poll)}
-                className="bg-gray-700 text-white px-3 py-2 rounded font-semibold"
-              >
+              <button onClick={() => copyShareLink(poll)} className="bg-gray-700 text-white px-3 py-2 rounded font-semibold">
                 Copy Share Link
               </button>
 
-              <button
-                onClick={() => duplicatePoll(poll)}
-                className="bg-yellow-500 text-white px-3 py-2 rounded font-semibold"
-              >
+              <button onClick={() => duplicatePoll(poll)} className="bg-yellow-500 text-white px-3 py-2 rounded font-semibold">
                 Duplicate
               </button>
 
-              <button
-                onClick={() => reuseQR(poll)}
-                className="bg-purple-600 text-white px-3 py-1 rounded font-semibold"
-              >
+              <button onClick={() => reuseQR(poll)} className="bg-purple-600 text-white px-3 py-1 rounded font-semibold">
                 Reuse QR for another poll
               </button>
 
-              <button
-                onClick={() => setShowQR(showQR === poll.id ? null : poll.id)}
-                className="bg-yellow-500 text-white px-3 py-2 rounded font-semibold"
-              >
+              <button onClick={() => setShowQR(showQR === poll.id ? null : poll.id)} className="bg-yellow-500 text-white px-3 py-2 rounded font-semibold">
                 Show QR Code
               </button>
 
-              <button
-                onClick={() => deletePoll(poll.id)}
-                className="bg-red-600 text-white px-3 py-2 rounded font-semibold"
-              >
+              <button onClick={() => deletePoll(poll.id)} className="bg-red-600 text-white px-3 py-2 rounded font-semibold">
                 Delete
               </button>
             </div>
@@ -314,17 +386,11 @@ export default function Admin() {
                   </p>
                 )}
                 <div className="flex gap-3 mt-4 justify-center">
-                  <button
-                    onClick={() => downloadQR(poll.id)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded font-semibold"
-                  >
+                  <button onClick={() => downloadQR(poll.id)} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">
                     Download QR
                   </button>
 
-                  <button
-                    onClick={printQR}
-                    className="bg-green-600 text-white px-4 py-2 rounded font-semibold"
-                  >
+                  <button onClick={printQR} className="bg-green-600 text-white px-4 py-2 rounded font-semibold">
                     Print QR
                   </button>
                 </div>

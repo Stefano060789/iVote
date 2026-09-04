@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { supabase } from "../lib/supabase";
 import QRCode from "qrcode";
 import { isRestrictedTopic } from "../lib/restrictedContent";
+import { createStableQrUrl } from "../lib/pollLinks";
 
 export default function CreatePoll() {
   const [question, setQuestion] = useState("");
@@ -80,10 +81,21 @@ export default function CreatePoll() {
 
     if (error) {
       console.error(error);
+      alert(`Error creating poll: ${error.message}`);
       return;
     }
 
-    setPollId(data.id);
+    const stableShortUrl = createStableQrUrl();
+    const { error: stableShortUrlError } = await supabase
+      .from("polls")
+      .update({ stable_short_url: stableShortUrl })
+      .eq("id", data.id);
+
+    if (stableShortUrlError) {
+      console.error(stableShortUrlError);
+      alert(`Poll created, but QR link could not be saved: ${stableShortUrlError.message}`);
+      return;
+    }
 
     const voteUrl = `${window.location.origin}/vote/${data.id}`;
     try {
@@ -100,7 +112,8 @@ export default function CreatePoll() {
       console.error(shortUrlError);
     }
 
-    const qr = await QRCode.toDataURL(voteUrl);
+    setPollId(data.id);
+    const qr = await QRCode.toDataURL(stableShortUrl);
     setQrCodeUrl(qr);
   }
 
@@ -210,4 +223,3 @@ export default function CreatePoll() {
     </Layout>
   );
 }
-
