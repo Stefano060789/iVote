@@ -80,8 +80,8 @@ export default function Admin() {
       const { data, error } = await supabase
         .from("polls")
         .select("id")
-        .neq("id", excludedPollId ?? -1)
-        .ilike("question", candidate)
+        .neq("id", excludedPollId ?? "")
+        .eq("question", candidate)
         .limit(1);
 
       if (error) {
@@ -95,6 +95,18 @@ export default function Admin() {
       counter += 1;
       candidate = `${baseQuestion} (Copy ${counter})`;
     }
+  }
+
+  function buildDuplicateQuestionCandidate(baseQuestion, attempt) {
+    if (attempt <= 1) {
+      return `${baseQuestion} (Copy)`;
+    }
+    return `${baseQuestion} (Copy ${attempt})`;
+  }
+
+  function isQuestionUniqueViolation(error) {
+    const message = String(error?.message ?? "");
+    return error?.code === "23505" && message.includes("polls_question_key");
   }
 
   async function duplicatePoll(poll) {
@@ -158,22 +170,43 @@ export default function Admin() {
       }
     }
 
-    const { data: newPoll, error } = await supabase
-      .from("polls")
-      .insert({
-        question: duplicateQuestion,
-        answers: duplicateAnswers,
-        expires_at: poll.expires_at,
-        multiple_choice: Boolean(poll.multiple_choice),
-        allow_user_answers: Boolean(poll.allow_user_answers),
-        creator_id: user.id
-      })
-      .select()
-      .single();
+    let newPoll = null;
+    let insertError = null;
+    const baseQuestion = duplicateQuestion;
+    let candidateQuestion = duplicateQuestion;
 
-    if (error) {
-      console.error(error);
-      alert(`Error duplicating poll: ${error.message}`);
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      const { data, error } = await supabase
+        .from("polls")
+        .insert({
+          question: candidateQuestion,
+          answers: duplicateAnswers,
+          expires_at: poll.expires_at,
+          multiple_choice: Boolean(poll.multiple_choice),
+          allow_user_answers: Boolean(poll.allow_user_answers),
+          creator_id: user.id
+        })
+        .select()
+        .single();
+
+      if (!error) {
+        newPoll = data;
+        break;
+      }
+
+      if (isQuestionUniqueViolation(error)) {
+        candidateQuestion = buildDuplicateQuestionCandidate(baseQuestion, attempt + 1);
+        insertError = error;
+        continue;
+      }
+
+      insertError = error;
+      break;
+    }
+
+    if (!newPoll) {
+      console.error(insertError);
+      alert(`Error duplicating poll: ${insertError?.message ?? "Unknown error"}`);
       return;
     }
 
@@ -232,8 +265,13 @@ export default function Admin() {
       }
     }
 
-    const pollList = polls
-      .filter((pollItem) => pollItem.id !== oldPoll.id)
+    const candidatePolls = polls.filter((pollItem) => String(pollItem.id) !== String(oldPoll.id));
+    if (candidatePolls.length === 0) {
+      alert("No other polls available to receive this QR.");
+      return;
+    }
+
+    const pollList = candidatePolls
       .map((pollItem) => `#${pollItem.id} - ${pollItem.question}`)
       .join("\n");
 
@@ -246,14 +284,8 @@ export default function Admin() {
     const trimmedTargetId = targetInput.trim();
     if (!trimmedTargetId) return;
 
-    const targetIdNumber = Number(trimmedTargetId);
-    if (!Number.isInteger(targetIdNumber)) {
-      alert("Please enter a valid poll ID number.");
-      return;
-    }
-
     const targetPoll = polls.find(
-      (pollItem) => Number(pollItem.id) === targetIdNumber && Number(pollItem.id) !== Number(oldPoll.id)
+      (pollItem) => String(pollItem.id) === trimmedTargetId && String(pollItem.id) !== String(oldPoll.id)
     );
 
     if (!targetPoll) {
