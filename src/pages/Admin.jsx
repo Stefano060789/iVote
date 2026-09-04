@@ -69,6 +69,34 @@ export default function Admin() {
     if (showQR === id) setShowQR(null);
   }
 
+  async function buildUniqueDuplicateQuestion(sourceQuestion, excludedPollId = null) {
+    const baseQuestion = String(sourceQuestion ?? "").trim();
+    if (!baseQuestion) return "";
+
+    let candidate = baseQuestion;
+    let counter = 1;
+
+    while (true) {
+      const { data, error } = await supabase
+        .from("polls")
+        .select("id")
+        .neq("id", excludedPollId ?? -1)
+        .ilike("question", candidate)
+        .limit(1);
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
+        return candidate;
+      }
+
+      counter += 1;
+      candidate = `${baseQuestion} (Copy ${counter})`;
+    }
+  }
+
   async function duplicatePoll(poll) {
     const {
       data: { user },
@@ -104,6 +132,14 @@ export default function Admin() {
       }
 
       duplicateQuestion = replacementQuestion.trim();
+    }
+
+    try {
+      duplicateQuestion = await buildUniqueDuplicateQuestion(duplicateQuestion, poll.id);
+    } catch (buildError) {
+      console.error(buildError);
+      alert(`Could not generate a unique duplicate title: ${buildError.message}`);
+      return;
     }
 
     const duplicateAnswers = Array.isArray(poll.answers)
@@ -196,37 +232,52 @@ export default function Admin() {
       }
     }
 
-    const newPollId = prompt("Enter the ID of the poll that will reuse this QR:");
-    if (!newPollId) return;
+    const pollList = polls
+      .filter((pollItem) => pollItem.id !== oldPoll.id)
+      .map((pollItem) => `#${pollItem.id} - ${pollItem.question}`)
+      .join("\n");
 
-    const trimmedNewPollId = newPollId.trim();
-    if (!trimmedNewPollId) return;
+    const targetInput = prompt(
+      `Reuse this QR for another poll.\n\nCurrent QR: ${sourceStableUrl}\n\nChoose a target poll ID from the list below.\n\nAvailable polls:\n${pollList || "No other polls available."}`
+    );
 
-    if (String(oldPoll.id) === trimmedNewPollId) {
-      alert("Please choose a different poll ID.");
+    if (!targetInput) return;
+
+    const trimmedTargetId = targetInput.trim();
+    if (!trimmedTargetId) return;
+
+    const targetIdNumber = Number(trimmedTargetId);
+    if (!Number.isInteger(targetIdNumber)) {
+      alert("Please enter a valid poll ID number.");
       return;
     }
 
-    const { data: targetPoll, error: targetError } = await supabase
-      .from("polls")
-      .select("id")
-      .eq("id", trimmedNewPollId)
-      .single();
+    const targetPoll = polls.find(
+      (pollItem) => Number(pollItem.id) === targetIdNumber && Number(pollItem.id) !== Number(oldPoll.id)
+    );
 
-    if (targetError || !targetPoll) {
-      console.error(targetError);
-      alert("Target poll not found.");
+    if (!targetPoll) {
+      alert("Target poll not found. Please choose an existing poll from the list.");
       return;
     }
 
-    const { error: clearOldError } = await supabase
-      .from("polls")
-      .update({ stable_short_url: null })
-      .eq("id", oldPoll.id);
+    const previousTargetQr = targetPoll.stable_short_url ?? null;
+    const shouldOverwrite = previousTargetQr && previousTargetQr !== sourceStableUrl
+      ? confirm(`Target poll #${targetPoll.id} already has another QR assigned. Reassign it to this QR?`)
+      : true;
 
-    if (clearOldError) {
-      console.error(clearOldError);
-      alert(`Failed to remove reusable QR from the old poll: ${clearOldError.message}`);
+    if (!shouldOverwrite) {
+      alert("QR reassignment canceled.");
+      return;
+    }
+
+    const { error: clearTargetError } = previousTargetQr && previousTargetQr !== sourceStableUrl
+      ? await supabase.from("polls").update({ stable_short_url: null }).eq("id", targetPoll.id)
+      : { error: null };
+
+    if (clearTargetError) {
+      console.error(clearTargetError);
+      alert(`Failed to free the target poll before reassigning the QR: ${clearTargetError.message}`);
       return;
     }
 
@@ -237,16 +288,37 @@ export default function Admin() {
 
     if (assignNewError) {
       console.error(assignNewError);
-      await supabase
-        .from("polls")
-        .update({ stable_short_url: sourceStableUrl })
-        .eq("id", oldPoll.id);
+      if (previousTargetQr) {
+        await supabase
+          .from("polls")
+          .update({ stable_short_url: previousTargetQr })
+          .eq("id", targetPoll.id);
+      }
       alert(`Failed to assign reusable QR to the new poll: ${assignNewError.message}`);
       return;
     }
 
+    const { error: clearOldError } = await supabase
+      .from("polls")
+      .update({ stable_short_url: null })
+      .eq("id", oldPoll.id);
+
+    if (clearOldError) {
+      console.error(clearOldError);
+      await supabase
+        .from("polls")
+        .update({ stable_short_url: previousTargetQr ?? null })
+        .eq("id", targetPoll.id);
+      await supabase
+        .from("polls")
+        .update({ stable_short_url: sourceStableUrl })
+        .eq("id", oldPoll.id);
+      alert(`QR was moved, but the old poll could not be cleared: ${clearOldError.message}`);
+      return;
+    }
+
     await loadPolls();
-    alert("QR successfully reassigned!");
+    alert(`QR successfully reassigned to Poll #${targetPoll.id}!`);
   }
 
   function copyShareLink(poll) {
