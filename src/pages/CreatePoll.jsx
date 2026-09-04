@@ -4,12 +4,15 @@ import { supabase } from "../lib/supabase";
 import QRCode from "qrcode";
 import { isRestrictedTopic } from "../lib/restrictedContent";
 import { createStableQrUrl } from "../lib/pollLinks";
+import { savePollMeta } from "../lib/pollMeta";
 
 export default function CreatePoll() {
   const [question, setQuestion] = useState("");
   const [answers, setAnswers] = useState([""]);
   const [multipleChoice, setMultipleChoice] = useState(false);
   const [allowUserAnswers, setAllowUserAnswers] = useState(false);
+  const [locationName, setLocationName] = useState("");
+  const [startsAt, setStartsAt] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
   const [pollId, setPollId] = useState(null);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
@@ -74,7 +77,9 @@ export default function CreatePoll() {
         multiple_choice: multipleChoice,
         allow_user_answers: allowUserAnswers,
         creator_id: user.id,
-        expires_at: expiresAt ? new Date(expiresAt).toISOString() : null
+        starts_at: startsAt ? new Date(startsAt).toISOString() : null,
+        expires_at: expiresAt ? new Date(expiresAt).toISOString() : null,
+        location_name: locationName.trim() || null
       })
       .select()
       .single();
@@ -111,6 +116,13 @@ export default function CreatePoll() {
     } catch (shortUrlError) {
       console.error(shortUrlError);
     }
+
+    await savePollMeta(data.id, {
+      location_name: locationName.trim() || null,
+      starts_at: startsAt ? new Date(startsAt).toISOString() : null,
+      ends_at: expiresAt ? new Date(expiresAt).toISOString() : null,
+      status: "active"
+    });
 
     setPollId(data.id);
     const qr = await QRCode.toDataURL(stableShortUrl);
@@ -167,7 +179,24 @@ export default function CreatePoll() {
           <span>Allow users to add their own answers</span>
         </label>
 
-        <label className="block mb-2 font-semibold">Expiration Date</label>
+        <label className="block mb-2 font-semibold">QR location name</label>
+        <input
+          type="text"
+          value={locationName}
+          onChange={(e) => setLocationName(e.target.value)}
+          className="w-full border p-2 rounded mb-4 text-black placeholder-black"
+          placeholder="Entrance, Table 1, Bar"
+        />
+
+        <label className="block mb-2 font-semibold">Starts at</label>
+        <input
+          type="datetime-local"
+          value={startsAt}
+          onChange={(e) => setStartsAt(e.target.value)}
+          className="w-full border p-2 rounded mb-4 text-black placeholder-black"
+        />
+
+        <label className="block mb-2 font-semibold">Ends at</label>
         <input
           type="datetime-local"
           value={expiresAt}

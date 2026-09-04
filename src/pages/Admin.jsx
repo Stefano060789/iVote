@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { createStableQrUrl } from "../lib/pollLinks";
 import { isRestrictedTopic } from "../lib/restrictedContent";
+import { appendAuditLog, readAuditLog, readPollMeta, savePollMeta, isPollClosed } from "../lib/pollMeta";
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ export default function Admin() {
   const [showQR, setShowQR] = useState(null);
   const [reuseQrPoll, setReuseQrPoll] = useState(null);
   const [reuseQrTargetId, setReuseQrTargetId] = useState("");
+  const [auditLog, setAuditLog] = useState([]);
 
   async function createShortLink(longUrl) {
     const response = await fetch(
@@ -57,6 +59,14 @@ export default function Admin() {
 
   useEffect(() => {
     loadPolls();
+    setAuditLog(readAuditLog());
+
+    const interval = setInterval(() => {
+      loadPolls();
+      setAuditLog(readAuditLog());
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, [navigate]);
 
   async function deletePoll(id) {
@@ -67,8 +77,63 @@ export default function Admin() {
       return;
     }
 
+    appendAuditLog("delete_poll", { poll_id: id });
+    setAuditLog(readAuditLog());
     setPolls((prev) => prev.filter((p) => p.id !== id));
     if (showQR === id) setShowQR(null);
+  }
+
+  async function closePoll(poll) {
+    const status = isPollClosed(poll) ? "active" : "closed";
+    const closedAt = status === "closed" ? new Date().toISOString() : null;
+
+    await savePollMeta(poll.id, {
+      status,
+      closed_at: closedAt
+    });
+
+    appendAuditLog(status === "closed" ? "close_poll" : "reopen_poll", { poll_id: poll.id, question: poll.question });
+    setAuditLog(readAuditLog());
+    await loadPolls();
+    alert(status === "closed" ? "Poll closed." : "Poll reopened.");
+  }
+
+  async function exportPollCsv(poll) {
+    const { data: voteRows, error } = await supabase
+      .from("votes")
+      .select("*")
+      .eq("poll_id", poll.id);
+
+    if (error) {
+      console.error(error);
+      alert(`Unable to export results: ${error.message}`);
+      return;
+    }
+
+    const rows = [
+      ["poll_id", "question", "answer", "user_id", "created_at"],
+      ...(voteRows ?? []).map((row) => [
+        String(poll.id),
+        String(poll.question ?? ""),
+        String(row.answer ?? ""),
+        String(row.user_id ?? ""),
+        String(row.created_at ?? "")
+      ])
+    ];
+
+    const csv = rows
+      .map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `poll-${poll.id}-results.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    appendAuditLog("export_csv", { poll_id: poll.id });
+    setAuditLog(readAuditLog());
   }
 
   async function buildUniqueDuplicateQuestion(sourceQuestion, excludedPollId = null) {
@@ -244,6 +309,8 @@ export default function Admin() {
       if (shortError) messages.push(`Share link: ${shortError.message}`);
       alert(`Poll duplicated, but some updates failed: ${messages.join("; ")}`);
     } else {
+      appendAuditLog("duplicate_poll", { original_poll_id: poll.id, duplicate_poll_id: newPoll.id, question: duplicateQuestion });
+      setAuditLog(readAuditLog());
       alert("Poll duplicated successfully!");
     }
 
@@ -345,6 +412,8 @@ export default function Admin() {
       return;
     }
 
+    appendAuditLog("reuse_qr", { source_poll_id: reuseQrPoll.id, target_poll_id: targetPoll.id, qr_url: sourceStableUrl });
+    setAuditLog(readAuditLog());
     setReuseQrPoll(null);
     setReuseQrTargetId("");
     await loadPolls();
@@ -410,6 +479,8 @@ export default function Admin() {
 
   if (loading) return <p className="text-center p-6">Loading polls...</p>;
 
+  const auditEntries = auditLog.slice(0, 5);
+
   return (
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6 text-center">Admin Dashboard</h1>
@@ -420,17 +491,52 @@ export default function Admin() {
         </Link>
       </div>
 
+      <div className="mb-6 border rounded p-4 bg-gray-900">
+        <h2 className="text-xl font-bold mb-3">Recent audit log</h2>
+        <div className="space-y-2 text-sm">
+          {auditEntries.length === 0 ? (
+            <p className="text-gray-400">No activity yet.</p>
+          ) : (
+            auditEntries.map((entry) => (
+              <div key={entry.id} className="border-b border-gray-700 pb-2 last:border-b-0 last:pb-0">
+                <p className="font-semibold text-blue-300">{entry.action}</p>
+                <p className="text-gray-400">{new Date(entry.created_at).toLocaleString()}</p>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
       {polls.length === 0 && <p className="text-center text-gray-600">No polls created yet.</p>}
 
       <div className="space-y-4">
-        {polls.map((poll) => (
+        {polls.map((poll) => {
+          const pollMeta = readPollMeta(poll.id);
+          const isClosed = isPollClosed(poll) || pollMeta.status === "closed";
+          const locationName = poll.location_name ?? pollMeta.location_name;
+          const startsAt = poll.starts_at ?? pollMeta.starts_at;
+          const endsAt = poll.expires_at ?? pollMeta.ends_at;
+
+          return (
           <div key={poll.id} className="border p-4 rounded shadow-sm">
             <h2 className="text-xl font-semibold">{poll.question}</h2>
 
-            {poll.expires_at && new Date(poll.expires_at) < new Date() && (
+            {isClosed && (
               <span className="inline-block bg-red-600 text-white px-2 py-1 rounded text-sm mb-3">
-                Expired
+                Closed
               </span>
+            )}
+
+            {locationName && (
+              <p className="text-gray-300 text-sm mb-1">Location: {locationName}</p>
+            )}
+
+            {startsAt && (
+              <p className="text-gray-300 text-sm mb-1">Starts: {new Date(startsAt).toLocaleString()}</p>
+            )}
+
+            {endsAt && (
+              <p className="text-gray-300 text-sm mb-1">Ends: {new Date(endsAt).toLocaleString()}</p>
             )}
 
             <p className="text-gray-600 text-sm mb-3">
@@ -464,6 +570,14 @@ export default function Admin() {
 
               <button onClick={() => setShowQR(showQR === poll.id ? null : poll.id)} className="bg-yellow-500 text-white px-3 py-2 rounded font-semibold">
                 Show QR Code
+              </button>
+
+              <button onClick={() => closePoll(poll)} className="bg-orange-600 text-white px-3 py-2 rounded font-semibold">
+                {isClosed ? "Reopen Poll" : "Close Poll"}
+              </button>
+
+              <button onClick={() => exportPollCsv(poll)} className="bg-teal-600 text-white px-3 py-2 rounded font-semibold">
+                Export CSV
               </button>
 
               <button onClick={() => deletePoll(poll.id)} className="bg-red-600 text-white px-3 py-2 rounded font-semibold">
@@ -532,8 +646,9 @@ export default function Admin() {
               </div>
             )}
           </div>
-        ))}
-      </div>
-    </div>
-  );
+         );
+       })}
+     </div>
+   </div>
+ );
 }

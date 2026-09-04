@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
+import { savePollMeta, readPollMeta } from "../lib/pollMeta";
 
 export default function EditPoll() {
   const { pollId } = useParams();
@@ -8,6 +9,9 @@ export default function EditPoll() {
 
   const [question, setQuestion] = useState("");
   const [answers, setAnswers] = useState([""]);
+  const [locationName, setLocationName] = useState("");
+  const [startsAt, setStartsAt] = useState("");
+  const [expiresAt, setExpiresAt] = useState("");
 
   useEffect(() => {
     async function loadPoll() {
@@ -22,7 +26,11 @@ export default function EditPoll() {
         return;
       }
 
+      const pollMeta = readPollMeta(pollId);
       setQuestion(data.question ?? "");
+      setLocationName(data.location_name ?? pollMeta.location_name ?? "");
+      setStartsAt(data.starts_at ? new Date(data.starts_at).toISOString().slice(0, 16) : pollMeta.starts_at ? new Date(pollMeta.starts_at).toISOString().slice(0, 16) : "");
+      setExpiresAt(data.expires_at ? new Date(data.expires_at).toISOString().slice(0, 16) : pollMeta.ends_at ? new Date(pollMeta.ends_at).toISOString().slice(0, 16) : "");
 
       if (Array.isArray(data.answers) && data.answers.length > 0) {
         const loadedAnswers = data.answers.slice(0, 10);
@@ -68,15 +76,23 @@ export default function EditPoll() {
       .from("polls")
       .update({
         question: question.trim(),
-        answers: cleanedAnswers
+        answers: cleanedAnswers,
+        location_name: locationName.trim() || null,
+        starts_at: startsAt ? new Date(startsAt).toISOString() : null,
+        expires_at: expiresAt ? new Date(expiresAt).toISOString() : null
       })
       .eq("id", pollId)
       .eq("creator_id", user.id);
 
     if (error) {
       console.error(error);
-      return;
     }
+
+    await savePollMeta(pollId, {
+      location_name: locationName.trim() || null,
+      starts_at: startsAt ? new Date(startsAt).toISOString() : null,
+      ends_at: expiresAt ? new Date(expiresAt).toISOString() : null
+    });
 
     navigate("/admin");
   }
@@ -109,6 +125,30 @@ export default function EditPoll() {
       {answers.length >= 10 && (
         <p className="text-red-600 text-sm mb-4">Maximum of 10 answers reached.</p>
       )}
+
+      <label className="block mb-2 font-semibold">QR location name</label>
+      <input
+       value={locationName}
+       onChange={(e) => setLocationName(e.target.value)}
+       className="w-full border p-2 rounded mb-4 text-black"
+       placeholder="Entrance, Table 1, Bar"
+      />
+
+      <label className="block mb-2 font-semibold">Starts at</label>
+      <input
+       type="datetime-local"
+       value={startsAt}
+       onChange={(e) => setStartsAt(e.target.value)}
+       className="w-full border p-2 rounded mb-4 text-black"
+      />
+
+      <label className="block mb-2 font-semibold">Ends at</label>
+      <input
+       type="datetime-local"
+       value={expiresAt}
+       onChange={(e) => setExpiresAt(e.target.value)}
+       className="w-full border p-2 rounded mb-4 text-black"
+      />
 
       <button
         onClick={updatePoll}

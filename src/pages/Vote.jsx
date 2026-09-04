@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import { supabase } from "../lib/supabase";
 import { isRestrictedTopic } from "../lib/restrictedContent";
+import { readPollMeta, isPollClosed } from "../lib/pollMeta";
 
 export default function Vote() {
   const { pollId } = useParams();
@@ -16,6 +17,7 @@ export default function Vote() {
   const [newAnswer, setNewAnswer] = useState("");
   const [userAnswers, setUserAnswers] = useState([]);
 
+  const pollMeta = poll ? readPollMeta(poll.id) : {};
   const alreadyVoted = localStorage.getItem(`voted_${pollId}`);
 
   async function loadUserAnswers(targetPollId = pollId) {
@@ -156,8 +158,23 @@ export default function Vote() {
     return <Layout><p className="text-center p-6">Error: Poll answers are invalid.</p></Layout>;
   }
 
-  const isExpired =
-    poll.expires_at && new Date(poll.expires_at) < new Date();
+  const startsAt = poll.starts_at ?? pollMeta.starts_at;
+  const endsAt = poll.expires_at ?? pollMeta.ends_at;
+  const isExpired = Boolean(endsAt && new Date(endsAt) < new Date()) || isPollClosed(poll);
+  const isNotStarted = Boolean(startsAt && new Date(startsAt) > new Date());
+
+  if (isNotStarted) {
+    return (
+      <Layout>
+        <div className="text-center p-6">
+          <h2 className="text-2xl font-bold mb-4">This poll is not open yet</h2>
+          <p className="text-gray-600 mb-6">
+            Voting opens at {new Date(startsAt).toLocaleString()}.
+          </p>
+        </div>
+      </Layout>
+    );
+  }
 
   if (isExpired) {
     return (
