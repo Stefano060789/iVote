@@ -134,12 +134,44 @@ export default function Results() {
     ]
   };
 
+  function exportSummaryCsv() {
+    const rows = [
+      ["poll_id", String(poll.id)],
+      ["question", poll.question ?? ""],
+      ["total_votes", String(totalVotes)],
+      [],
+      ["answer", "votes", "percentage"]
+    ];
+
+    poll.answers.forEach((answer, index) => {
+      rows.push([answer, String(voteCounts[index]), `${percentages[index]}%`]);
+    });
+
+    const csv = rows
+      .map((row) => row.map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `poll-${poll.id}-summary.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <Layout>
       <div className="max-w-xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-6 text-center">{poll.question}</h1>
 
         <div className="flex gap-3 mt-6 mb-6 justify-center">
+          <button
+            onClick={exportSummaryCsv}
+            className="bg-emerald-600 text-white px-4 py-2 rounded font-semibold"
+          >
+            Export Summary CSV
+          </button>
           <button
             onClick={() => {
               navigator.clipboard.writeText(poll.short_url || window.location.href);

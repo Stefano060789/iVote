@@ -4,6 +4,16 @@ import { supabase } from "../lib/supabase";
 import { createStableQrUrl } from "../lib/pollLinks";
 import { isRestrictedTopic } from "../lib/restrictedContent";
 import { appendAuditLog, readAuditLog, readPollMeta, savePollMeta, isPollClosed } from "../lib/pollMeta";
+import { buildQrToken, deleteQrLocation, loadQrLocations, saveQrLocation } from "../lib/qrLocations";
+import {
+  getCurrentUserRole,
+  getPermissionSet,
+  readWorkspaceMembers,
+  readWorkspaceProfile,
+  removeWorkspaceMember,
+  saveWorkspaceMember,
+  saveWorkspaceProfile
+} from "../lib/workspaceProfile";
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -14,6 +24,28 @@ export default function Admin() {
   const [reuseQrPoll, setReuseQrPoll] = useState(null);
   const [reuseQrTargetId, setReuseQrTargetId] = useState("");
   const [auditLog, setAuditLog] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("all");
+  const [qrLocations, setQrLocations] = useState([]);
+  const [newLocationName, setNewLocationName] = useState("");
+  const [newLocationToken, setNewLocationToken] = useState("");
+  const [selectedLocationId, setSelectedLocationId] = useState("");
+  const [selectedPollForLocation, setSelectedPollForLocation] = useState("");
+  const [analytics, setAnalytics] = useState({ total: 0, active: 0, closed: 0, scheduled: 0, withLocation: 0 });
+  const [workspaceProfile, setWorkspaceProfile] = useState({
+    companyName: "iVote",
+    logoUrl: "",
+    primaryColor: "#2563eb",
+    accentColor: "#0f172a",
+    role: "owner"
+  });
+  const [workspaceUserId, setWorkspaceUserId] = useState(null);
+  const [currentUserRole, setCurrentUserRole] = useState("viewer");
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [newMemberName, setNewMemberName] = useState("");
+  const [newMemberEmail, setNewMemberEmail] = useState("");
+  const [newMemberRole, setNewMemberRole] = useState("viewer");
 
   async function createShortLink(longUrl) {
     const response = await fetch(
@@ -23,6 +55,26 @@ export default function Admin() {
       throw new Error(`TinyURL request failed with status ${response.status}`);
     }
     return response.text();
+  }
+
+  function getPollStatusInfo(poll) {
+    const meta = readPollMeta(poll.id);
+    const startsAt = poll.starts_at ?? meta.starts_at;
+    const endsAt = poll.expires_at ?? meta.ends_at;
+
+    if (poll.status === "closed" || meta.status === "closed" || poll.closed_at || meta.closed_at) {
+      return "closed";
+    }
+
+    if (startsAt && new Date(startsAt) > new Date()) {
+      return "scheduled";
+    }
+
+    if (endsAt && new Date(endsAt) < new Date()) {
+      return "expired";
+    }
+
+    return "active";
   }
 
   async function loadPolls() {
@@ -53,12 +105,44 @@ export default function Admin() {
       return;
     }
 
-    setPolls((data ?? []).filter((poll) => Boolean(poll?.id)));
+    const normalizedPolls = (data ?? []).filter((poll) => Boolean(poll?.id));
+    setPolls(normalizedPolls);
+
+    const nextAnalytics = { total: normalizedPolls.length, active: 0, closed: 0, scheduled: 0, withLocation: 0 };
+    normalizedPolls.forEach((poll) => {
+      const meta = readPollMeta(poll.id);
+      const status = getPollStatusInfo(poll);
+      const locationName = poll.location_name ?? meta.location_name;
+
+      if (status === "active") nextAnalytics.active += 1;
+      if (status === "closed") nextAnalytics.closed += 1;
+      if (status === "scheduled") nextAnalytics.scheduled += 1;
+      if (locationName) nextAnalytics.withLocation += 1;
+    });
+    setAnalytics(nextAnalytics);
     setLoading(false);
   }
 
   useEffect(() => {
+    async function loadWorkspaceProfileState() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user?.id) return;
+        setWorkspaceUserId(user.id);
+        const role = await getCurrentUserRole(user.id);
+        setCurrentUserRole(role);
+        setWorkspaceProfile({ ...readWorkspaceProfile(user.id), role });
+        setTeamMembers(await readWorkspaceMembers());
+        const nextLocations = await loadQrLocations();
+        setQrLocations(nextLocations);
+      } catch (error) {
+        console.error(error);
+        alert(error.message || "Unable to load workspace role data.");
+      }
+    }
+
     loadPolls();
+    loadWorkspaceProfileState();
     setAuditLog(readAuditLog());
 
     const interval = setInterval(() => {
@@ -68,6 +152,114 @@ export default function Admin() {
 
     return () => clearInterval(interval);
   }, [navigate]);
+
+  async function saveWorkspaceSettings() {
+    if (!workspaceUserId) return;
+    const nextProfile = saveWorkspaceProfile(workspaceUserId, workspaceProfile);
+    setWorkspaceProfile(nextProfile);
+    alert("Workspace settings saved.");
+  }
+
+  async function handleCreateLocation() {
+    const name = newLocationName.trim();
+    if (!name) {
+      alert("Add a QR location name first.");
+      return;
+    }
+
+    const nextLocation = await saveQrLocation({
+      name,
+      token: newLocationToken.trim() || buildQrToken(),
+      current_poll_id: null
+    });
+
+    setQrLocations((current) => [nextLocation, ...current.filter((item) => String(item.id) !== String(nextLocation.id))]);
+    setNewLocationName("");
+    setNewLocationToken("");
+  }
+
+  async function handleDeleteLocation(locationId) {
+    const location = qrLocations.find((item) => String(item.id) === String(locationId));
+    if (!location) return;
+
+    const confirmed = window.confirm(`Delete QR location "${location.name}"?`);
+    if (!confirmed) return;
+
+    await deleteQrLocation(locationId);
+    setQrLocations((current) => current.filter((item) => String(item.id) !== String(locationId)));
+  }
+
+  async function assignLocationToPoll() {
+    const location = qrLocations.find((item) => String(item.id) === String(selectedLocationId));
+    const poll = polls.find((item) => String(item.id) === String(selectedPollForLocation));
+
+    if (!location || !poll) {
+      alert("Select both a location and a poll.");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("polls")
+        .update({
+          location_name: location.name,
+          location_token: location.token
+        })
+        .eq("id", poll.id);
+
+      if (error) {
+        console.warn("Could not sync location to Supabase, using local metadata fallback.", error);
+      }
+    } catch (error) {
+      console.warn("Could not sync location to Supabase, using local metadata fallback.", error);
+    }
+
+    const nextLocation = { ...location, current_poll_id: poll.id };
+    await saveQrLocation(nextLocation);
+    await savePollMeta(poll.id, {
+      location_name: location.name,
+      location_token: location.token
+    });
+
+    appendAuditLog("assign_qr_location", { poll_id: poll.id, location_name: location.name, location_token: location.token });
+    setAuditLog(readAuditLog());
+    setSelectedLocationId("");
+    setSelectedPollForLocation("");
+    setQrLocations(await loadQrLocations());
+    await loadPolls();
+    alert(`Assigned location "${location.name}" to poll #${poll.id}.`);
+  }
+
+  async function addTeamMember() {
+    if (!newMemberName.trim()) {
+      alert("Add a team member name first.");
+      return;
+    }
+
+    try {
+      const nextMembers = await saveWorkspaceMember({
+        name: newMemberName.trim(),
+        email: newMemberEmail.trim(),
+        role: newMemberRole
+      });
+      setTeamMembers(nextMembers);
+      setNewMemberName("");
+      setNewMemberEmail("");
+      setNewMemberRole("viewer");
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Unable to add team member.");
+    }
+  }
+
+  async function deleteTeamMember(memberId) {
+    try {
+      setTeamMembers(await removeWorkspaceMember(memberId));
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Unable to remove team member.");
+    }
+  }
 
   async function deletePoll(id) {
     const { error } = await supabase.from("polls").delete().eq("id", id);
@@ -480,6 +672,25 @@ export default function Admin() {
   if (loading) return <p className="text-center p-6">Loading polls...</p>;
 
   const auditEntries = auditLog.slice(0, 5);
+  const permission = getPermissionSet(currentUserRole);
+  const canEditPolls = permission.canEditPolls;
+  const canDeletePolls = permission.canDeletePolls;
+  const canDuplicatePolls = permission.canDuplicatePolls;
+  const canReuseQr = permission.canReuseQr;
+  const canExportResults = permission.canExportResults;
+  const canClosePolls = permission.canClosePolls;
+
+  const filteredPolls = polls.filter((poll) => {
+    const pollMeta = readPollMeta(poll.id);
+    const locationName = poll.location_name ?? pollMeta.location_name ?? "";
+    const brandName = poll.brand_name ?? pollMeta.brand_name ?? "";
+    const status = getPollStatusInfo(poll);
+    const questionText = `${poll.question ?? ""} ${locationName} ${brandName}`.toLowerCase();
+    const matchesSearch = questionText.includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || status === statusFilter;
+    const matchesLocation = locationFilter === "all" || locationName === locationFilter;
+    return matchesSearch && matchesStatus && matchesLocation;
+  });
 
   return (
     <div className="max-w-3xl mx-auto p-6">
@@ -489,6 +700,256 @@ export default function Admin() {
         <Link to="/admin/analytics" className="bg-purple-600 text-white px-3 py-2 rounded font-semibold">
           Analytics
         </Link>
+      </div>
+
+      <div className="mb-6 grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="border rounded p-3 bg-gray-900">
+          <p className="text-gray-400 text-sm">Total polls</p>
+          <p className="text-2xl font-bold">{analytics.total}</p>
+        </div>
+        <div className="border rounded p-3 bg-gray-900">
+          <p className="text-gray-400 text-sm">Active</p>
+          <p className="text-2xl font-bold text-green-400">{analytics.active}</p>
+        </div>
+        <div className="border rounded p-3 bg-gray-900">
+          <p className="text-gray-400 text-sm">Closed</p>
+          <p className="text-2xl font-bold text-red-400">{analytics.closed}</p>
+        </div>
+        <div className="border rounded p-3 bg-gray-900">
+          <p className="text-gray-400 text-sm">Scheduled</p>
+          <p className="text-2xl font-bold text-yellow-400">{analytics.scheduled}</p>
+        </div>
+        <div className="border rounded p-3 bg-gray-900">
+          <p className="text-gray-400 text-sm">Locations</p>
+          <p className="text-2xl font-bold text-blue-400">{analytics.withLocation}</p>
+        </div>
+      </div>
+
+      <div className="mb-6 flex flex-col md:flex-row gap-3">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+          placeholder="Search question or location"
+          className="w-full md:w-2/3 border p-2 rounded text-black"
+        />
+        <select
+          value={statusFilter}
+          onChange={(event) => setStatusFilter(event.target.value)}
+          className="w-full md:w-1/3 border p-2 rounded text-black"
+        >
+          <option value="all">All statuses</option>
+          <option value="active">Active</option>
+          <option value="scheduled">Scheduled</option>
+          <option value="expired">Expired</option>
+          <option value="closed">Closed</option>
+        </select>
+        <select
+          value={locationFilter}
+          onChange={(event) => setLocationFilter(event.target.value)}
+          className="w-full md:w-1/3 border p-2 rounded text-black"
+        >
+          <option value="all">All locations</option>
+          {Array.from(new Set((polls || []).map((poll) => readPollMeta(poll.id).location_name ?? poll.location_name ?? "").filter(Boolean))).map((location) => (
+            <option key={location} value={location}>{location}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="mb-6 border rounded p-4 bg-gray-900">
+        <h2 className="text-xl font-bold mb-3">QR locations</h2>
+        <div className="grid md:grid-cols-3 gap-3 mb-4">
+          <input
+            type="text"
+            value={newLocationName}
+            onChange={(event) => setNewLocationName(event.target.value)}
+            className="border p-2 rounded text-black"
+            placeholder="Location name"
+          />
+          <input
+            type="text"
+            value={newLocationToken}
+            onChange={(event) => setNewLocationToken(event.target.value)}
+            className="border p-2 rounded text-black"
+            placeholder="Optional token"
+          />
+          <button onClick={handleCreateLocation} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">
+            Add location
+          </button>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-3 mb-3">
+          <select value={selectedLocationId} onChange={(event) => setSelectedLocationId(event.target.value)} className="border p-2 rounded text-black">
+            <option value="">Choose a QR location</option>
+            {qrLocations.map((location) => (
+              <option key={location.id} value={String(location.id)}>{location.name}</option>
+            ))}
+          </select>
+          <select value={selectedPollForLocation} onChange={(event) => setSelectedPollForLocation(event.target.value)} className="border p-2 rounded text-black">
+            <option value="">Choose a poll</option>
+            {polls.map((poll) => (
+              <option key={poll.id} value={String(poll.id)}>
+                #{poll.id} - {poll.question}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button onClick={assignLocationToPoll} className="bg-emerald-600 text-white px-4 py-2 rounded font-semibold mb-4">
+          Assign location to poll
+        </button>
+
+        <div className="space-y-2">
+          {qrLocations.length === 0 ? (
+            <p className="text-gray-400">No QR locations yet.</p>
+          ) : (
+            qrLocations.map((location) => (
+              <div key={location.id} className="flex items-center justify-between border border-gray-700 rounded p-3">
+                <div>
+                  <p className="font-semibold">{location.name}</p>
+                  <p className="text-xs text-gray-400">Token: {location.token}</p>
+                  <p className="text-xs text-gray-500">
+                    {location.current_poll_id ? `Assigned to poll #${location.current_poll_id}` : "Not assigned"}
+                  </p>
+                </div>
+                <button onClick={() => handleDeleteLocation(location.id)} className="bg-red-600 text-white px-3 py-2 rounded font-semibold">
+                  Delete
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      <div className="mb-6 border rounded p-4 bg-gray-900">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-xl font-bold">Workspace settings</h2>
+          <span className="text-xs uppercase tracking-wide text-gray-300">Role: {workspaceProfile.role}</span>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-3">
+          <input
+            type="text"
+            value={workspaceProfile.companyName}
+            onChange={(event) => setWorkspaceProfile((current) => ({ ...current, companyName: event.target.value }))}
+            className="border p-2 rounded text-black"
+            placeholder="Company name"
+          />
+          <select
+            value={workspaceProfile.role}
+            className="border p-2 rounded text-black"
+            disabled
+          >
+            <option value="owner">Owner</option>
+            <option value="editor">Editor</option>
+            <option value="viewer">Viewer</option>
+          </select>
+          <input
+            type="url"
+            value={workspaceProfile.logoUrl}
+            onChange={(event) => setWorkspaceProfile((current) => ({ ...current, logoUrl: event.target.value }))}
+            className="border p-2 rounded text-black md:col-span-2"
+            placeholder="Logo URL"
+          />
+          <label className="block font-semibold">
+            Primary color
+            <input
+              type="color"
+              value={workspaceProfile.primaryColor}
+              onChange={(event) => setWorkspaceProfile((current) => ({ ...current, primaryColor: event.target.value }))}
+              className="w-full border p-1 rounded mt-1 h-11"
+            />
+          </label>
+          <label className="block font-semibold">
+            Accent color
+            <input
+              type="color"
+              value={workspaceProfile.accentColor}
+              onChange={(event) => setWorkspaceProfile((current) => ({ ...current, accentColor: event.target.value }))}
+              className="w-full border p-1 rounded mt-1 h-11"
+            />
+          </label>
+        </div>
+
+        <div className="mt-4">
+          <button
+            onClick={saveWorkspaceSettings}
+            disabled={!permission.canManageWorkspace}
+            className={`px-4 py-2 rounded font-semibold ${
+              permission.canManageWorkspace ? "bg-blue-600 text-white" : "bg-gray-600 text-gray-300 cursor-not-allowed"
+            }`}
+          >
+            Save workspace settings
+          </button>
+        </div>
+      </div>
+
+      <div className="mb-6 border rounded p-4 bg-gray-900">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-xl font-bold">Team access</h2>
+          <span className="text-xs uppercase tracking-wide text-gray-300">{teamMembers.length} members</span>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-3 mb-4">
+          <input
+            type="text"
+            value={newMemberName}
+            onChange={(event) => setNewMemberName(event.target.value)}
+            className="border p-2 rounded text-black"
+            placeholder="Name or email"
+          />
+          <input
+            type="email"
+            value={newMemberEmail}
+            onChange={(event) => setNewMemberEmail(event.target.value)}
+            className="border p-2 rounded text-black"
+            placeholder="member@example.com"
+          />
+          <select
+            value={newMemberRole}
+            onChange={(event) => setNewMemberRole(event.target.value)}
+            className="border p-2 rounded text-black"
+          >
+            <option value="owner">Owner</option>
+            <option value="editor">Editor</option>
+            <option value="viewer">Viewer</option>
+          </select>
+        </div>
+
+        <button
+          onClick={addTeamMember}
+          disabled={!permission.canManageWorkspace}
+          className={`px-4 py-2 rounded font-semibold mb-4 ${
+            permission.canManageWorkspace ? "bg-indigo-600 text-white" : "bg-gray-600 text-gray-300 cursor-not-allowed"
+          }`}
+        >
+          Add team member
+        </button>
+
+        <div className="space-y-2">
+          {teamMembers.length === 0 ? (
+            <p className="text-gray-400">No team members saved yet.</p>
+          ) : (
+            teamMembers.map((member) => (
+              <div key={member.id} className="flex items-center justify-between border border-gray-700 rounded p-3">
+                <div>
+                  <p className="font-semibold">{member.name}</p>
+                  {member.email && <p className="text-xs text-gray-400">{member.email}</p>}
+                  <p className="text-xs uppercase tracking-wide text-blue-300">{member.role}</p>
+                </div>
+                <button
+                  onClick={() => deleteTeamMember(member.id)}
+                  disabled={!permission.canManageWorkspace}
+                  className={`px-3 py-2 rounded font-semibold ${
+                    permission.canManageWorkspace ? "bg-red-600 text-white" : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                  }`}
+                >
+                  Remove
+                </button>
+              </div>
+            ))
+          )}
+        </div>
       </div>
 
       <div className="mb-6 border rounded p-4 bg-gray-900">
@@ -507,15 +968,17 @@ export default function Admin() {
         </div>
       </div>
 
-      {polls.length === 0 && <p className="text-center text-gray-600">No polls created yet.</p>}
+      {filteredPolls.length === 0 && <p className="text-center text-gray-600">No matching polls found.</p>}
 
       <div className="space-y-4">
-        {polls.map((poll) => {
+        {filteredPolls.map((poll) => {
           const pollMeta = readPollMeta(poll.id);
           const isClosed = isPollClosed(poll) || pollMeta.status === "closed";
           const locationName = poll.location_name ?? pollMeta.location_name;
           const startsAt = poll.starts_at ?? pollMeta.starts_at;
           const endsAt = poll.expires_at ?? pollMeta.ends_at;
+          const brandName = poll.brand_name ?? pollMeta.brand_name;
+          const templateKey = poll.template_key ?? pollMeta.template_key;
 
           return (
           <div key={poll.id} className="border p-4 rounded shadow-sm">
@@ -529,6 +992,12 @@ export default function Admin() {
 
             {locationName && (
               <p className="text-gray-300 text-sm mb-1">Location: {locationName}</p>
+            )}
+
+            {(brandName || templateKey) && (
+              <p className="text-gray-300 text-sm mb-1">
+                {brandName ? `Brand: ${brandName}` : ""} {brandName && templateKey ? "•" : ""} {templateKey ? `Template: ${templateKey}` : ""}
+              </p>
             )}
 
             {startsAt && (
@@ -552,7 +1021,12 @@ export default function Admin() {
                 Vote Page
               </Link>
 
-              <Link to={`/edit/${poll.id}`} className="bg-yellow-500 text-white px-3 py-2 rounded font-semibold">
+              <Link
+                to={`/edit/${poll.id}`}
+                className={`px-3 py-2 rounded font-semibold ${
+                  canEditPolls ? "bg-yellow-500 text-white" : "bg-gray-700 text-gray-400 cursor-not-allowed pointer-events-none"
+                }`}
+              >
                 Edit
               </Link>
 
@@ -560,11 +1034,23 @@ export default function Admin() {
                 Copy Share Link
               </button>
 
-              <button onClick={() => duplicatePoll(poll)} className="bg-yellow-500 text-white px-3 py-2 rounded font-semibold">
+              <button
+                onClick={() => duplicatePoll(poll)}
+                disabled={!canDuplicatePolls}
+                className={`px-3 py-2 rounded font-semibold ${
+                  canDuplicatePolls ? "bg-yellow-500 text-white" : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                }`}
+              >
                 Duplicate
               </button>
 
-              <button onClick={() => reuseQR(poll)} className="bg-purple-600 text-white px-3 py-1 rounded font-semibold">
+              <button
+                onClick={() => reuseQR(poll)}
+                disabled={!canReuseQr}
+                className={`px-3 py-2 rounded font-semibold ${
+                  canReuseQr ? "bg-purple-600 text-white" : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                }`}
+              >
                 Reuse QR for another poll
               </button>
 
@@ -572,15 +1058,33 @@ export default function Admin() {
                 Show QR Code
               </button>
 
-              <button onClick={() => closePoll(poll)} className="bg-orange-600 text-white px-3 py-2 rounded font-semibold">
+              <button
+                onClick={() => closePoll(poll)}
+                disabled={!canClosePolls}
+                className={`px-3 py-2 rounded font-semibold ${
+                  canClosePolls ? "bg-orange-600 text-white" : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                }`}
+              >
                 {isClosed ? "Reopen Poll" : "Close Poll"}
               </button>
 
-              <button onClick={() => exportPollCsv(poll)} className="bg-teal-600 text-white px-3 py-2 rounded font-semibold">
+              <button
+                onClick={() => exportPollCsv(poll)}
+                disabled={!canExportResults}
+                className={`px-3 py-2 rounded font-semibold ${
+                  canExportResults ? "bg-teal-600 text-white" : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                }`}
+              >
                 Export CSV
               </button>
 
-              <button onClick={() => deletePoll(poll.id)} className="bg-red-600 text-white px-3 py-2 rounded font-semibold">
+              <button
+                onClick={() => deletePoll(poll.id)}
+                disabled={!canDeletePolls}
+                className={`px-3 py-2 rounded font-semibold ${
+                  canDeletePolls ? "bg-red-600 text-white" : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                }`}
+              >
                 Delete
               </button>
             </div>

@@ -46,7 +46,21 @@ export async function savePollMeta(pollId, patch) {
   const supabasePatch = {};
 
   for (const [key, value] of Object.entries(safePatch)) {
-    if (["location_name", "location_token", "starts_at", "ends_at", "status", "closed_at"].includes(key)) {
+    if (
+      [
+        "location_name",
+        "location_token",
+        "starts_at",
+        "ends_at",
+        "status",
+        "closed_at",
+        "brand_name",
+        "brand_logo_url",
+        "brand_primary_color",
+        "brand_accent_color",
+        "template_key"
+      ].includes(key)
+    ) {
       supabasePatch[key] = value;
     }
   }

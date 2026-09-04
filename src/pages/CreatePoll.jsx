@@ -5,17 +5,40 @@ import QRCode from "qrcode";
 import { isRestrictedTopic } from "../lib/restrictedContent";
 import { createStableQrUrl } from "../lib/pollLinks";
 import { savePollMeta } from "../lib/pollMeta";
+import { POLL_TEMPLATES, getTemplateByKey } from "../lib/pollTemplates";
+import { DEFAULT_ACCENT_COLOR, DEFAULT_PRIMARY_COLOR } from "../lib/pollBranding";
+import { readWorkspaceProfile } from "../lib/workspaceProfile";
 
 export default function CreatePoll() {
   const [question, setQuestion] = useState("");
   const [answers, setAnswers] = useState([""]);
   const [multipleChoice, setMultipleChoice] = useState(false);
   const [allowUserAnswers, setAllowUserAnswers] = useState(false);
+  const [templateKey, setTemplateKey] = useState("blank");
   const [locationName, setLocationName] = useState("");
   const [startsAt, setStartsAt] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
+  const [brandName, setBrandName] = useState("");
+  const [brandLogoUrl, setBrandLogoUrl] = useState("");
+  const [brandPrimaryColor, setBrandPrimaryColor] = useState(DEFAULT_PRIMARY_COLOR);
+  const [brandAccentColor, setBrandAccentColor] = useState(DEFAULT_ACCENT_COLOR);
   const [pollId, setPollId] = useState(null);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
+
+  useEffect(() => {
+    async function loadDefaultBranding() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.id) return;
+
+      const profile = readWorkspaceProfile(user.id);
+      setBrandName((current) => current || profile.companyName || "");
+      setBrandLogoUrl((current) => current || profile.logoUrl || "");
+      setBrandPrimaryColor((current) => current === DEFAULT_PRIMARY_COLOR ? profile.primaryColor : current);
+      setBrandAccentColor((current) => current === DEFAULT_ACCENT_COLOR ? profile.accentColor : current);
+    }
+
+    loadDefaultBranding();
+  }, []);
 
   async function createShortLink(longUrl) {
     const response = await fetch(
@@ -36,6 +59,17 @@ export default function CreatePoll() {
     }
 
     setAnswers(newAnswers);
+  }
+
+  function applyTemplate(selectedKey) {
+    const template = getTemplateByKey(selectedKey);
+    setTemplateKey(template.key);
+    setQuestion(template.question);
+    const nextAnswers = Array.isArray(template.answers) ? template.answers.slice(0, 10) : [""];
+    if (nextAnswers.length < 10) {
+      nextAnswers.push("");
+    }
+    setAnswers(nextAnswers);
   }
 
   async function createPoll() {
@@ -118,7 +152,12 @@ export default function CreatePoll() {
       location_name: locationName.trim() || null,
       starts_at: startsAt ? new Date(startsAt).toISOString() : null,
       ends_at: expiresAt ? new Date(expiresAt).toISOString() : null,
-      status: "active"
+      status: "active",
+      template_key: templateKey,
+      brand_name: brandName.trim() || null,
+      brand_logo_url: brandLogoUrl.trim() || null,
+      brand_primary_color: brandPrimaryColor || DEFAULT_PRIMARY_COLOR,
+      brand_accent_color: brandAccentColor || DEFAULT_ACCENT_COLOR
     });
 
     setPollId(data.id);
@@ -130,6 +169,19 @@ export default function CreatePoll() {
     <Layout>
       <div className="max-w-xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-6 text-center">Create a Poll</h1>
+
+        <label className="block mb-2 font-semibold">Template</label>
+        <select
+          value={templateKey}
+          onChange={(e) => applyTemplate(e.target.value)}
+          className="w-full border p-2 rounded mb-4 text-black"
+        >
+          {POLL_TEMPLATES.map((template) => (
+            <option key={template.key} value={template.key}>
+              {template.label}
+            </option>
+          ))}
+        </select>
 
         <label className="block mb-2 font-semibold">Question</label>
         <input
@@ -184,6 +236,47 @@ export default function CreatePoll() {
           className="w-full border p-2 rounded mb-4 text-black placeholder-black"
           placeholder="Entrance, Table 1, Bar"
         />
+
+        <h2 className="text-xl font-bold mb-3">Branding</h2>
+
+        <label className="block mb-2 font-semibold">Customer/Brand name</label>
+        <input
+          type="text"
+          value={brandName}
+          onChange={(e) => setBrandName(e.target.value)}
+          className="w-full border p-2 rounded mb-4 text-black placeholder-black"
+          placeholder="Acme Events"
+        />
+
+        <label className="block mb-2 font-semibold">Brand logo URL (optional)</label>
+        <input
+          type="url"
+          value={brandLogoUrl}
+          onChange={(e) => setBrandLogoUrl(e.target.value)}
+          className="w-full border p-2 rounded mb-4 text-black placeholder-black"
+          placeholder="https://example.com/logo.png"
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+          <label className="block font-semibold">
+            Primary color
+            <input
+              type="color"
+              value={brandPrimaryColor}
+              onChange={(e) => setBrandPrimaryColor(e.target.value)}
+              className="w-full border p-1 rounded mt-1 h-11"
+            />
+          </label>
+          <label className="block font-semibold">
+            Accent color
+            <input
+              type="color"
+              value={brandAccentColor}
+              onChange={(e) => setBrandAccentColor(e.target.value)}
+              className="w-full border p-1 rounded mt-1 h-11"
+            />
+          </label>
+        </div>
 
         <label className="block mb-2 font-semibold">Starts at</label>
         <input
@@ -249,4 +342,3 @@ export default function CreatePoll() {
     </Layout>
   );
 }
-

@@ -4,6 +4,7 @@ import Layout from "../components/Layout";
 import { supabase } from "../lib/supabase";
 import { isRestrictedTopic } from "../lib/restrictedContent";
 import { readPollMeta, isPollClosed } from "../lib/pollMeta";
+import { getPollBranding } from "../lib/pollBranding";
 
 export default function Vote() {
   const { pollId } = useParams();
@@ -216,10 +217,26 @@ export default function Vote() {
       ...userAnswers.map((u) => u.answer)
     ])
   );
+  const branding = getPollBranding(poll);
 
   return (
     <Layout>
-      <div className="max-w-xl mx-auto p-6">
+      <div
+        className="max-w-xl mx-auto p-6 rounded-lg border"
+        style={{ borderColor: branding.primaryColor, backgroundColor: `${branding.accentColor}20` }}
+      >
+        {branding.logoUrl && (
+          <img
+            src={branding.logoUrl}
+            alt={`${branding.brandName || "Brand"} logo`}
+            className="mx-auto mb-3 max-h-16 object-contain"
+          />
+        )}
+        {branding.brandName && (
+          <p className="text-center text-sm mb-2" style={{ color: branding.primaryColor }}>
+            {branding.brandName}
+          </p>
+        )}
         <h1 className="text-3xl font-bold mb-6 text-center">{poll.question}</h1>
         <p className="text-gray-500 text-sm mb-4">
           {poll.multiple_choice ? "Multiple-choice poll" : "Single-choice poll"}
@@ -243,7 +260,8 @@ export default function Vote() {
             {!showAddField && (
               <button
                 onClick={() => setShowAddField(true)}
-                className="bg-gray-200 px-3 py-2 rounded"
+                className="px-3 py-2 rounded text-white"
+                style={{ backgroundColor: branding.primaryColor }}
               >
                 Add your own answer
               </button>
@@ -261,7 +279,8 @@ export default function Vote() {
 
                 <button
                   onClick={submitNewAnswer}
-                  className="bg-blue-600 text-white px-3 py-2 rounded mt-2"
+                  className="text-white px-3 py-2 rounded mt-2"
+                  style={{ backgroundColor: branding.primaryColor }}
                 >
                   Submit answer
                 </button>
@@ -273,7 +292,8 @@ export default function Vote() {
         <button
           onClick={() => submitVote(selectedAnswers)}
           disabled={selectedAnswers.length === 0}
-          className="bg-green-600 text-white p-3 rounded mt-4 w-full disabled:opacity-60"
+          className="text-white p-3 rounded mt-4 w-full disabled:opacity-60"
+          style={{ backgroundColor: branding.primaryColor }}
         >
           Submit Vote
         </button>
