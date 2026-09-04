@@ -3,13 +3,13 @@ import { supabase } from "./supabase";
 export const METADATA_STORAGE_KEY = "ivote_poll_meta";
 export const AUDIT_STORAGE_KEY = "ivote_audit_log";
 
-function readStorageMap(key) {
+function readStorageMap(key, fallback) {
   try {
     const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : {};
+    return raw ? JSON.parse(raw) : fallback;
   } catch (error) {
     console.error(error);
-    return {};
+    return fallback;
   }
 }
 
@@ -19,12 +19,12 @@ function writeStorageMap(key, value) {
 
 export function readPollMeta(pollId) {
   const pollIdKey = String(pollId);
-  return readStorageMap(METADATA_STORAGE_KEY)[pollIdKey] ?? {};
+  return readStorageMap(METADATA_STORAGE_KEY, {})[pollIdKey] ?? {};
 }
 
 export function writePollMeta(pollId, patch) {
   const pollIdKey = String(pollId);
-  const stored = readStorageMap(METADATA_STORAGE_KEY);
+  const stored = readStorageMap(METADATA_STORAGE_KEY, {});
   const current = stored[pollIdKey] ?? {};
   const next = { ...current, ...patch };
   stored[pollIdKey] = next;
@@ -66,7 +66,8 @@ export async function savePollMeta(pollId, patch) {
 }
 
 export function readAuditLog() {
-  return readStorageMap(AUDIT_STORAGE_KEY);
+  const value = readStorageMap(AUDIT_STORAGE_KEY, []);
+  return Array.isArray(value) ? value : [];
 }
 
 export function appendAuditLog(action, details = {}) {

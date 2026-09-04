@@ -76,10 +76,7 @@ export default function EditPoll() {
       .from("polls")
       .update({
         question: question.trim(),
-        answers: cleanedAnswers,
-        location_name: locationName.trim() || null,
-        starts_at: startsAt ? new Date(startsAt).toISOString() : null,
-        expires_at: expiresAt ? new Date(expiresAt).toISOString() : null
+        answers: cleanedAnswers
       })
       .eq("id", pollId)
       .eq("creator_id", user.id);
@@ -159,3 +156,4 @@ export default function EditPoll() {
     </div>
   );
 }
+

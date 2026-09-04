@@ -76,10 +76,7 @@ export default function CreatePoll() {
         answers: cleanedAnswers,
         multiple_choice: multipleChoice,
         allow_user_answers: allowUserAnswers,
-        creator_id: user.id,
-        starts_at: startsAt ? new Date(startsAt).toISOString() : null,
-        expires_at: expiresAt ? new Date(expiresAt).toISOString() : null,
-        location_name: locationName.trim() || null
+        creator_id: user.id
       })
       .select()
       .single();
@@ -252,3 +249,4 @@ export default function CreatePoll() {
     </Layout>
   );
 }
+
