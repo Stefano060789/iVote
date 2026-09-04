@@ -10,6 +10,8 @@ export default function Admin() {
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showQR, setShowQR] = useState(null);
+  const [reuseQrPoll, setReuseQrPoll] = useState(null);
+  const [reuseQrTargetId, setReuseQrTargetId] = useState("");
 
   async function createShortLink(longUrl) {
     const response = await fetch(
@@ -271,31 +273,26 @@ export default function Admin() {
       return;
     }
 
-    const pollList = candidatePolls
-      .map((pollItem) => `#${pollItem.id} - ${pollItem.question}`)
-      .join("\n");
+    setReuseQrPoll({ ...oldPoll, stable_short_url: sourceStableUrl });
+    setReuseQrTargetId(String(candidatePolls[0].id));
+  }
 
-    const targetInput = prompt(
-      `Reuse this QR for another poll.\n\nCurrent QR: ${sourceStableUrl}\n\nChoose a target poll ID from the list below.\n\nAvailable polls:\n${pollList || "No other polls available."}`
-    );
-
-    if (!targetInput) return;
-
-    const trimmedTargetId = targetInput.trim();
-    if (!trimmedTargetId) return;
+  async function confirmReuseQR() {
+    if (!reuseQrPoll) return;
 
     const targetPoll = polls.find(
-      (pollItem) => String(pollItem.id) === trimmedTargetId && String(pollItem.id) !== String(oldPoll.id)
+      (pollItem) => String(pollItem.id) === String(reuseQrTargetId) && String(pollItem.id) !== String(reuseQrPoll.id)
     );
 
     if (!targetPoll) {
-      alert("Target poll not found. Please choose an existing poll from the list.");
+      alert("Please choose a valid target poll.");
       return;
     }
 
+    const sourceStableUrl = reuseQrPoll.stable_short_url || createStableQrUrl();
     const previousTargetQr = targetPoll.stable_short_url ?? null;
     const shouldOverwrite = previousTargetQr && previousTargetQr !== sourceStableUrl
-      ? confirm(`Target poll #${targetPoll.id} already has another QR assigned. Reassign it to this QR?`)
+      ? window.confirm(`Target poll #${targetPoll.id} already has another QR assigned. Reassign it to this QR?`)
       : true;
 
     if (!shouldOverwrite) {
@@ -303,14 +300,17 @@ export default function Admin() {
       return;
     }
 
-    const { error: clearTargetError } = previousTargetQr && previousTargetQr !== sourceStableUrl
-      ? await supabase.from("polls").update({ stable_short_url: null }).eq("id", targetPoll.id)
-      : { error: null };
+    if (previousTargetQr && previousTargetQr !== sourceStableUrl) {
+      const { error: clearTargetError } = await supabase
+        .from("polls")
+        .update({ stable_short_url: null })
+        .eq("id", targetPoll.id);
 
-    if (clearTargetError) {
-      console.error(clearTargetError);
-      alert(`Failed to free the target poll before reassigning the QR: ${clearTargetError.message}`);
-      return;
+      if (clearTargetError) {
+        console.error(clearTargetError);
+        alert(`Failed to free the target poll before reassigning the QR: ${clearTargetError.message}`);
+        return;
+      }
     }
 
     const { error: assignNewError } = await supabase
@@ -333,7 +333,7 @@ export default function Admin() {
     const { error: clearOldError } = await supabase
       .from("polls")
       .update({ stable_short_url: null })
-      .eq("id", oldPoll.id);
+      .eq("id", reuseQrPoll.id);
 
     if (clearOldError) {
       console.error(clearOldError);
@@ -341,14 +341,12 @@ export default function Admin() {
         .from("polls")
         .update({ stable_short_url: previousTargetQr ?? null })
         .eq("id", targetPoll.id);
-      await supabase
-        .from("polls")
-        .update({ stable_short_url: sourceStableUrl })
-        .eq("id", oldPoll.id);
       alert(`QR was moved, but the old poll could not be cleared: ${clearOldError.message}`);
       return;
     }
 
+    setReuseQrPoll(null);
+    setReuseQrTargetId("");
     await loadPolls();
     alert(`QR successfully reassigned to Poll #${targetPoll.id}!`);
   }
@@ -472,6 +470,39 @@ export default function Admin() {
                 Delete
               </button>
             </div>
+
+            {reuseQrPoll && String(reuseQrPoll.id) === String(poll.id) && (
+              <div className="mt-4 border border-purple-400 rounded p-3 bg-gray-900">
+                <p className="mb-2 font-semibold">Reuse QR from Poll #{reuseQrPoll.id}</p>
+                <div className="flex flex-col sm:flex-row gap-3 items-center">
+                  <select
+                    value={reuseQrTargetId}
+                    onChange={(event) => setReuseQrTargetId(event.target.value)}
+                    className="text-black rounded p-2 min-w-[220px]"
+                  >
+                    {polls
+                      .filter((pollItem) => String(pollItem.id) !== String(poll.id))
+                      .map((pollItem) => (
+                        <option key={pollItem.id} value={String(pollItem.id)}>
+                          #{pollItem.id} - {pollItem.question}
+                        </option>
+                      ))}
+                  </select>
+                  <button onClick={confirmReuseQR} className="bg-purple-600 text-white px-3 py-2 rounded font-semibold">
+                    Assign QR
+                  </button>
+                  <button
+                    onClick={() => {
+                      setReuseQrPoll(null);
+                      setReuseQrTargetId("");
+                    }}
+                    className="bg-gray-700 text-white px-3 py-2 rounded font-semibold"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
 
             {showQR === poll.id && (
               <div className="mt-4">
