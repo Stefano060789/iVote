@@ -60,6 +60,9 @@ export default function Admin() {
   const [newCampaignPollId, setNewCampaignPollId] = useState("");
   const [newCampaignPlacement, setNewCampaignPlacement] = useState("");
   const [newCampaignVariant, setNewCampaignVariant] = useState("");
+  const [newCampaignPortalTitle, setNewCampaignPortalTitle] = useState("");
+  const [newCampaignPortalMessage, setNewCampaignPortalMessage] = useState("");
+  const [newCampaignPortalButton, setNewCampaignPortalButton] = useState("");
   const [alertRules, setAlertRules] = useState([]);
   const [feedbackAlerts, setFeedbackAlerts] = useState([]);
   const [recoveryTasks, setRecoveryTasks] = useState([]);
@@ -235,12 +238,15 @@ export default function Admin() {
       return;
     }
     try {
-      const campaign = await createQrCampaign({ name: newCampaignName, pollId: newCampaignPollId, placementLabel: newCampaignPlacement, variantLabel: newCampaignVariant });
+      const campaign = await createQrCampaign({ name: newCampaignName, pollId: newCampaignPollId, placementLabel: newCampaignPlacement, variantLabel: newCampaignVariant, portalTitle: newCampaignPortalTitle, portalMessage: newCampaignPortalMessage, portalButtonLabel: newCampaignPortalButton });
       setQrCampaigns((current) => [campaign, ...current]);
       setNewCampaignName("");
       setNewCampaignPollId("");
       setNewCampaignPlacement("");
       setNewCampaignVariant("");
+      setNewCampaignPortalTitle("");
+      setNewCampaignPortalMessage("");
+      setNewCampaignPortalButton("");
     } catch (error) {
       console.error(error);
       alert(error.message || "Unable to create QR campaign. Run the ROI migration first.");
@@ -1088,6 +1094,14 @@ export default function Admin() {
             <button onClick={handleCreateCampaign} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">Create campaign QR</button>
           </div>
           <div className="grid md:grid-cols-2 gap-3 mb-4"><input value={newCampaignPlacement} onChange={(event) => setNewCampaignPlacement(event.target.value)} className="border p-2 rounded text-black" placeholder="Placement label: lobby, receipt, table" /><input value={newCampaignVariant} onChange={(event) => setNewCampaignVariant(event.target.value)} className="border p-2 rounded text-black" placeholder="Variant label: A, bold headline" /></div>
+          <details className="mb-4 rounded border border-slate-700">
+            <summary className="cursor-pointer p-3 text-sm font-semibold">Customize the QR welcome screen</summary>
+            <div className="grid gap-3 px-3 pb-3 md:grid-cols-2">
+              <input value={newCampaignPortalTitle} onChange={(event) => setNewCampaignPortalTitle(event.target.value)} maxLength={120} className="border p-2 rounded text-black" placeholder="Welcome headline (optional)" />
+              <input value={newCampaignPortalButton} onChange={(event) => setNewCampaignPortalButton(event.target.value)} maxLength={60} className="border p-2 rounded text-black" placeholder="Button text: Share your feedback" />
+              <textarea value={newCampaignPortalMessage} onChange={(event) => setNewCampaignPortalMessage(event.target.value)} maxLength={280} className="border p-2 rounded text-black md:col-span-2" placeholder="Short welcome message (optional)" rows="3" />
+            </div>
+          </details>
           <div className="space-y-2">
             {qrCampaigns.length === 0 ? <p className="text-gray-400">No tracked QR campaigns yet.</p> : qrCampaigns.map((campaign) => {
               const url = `${window.location.origin}/qr/${campaign.token}`;

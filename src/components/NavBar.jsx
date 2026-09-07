@@ -7,6 +7,7 @@ export default function NavBar() {
   const location = useLocation();
   const [user, setUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState(null);
   const [workspace, setWorkspace] = useState({
     companyName: "iVote",
     primaryColor: "#2563eb",
@@ -43,12 +44,38 @@ export default function NavBar() {
     return () => listener.subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    function saveInstallPrompt(event) {
+      event.preventDefault();
+      setInstallPrompt(event);
+    }
+
+    function clearInstallPrompt() {
+      setInstallPrompt(null);
+    }
+
+    window.addEventListener("beforeinstallprompt", saveInstallPrompt);
+    window.addEventListener("appinstalled", clearInstallPrompt);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", saveInstallPrompt);
+      window.removeEventListener("appinstalled", clearInstallPrompt);
+    };
+  }, []);
+
   function closeMenu() {
     setMenuOpen(false);
   }
 
   async function signOut() {
     await supabase.auth.signOut();
+    closeMenu();
+  }
+
+  async function installApp() {
+    if (!installPrompt) return;
+    await installPrompt.prompt();
+    await installPrompt.userChoice;
+    setInstallPrompt(null);
     closeMenu();
   }
 
@@ -90,6 +117,7 @@ export default function NavBar() {
           <Link to="/login" onClick={closeMenu}>Sign in</Link>
         </>}
         {user && <>
+          {installPrompt && <button type="button" onClick={installApp}>Install iVote</button>}
           <Link to="/admin/billing" onClick={closeMenu}>Billing</Link>
           <Link to="/admin/moderation" onClick={closeMenu}>Moderation</Link>
           <Link to="/account" onClick={closeMenu}>Account</Link>
