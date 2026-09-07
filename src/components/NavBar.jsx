@@ -57,26 +57,28 @@ export default function NavBar() {
         <Link to="/" onClick={closeMenu} className="site-nav-brand">
           {workspace.companyName}
         </Link>
-        <button
-          type="button"
-          className="site-nav-toggle"
-          aria-expanded={menuOpen}
-          aria-controls="site-navigation"
-          onClick={() => setMenuOpen((open) => !open)}
-        >
-          Menu
-        </button>
+        <div className="site-nav-actions">
+          {user && <Link to="/create" onClick={closeMenu} className="site-nav-primary">Create poll</Link>}
+          {!user && <Link to="/register" onClick={closeMenu} className="site-nav-primary">Create workspace</Link>}
+          <button
+            type="button"
+            className="site-nav-toggle"
+            aria-expanded={menuOpen}
+            aria-controls="site-navigation"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            Menu
+          </button>
+        </div>
       </div>
 
       <div id="site-navigation" className={`site-nav-links ${menuOpen ? "is-open" : ""}`}>
         <Link to="/support" onClick={closeMenu}>Support</Link>
         {!user && <>
-          <Link to="/register" onClick={closeMenu}>Create workspace</Link>
           <Link to="/login" onClick={closeMenu}>Sign in</Link>
         </>}
         {user && <>
-          <Link to="/create" onClick={closeMenu}>Create poll</Link>
-          <Link to="/admin" onClick={closeMenu}>Admin</Link>
+          <Link to="/admin" onClick={closeMenu}>Admin dashboard</Link>
           <Link to="/admin/billing" onClick={closeMenu}>Billing</Link>
           <Link to="/admin/moderation" onClick={closeMenu}>Moderation</Link>
           <Link to="/account" onClick={closeMenu}>Account</Link>

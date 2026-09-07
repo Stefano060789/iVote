@@ -51,6 +51,13 @@ input {
   justify-content: space-between;
 }
 
+.site-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
 .site-nav-brand {
   min-width: 0;
   overflow: hidden;
@@ -63,7 +70,9 @@ input {
 }
 
 .site-nav-toggle {
-  display: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 38px;
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 5px;
@@ -73,16 +82,46 @@ input {
   font-weight: 700;
 }
 
-.site-nav-links {
-  min-height: 64px;
-  display: flex;
+.site-nav-primary {
+  display: inline-flex;
   align-items: center;
-  gap: 24px;
+  justify-content: center;
+  min-height: 38px;
+  border-radius: 5px;
+  padding: 0 12px;
+  background: #5eead4;
+  color: #042f2e;
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.site-nav-links {
+  position: absolute;
+  top: calc(100% - 6px);
+  right: max(24px, calc((100vw - 1120px) / 2));
+  z-index: 21;
+  display: none;
+  min-width: 220px;
+  gap: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 6px;
+  padding: 8px;
+  background: #0f172a;
+  box-shadow: 0 14px 28px rgba(2, 6, 23, 0.35);
+}
+
+.site-nav-links.is-open {
+  display: grid;
 }
 
 .site-nav-links a,
 .site-nav-links button {
-  padding: 8px 0;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  padding: 0 10px;
   border: 0;
   background: transparent;
   color: #ffffff;
@@ -93,6 +132,11 @@ input {
 
 .site-nav-links button {
   cursor: pointer;
+}
+
+.site-nav-links a:hover,
+.site-nav-links button:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .landing-page {
@@ -274,31 +318,22 @@ input {
     gap: 16px;
   }
 
-  .site-nav-toggle {
-    display: inline-flex;
-    align-items: center;
-  }
-
   .site-nav-links {
-    display: none;
-    min-height: 0;
-    padding-top: 8px;
-    padding-bottom: 14px;
-    border-top: 1px solid rgba(255, 255, 255, 0.16);
-  }
-
-  .site-nav-links.is-open {
-    display: grid;
-    gap: 2px;
+    top: calc(100% - 4px);
+    right: 16px;
+    left: 16px;
+    min-width: 0;
   }
 
   .site-nav-links a,
   .site-nav-links button {
     min-height: 44px;
-    display: flex;
-    align-items: center;
-    padding: 0 4px;
     text-align: left;
+  }
+
+  .site-nav-primary {
+    padding: 0 10px;
+    font-size: 0.82rem;
   }
 
   .landing-hero {
