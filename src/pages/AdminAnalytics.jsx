@@ -86,7 +86,7 @@ export default function AdminAnalytics() {
     setPolls((pollsData ?? []).filter((poll) => Boolean(poll?.id)));
     setVotes(votesData || []);
     const [campaignResult, scanResult, leadResult] = await Promise.all([
-      supabase.from("qr_campaigns").select("id, name, poll_id, token, is_active"),
+      supabase.from("qr_campaigns").select("id, name, poll_id, token, is_active, placement_label, variant_label"),
       supabase.from("qr_scan_events").select("campaign_id"),
       supabase.from("voter_leads").select("campaign_id")
     ]);
@@ -377,14 +377,14 @@ export default function AdminAnalytics() {
 
       {analytics.campaignRows.length > 0 && (
         <div className="mt-10 border rounded p-4 bg-gray-900">
-          <h2 className="text-xl font-bold mb-1">QR campaign conversion</h2>
-          <p className="mb-3 text-sm text-slate-400">Responses are attributed vote rows; multi-select polls can record more than one response per scan.</p>
+          <h2 className="text-xl font-bold mb-1">QR placement and variant comparison</h2>
+          <p className="mb-3 text-sm text-slate-400">Compare scans, attributed votes, and conversion by placement or variant. Multi-select polls can record more than one vote per scan.</p>
           <div className="space-y-2 text-sm">
             {analytics.campaignRows.map((campaign) => (
               <div key={campaign.id} className="grid grid-cols-2 gap-2 border-b border-gray-700 pb-2 md:grid-cols-5">
-                <p className="font-semibold md:col-span-1">{campaign.name}</p>
+                <div className="md:col-span-1"><p className="font-semibold">{campaign.name}</p><p className="text-xs text-gray-400">{campaign.placement_label || "Unlabeled placement"}{campaign.variant_label ? ` · ${campaign.variant_label}` : ""}</p></div>
                 <p>{campaign.scanCount} scans</p>
-                <p>{campaign.responseCount} responses</p>
+                <p>{campaign.responseCount} votes</p>
                 <p>{campaign.conversion}% conversion</p>
                 <p>{campaign.leadCount} leads</p>
               </div>

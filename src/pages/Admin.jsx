@@ -58,6 +58,18 @@ export default function Admin() {
   const [qrCampaigns, setQrCampaigns] = useState([]);
   const [newCampaignName, setNewCampaignName] = useState("");
   const [newCampaignPollId, setNewCampaignPollId] = useState("");
+  const [newCampaignPlacement, setNewCampaignPlacement] = useState("");
+  const [newCampaignVariant, setNewCampaignVariant] = useState("");
+  const [alertRules, setAlertRules] = useState([]);
+  const [feedbackAlerts, setFeedbackAlerts] = useState([]);
+  const [recoveryTasks, setRecoveryTasks] = useState([]);
+  const [reportSettings, setReportSettings] = useState({ recipient_email: "", is_enabled: false });
+  const [newRulePollId, setNewRulePollId] = useState("");
+  const [newRuleType, setNewRuleType] = useState("low_score");
+  const [newRuleThreshold, setNewRuleThreshold] = useState("3");
+  const [newRuleAnswer, setNewRuleAnswer] = useState("");
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskAlertId, setNewTaskAlertId] = useState("");
 
   async function createShortLink(longUrl) {
     const response = await fetch(
@@ -148,6 +160,16 @@ export default function Admin() {
         const nextLocations = await loadQrLocations();
         setQrLocations(nextLocations);
         setQrCampaigns(await loadQrCampaigns());
+        const [rulesResult, alertsResult, tasksResult, reportsResult] = await Promise.all([
+          supabase.from("feedback_alert_rules").select("*").order("created_at", { ascending: false }),
+          supabase.from("feedback_alerts").select("*").order("created_at", { ascending: false }).limit(30),
+          supabase.from("feedback_recovery_tasks").select("*").order("created_at", { ascending: false }).limit(30),
+          supabase.from("weekly_report_settings").select("recipient_email, is_enabled").eq("workspace_id", profile.id).maybeSingle()
+        ]);
+        if (!rulesResult.error) setAlertRules(rulesResult.data || []);
+        if (!alertsResult.error) setFeedbackAlerts(alertsResult.data || []);
+        if (!tasksResult.error) setRecoveryTasks(tasksResult.data || []);
+        if (!reportsResult.error && reportsResult.data) setReportSettings(reportsResult.data);
       } catch (error) {
         console.error(error);
         alert(error.message || "Unable to load workspace role data.");
@@ -213,14 +235,38 @@ export default function Admin() {
       return;
     }
     try {
-      const campaign = await createQrCampaign({ name: newCampaignName, pollId: newCampaignPollId });
+      const campaign = await createQrCampaign({ name: newCampaignName, pollId: newCampaignPollId, placementLabel: newCampaignPlacement, variantLabel: newCampaignVariant });
       setQrCampaigns((current) => [campaign, ...current]);
       setNewCampaignName("");
       setNewCampaignPollId("");
+      setNewCampaignPlacement("");
+      setNewCampaignVariant("");
     } catch (error) {
       console.error(error);
       alert(error.message || "Unable to create QR campaign. Run the ROI migration first.");
     }
+  }
+
+  async function createAlertRule() {
+    if (!newRulePollId || (newRuleType === "answer_match" && !newRuleAnswer.trim())) return alert("Choose a poll and complete the trigger.");
+    const rule = { workspace_id: workspaceUserId, poll_id: Number(newRulePollId), trigger_type: newRuleType, score_threshold: newRuleType === "low_score" ? Number(newRuleThreshold) : null, answer_match: newRuleType === "answer_match" ? newRuleAnswer.trim() : null };
+    const { data, error } = await supabase.from("feedback_alert_rules").insert(rule).select().single();
+    if (error) return alert(error.message);
+    setAlertRules((current) => [data, ...current]); setNewRuleAnswer("");
+  }
+
+  async function createRecoveryTask() {
+    if (!newTaskTitle.trim()) return alert("Add a recovery task title.");
+    const { data, error } = await supabase.from("feedback_recovery_tasks").insert({ workspace_id: workspaceUserId, alert_id: newTaskAlertId ? Number(newTaskAlertId) : null, title: newTaskTitle.trim() }).select().single();
+    if (error) return alert(error.message);
+    setRecoveryTasks((current) => [data, ...current]); setNewTaskTitle(""); setNewTaskAlertId("");
+  }
+
+  async function saveReportSettings() {
+    if (!reportSettings.recipient_email.trim()) return alert("Enter a report recipient email.");
+    const { error } = await supabase.from("weekly_report_settings").upsert({ workspace_id: workspaceUserId, recipient_email: reportSettings.recipient_email.trim(), is_enabled: reportSettings.is_enabled, updated_at: new Date().toISOString() });
+    if (error) return alert(error.message);
+    alert("Weekly report settings saved.");
   }
 
   async function assignLocationToPoll() {
@@ -1033,7 +1079,7 @@ export default function Admin() {
         <summary className="cursor-pointer p-4 text-xl font-bold">QR campaigns</summary>
         <div className="px-4 pb-4">
           <p className="mb-3 text-sm text-slate-400">Create a durable QR code per placement to measure scans, responses, and opted-in follow-up leads.</p>
-          <div className="grid md:grid-cols-3 gap-3 mb-4">
+          <div className="grid md:grid-cols-3 gap-3 mb-3">
             <input value={newCampaignName} onChange={(event) => setNewCampaignName(event.target.value)} className="border p-2 rounded text-black" placeholder="Lobby poster, receipt, table tent" />
             <select value={newCampaignPollId} onChange={(event) => setNewCampaignPollId(event.target.value)} className="border p-2 rounded text-black">
               <option value="">Choose a poll</option>
@@ -1041,6 +1087,7 @@ export default function Admin() {
             </select>
             <button onClick={handleCreateCampaign} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">Create campaign QR</button>
           </div>
+          <div className="grid md:grid-cols-2 gap-3 mb-4"><input value={newCampaignPlacement} onChange={(event) => setNewCampaignPlacement(event.target.value)} className="border p-2 rounded text-black" placeholder="Placement label: lobby, receipt, table" /><input value={newCampaignVariant} onChange={(event) => setNewCampaignVariant(event.target.value)} className="border p-2 rounded text-black" placeholder="Variant label: A, bold headline" /></div>
           <div className="space-y-2">
             {qrCampaigns.length === 0 ? <p className="text-gray-400">No tracked QR campaigns yet.</p> : qrCampaigns.map((campaign) => {
               const url = `${window.location.origin}/qr/${campaign.token}`;
@@ -1048,7 +1095,7 @@ export default function Admin() {
                 <div key={campaign.id} className="flex items-center justify-between gap-3 border border-gray-700 rounded p-3">
                   <div className="min-w-0">
                     <p className="font-semibold">{campaign.name}</p>
-                    <p className="text-xs text-gray-400">Poll #{campaign.poll_id} · {campaign.is_active ? "Active" : "Paused"}</p>
+                    <p className="text-xs text-gray-400">Poll #{campaign.poll_id} · {campaign.placement_label || "Unlabeled placement"}{campaign.variant_label ? ` · ${campaign.variant_label}` : ""} · {campaign.is_active ? "Active" : "Paused"}</p>
                     <p className="truncate text-xs text-blue-300">{url}</p>
                   </div>
                   <button onClick={() => navigator.clipboard.writeText(url)} className="shrink-0 bg-slate-700 text-white px-3 py-2 rounded font-semibold">Copy link</button>
@@ -1056,6 +1103,15 @@ export default function Admin() {
               );
             })}
           </div>
+        </div>
+      </details>
+
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">Feedback recovery and weekly reports</summary>
+        <div className="px-4 pb-4 space-y-5">
+          <div><p className="mb-2 text-sm text-slate-400">Create alerts for low numeric scores or an exact answer. New matching votes create manager-only alerts.</p><div className="grid md:grid-cols-4 gap-3"><select value={newRulePollId} onChange={(event) => setNewRulePollId(event.target.value)} className="border p-2 rounded text-black"><option value="">Choose a poll</option>{polls.map((poll) => <option key={poll.id} value={poll.id}>#{poll.id} - {poll.question}</option>)}</select><select value={newRuleType} onChange={(event) => setNewRuleType(event.target.value)} className="border p-2 rounded text-black"><option value="low_score">Low score</option><option value="answer_match">Exact answer</option></select>{newRuleType === "low_score" ? <input type="number" min="0" max="10" value={newRuleThreshold} onChange={(event) => setNewRuleThreshold(event.target.value)} className="border p-2 rounded text-black" placeholder="Score at or below" /> : <input value={newRuleAnswer} onChange={(event) => setNewRuleAnswer(event.target.value)} className="border p-2 rounded text-black" placeholder="Answer trigger" />}<button onClick={createAlertRule} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">Add alert rule</button></div><div className="mt-3 text-sm">{alertRules.length ? alertRules.map((rule) => <p key={rule.id} className="border-b border-gray-700 py-1">Poll #{rule.poll_id}: {rule.trigger_type === "low_score" ? `score at or below ${rule.score_threshold}` : `answer “${rule.answer_match}”`}</p>) : <p className="text-gray-400">No feedback alert rules yet.</p>}</div></div>
+          <div><p className="mb-2 text-sm text-slate-400">Turn an alert into a recovery task and track completion.</p><div className="grid md:grid-cols-3 gap-3"><input value={newTaskTitle} onChange={(event) => setNewTaskTitle(event.target.value)} className="border p-2 rounded text-black" placeholder="Call customer, review service issue" /><select value={newTaskAlertId} onChange={(event) => setNewTaskAlertId(event.target.value)} className="border p-2 rounded text-black"><option value="">No linked alert</option>{feedbackAlerts.filter((alert) => alert.status !== "resolved").map((alert) => <option key={alert.id} value={alert.id}>#{alert.id} Poll #{alert.poll_id}: {alert.answer}</option>)}</select><button onClick={createRecoveryTask} className="bg-emerald-600 text-white px-4 py-2 rounded font-semibold">Add recovery task</button></div><div className="mt-3 text-sm">{recoveryTasks.length ? recoveryTasks.map((task) => <div key={task.id} className="flex justify-between border-b border-gray-700 py-1"><span>{task.title}</span><select value={task.status} onChange={async (event) => { const status = event.target.value; const { error } = await supabase.from("feedback_recovery_tasks").update({ status, completed_at: status === "done" ? new Date().toISOString() : null }).eq("id", task.id); if (!error) setRecoveryTasks((current) => current.map((item) => item.id === task.id ? { ...item, status } : item)); }} className="text-black"><option value="open">Open</option><option value="in_progress">In progress</option><option value="done">Done</option></select></div>) : <p className="text-gray-400">No recovery tasks yet.</p>}</div></div>
+          <div><p className="mb-2 text-sm text-slate-400">The Monday Vercel cron prepares a workspace summary. It delivers through Resend only when the server key is configured.</p><div className="grid md:grid-cols-3 gap-3 items-center"><input type="email" value={reportSettings.recipient_email} onChange={(event) => setReportSettings((current) => ({ ...current, recipient_email: event.target.value }))} className="border p-2 rounded text-black" placeholder="manager@example.com" /><label className="flex gap-2 items-center"><input type="checkbox" checked={reportSettings.is_enabled} onChange={(event) => setReportSettings((current) => ({ ...current, is_enabled: event.target.checked }))} /> Enable weekly report</label><button onClick={saveReportSettings} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save report settings</button></div></div>
         </div>
       </details>
 

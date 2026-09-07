@@ -12,10 +12,10 @@ export async function loadQrCampaigns() {
   return data ?? [];
 }
 
-export async function createQrCampaign({ name, pollId, token }) {
+export async function createQrCampaign({ name, pollId, token, placementLabel, variantLabel }) {
   const { data, error } = await supabase
     .from("qr_campaigns")
-    .insert({ name: String(name).trim(), poll_id: Number(pollId), token: token || buildQrToken() })
+    .insert({ name: String(name).trim(), poll_id: Number(pollId), token: token || buildQrToken(), placement_label: String(placementLabel || "").trim() || null, variant_label: String(variantLabel || "").trim() || null })
     .select()
     .single();
   if (error) throw new Error(`Unable to create QR campaign: ${error.message}`);
