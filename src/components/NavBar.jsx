@@ -59,6 +59,12 @@ export default function NavBar() {
         </Link>
         <div className="site-nav-actions">
           {user && <Link to="/create" onClick={closeMenu} className="site-nav-primary">Create poll</Link>}
+          {user && (
+            <Link to="/admin" onClick={closeMenu} className="site-nav-dashboard">
+              <span className="site-nav-dashboard-full">Admin dashboard</span>
+              <span className="site-nav-dashboard-short">Dashboard</span>
+            </Link>
+          )}
           {!user && <Link to="/register" onClick={closeMenu} className="site-nav-primary">Create workspace</Link>}
           <button
             type="button"
@@ -78,7 +84,6 @@ export default function NavBar() {
           <Link to="/login" onClick={closeMenu}>Sign in</Link>
         </>}
         {user && <>
-          <Link to="/admin" onClick={closeMenu}>Admin dashboard</Link>
           <Link to="/admin/billing" onClick={closeMenu}>Billing</Link>
           <Link to="/admin/moderation" onClick={closeMenu}>Moderation</Link>
           <Link to="/account" onClick={closeMenu}>Account</Link>

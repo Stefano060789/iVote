@@ -96,6 +96,24 @@ input {
   text-decoration: none;
 }
 
+.site-nav-dashboard {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.56);
+  border-radius: 5px;
+  padding: 0 12px;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.site-nav-dashboard-short {
+  display: none;
+}
+
 .site-nav-links {
   position: absolute;
   top: calc(100% - 6px);
@@ -367,6 +385,19 @@ input {
   .site-nav-primary {
     padding: 0 10px;
     font-size: 0.82rem;
+  }
+
+  .site-nav-dashboard {
+    padding: 0 10px;
+    font-size: 0.82rem;
+  }
+
+  .site-nav-dashboard-full {
+    display: none;
+  }
+
+  .site-nav-dashboard-short {
+    display: inline;
   }
 
   .landing-hero {
