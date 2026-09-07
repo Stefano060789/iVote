@@ -5,6 +5,7 @@ import { loadWorkspaceProfile } from "../lib/workspaceProfile";
 
 export default function NavBar() {
   const [user, setUser] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [workspace, setWorkspace] = useState({
     companyName: "iVote",
     primaryColor: "#2563eb",
@@ -41,39 +42,47 @@ export default function NavBar() {
     return () => listener.subscription.unsubscribe();
   }, []);
 
+  function closeMenu() {
+    setMenuOpen(false);
+  }
+
+  async function signOut() {
+    await supabase.auth.signOut();
+    closeMenu();
+  }
+
   return (
-    <nav
-      className="p-4 flex gap-4 items-center"
-      style={{ backgroundColor: workspace.accentColor, color: "white" }}
-    >
-      <Link to="/" className="font-semibold" style={{ color: "white" }}>
-        {workspace.companyName}
-      </Link>
-      <Link to="/support" className="font-semibold" style={{ color: "white" }}>Support</Link>
+    <nav className="site-nav" style={{ backgroundColor: workspace.accentColor, color: "white" }}>
+      <div className="site-nav-bar">
+        <Link to="/" onClick={closeMenu} className="site-nav-brand">
+          {workspace.companyName}
+        </Link>
+        <button
+          type="button"
+          className="site-nav-toggle"
+          aria-expanded={menuOpen}
+          aria-controls="site-navigation"
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          Menu
+        </button>
+      </div>
 
-      {!user && (
-        <>
-          <Link to="/register" className="font-semibold" style={{ color: "white" }}>Register</Link>
-          <Link to="/login" className="font-semibold" style={{ color: "white" }}>Login</Link>
-        </>
-      )}
-
-      {user && (
-        <>
-          <Link to="/create" className="font-semibold" style={{ color: "white" }}>Create poll</Link>
-          <Link to="/admin" className="font-semibold" style={{ color: "white" }}>Admin</Link>
-          <Link to="/admin/billing" className="font-semibold" style={{ color: "white" }}>Billing</Link>
-          <Link to="/admin/moderation" className="font-semibold" style={{ color: "white" }}>Moderation</Link>
-          <Link to="/account" className="font-semibold" style={{ color: "white" }}>Account</Link>
-          <button
-            onClick={() => supabase.auth.signOut()}
-            className="font-semibold"
-            style={{ color: "white" }}
-          >
-            Logout
-          </button>
-        </>
-      )}
+      <div id="site-navigation" className={`site-nav-links ${menuOpen ? "is-open" : ""}`}>
+        <Link to="/support" onClick={closeMenu}>Support</Link>
+        {!user && <>
+          <Link to="/register" onClick={closeMenu}>Create workspace</Link>
+          <Link to="/login" onClick={closeMenu}>Sign in</Link>
+        </>}
+        {user && <>
+          <Link to="/create" onClick={closeMenu}>Create poll</Link>
+          <Link to="/admin" onClick={closeMenu}>Admin</Link>
+          <Link to="/admin/billing" onClick={closeMenu}>Billing</Link>
+          <Link to="/admin/moderation" onClick={closeMenu}>Moderation</Link>
+          <Link to="/account" onClick={closeMenu}>Account</Link>
+          <button type="button" onClick={signOut}>Sign out</button>
+        </>}
+      </div>
     </nav>
   );
 }
