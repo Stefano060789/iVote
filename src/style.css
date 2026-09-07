@@ -347,12 +347,17 @@ input {
   align-items: center;
   justify-content: center;
   min-height: 44px;
-  border: 1px solid #0f766e;
   border-radius: 6px;
   padding: 0 20px;
-  color: #0f766e;
+  background: #38bdf8;
+  color: #082f49;
   font-weight: 700;
   text-decoration: none;
+}
+
+.landing-admin-action:hover {
+  background: #0ea5e9;
+  color: #ffffff;
 }
 
 .landing-register-link {
