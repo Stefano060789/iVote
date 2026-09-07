@@ -67,7 +67,12 @@ export default function Landing() {
       <section className="landing-final">
         <p className="landing-eyebrow">Ready to measure the room?</p>
         <h2>Launch your first QR feedback campaign.</h2>
-        <Link to="/register" className="landing-primary-action">Start with iVote</Link>
+        <p className="landing-final-copy">Create a new poll or manage the feedback campaigns already running in your workspace.</p>
+        <div className="landing-admin-actions">
+          <Link to="/create" className="landing-primary-action">Create poll</Link>
+          <Link to="/admin" className="landing-admin-action">Admin dashboard</Link>
+        </div>
+        <Link to="/register" className="landing-register-link">New to iVote? Create a workspace</Link>
       </section>
     </main>
   );

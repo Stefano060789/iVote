@@ -306,6 +306,39 @@ input {
   margin: 0 auto 26px;
 }
 
+.landing-final-copy {
+  max-width: 560px;
+  margin: 0 auto 24px;
+  color: #475569;
+}
+
+.landing-admin-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.landing-admin-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border: 1px solid #0f766e;
+  border-radius: 6px;
+  padding: 0 20px;
+  color: #0f766e;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.landing-register-link {
+  display: inline-block;
+  margin-top: 20px;
+  color: #0f766e;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 @media (max-width: 720px) {
   .site-nav-bar,
   .site-nav-links {
@@ -350,5 +383,17 @@ input {
 
   .landing-outcomes {
     gap: 38px;
+  }
+
+  .landing-admin-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .landing-admin-actions .landing-primary-action,
+  .landing-admin-action {
+    width: 100%;
   }
 }

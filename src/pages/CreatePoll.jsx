@@ -190,7 +190,7 @@ export default function CreatePoll() {
         <label className="block mb-2 font-semibold">Question</label>
         <input
           type="text"
-          className="w-full border p-2 rounded mb-4 text-black placeholder-black"
+          className="w-full border p-2 rounded mb-4 text-black"
           placeholder="What do you think about...?"
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
