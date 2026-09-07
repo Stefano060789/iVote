@@ -32,6 +32,8 @@ export default function Admin() {
   const [newLocationToken, setNewLocationToken] = useState("");
   const [selectedLocationId, setSelectedLocationId] = useState("");
   const [selectedPollForLocation, setSelectedPollForLocation] = useState("");
+  const [qrPrintFormat, setQrPrintFormat] = useState("a4");
+  const [qrStyleSeed, setQrStyleSeed] = useState(1);
   const [analytics, setAnalytics] = useState({ total: 0, active: 0, closed: 0, scheduled: 0, withLocation: 0 });
   const [workspaceProfile, setWorkspaceProfile] = useState({
     companyName: "iVote",
@@ -617,6 +619,41 @@ export default function Admin() {
     navigator.clipboard.writeText(shareLink);
   }
 
+  function getQrPrintFormatConfig(format = qrPrintFormat) {
+    const formatMap = {
+      letter: { label: "Letter", size: "8.5in 11in", cssSize: "820px 1050px", margin: "0.5in" },
+      a4: { label: "A4", size: "A4", cssSize: "794px 1123px", margin: "0.5in" },
+      a5: { label: "A5", size: "A5", cssSize: "562px 794px", margin: "0.4in" },
+      a3: { label: "A3", size: "A3", cssSize: "1123px 1587px", margin: "0.5in" },
+      postcard: { label: "Postcard", size: "5in 7in", cssSize: "480px 680px", margin: "0.2in" }
+    };
+
+    return formatMap[format] || formatMap.a4;
+  }
+
+  function generateAiQrStyle(seedOverride = qrStyleSeed) {
+    const baseName = `${workspaceProfile.companyName || "iVote"}-${seedOverride}`;
+    const hash = Array.from(baseName).reduce((sum, char) => sum + char.charCodeAt(0), 0);
+    const palette = [
+      workspaceProfile.primaryColor || "#2563eb",
+      workspaceProfile.accentColor || "#0f172a",
+      "#f8fafc",
+      "#e0f2fe",
+      "#fdf2f8",
+      "#ecfeff"
+    ];
+
+    const first = palette[hash % palette.length];
+    const second = palette[(hash + 2) % palette.length];
+    const third = palette[(hash + 4) % palette.length];
+    const fourth = palette[(hash + 5) % palette.length];
+
+    return {
+      background: `radial-gradient(circle at top left, ${first} 0%, ${second} 32%, ${third} 62%, ${fourth} 100%)`,
+      shadow: `0 20px 45px rgba(15, 23, 42, 0.18)`
+    };
+  }
+
   function downloadQR(pollId) {
     const img = qrRef.current;
     if (!img) {
@@ -642,12 +679,20 @@ export default function Admin() {
     link.click();
   }
 
-  function printQR() {
+  function printQR(poll) {
     const img = qrRef.current;
     if (!img) {
       console.error("QR image is not available for printing.");
       return;
     }
+
+    const formatConfig = getQrPrintFormatConfig();
+    const generatedStyle = generateAiQrStyle(qrStyleSeed);
+    const logoMarkup = workspaceProfile.logoUrl
+      ? `<img src="${workspaceProfile.logoUrl}" alt="Brand logo" style="max-height: 56px; max-width: 160px; object-fit: contain; margin-right: 16px;" />`
+      : "";
+    const companyName = (workspaceProfile.companyName || "iVote").replace(/[<>&"']/g, "");
+    const pollTitle = (poll?.question || "Poll QR").replace(/[<>&"']/g, "");
 
     const printWindow = window.open("", "_blank");
     if (!printWindow) {
@@ -657,9 +702,86 @@ export default function Admin() {
 
     printWindow.document.write(`
       <html>
-        <head><title>Print QR</title></head>
-        <body style="text-align:center; margin-top:50px;">
-          <img src="${img.src}" style="width:200px; height:200px;" />
+        <head>
+          <title>Print QR</title>
+          <style>
+            @page { size: ${formatConfig.size}; margin: ${formatConfig.margin}; }
+            body {
+              margin: 0;
+              background: #f8fafc;
+              font-family: Arial, sans-serif;
+              color: #0f172a;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .page {
+              width: ${formatConfig.cssSize};
+              min-height: ${formatConfig.cssSize};
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+              background: ${generatedStyle.background};
+              border-radius: 20px;
+              box-shadow: ${generatedStyle.shadow};
+              padding: 36px;
+              box-sizing: border-box;
+            }
+            .header {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 14px;
+              margin-bottom: 18px;
+            }
+            .brand {
+              font-size: 28px;
+              font-weight: 700;
+              letter-spacing: 0.04em;
+              color: #0f172a;
+            }
+            .qr-box {
+              background: rgba(255,255,255,0.92);
+              border-radius: 18px;
+              padding: 18px;
+              box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+            }
+            .qr-box img {
+              display: block;
+              width: 260px;
+              height: 260px;
+              object-fit: contain;
+            }
+            .title {
+              margin-top: 18px;
+              font-size: 20px;
+              font-weight: 700;
+              text-align: center;
+              max-width: 620px;
+            }
+            .subtitle {
+              margin-top: 8px;
+              font-size: 14px;
+              text-align: center;
+              letter-spacing: 0.08em;
+              text-transform: uppercase;
+              color: #334155;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="page">
+            <div class="header">
+              ${logoMarkup}
+              <div class="brand">${companyName}</div>
+            </div>
+            <div class="qr-box">
+              <img src="${img.src}" alt="QR code" />
+            </div>
+            <div class="subtitle">Scan to vote</div>
+            <div class="title">${pollTitle}</div>
+          </div>
         </body>
       </html>
     `);
@@ -694,7 +816,10 @@ export default function Admin() {
 
   return (
     <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center">Admin Dashboard</h1>
+      <div className="mb-6 text-center">
+        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+        <p className="mt-2 text-sm text-slate-400">Create, share, and manage every poll from one place.</p>
+      </div>
 
       <div className="flex justify-center mb-6">
         <Link to="/admin/analytics" className="bg-purple-600 text-white px-3 py-2 rounded font-semibold">
@@ -725,7 +850,10 @@ export default function Admin() {
         </div>
       </div>
 
-      <div className="mb-6 flex flex-col md:flex-row gap-3">
+      <div className="mb-6">
+        <h2 className="text-xl font-bold">Your polls</h2>
+        <p className="mt-1 mb-3 text-sm text-slate-400">Search and filter the polls you need to manage.</p>
+        <div className="flex flex-col md:flex-row gap-3">
         <input
           type="text"
           value={searchTerm}
@@ -754,10 +882,13 @@ export default function Admin() {
             <option key={location} value={location}>{location}</option>
           ))}
         </select>
+        </div>
       </div>
 
-      <div className="mb-6 border rounded p-4 bg-gray-900">
-        <h2 className="text-xl font-bold mb-3">QR locations</h2>
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">QR locations</summary>
+        <div className="px-4 pb-4">
+        <p className="mb-3 text-sm text-slate-400">Create reusable QR locations, then point each location at the poll currently running there.</p>
         <div className="grid md:grid-cols-3 gap-3 mb-4">
           <input
             type="text"
@@ -819,11 +950,14 @@ export default function Admin() {
             ))
           )}
         </div>
-      </div>
+        </div>
+      </details>
 
-      <div className="mb-6 border rounded p-4 bg-gray-900">
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">Workspace settings</summary>
+        <div className="px-4 pb-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xl font-bold">Workspace settings</h2>
+          <p className="text-sm text-slate-400">Set the name, logo, colors, and access level used across your workspace.</p>
           <span className="text-xs uppercase tracking-wide text-gray-300">Role: {workspaceProfile.role}</span>
         </div>
 
@@ -882,11 +1016,14 @@ export default function Admin() {
             Save workspace settings
           </button>
         </div>
-      </div>
+        </div>
+      </details>
 
-      <div className="mb-6 border rounded p-4 bg-gray-900">
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">Team access</summary>
+        <div className="px-4 pb-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xl font-bold">Team access</h2>
+          <p className="text-sm text-slate-400">Invite colleagues and choose what they can manage.</p>
           <span className="text-xs uppercase tracking-wide text-gray-300">{teamMembers.length} members</span>
         </div>
 
@@ -950,10 +1087,13 @@ export default function Admin() {
             ))
           )}
         </div>
-      </div>
+        </div>
+      </details>
 
-      <div className="mb-6 border rounded p-4 bg-gray-900">
-        <h2 className="text-xl font-bold mb-3">Recent audit log</h2>
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">Recent activity</summary>
+        <div className="px-4 pb-4">
+        <p className="mb-3 text-sm text-slate-400">Review the latest administrative actions in this workspace.</p>
         <div className="space-y-2 text-sm">
           {auditEntries.length === 0 ? (
             <p className="text-gray-400">No activity yet.</p>
@@ -966,7 +1106,8 @@ export default function Admin() {
             ))
           )}
         </div>
-      </div>
+        </div>
+      </details>
 
       {filteredPolls.length === 0 && <p className="text-center text-gray-600">No matching polls found.</p>}
 
@@ -1138,12 +1279,36 @@ export default function Admin() {
                     {poll.stable_short_url || poll.short_url}
                   </p>
                 )}
-                <div className="flex gap-3 mt-4 justify-center">
+                <div className="mt-4 grid md:grid-cols-2 gap-3 items-end">
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">Print format</label>
+                    <select
+                      value={qrPrintFormat}
+                      onChange={(event) => setQrPrintFormat(event.target.value)}
+                      className="border p-2 rounded text-black w-full"
+                    >
+                      <option value="letter">Letter</option>
+                      <option value="a4">A4</option>
+                      <option value="a5">A5</option>
+                      <option value="a3">A3</option>
+                      <option value="postcard">Postcard</option>
+                    </select>
+                  </div>
+                  <div>
+                    <button
+                      onClick={() => setQrStyleSeed((prev) => prev + 1)}
+                      className="bg-fuchsia-600 text-white px-4 py-2 rounded font-semibold w-full"
+                    >
+                      Generate AI style
+                    </button>
+                  </div>
+                </div>
+                <div className="flex gap-3 mt-4 justify-center flex-wrap">
                   <button onClick={() => downloadQR(poll.id)} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">
                     Download QR
                   </button>
 
-                  <button onClick={printQR} className="bg-green-600 text-white px-4 py-2 rounded font-semibold">
+                  <button onClick={() => printQR(poll)} className="bg-green-600 text-white px-4 py-2 rounded font-semibold">
                     Print QR
                   </button>
                 </div>

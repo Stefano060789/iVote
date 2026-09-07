@@ -168,7 +168,10 @@ export default function CreatePoll() {
   return (
     <Layout>
       <div className="max-w-xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-6 text-center">Create a Poll</h1>
+        <div className="mb-6 text-center">
+          <h1 className="text-3xl font-bold">Create a Poll</h1>
+          <p className="mt-2 text-sm text-slate-400">Add a question and answers, then share the voting link.</p>
+        </div>
 
         <label className="block mb-2 font-semibold">Template</label>
         <select
@@ -210,89 +213,100 @@ export default function CreatePoll() {
           <p className="text-red-600 text-sm mb-4">Maximum of 10 answers reached.</p>
         )}
 
-        <label className="flex items-center gap-2 mt-4 mb-4">
-          <input
-            type="checkbox"
-            checked={multipleChoice}
-            onChange={(e) => setMultipleChoice(e.target.checked)}
-          />
-          <span>Allow multiple answers</span>
-        </label>
+        <details className="mb-4 border border-slate-700 rounded">
+          <summary className="cursor-pointer p-3 font-semibold">Response options</summary>
+          <div className="px-3 pb-3">
+            <p className="mb-3 text-sm text-slate-400">Choose how people can respond to this poll.</p>
+            <label className="flex items-center gap-2 mb-3">
+              <input
+                type="checkbox"
+                checked={multipleChoice}
+                onChange={(e) => setMultipleChoice(e.target.checked)}
+              />
+              <span>Allow more than one answer</span>
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={allowUserAnswers}
+                onChange={(e) => setAllowUserAnswers(e.target.checked)}
+              />
+              <span>Let people add their own answer</span>
+            </label>
+          </div>
+        </details>
 
-        <label className="flex items-center gap-2 mt-4 mb-4">
-          <input
-            type="checkbox"
-            checked={allowUserAnswers}
-            onChange={(e) => setAllowUserAnswers(e.target.checked)}
-          />
-          <span>Allow users to add their own answers</span>
-        </label>
-
-        <label className="block mb-2 font-semibold">QR location name</label>
-        <input
-          type="text"
-          value={locationName}
-          onChange={(e) => setLocationName(e.target.value)}
-          className="w-full border p-2 rounded mb-4 text-black placeholder-black"
-          placeholder="Entrance, Table 1, Bar"
-        />
-
-        <h2 className="text-xl font-bold mb-3">Branding</h2>
-
-        <label className="block mb-2 font-semibold">Customer/Brand name</label>
-        <input
-          type="text"
-          value={brandName}
-          onChange={(e) => setBrandName(e.target.value)}
-          className="w-full border p-2 rounded mb-4 text-black placeholder-black"
-          placeholder="Acme Events"
-        />
-
-        <label className="block mb-2 font-semibold">Brand logo URL (optional)</label>
-        <input
-          type="url"
-          value={brandLogoUrl}
-          onChange={(e) => setBrandLogoUrl(e.target.value)}
-          className="w-full border p-2 rounded mb-4 text-black placeholder-black"
-          placeholder="https://example.com/logo.png"
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-          <label className="block font-semibold">
-            Primary color
+        <details className="mb-4 border border-slate-700 rounded">
+          <summary className="cursor-pointer p-3 font-semibold">Branding and location</summary>
+          <div className="px-3 pb-3">
+            <p className="mb-3 text-sm text-slate-400">Add a brand or location to personalize this poll and its QR materials.</p>
+            <label className="block mb-2 font-semibold">QR location name</label>
             <input
-              type="color"
-              value={brandPrimaryColor}
-              onChange={(e) => setBrandPrimaryColor(e.target.value)}
-              className="w-full border p-1 rounded mt-1 h-11"
+              type="text"
+              value={locationName}
+              onChange={(e) => setLocationName(e.target.value)}
+              className="w-full border p-2 rounded mb-4 text-black placeholder-black"
+              placeholder="Entrance, Table 1, Bar"
             />
-          </label>
-          <label className="block font-semibold">
-            Accent color
+            <label className="block mb-2 font-semibold">Customer/Brand name</label>
             <input
-              type="color"
-              value={brandAccentColor}
-              onChange={(e) => setBrandAccentColor(e.target.value)}
-              className="w-full border p-1 rounded mt-1 h-11"
+              type="text"
+              value={brandName}
+              onChange={(e) => setBrandName(e.target.value)}
+              className="w-full border p-2 rounded mb-4 text-black placeholder-black"
+              placeholder="Acme Events"
             />
-          </label>
-        </div>
+            <label className="block mb-2 font-semibold">Brand logo URL</label>
+            <input
+              type="url"
+              value={brandLogoUrl}
+              onChange={(e) => setBrandLogoUrl(e.target.value)}
+              className="w-full border p-2 rounded mb-4 text-black placeholder-black"
+              placeholder="https://example.com/logo.png"
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <label className="block font-semibold">
+                Primary color
+                <input
+                  type="color"
+                  value={brandPrimaryColor}
+                  onChange={(e) => setBrandPrimaryColor(e.target.value)}
+                  className="w-full border p-1 rounded mt-1 h-11"
+                />
+              </label>
+              <label className="block font-semibold">
+                Accent color
+                <input
+                  type="color"
+                  value={brandAccentColor}
+                  onChange={(e) => setBrandAccentColor(e.target.value)}
+                  className="w-full border p-1 rounded mt-1 h-11"
+                />
+              </label>
+            </div>
+          </div>
+        </details>
 
-        <label className="block mb-2 font-semibold">Starts at</label>
-        <input
-          type="datetime-local"
-          value={startsAt}
-          onChange={(e) => setStartsAt(e.target.value)}
-          className="w-full border p-2 rounded mb-4 text-black placeholder-black"
-        />
-
-        <label className="block mb-2 font-semibold">Ends at</label>
-        <input
-          type="datetime-local"
-          value={expiresAt}
-          onChange={(e) => setExpiresAt(e.target.value)}
-          className="w-full border p-2 rounded mb-4 text-black placeholder-black"
-        />
+        <details className="mb-6 border border-slate-700 rounded">
+          <summary className="cursor-pointer p-3 font-semibold">Schedule this poll</summary>
+          <div className="px-3 pb-3">
+            <p className="mb-3 text-sm text-slate-400">Leave these blank to open the poll immediately and keep it open until you close it.</p>
+            <label className="block mb-2 font-semibold">Starts at</label>
+            <input
+              type="datetime-local"
+              value={startsAt}
+              onChange={(e) => setStartsAt(e.target.value)}
+              className="w-full border p-2 rounded mb-4 text-black placeholder-black"
+            />
+            <label className="block mb-2 font-semibold">Ends at</label>
+            <input
+              type="datetime-local"
+              value={expiresAt}
+              onChange={(e) => setExpiresAt(e.target.value)}
+              className="w-full border p-2 rounded text-black placeholder-black"
+            />
+          </div>
+        </details>
 
         <button
           onClick={createPoll}
@@ -338,6 +352,10 @@ export default function CreatePoll() {
             </div>
           </div>
         )}
+
+        <p className="mt-10 text-center text-xs text-slate-400">
+          iVote v1.0.1
+        </p>
       </div>
     </Layout>
   );

@@ -319,7 +319,7 @@ export default function Vote() {
   return (
     <Layout>
       <div
-        className="max-w-xl mx-auto p-6 rounded-lg border"
+        className="max-w-xl mx-auto p-5 sm:p-8 rounded-lg border shadow-lg"
         style={{ borderColor: branding.primaryColor, backgroundColor: `${branding.accentColor}20` }}
       >
         {branding.logoUrl && (
@@ -330,16 +330,23 @@ export default function Vote() {
           />
         )}
         {branding.brandName && (
-          <p className="text-center text-sm mb-2" style={{ color: branding.primaryColor }}>
+          <p className="text-center text-sm font-semibold mb-4" style={{ color: branding.primaryColor }}>
             {branding.brandName}
           </p>
         )}
-        <div className="mb-4">
-          <label className="block text-sm mb-2">Translate</label>
+        <div className="flex items-center justify-between gap-3 mb-6">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Your vote</p>
+            <p className="text-sm text-slate-300">
+              {poll.multiple_choice ? "Choose one or more answers" : "Choose one answer"}
+            </p>
+          </div>
+          <label className="text-right text-xs text-slate-300">
+            Language
           <select
             value={translationLanguage}
             onChange={(event) => setTranslationLanguage(event.target.value)}
-            className="border rounded p-2 text-black w-full"
+            className="mt-1 block border rounded p-2 text-black w-full min-w-32"
           >
             {TRANSLATION_LANGUAGES.map((language) => (
               <option key={language.value} value={language.value}>
@@ -347,23 +354,28 @@ export default function Vote() {
               </option>
             ))}
           </select>
+          </label>
           {translationLoading && <p className="text-xs text-gray-400 mt-2">Translating poll content...</p>}
           {translationError && <p className="text-xs text-red-400 mt-2">{translationError}</p>}
         </div>
-        <h1 className="text-3xl font-bold mb-6 text-center">{questionForDisplay}</h1>
-        <p className="text-gray-500 text-sm mb-4">
-          {poll.multiple_choice ? "Multiple-choice poll" : "Single-choice poll"}
-        </p>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">{questionForDisplay}</h1>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {allAnswers.map((answer) => (
-            <label key={answer} className="flex items-center gap-2">
+            <label
+              key={answer}
+              className={`flex items-center gap-3 border rounded-lg p-4 cursor-pointer transition-colors ${
+                selectedAnswers.includes(answer) ? "border-2 bg-white/10" : "border-slate-600 hover:border-slate-400"
+              }`}
+              style={selectedAnswers.includes(answer) ? { borderColor: branding.primaryColor } : undefined}
+            >
               <input
                 type={(poll.multiple_choice ?? poll.allow_multiple) ? "checkbox" : "radio"}
                 checked={selectedAnswers.includes(answer)}
                 onChange={() => handleSelect(answer)}
+                className="h-5 w-5"
               />
-              {translationLanguage === "original" ? answer : translatedAnswers[answer] || answer}
+              <span className="font-medium">{translationLanguage === "original" ? answer : translatedAnswers[answer] || answer}</span>
             </label>
           ))}
         </div>
@@ -405,10 +417,10 @@ export default function Vote() {
         <button
           onClick={() => submitVote(selectedAnswers)}
           disabled={selectedAnswers.length === 0}
-          className="text-white p-3 rounded mt-4 w-full disabled:opacity-60"
+          className="text-white p-3 rounded mt-6 w-full font-semibold disabled:opacity-60"
           style={{ backgroundColor: branding.primaryColor }}
         >
-          Submit Vote
+          {selectedAnswers.length === 0 ? "Select an answer to vote" : `Submit vote${selectedAnswers.length > 1 ? ` (${selectedAnswers.length})` : ""}`}
         </button>
       </div>
     </Layout>
