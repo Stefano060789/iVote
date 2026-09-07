@@ -101,13 +101,19 @@ input {
   align-items: center;
   justify-content: center;
   min-height: 38px;
-  border: 1px solid rgba(255, 255, 255, 0.56);
   border-radius: 5px;
   padding: 0 12px;
-  color: #ffffff;
+  background: #38bdf8;
+  color: #082f49;
   font-size: 0.9rem;
   font-weight: 800;
   text-decoration: none;
+}
+
+.site-nav-dashboard:hover,
+.site-nav-dashboard.is-active {
+  background: #0ea5e9;
+  color: #ffffff;
 }
 
 .site-nav-dashboard-short {

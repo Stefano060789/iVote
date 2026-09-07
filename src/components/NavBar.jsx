@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { loadWorkspaceProfile } from "../lib/workspaceProfile";
 
 export default function NavBar() {
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [workspace, setWorkspace] = useState({
@@ -60,7 +61,12 @@ export default function NavBar() {
         <div className="site-nav-actions">
           {user && <Link to="/create" onClick={closeMenu} className="site-nav-primary">Create poll</Link>}
           {user && (
-            <Link to="/admin" onClick={closeMenu} className="site-nav-dashboard">
+            <Link
+              to="/admin"
+              onClick={closeMenu}
+              className={`site-nav-dashboard ${location.pathname === "/admin" ? "is-active" : ""}`}
+              aria-current={location.pathname === "/admin" ? "page" : undefined}
+            >
               <span className="site-nav-dashboard-full">Admin dashboard</span>
               <span className="site-nav-dashboard-short">Dashboard</span>
             </Link>
