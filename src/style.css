@@ -182,10 +182,6 @@ textarea {
   color: #ffffff;
 }
 
-.site-nav-dashboard-short {
-  display: none;
-}
-
 .site-nav-links {
   position: absolute;
   top: calc(100% - 6px);
@@ -467,14 +463,6 @@ textarea {
   .site-nav-dashboard {
     padding: 0 10px;
     font-size: 0.82rem;
-  }
-
-  .site-nav-dashboard-full {
-    display: none;
-  }
-
-  .site-nav-dashboard-short {
-    display: inline;
   }
 
   .landing-hero {

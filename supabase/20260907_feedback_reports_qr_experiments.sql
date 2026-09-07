@@ -75,15 +75,18 @@ with check (public.is_workspace_manager(workspace_id));
 create or replace function public.validate_feedback_workspace_links()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
-  if tg_table_name = 'feedback_alert_rules' and not exists (
-    select 1 from public.polls where id = new.poll_id and workspace_id = new.workspace_id
-  ) then
-    raise exception 'The alert rule poll must belong to the workspace.';
-  end if;
-  if tg_table_name = 'feedback_recovery_tasks' and new.alert_id is not null and not exists (
-    select 1 from public.feedback_alerts where id = new.alert_id and workspace_id = new.workspace_id
-  ) then
-    raise exception 'The recovery task alert must belong to the workspace.';
+  if tg_table_name = 'feedback_alert_rules' then
+    if not exists (
+      select 1 from public.polls where id = new.poll_id and workspace_id = new.workspace_id
+    ) then
+      raise exception 'The alert rule poll must belong to the workspace.';
+    end if;
+  elsif tg_table_name = 'feedback_recovery_tasks' then
+    if new.alert_id is not null and not exists (
+      select 1 from public.feedback_alerts where id = new.alert_id and workspace_id = new.workspace_id
+    ) then
+      raise exception 'The recovery task alert must belong to the workspace.';
+    end if;
   end if;
   return new;
 end;

@@ -94,8 +94,7 @@ export default function NavBar() {
               className={`site-nav-dashboard ${location.pathname === "/admin" ? "is-active" : ""}`}
               aria-current={location.pathname === "/admin" ? "page" : undefined}
             >
-              <span className="site-nav-dashboard-full">Admin dashboard</span>
-              <span className="site-nav-dashboard-short">Dashboard</span>
+              Dashboard
             </Link>
           )}
           {!user && <Link to="/register" onClick={closeMenu} className="site-nav-primary">Create workspace</Link>}
