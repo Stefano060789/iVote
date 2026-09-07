@@ -59,6 +59,7 @@ export default function NavBar() {
 
       {user && (
         <>
+          <Link to="/create" className="font-semibold" style={{ color: "white" }}>Create poll</Link>
           <Link to="/admin" className="font-semibold" style={{ color: "white" }}>Admin</Link>
           <Link to="/admin/billing" className="font-semibold" style={{ color: "white" }}>Billing</Link>
           <button

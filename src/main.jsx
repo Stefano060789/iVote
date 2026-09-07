@@ -14,6 +14,7 @@ import Register from "./pages/Register";
 import ThankYou from "./pages/ThankYou";
 import QrRedirect from "./pages/QrRedirect";
 import Billing from "./pages/Billing";
+import Landing from "./pages/Landing";
 
 import "./style.css";
 
@@ -21,7 +22,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <NavBar />
     <Routes>
-      <Route path="/" element={<CreatePoll />} />
+      <Route path="/" element={<Landing />} />
       <Route path="/create" element={<CreatePoll />} />
       <Route path="/vote/:pollId" element={<Vote />} />
       <Route path="/qr/:token" element={<QrRedirect />} />
