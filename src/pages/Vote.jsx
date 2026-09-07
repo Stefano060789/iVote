@@ -1,10 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import { supabase } from "../lib/supabase";
 import { isRestrictedTopic } from "../lib/restrictedContent";
 import { readPollMeta, isPollClosed } from "../lib/pollMeta";
 import { getPollBranding } from "../lib/pollBranding";
+
+const TRANSLATION_LANGUAGES = [
+  { value: "original", label: "Original" },
+  { value: "en", label: "English" },
+  { value: "it", label: "Italiano" },
+  { value: "de", label: "Deutsch" },
+  { value: "fr", label: "Français" },
+  { value: "es", label: "Español" },
+  { value: "pt", label: "Português" },
+  { value: "ar", label: "العربية" },
+  { value: "zh-CN", label: "中文 (简体)" }
+];
 
 export default function Vote() {
   const { pollId } = useParams();
@@ -17,6 +29,11 @@ export default function Vote() {
   const [showAddField, setShowAddField] = useState(false);
   const [newAnswer, setNewAnswer] = useState("");
   const [userAnswers, setUserAnswers] = useState([]);
+  const [translationLanguage, setTranslationLanguage] = useState("original");
+  const [translatedQuestion, setTranslatedQuestion] = useState("");
+  const [translatedAnswers, setTranslatedAnswers] = useState({});
+  const [translationLoading, setTranslationLoading] = useState(false);
+  const [translationError, setTranslationError] = useState("");
 
   const pollMeta = poll ? readPollMeta(poll.id) : {};
   const alreadyVoted = localStorage.getItem(`voted_${pollId}`);
@@ -138,6 +155,94 @@ export default function Vote() {
     await loadUserAnswers(poll.id);
   }
 
+  async function translateText(text, targetLanguage) {
+    const normalizedText = String(text ?? "").trim();
+    if (!normalizedText) return "";
+
+    const response = await fetch(
+      `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(targetLanguage)}&dt=t&q=${encodeURIComponent(normalizedText)}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`Translation request failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+    const translated = Array.isArray(data?.[0])
+      ? data[0].map((item) => item?.[0] ?? "").join("").trim()
+      : "";
+
+    if (!translated) {
+      throw new Error("Translation service returned an empty response.");
+    }
+
+    return translated;
+  }
+
+  const allAnswers = useMemo(
+    () =>
+      Array.from(
+        new Set([
+          ...(Array.isArray(poll?.answers) ? poll.answers : []),
+          ...userAnswers.map((u) => u.answer)
+        ])
+      ),
+    [poll?.answers, userAnswers]
+  );
+  const branding = getPollBranding(poll ?? {});
+  const questionForDisplay = translationLanguage === "original"
+    ? (poll?.question ?? "")
+    : translatedQuestion || (poll?.question ?? "");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function runTranslation() {
+      if (!poll || !Array.isArray(poll.answers)) {
+        setTranslatedQuestion("");
+        setTranslatedAnswers({});
+        setTranslationLoading(false);
+        setTranslationError("");
+        return;
+      }
+
+      if (translationLanguage === "original") {
+        setTranslatedQuestion("");
+        setTranslatedAnswers({});
+        setTranslationLoading(false);
+        setTranslationError("");
+        return;
+      }
+
+      setTranslationLoading(true);
+      setTranslationError("");
+
+      try {
+        const translatedQuestionText = await translateText(poll.question, translationLanguage);
+        const translatedPairs = await Promise.all(
+          allAnswers.map(async (answer) => [answer, await translateText(answer, translationLanguage)])
+        );
+
+        if (cancelled) return;
+
+        setTranslatedQuestion(translatedQuestionText);
+        setTranslatedAnswers(Object.fromEntries(translatedPairs));
+      } catch (error) {
+        if (cancelled) return;
+        console.error(error);
+        setTranslationError(error.message || "Unable to translate poll content.");
+      } finally {
+        if (!cancelled) setTranslationLoading(false);
+      }
+    }
+
+    runTranslation();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [allAnswers, poll, translationLanguage]);
+
   if (loading) return <Layout><p className="text-center p-6">Loading poll...</p></Layout>;
 
   if (duplicate || alreadyVoted) {
@@ -211,14 +316,6 @@ export default function Vote() {
       </Layout>
     );
 
-  const allAnswers = Array.from(
-    new Set([
-      ...poll.answers,
-      ...userAnswers.map((u) => u.answer)
-    ])
-  );
-  const branding = getPollBranding(poll);
-
   return (
     <Layout>
       <div
@@ -237,7 +334,23 @@ export default function Vote() {
             {branding.brandName}
           </p>
         )}
-        <h1 className="text-3xl font-bold mb-6 text-center">{poll.question}</h1>
+        <div className="mb-4">
+          <label className="block text-sm mb-2">Translate</label>
+          <select
+            value={translationLanguage}
+            onChange={(event) => setTranslationLanguage(event.target.value)}
+            className="border rounded p-2 text-black w-full"
+          >
+            {TRANSLATION_LANGUAGES.map((language) => (
+              <option key={language.value} value={language.value}>
+                {language.label}
+              </option>
+            ))}
+          </select>
+          {translationLoading && <p className="text-xs text-gray-400 mt-2">Translating poll content...</p>}
+          {translationError && <p className="text-xs text-red-400 mt-2">{translationError}</p>}
+        </div>
+        <h1 className="text-3xl font-bold mb-6 text-center">{questionForDisplay}</h1>
         <p className="text-gray-500 text-sm mb-4">
           {poll.multiple_choice ? "Multiple-choice poll" : "Single-choice poll"}
         </p>
@@ -250,7 +363,7 @@ export default function Vote() {
                 checked={selectedAnswers.includes(answer)}
                 onChange={() => handleSelect(answer)}
               />
-              {answer}
+              {translationLanguage === "original" ? answer : translatedAnswers[answer] || answer}
             </label>
           ))}
         </div>
