@@ -8,11 +8,19 @@ export default function QrRedirect() {
 
   useEffect(() => {
     async function resolveQr() {
+      const { data: campaign, error: campaignError } = await supabase
+        .rpc("get_public_qr_campaign", { target_token: token })
+        .maybeSingle();
+
+      if (!campaignError && campaign?.poll_id) {
+        await supabase.rpc("record_qr_scan", { target_campaign_id: campaign.campaign_id });
+        navigate(`/vote/${campaign.poll_id}?campaign=${campaign.campaign_id}`, { replace: true });
+        return;
+      }
+
       const stableShortUrl = `${window.location.origin}/qr/${token}`;
       const { data, error } = await supabase
-        .from("polls")
-        .select("id")
-        .eq("stable_short_url", stableShortUrl)
+        .rpc("get_public_poll_by_qr", { target_url: stableShortUrl })
         .single();
 
       if (error || !data) {

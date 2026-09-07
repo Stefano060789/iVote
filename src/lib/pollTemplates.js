@@ -28,6 +28,24 @@ export const POLL_TEMPLATES = [
     label: "Product feedback",
     question: "How likely are you to recommend this product?",
     answers: ["Very likely", "Likely", "Not sure", "Unlikely"]
+  },
+  {
+    key: "purchase-intent",
+    label: "Purchase intent",
+    question: "How likely are you to purchase this in the next 30 days?",
+    answers: ["Very likely", "Likely", "Maybe later", "Not likely"]
+  },
+  {
+    key: "event-return",
+    label: "Event return intent",
+    question: "Would you attend another event like this?",
+    answers: ["Definitely", "Probably", "Not sure", "No"]
+  },
+  {
+    key: "service-recovery",
+    label: "Service recovery",
+    question: "Did we resolve your issue today?",
+    answers: ["Completely", "Partly", "Not yet"]
   }
 ];
 

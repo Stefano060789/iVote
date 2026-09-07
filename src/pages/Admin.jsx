@@ -5,9 +5,11 @@ import { createStableQrUrl } from "../lib/pollLinks";
 import { isRestrictedTopic } from "../lib/restrictedContent";
 import { appendAuditLog, readAuditLog, readPollMeta, savePollMeta, isPollClosed } from "../lib/pollMeta";
 import { buildQrToken, deleteQrLocation, loadQrLocations, saveQrLocation } from "../lib/qrLocations";
+import { createQrCampaign, loadQrCampaigns } from "../lib/qrCampaigns";
 import {
   getCurrentUserRole,
   getPermissionSet,
+  loadWorkspaceProfile,
   readWorkspaceMembers,
   readWorkspaceProfile,
   removeWorkspaceMember,
@@ -34,6 +36,10 @@ export default function Admin() {
   const [selectedPollForLocation, setSelectedPollForLocation] = useState("");
   const [qrPrintFormat, setQrPrintFormat] = useState("a4");
   const [qrStyleSeed, setQrStyleSeed] = useState(1);
+  const [aiImagePrompt, setAiImagePrompt] = useState("");
+  const [generatedPosterImage, setGeneratedPosterImage] = useState("");
+  const [imageGenerationStatus, setImageGenerationStatus] = useState("idle");
+  const [imageGenerationError, setImageGenerationError] = useState("");
   const [analytics, setAnalytics] = useState({ total: 0, active: 0, closed: 0, scheduled: 0, withLocation: 0 });
   const [workspaceProfile, setWorkspaceProfile] = useState({
     companyName: "iVote",
@@ -48,6 +54,9 @@ export default function Admin() {
   const [newMemberName, setNewMemberName] = useState("");
   const [newMemberEmail, setNewMemberEmail] = useState("");
   const [newMemberRole, setNewMemberRole] = useState("viewer");
+  const [qrCampaigns, setQrCampaigns] = useState([]);
+  const [newCampaignName, setNewCampaignName] = useState("");
+  const [newCampaignPollId, setNewCampaignPollId] = useState("");
 
   async function createShortLink(longUrl) {
     const response = await fetch(
@@ -130,13 +139,14 @@ export default function Admin() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user?.id) return;
-        setWorkspaceUserId(user.id);
-        const role = await getCurrentUserRole(user.id);
-        setCurrentUserRole(role);
-        setWorkspaceProfile({ ...readWorkspaceProfile(user.id), role });
-        setTeamMembers(await readWorkspaceMembers());
+        const profile = await loadWorkspaceProfile();
+        setWorkspaceUserId(profile.id);
+        setCurrentUserRole(profile.role);
+        setWorkspaceProfile(profile);
+        setTeamMembers(await readWorkspaceMembers(profile.id));
         const nextLocations = await loadQrLocations();
         setQrLocations(nextLocations);
+        setQrCampaigns(await loadQrCampaigns());
       } catch (error) {
         console.error(error);
         alert(error.message || "Unable to load workspace role data.");
@@ -157,9 +167,14 @@ export default function Admin() {
 
   async function saveWorkspaceSettings() {
     if (!workspaceUserId) return;
-    const nextProfile = saveWorkspaceProfile(workspaceUserId, workspaceProfile);
-    setWorkspaceProfile(nextProfile);
-    alert("Workspace settings saved.");
+    try {
+      const nextProfile = await saveWorkspaceProfile(workspaceUserId, workspaceProfile);
+      setWorkspaceProfile((current) => ({ ...current, ...nextProfile }));
+      alert("Workspace settings saved.");
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Unable to save workspace settings.");
+    }
   }
 
   async function handleCreateLocation() {
@@ -189,6 +204,22 @@ export default function Admin() {
 
     await deleteQrLocation(locationId);
     setQrLocations((current) => current.filter((item) => String(item.id) !== String(locationId)));
+  }
+
+  async function handleCreateCampaign() {
+    if (!newCampaignName.trim() || !newCampaignPollId) {
+      alert("Name the campaign and select its poll.");
+      return;
+    }
+    try {
+      const campaign = await createQrCampaign({ name: newCampaignName, pollId: newCampaignPollId });
+      setQrCampaigns((current) => [campaign, ...current]);
+      setNewCampaignName("");
+      setNewCampaignPollId("");
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Unable to create QR campaign. Run the ROI migration first.");
+    }
   }
 
   async function assignLocationToPoll() {
@@ -239,7 +270,7 @@ export default function Admin() {
     }
 
     try {
-      const nextMembers = await saveWorkspaceMember({
+      const nextMembers = await saveWorkspaceMember(workspaceUserId, {
         name: newMemberName.trim(),
         email: newMemberEmail.trim(),
         role: newMemberRole
@@ -256,7 +287,7 @@ export default function Admin() {
 
   async function deleteTeamMember(memberId) {
     try {
-      setTeamMembers(await removeWorkspaceMember(memberId));
+      setTeamMembers(await removeWorkspaceMember(workspaceUserId, memberId));
     } catch (error) {
       console.error(error);
       alert(error.message || "Unable to remove team member.");
@@ -654,6 +685,46 @@ export default function Admin() {
     };
   }
 
+  async function generatePosterImage(poll) {
+    const description = aiImagePrompt.trim();
+    if (!description) {
+      setImageGenerationError("Describe the image you want behind this QR code.");
+      return;
+    }
+
+    setImageGenerationStatus("generating");
+    setImageGenerationError("");
+
+    try {
+      const {
+        data: { session }
+      } = await supabase.auth.getSession();
+
+      const response = await fetch("/api/generate-qr-poster", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token || ""}`
+        },
+        body: JSON.stringify({
+          description: `${description}. The poll topic is: ${poll.question || "general feedback"}.`
+        })
+      });
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload.error || "Image generation failed.");
+      }
+
+      setGeneratedPosterImage(payload.imageUrl);
+      setImageGenerationStatus("ready");
+    } catch (error) {
+      console.error(error);
+      setImageGenerationStatus("idle");
+      setImageGenerationError(error.message || "Unable to generate an image right now.");
+    }
+  }
+
   function downloadQR(pollId) {
     const img = qrRef.current;
     if (!img) {
@@ -688,6 +759,9 @@ export default function Admin() {
 
     const formatConfig = getQrPrintFormatConfig();
     const generatedStyle = generateAiQrStyle(qrStyleSeed);
+    const posterBackground = generatedPosterImage
+      ? `url("${generatedPosterImage}") center / cover no-repeat, ${generatedStyle.background}`
+      : generatedStyle.background;
     const logoMarkup = workspaceProfile.logoUrl
       ? `<img src="${workspaceProfile.logoUrl}" alt="Brand logo" style="max-height: 56px; max-width: 160px; object-fit: contain; margin-right: 16px;" />`
       : "";
@@ -722,7 +796,7 @@ export default function Admin() {
               flex-direction: column;
               justify-content: center;
               align-items: center;
-              background: ${generatedStyle.background};
+              background: ${posterBackground};
               border-radius: 20px;
               box-shadow: ${generatedStyle.shadow};
               padding: 36px;
@@ -950,6 +1024,36 @@ export default function Admin() {
             ))
           )}
         </div>
+        </div>
+      </details>
+
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">QR campaigns</summary>
+        <div className="px-4 pb-4">
+          <p className="mb-3 text-sm text-slate-400">Create a durable QR code per placement to measure scans, responses, and opted-in follow-up leads.</p>
+          <div className="grid md:grid-cols-3 gap-3 mb-4">
+            <input value={newCampaignName} onChange={(event) => setNewCampaignName(event.target.value)} className="border p-2 rounded text-black" placeholder="Lobby poster, receipt, table tent" />
+            <select value={newCampaignPollId} onChange={(event) => setNewCampaignPollId(event.target.value)} className="border p-2 rounded text-black">
+              <option value="">Choose a poll</option>
+              {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
+            </select>
+            <button onClick={handleCreateCampaign} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">Create campaign QR</button>
+          </div>
+          <div className="space-y-2">
+            {qrCampaigns.length === 0 ? <p className="text-gray-400">No tracked QR campaigns yet.</p> : qrCampaigns.map((campaign) => {
+              const url = `${window.location.origin}/qr/${campaign.token}`;
+              return (
+                <div key={campaign.id} className="flex items-center justify-between gap-3 border border-gray-700 rounded p-3">
+                  <div className="min-w-0">
+                    <p className="font-semibold">{campaign.name}</p>
+                    <p className="text-xs text-gray-400">Poll #{campaign.poll_id} · {campaign.is_active ? "Active" : "Paused"}</p>
+                    <p className="truncate text-xs text-blue-300">{url}</p>
+                  </div>
+                  <button onClick={() => navigator.clipboard.writeText(url)} className="shrink-0 bg-slate-700 text-white px-3 py-2 rounded font-semibold">Copy link</button>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </details>
 
@@ -1265,12 +1369,33 @@ export default function Admin() {
 
             {showQR === poll.id && (
               <div className="mt-4">
-                <img
-                  ref={qrRef}
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(poll.stable_short_url || poll.short_url || `${window.location.origin}/vote/${poll.id}`)}`}
-                  alt="QR Code"
-                  className="mx-auto w-40 h-40"
-                />
+                <div
+                  className="mx-auto flex max-w-sm flex-col items-center rounded-lg p-6 text-center"
+                  style={{
+                    background: generatedPosterImage
+                      ? `url("${generatedPosterImage}") center / cover no-repeat, ${generateAiQrStyle(qrStyleSeed).background}`
+                      : generateAiQrStyle(qrStyleSeed).background,
+                    boxShadow: generateAiQrStyle(qrStyleSeed).shadow
+                  }}
+                >
+                  {workspaceProfile.logoUrl && (
+                    <img
+                      src={workspaceProfile.logoUrl}
+                      alt={`${workspaceProfile.companyName || "Workspace"} logo`}
+                      className="mb-3 max-h-10 max-w-32 object-contain"
+                    />
+                  )}
+                  <p className="mb-3 text-sm font-bold text-slate-900">{workspaceProfile.companyName || "iVote"}</p>
+                  <div className="rounded-lg bg-white p-3 shadow-sm">
+                    <img
+                      ref={qrRef}
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(poll.stable_short_url || poll.short_url || `${window.location.origin}/vote/${poll.id}`)}`}
+                      alt="QR Code"
+                      className="h-40 w-40"
+                    />
+                  </div>
+                  <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-700">Scan to vote</p>
+                </div>
                 {(poll.stable_short_url || poll.short_url) && (
                   <p
                     className="text-blue-400 underline cursor-pointer text-center mt-3"
@@ -1299,9 +1424,46 @@ export default function Admin() {
                       onClick={() => setQrStyleSeed((prev) => prev + 1)}
                       className="bg-fuchsia-600 text-white px-4 py-2 rounded font-semibold w-full"
                     >
-                      Generate AI style
+                      Try another poster style
+                    </button>
+                    <p className="mt-2 text-xs text-slate-400">The preview changes immediately and is used when you print.</p>
+                  </div>
+                </div>
+                <div className="mt-4 border border-slate-700 rounded p-4">
+                  <label className="block text-sm font-semibold mb-2">Create an AI poster background</label>
+                  <p className="mb-3 text-xs text-slate-400">Describe an image to place behind your QR code. Keep the center clear so it stays easy to scan.</p>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <input
+                      type="text"
+                      value={aiImagePrompt}
+                      onChange={(event) => setAiImagePrompt(event.target.value)}
+                      maxLength={280}
+                      className="min-w-0 flex-1 border p-2 rounded text-black"
+                      placeholder="Modern blue city lights for an event poll"
+                    />
+                    <button
+                      onClick={() => generatePosterImage(poll)}
+                      disabled={imageGenerationStatus === "generating"}
+                      className="bg-violet-600 text-white px-4 py-2 rounded font-semibold disabled:opacity-60"
+                    >
+                      {imageGenerationStatus === "generating" ? "Creating image..." : "Generate image"}
                     </button>
                   </div>
+                  {imageGenerationError && <p className="mt-2 text-sm text-red-400">{imageGenerationError}</p>}
+                  {imageGenerationStatus === "ready" && (
+                    <div className="mt-3 flex items-center justify-between gap-3 text-sm text-emerald-300">
+                      <span>AI background ready for preview and printing.</span>
+                      <button
+                        onClick={() => {
+                          setGeneratedPosterImage("");
+                          setImageGenerationStatus("idle");
+                        }}
+                        className="text-slate-300 underline"
+                      >
+                        Remove image
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-3 mt-4 justify-center flex-wrap">
                   <button onClick={() => downloadQR(poll.id)} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">

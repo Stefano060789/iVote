@@ -64,9 +64,38 @@ export function readWorkspaceProfile(userId) {
   };
 }
 
-export function saveWorkspaceProfile(userId, patch = {}) {
+export async function loadWorkspaceProfile() {
+  const { data: workspaceId, error: workspaceError } = await supabase.rpc("ensure_my_workspace");
+  if (workspaceError || !workspaceId) {
+    throw new Error(`Unable to open workspace: ${workspaceError?.message || "No workspace found."}`);
+  }
+
+  const { data: workspace, error } = await supabase
+    .from("workspaces")
+    .select("id, name, logo_url, primary_color, accent_color")
+    .eq("id", workspaceId)
+    .single();
+
+  if (error || !workspace) {
+    throw new Error(`Unable to load workspace: ${error?.message || "No workspace found."}`);
+  }
+
+  const { data: { user } } = await supabase.auth.getUser();
+  const role = await getCurrentUserRole(user?.id);
+  return {
+    id: workspace.id,
+    companyName: workspace.name || "iVote",
+    logoUrl: workspace.logo_url || "",
+    primaryColor: workspace.primary_color || "#2563eb",
+    accentColor: workspace.accent_color || "#0f172a",
+    role
+  };
+}
+
+export async function saveWorkspaceProfile(workspaceId, patch = {}) {
+  if (!workspaceId) throw new Error("A workspace is required.");
   const profiles = readAllProfiles();
-  const key = String(userId);
+  const key = String(workspaceId);
   const current = profiles[key] ?? {};
   const next = {
     ...current,
@@ -79,6 +108,18 @@ export function saveWorkspaceProfile(userId, patch = {}) {
 
   profiles[key] = next;
   writeAllProfiles(profiles);
+
+  const { error } = await supabase
+    .from("workspaces")
+    .update({
+      name: next.companyName,
+      logo_url: next.logoUrl || null,
+      primary_color: next.primaryColor,
+      accent_color: next.accentColor
+    })
+    .eq("id", workspaceId);
+
+  if (error) throw new Error(`Unable to save workspace settings: ${error.message}`);
   return next;
 }
 
@@ -90,10 +131,11 @@ export function getPermissionSet(role) {
   return ROLE_PERMISSIONS[role] ?? ROLE_PERMISSIONS.owner;
 }
 
-export async function readWorkspaceMembers() {
+export async function readWorkspaceMembers(workspaceId) {
   const { data, error } = await supabase
     .from("workspace_members")
     .select("id, user_id, name, email, role, created_at, updated_at")
+    .eq("workspace_id", workspaceId)
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -150,12 +192,13 @@ export async function getCurrentUserRole(userId) {
   return "viewer";
 }
 
-export async function saveWorkspaceMember(member) {
+export async function saveWorkspaceMember(workspaceId, member) {
   const normalized = {
     name: member.name || "Team member",
     email: member.email || "",
     role: WORKSPACE_ROLES.includes(member.role) ? member.role : "viewer",
-    user_id: member.user_id ?? null
+    user_id: member.user_id ?? null,
+    workspace_id: workspaceId
   };
 
   if (member.id) {
@@ -175,13 +218,13 @@ export async function saveWorkspaceMember(member) {
     }
   }
 
-  return readWorkspaceMembers();
+  return readWorkspaceMembers(workspaceId);
 }
 
-export async function removeWorkspaceMember(memberId) {
+export async function removeWorkspaceMember(workspaceId, memberId) {
   const { error } = await supabase.from("workspace_members").delete().eq("id", memberId);
   if (error) {
     throw new Error(`Unable to remove workspace member: ${error.message}`);
   }
-  return readWorkspaceMembers();
+  return readWorkspaceMembers(workspaceId);
 }

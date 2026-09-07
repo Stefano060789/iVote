@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ThankYou from "./pages/ThankYou";
 import QrRedirect from "./pages/QrRedirect";
+import Billing from "./pages/Billing";
 
 import "./style.css";
 
@@ -30,6 +31,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Route path="/thanks" element={<ThankYou />} />
       <Route path="/admin" element={<Admin />} />
       <Route path="/admin/analytics" element={<AdminAnalytics />} />
+      <Route path="/admin/billing" element={<Billing />} />
       <Route path="/edit/:pollId" element={<EditPoll />} />
     </Routes>
   </BrowserRouter>

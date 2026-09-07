@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import { supabase } from "../lib/supabase";
 import { isRestrictedTopic } from "../lib/restrictedContent";
@@ -21,6 +21,7 @@ const TRANSLATION_LANGUAGES = [
 export default function Vote() {
   const { pollId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [poll, setPoll] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
@@ -34,6 +35,10 @@ export default function Vote() {
   const [translatedAnswers, setTranslatedAnswers] = useState({});
   const [translationLoading, setTranslationLoading] = useState(false);
   const [translationError, setTranslationError] = useState("");
+  const [followUpEmail, setFollowUpEmail] = useState("");
+  const [followUpConsent, setFollowUpConsent] = useState(false);
+  const campaignId = Number(searchParams.get("campaign"));
+  const validCampaignId = Number.isSafeInteger(campaignId) && campaignId > 0 ? campaignId : null;
 
   const pollMeta = poll ? readPollMeta(poll.id) : {};
   const alreadyVoted = localStorage.getItem(`voted_${pollId}`);
@@ -55,9 +60,7 @@ export default function Vote() {
   useEffect(() => {
     async function loadPoll() {
       const { data, error } = await supabase
-        .from("polls")
-        .select("*")
-        .eq("id", pollId)
+        .rpc("get_public_poll", { target_poll_id: Number(pollId) })
         .single();
 
       if (error) {
@@ -84,7 +87,8 @@ export default function Vote() {
     const rows = answersToSubmit.map((answer) => ({
       poll_id: poll.id,
       answer,
-      user_id: user?.id || null
+      user_id: user?.id || null,
+      campaign_id: validCampaignId
     }));
 
     const isAdmin = !!user;
@@ -105,6 +109,16 @@ export default function Vote() {
 
     if (!isAdmin) {
       localStorage.setItem(`voted_${poll.id}`, "true");
+    }
+
+    if (followUpConsent && followUpEmail.trim()) {
+      const { error: leadError } = await supabase.rpc("capture_voter_lead", {
+        target_poll_id: poll.id,
+        target_campaign_id: validCampaignId,
+        contact_email: followUpEmail.trim(),
+        has_consented: true
+      });
+      if (leadError) console.error("Optional follow-up sign-up failed", leadError);
     }
 
     setSubmitted(true);
@@ -422,6 +436,28 @@ export default function Vote() {
         >
           {selectedAnswers.length === 0 ? "Select an answer to vote" : `Submit vote${selectedAnswers.length > 1 ? ` (${selectedAnswers.length})` : ""}`}
         </button>
+
+        <div className="mt-5 border-t border-slate-600 pt-4">
+          <p className="text-sm font-semibold">Keep in touch (optional)</p>
+          <p className="mt-1 text-xs text-slate-300">Share your email only if you want follow-up from the poll organizer.</p>
+          <input
+            type="email"
+            value={followUpEmail}
+            onChange={(event) => setFollowUpEmail(event.target.value)}
+            disabled={!followUpConsent}
+            className="mt-3 w-full border rounded p-2 text-black disabled:bg-slate-200"
+            placeholder="you@example.com"
+          />
+          <label className="mt-3 flex items-start gap-2 text-xs text-slate-200">
+            <input
+              type="checkbox"
+              checked={followUpConsent}
+              onChange={(event) => setFollowUpConsent(event.target.checked)}
+              className="mt-0.5"
+            />
+            <span>I agree that the organizer may contact me about this poll.</span>
+          </label>
+        </div>
       </div>
     </Layout>
   );

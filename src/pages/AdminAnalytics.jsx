@@ -48,6 +48,9 @@ export default function AdminAnalytics() {
   const navigate = useNavigate();
   const [polls, setPolls] = useState([]);
   const [votes, setVotes] = useState([]);
+  const [campaigns, setCampaigns] = useState([]);
+  const [scans, setScans] = useState([]);
+  const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -82,6 +85,18 @@ export default function AdminAnalytics() {
 
     setPolls((pollsData ?? []).filter((poll) => Boolean(poll?.id)));
     setVotes(votesData || []);
+    const [campaignResult, scanResult, leadResult] = await Promise.all([
+      supabase.from("qr_campaigns").select("id, name, poll_id, token, is_active"),
+      supabase.from("qr_scan_events").select("campaign_id"),
+      supabase.from("voter_leads").select("campaign_id")
+    ]);
+    if (campaignResult.error || scanResult.error || leadResult.error) {
+      console.warn("ROI campaign metrics are unavailable until the ROI migration is applied.", campaignResult.error || scanResult.error || leadResult.error);
+    } else {
+      setCampaigns(campaignResult.data || []);
+      setScans(scanResult.data || []);
+      setLeads(leadResult.data || []);
+    }
     setLoading(false);
   }
 
@@ -131,6 +146,21 @@ export default function AdminAnalytics() {
     const avgVotesPerPoll = polls.length > 0 ? Number((votes.length / polls.length).toFixed(2)) : 0;
     const topLocation = Object.entries(locationMap).sort((a, b) => b[1] - a[1])[0] ?? null;
     const topBrand = Object.entries(brandMap).sort((a, b) => b[1] - a[1])[0] ?? null;
+    const scanCounts = {};
+    const responseCounts = {};
+    const leadCounts = {};
+    scans.forEach((scan) => { scanCounts[String(scan.campaign_id)] = (scanCounts[String(scan.campaign_id)] || 0) + 1; });
+    votes.forEach((vote) => {
+      if (vote.campaign_id) responseCounts[String(vote.campaign_id)] = (responseCounts[String(vote.campaign_id)] || 0) + 1;
+    });
+    leads.forEach((lead) => {
+      if (lead.campaign_id) leadCounts[String(lead.campaign_id)] = (leadCounts[String(lead.campaign_id)] || 0) + 1;
+    });
+    const campaignRows = campaigns.map((campaign) => {
+      const scanCount = scanCounts[String(campaign.id)] || 0;
+      const responseCount = responseCounts[String(campaign.id)] || 0;
+      return { ...campaign, scanCount, responseCount, leadCount: leadCounts[String(campaign.id)] || 0, conversion: scanCount ? Number(((responseCount / scanCount) * 100).toFixed(1)) : 0 };
+    }).sort((a, b) => b.scanCount - a.scanCount);
 
     return {
       statuses,
@@ -141,9 +171,13 @@ export default function AdminAnalytics() {
       topBrand,
       pollRows,
       sortedPollRows,
-      votesByPoll
+      votesByPoll,
+      campaignRows,
+      totalScans: scans.length,
+      totalLeads: leads.length,
+      attributedResponses: campaignRows.reduce((sum, campaign) => sum + campaign.responseCount, 0)
     };
-  }, [polls, votes]);
+  }, [campaigns, leads, polls, scans, votes]);
 
   function exportAnalyticsCsv() {
     const rows = [
@@ -157,6 +191,10 @@ export default function AdminAnalytics() {
       ["polls_with_location", String(analytics.withLocation)],
       ["polls_with_brand", String(analytics.withBrand)],
       ["average_votes_per_poll", String(analytics.avgVotesPerPoll)],
+      ["qr_campaigns", String(campaigns.length)],
+      ["qr_scans", String(analytics.totalScans)],
+      ["attributed_vote_rows", String(analytics.attributedResponses)],
+      ["consented_leads", String(analytics.totalLeads)],
       [],
       ["poll_id", "question", "status", "template", "location", "brand", "votes"]
     ];
@@ -288,6 +326,14 @@ export default function AdminAnalytics() {
           <p className="text-gray-400 text-sm">Closed</p>
           <p className="text-2xl font-bold text-red-400">{analytics.statuses.closed}</p>
         </div>
+        <div className="border rounded p-3 bg-gray-900">
+          <p className="text-gray-400 text-sm">QR scans</p>
+          <p className="text-2xl font-bold text-violet-300">{analytics.totalScans}</p>
+        </div>
+        <div className="border rounded p-3 bg-gray-900">
+          <p className="text-gray-400 text-sm">Opted-in leads</p>
+          <p className="text-2xl font-bold text-emerald-300">{analytics.totalLeads}</p>
+        </div>
       </div>
 
       <div className="mb-6 text-sm text-gray-300">
@@ -328,6 +374,24 @@ export default function AdminAnalytics() {
           ))}
         </div>
       </div>
+
+      {analytics.campaignRows.length > 0 && (
+        <div className="mt-10 border rounded p-4 bg-gray-900">
+          <h2 className="text-xl font-bold mb-1">QR campaign conversion</h2>
+          <p className="mb-3 text-sm text-slate-400">Responses are attributed vote rows; multi-select polls can record more than one response per scan.</p>
+          <div className="space-y-2 text-sm">
+            {analytics.campaignRows.map((campaign) => (
+              <div key={campaign.id} className="grid grid-cols-2 gap-2 border-b border-gray-700 pb-2 md:grid-cols-5">
+                <p className="font-semibold md:col-span-1">{campaign.name}</p>
+                <p>{campaign.scanCount} scans</p>
+                <p>{campaign.responseCount} responses</p>
+                <p>{campaign.conversion}% conversion</p>
+                <p>{campaign.leadCount} leads</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

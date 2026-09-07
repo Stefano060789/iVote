@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
-import { readWorkspaceProfile } from "../lib/workspaceProfile";
+import { loadWorkspaceProfile } from "../lib/workspaceProfile";
 
 export default function NavBar() {
   const [user, setUser] = useState(null);
@@ -18,7 +18,11 @@ export default function NavBar() {
       setUser(nextUser);
 
       if (nextUser?.id) {
-        setWorkspace(readWorkspaceProfile(nextUser.id));
+        try {
+          setWorkspace(await loadWorkspaceProfile());
+        } catch (error) {
+          console.error(error);
+        }
       }
     }
 
@@ -27,11 +31,11 @@ export default function NavBar() {
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       const nextUser = session?.user || null;
       setUser(nextUser);
-      setWorkspace(nextUser?.id ? readWorkspaceProfile(nextUser.id) : {
-        companyName: "iVote",
-        primaryColor: "#2563eb",
-        accentColor: "#0f172a"
-      });
+      if (nextUser?.id) {
+        loadWorkspaceProfile().then(setWorkspace).catch(console.error);
+      } else {
+        setWorkspace({ companyName: "iVote", primaryColor: "#2563eb", accentColor: "#0f172a" });
+      }
     });
 
     return () => listener.subscription.unsubscribe();
@@ -56,6 +60,7 @@ export default function NavBar() {
       {user && (
         <>
           <Link to="/admin" className="font-semibold" style={{ color: "white" }}>Admin</Link>
+          <Link to="/admin/billing" className="font-semibold" style={{ color: "white" }}>Billing</Link>
           <button
             onClick={() => supabase.auth.signOut()}
             className="font-semibold"

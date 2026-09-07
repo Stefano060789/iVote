@@ -7,7 +7,7 @@ import { createStableQrUrl } from "../lib/pollLinks";
 import { savePollMeta } from "../lib/pollMeta";
 import { POLL_TEMPLATES, getTemplateByKey } from "../lib/pollTemplates";
 import { DEFAULT_ACCENT_COLOR, DEFAULT_PRIMARY_COLOR } from "../lib/pollBranding";
-import { readWorkspaceProfile } from "../lib/workspaceProfile";
+import { loadWorkspaceProfile } from "../lib/workspaceProfile";
 
 export default function CreatePoll() {
   const [question, setQuestion] = useState("");
@@ -30,7 +30,7 @@ export default function CreatePoll() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user?.id) return;
 
-      const profile = readWorkspaceProfile(user.id);
+      const profile = await loadWorkspaceProfile();
       setBrandName((current) => current || profile.companyName || "");
       setBrandLogoUrl((current) => current || profile.logoUrl || "");
       setBrandPrimaryColor((current) => current === DEFAULT_PRIMARY_COLOR ? profile.primaryColor : current);

@@ -35,9 +35,7 @@ export default function Results() {
   useEffect(() => {
     async function loadPoll() {
       const { data, error } = await supabase
-        .from("polls")
-        .select("*")
-        .eq("id", pollId)
+        .rpc("get_public_poll", { target_poll_id: Number(pollId) })
         .single();
 
       if (error) {
@@ -50,9 +48,7 @@ export default function Results() {
 
     async function fetchVotes() {
       const { data, error } = await supabase
-        .from("votes")
-        .select("*")
-        .eq("poll_id", pollId);
+        .rpc("get_public_poll_votes", { target_poll_id: Number(pollId) });
 
       if (error) {
         console.error(error);
