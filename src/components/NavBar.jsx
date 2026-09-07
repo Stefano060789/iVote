@@ -49,6 +49,7 @@ export default function NavBar() {
       <Link to="/" className="font-semibold" style={{ color: "white" }}>
         {workspace.companyName}
       </Link>
+      <Link to="/support" className="font-semibold" style={{ color: "white" }}>Support</Link>
 
       {!user && (
         <>
@@ -62,6 +63,8 @@ export default function NavBar() {
           <Link to="/create" className="font-semibold" style={{ color: "white" }}>Create poll</Link>
           <Link to="/admin" className="font-semibold" style={{ color: "white" }}>Admin</Link>
           <Link to="/admin/billing" className="font-semibold" style={{ color: "white" }}>Billing</Link>
+          <Link to="/admin/moderation" className="font-semibold" style={{ color: "white" }}>Moderation</Link>
+          <Link to="/account" className="font-semibold" style={{ color: "white" }}>Account</Link>
           <button
             onClick={() => supabase.auth.signOut()}
             className="font-semibold"

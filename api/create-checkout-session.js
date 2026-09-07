@@ -21,6 +21,19 @@ async function getAuthenticatedUser(token) {
   return authResponse.ok ? authResponse.json() : null;
 }
 
+async function getManagedWorkspace(token, userId) {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseAnonKey) return null;
+  const headers = { apikey: supabaseAnonKey, Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+  const workspaceResponse = await fetch(`${supabaseUrl}/rest/v1/rpc/current_workspace_id`, { method: "POST", headers, body: "{}" });
+  if (!workspaceResponse.ok) return null;
+  const workspaceId = await workspaceResponse.json();
+  const memberResponse = await fetch(`${supabaseUrl}/rest/v1/workspace_members?select=role&workspace_id=eq.${encodeURIComponent(workspaceId)}&user_id=eq.${encodeURIComponent(userId)}&role=in.(owner,editor)&limit=1`, { headers });
+  const members = memberResponse.ok ? await memberResponse.json() : [];
+  return members.length ? workspaceId : null;
+}
+
 export default async function handler(request, response) {
   if (request.method !== "POST") {
     response.setHeader("Allow", "POST");
@@ -37,6 +50,8 @@ export default async function handler(request, response) {
   if (!user) return response.status(401).json({ error: "Sign in to start a subscription." });
   if (!plan || !priceId) return response.status(503).json({ error: "This plan is not configured yet." });
   if (!stripeSecretKey || !appUrl) return response.status(503).json({ error: "Billing is not configured yet." });
+  const workspaceId = await getManagedWorkspace(readBearerToken(request), user.id);
+  if (!workspaceId) return response.status(403).json({ error: "A workspace owner or editor role is required." });
 
   const form = new URLSearchParams({
     mode: "subscription",
@@ -46,6 +61,9 @@ export default async function handler(request, response) {
     "line_items[0][quantity]": "1",
     "metadata[plan]": planKey,
     "metadata[supabase_user_id]": user.id,
+    "metadata[workspace_id]": workspaceId,
+    "subscription_data[metadata][plan]": planKey,
+    "subscription_data[metadata][workspace_id]": workspaceId,
     client_reference_id: user.id
   });
   if (user.email) form.set("customer_email", user.email);

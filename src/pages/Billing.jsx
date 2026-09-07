@@ -4,8 +4,9 @@ import Layout from "../components/Layout";
 import { supabase } from "../lib/supabase";
 
 const PLANS = [
-  { key: "starter", name: "Starter", description: "For small teams running recurring feedback campaigns.", features: ["QR campaigns", "Response analytics", "Consented follow-up leads"] },
-  { key: "growth", name: "Growth", description: "For organizations measuring locations and outcomes at scale.", features: ["Everything in Starter", "Campaign conversion reporting", "Priority support"] }
+  { key: "free", name: "Free", price: "EUR 0", description: "For trying iVote at a single venue.", features: ["3 total polls", "No tracked QR campaigns", "Core response results"] },
+  { key: "starter", name: "Starter", price: "EUR 29 / month", description: "For small teams running recurring feedback campaigns.", features: ["25 total polls", "10 tracked QR campaigns", "Response analytics and leads"] },
+  { key: "growth", name: "Growth", price: "EUR 79 / month", description: "For multi-location feedback programs.", features: ["250 total polls", "100 tracked QR campaigns", "Priority support and moderation"] }
 ];
 
 export default function Billing() {
@@ -16,6 +17,7 @@ export default function Billing() {
   const checkoutState = searchParams.get("checkout");
 
   async function startCheckout(plan) {
+    if (plan.key === "free") return;
     setError("");
     setLoadingPlan(plan.key);
     const { data: { session } } = await supabase.auth.getSession();
@@ -46,21 +48,22 @@ export default function Billing() {
         {checkoutState === "success" && <p className="mt-5 text-center text-emerald-400">Checkout completed. Your subscription will be confirmed by Stripe.</p>}
         {checkoutState === "cancelled" && <p className="mt-5 text-center text-amber-300">Checkout was cancelled. No changes were made.</p>}
         {error && <p className="mt-5 text-center text-red-300">{error}</p>}
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
           {PLANS.map((plan) => (
             <section key={plan.key} className="border border-slate-700 bg-slate-900 p-5 rounded-lg">
               <h2 className="text-xl font-bold">{plan.name}</h2>
+              <p className="mt-2 text-lg font-semibold text-emerald-300">{plan.price}</p>
               <p className="mt-2 min-h-12 text-sm text-slate-300">{plan.description}</p>
               <ul className="mt-4 space-y-2 text-sm text-slate-200">
                 {plan.features.map((feature) => <li key={feature}>{feature}</li>)}
               </ul>
-              <button onClick={() => startCheckout(plan)} disabled={Boolean(loadingPlan)} className="mt-6 w-full rounded bg-blue-600 p-3 font-semibold text-white disabled:opacity-60">
-                {loadingPlan === plan.key ? "Opening checkout..." : `Choose ${plan.name}`}
+              <button onClick={() => startCheckout(plan)} disabled={Boolean(loadingPlan) || plan.key === "free"} className="mt-6 w-full rounded bg-blue-600 p-3 font-semibold text-white disabled:opacity-60">
+                {plan.key === "free" ? "Included by default" : loadingPlan === plan.key ? "Opening checkout..." : `Choose ${plan.name}`}
               </button>
             </section>
           ))}
         </div>
-        <p className="mt-6 text-center text-xs text-slate-400">Payments are securely handled by Stripe. Plan prices are configured by the workspace administrator.</p>
+        <p className="mt-6 text-center text-xs text-slate-400">Payments are securely handled by Stripe. Prices and limits are launch proposals and can be changed in Stripe and this page.</p>
       </div>
     </Layout>
   );

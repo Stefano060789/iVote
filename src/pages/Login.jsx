@@ -11,7 +11,7 @@ export default function Login() {
   async function handleLogin(e) {
     e.preventDefault();
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password
     });
@@ -22,6 +22,12 @@ export default function Login() {
     }
 
     navigate("/admin");
+  }
+
+  async function resetPassword() {
+    if (!email.trim()) { setError("Enter your email address first."); return; }
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${window.location.origin}/account` });
+    setError(resetError ? resetError.message : "Password reset instructions have been sent if this account exists.");
   }
 
   return (
@@ -53,6 +59,7 @@ export default function Login() {
         >
           Login
         </button>
+        <button type="button" onClick={resetPassword} className="w-full text-sm text-blue-300 underline">Forgot password?</button>
       </form>
     </div>
   );

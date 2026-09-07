@@ -30,6 +30,8 @@ export default function Vote() {
   const [showAddField, setShowAddField] = useState(false);
   const [newAnswer, setNewAnswer] = useState("");
   const [userAnswers, setUserAnswers] = useState([]);
+  const [reportingAnswer, setReportingAnswer] = useState("");
+  const [reportMessage, setReportMessage] = useState("");
   const [translationLanguage, setTranslationLanguage] = useState("original");
   const [translatedQuestion, setTranslatedQuestion] = useState("");
   const [translatedAnswers, setTranslatedAnswers] = useState({});
@@ -47,7 +49,8 @@ export default function Vote() {
     const { data, error } = await supabase
       .from("user_answers")
       .select("answer")
-      .eq("poll_id", targetPollId);
+      .eq("poll_id", targetPollId)
+      .eq("is_hidden", false);
 
     if (error) {
       console.error(error);
@@ -167,6 +170,19 @@ export default function Vote() {
     setNewAnswer("");
     setShowAddField(false);
     await loadUserAnswers(poll.id);
+  }
+
+  async function reportAnswer(answer) {
+    const reason = window.prompt("Why are you reporting this answer? Use: offensive, personal_data, spam, or other.", "offensive");
+    if (!reason) return;
+    setReportingAnswer(answer);
+    const { error } = await supabase.rpc("report_public_user_answer", {
+      target_poll_id: poll.id,
+      target_answer: answer,
+      report_reason: reason.trim().toLowerCase()
+    });
+    setReportingAnswer("");
+    setReportMessage(error ? error.message : "Thank you. The organizer will review this answer.");
   }
 
   async function translateText(text, targetLanguage) {
@@ -375,10 +391,11 @@ export default function Vote() {
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">{questionForDisplay}</h1>
 
         <div className="space-y-3">
-          {allAnswers.map((answer) => (
+          {allAnswers.map((answer) => {
+            const isUserAnswer = userAnswers.some((item) => item.answer === answer);
+            return <div key={answer} className="flex items-center gap-2">
             <label
-              key={answer}
-              className={`flex items-center gap-3 border rounded-lg p-4 cursor-pointer transition-colors ${
+              className={`flex flex-1 items-center gap-3 border rounded-lg p-4 cursor-pointer transition-colors ${
                 selectedAnswers.includes(answer) ? "border-2 bg-white/10" : "border-slate-600 hover:border-slate-400"
               }`}
               style={selectedAnswers.includes(answer) ? { borderColor: branding.primaryColor } : undefined}
@@ -391,8 +408,11 @@ export default function Vote() {
               />
               <span className="font-medium">{translationLanguage === "original" ? answer : translatedAnswers[answer] || answer}</span>
             </label>
-          ))}
+            {isUserAnswer && <button type="button" onClick={() => reportAnswer(answer)} disabled={reportingAnswer === answer} className="shrink-0 text-xs text-slate-300 underline disabled:opacity-60" aria-label={`Report user answer: ${answer}`}>{reportingAnswer === answer ? "Reporting..." : "Report"}</button>}
+            </div>;
+          })}
         </div>
+        {reportMessage && <output className="mt-3 block text-sm text-slate-200">{reportMessage}</output>}
 
         {poll.allow_user_answers && (
           <div className="mt-4">
