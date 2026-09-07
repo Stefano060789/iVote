@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { createStableQrUrl } from "../lib/pollLinks";
 import { isRestrictedTopic } from "../lib/restrictedContent";
@@ -19,6 +19,7 @@ import {
 
 export default function Admin() {
   const navigate = useNavigate();
+  const location = useLocation();
   const qrRef = useRef(null);
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -875,6 +876,7 @@ export default function Admin() {
   const canReuseQr = permission.canReuseQr;
   const canExportResults = permission.canExportResults;
   const canClosePolls = permission.canClosePolls;
+  const selectedPollId = new URLSearchParams(location.search).get("poll");
 
   const filteredPolls = polls.filter((poll) => {
     const pollMeta = readPollMeta(poll.id);
@@ -1226,8 +1228,21 @@ export default function Admin() {
           const templateKey = poll.template_key ?? pollMeta.template_key;
 
           return (
-          <div key={poll.id} className="border p-4 rounded shadow-sm">
-            <h2 className="text-xl font-semibold">{poll.question}</h2>
+          <div
+            key={poll.id}
+            className={`border rounded-lg bg-slate-900 p-5 shadow-sm ${
+              String(poll.id) === selectedPollId ? "border-teal-400 ring-1 ring-teal-400" : "border-slate-700"
+            }`}
+          >
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Poll #{poll.id}</p>
+                <h2 className="text-xl font-semibold">{poll.question}</h2>
+              </div>
+              {String(poll.id) === selectedPollId && (
+                <span className="w-fit rounded bg-teal-400/15 px-2 py-1 text-xs font-semibold text-teal-300">Newly created</span>
+              )}
+            </div>
 
             {isClosed && (
               <span className="inline-block bg-red-600 text-white px-2 py-1 rounded text-sm mb-3">
@@ -1257,81 +1272,31 @@ export default function Admin() {
               Created: {new Date(poll.created_at).toLocaleString()}
             </p>
 
-            <div className="flex gap-3 flex-wrap">
-              <Link to={`/results/${poll.id}`} className="bg-blue-600 text-white px-3 py-2 rounded font-semibold">
+            <div className="mt-4 flex gap-2 flex-wrap">
+              <Link to={`/results/${poll.id}`} className="rounded bg-slate-100 px-3 py-2 font-semibold text-slate-950">
                 View Results
               </Link>
 
-              <Link to={`/vote/${poll.id}`} className="bg-green-600 text-white px-3 py-2 rounded font-semibold">
-                Vote Page
+              <button onClick={() => setShowQR(showQR === poll.id ? null : poll.id)} className="rounded border border-slate-500 px-3 py-2 font-semibold text-slate-100">
+                {showQR === poll.id ? "Hide QR" : "Open QR tools"}
+              </button>
+
+              <Link to={`/vote/${poll.id}`} className="rounded border border-slate-600 px-3 py-2 font-semibold text-slate-200">
+                Open vote page
               </Link>
 
-              <Link
-                to={`/edit/${poll.id}`}
-                className={`px-3 py-2 rounded font-semibold ${
-                  canEditPolls ? "bg-yellow-500 text-white" : "bg-gray-700 text-gray-400 cursor-not-allowed pointer-events-none"
-                }`}
-              >
-                Edit
-              </Link>
-
-              <button onClick={() => copyShareLink(poll)} className="bg-gray-700 text-white px-3 py-2 rounded font-semibold">
-                Copy Share Link
-              </button>
-
-              <button
-                onClick={() => duplicatePoll(poll)}
-                disabled={!canDuplicatePolls}
-                className={`px-3 py-2 rounded font-semibold ${
-                  canDuplicatePolls ? "bg-yellow-500 text-white" : "bg-gray-700 text-gray-400 cursor-not-allowed"
-                }`}
-              >
-                Duplicate
-              </button>
-
-              <button
-                onClick={() => reuseQR(poll)}
-                disabled={!canReuseQr}
-                className={`px-3 py-2 rounded font-semibold ${
-                  canReuseQr ? "bg-purple-600 text-white" : "bg-gray-700 text-gray-400 cursor-not-allowed"
-                }`}
-              >
-                Reuse QR for another poll
-              </button>
-
-              <button onClick={() => setShowQR(showQR === poll.id ? null : poll.id)} className="bg-yellow-500 text-white px-3 py-2 rounded font-semibold">
-                Show QR Code
-              </button>
-
-              <button
-                onClick={() => closePoll(poll)}
-                disabled={!canClosePolls}
-                className={`px-3 py-2 rounded font-semibold ${
-                  canClosePolls ? "bg-orange-600 text-white" : "bg-gray-700 text-gray-400 cursor-not-allowed"
-                }`}
-              >
-                {isClosed ? "Reopen Poll" : "Close Poll"}
-              </button>
-
-              <button
-                onClick={() => exportPollCsv(poll)}
-                disabled={!canExportResults}
-                className={`px-3 py-2 rounded font-semibold ${
-                  canExportResults ? "bg-teal-600 text-white" : "bg-gray-700 text-gray-400 cursor-not-allowed"
-                }`}
-              >
-                Export CSV
-              </button>
-
-              <button
-                onClick={() => deletePoll(poll.id)}
-                disabled={!canDeletePolls}
-                className={`px-3 py-2 rounded font-semibold ${
-                  canDeletePolls ? "bg-red-600 text-white" : "bg-gray-700 text-gray-400 cursor-not-allowed"
-                }`}
-              >
-                Delete
-              </button>
+              <details className="relative">
+                <summary className="cursor-pointer rounded border border-slate-600 px-3 py-2 font-semibold text-slate-300">More actions</summary>
+                <div className="absolute right-0 z-10 mt-2 grid min-w-56 gap-1 rounded border border-slate-700 bg-slate-950 p-2 shadow-xl">
+                  <Link to={`/edit/${poll.id}`} className={`rounded px-3 py-2 text-left ${canEditPolls ? "hover:bg-slate-800" : "pointer-events-none text-slate-500"}`}>Edit poll</Link>
+                  <button onClick={() => copyShareLink(poll)} className="rounded px-3 py-2 text-left hover:bg-slate-800">Copy voting link</button>
+                  <button onClick={() => duplicatePoll(poll)} disabled={!canDuplicatePolls} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">Duplicate poll</button>
+                  <button onClick={() => reuseQR(poll)} disabled={!canReuseQr} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">Assign existing QR</button>
+                  <button onClick={() => exportPollCsv(poll)} disabled={!canExportResults} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">Export responses CSV</button>
+                  <button onClick={() => closePoll(poll)} disabled={!canClosePolls} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">{isClosed ? "Reopen poll" : "Close poll"}</button>
+                  <button onClick={() => deletePoll(poll.id)} disabled={!canDeletePolls} className="rounded px-3 py-2 text-left text-red-300 hover:bg-red-950 disabled:text-slate-500">Delete poll</button>
+                </div>
+              </details>
             </div>
 
             {reuseQrPoll && String(reuseQrPoll.id) === String(poll.id) && (

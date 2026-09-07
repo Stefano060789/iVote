@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Layout from "../components/Layout";
 import { supabase } from "../lib/supabase";
 import QRCode from "qrcode";
@@ -348,7 +349,12 @@ export default function CreatePoll() {
             </p>
 
             <div className="mt-6">
-              <a href="/admin" className="text-blue-600 underline">Go to Admin</a>
+              <Link
+                to={`/admin?poll=${pollId}`}
+                className="inline-flex items-center justify-center rounded bg-slate-100 px-4 py-2 font-semibold text-slate-900"
+              >
+                Manage this poll in Admin
+              </Link>
             </div>
           </div>
         )}
