@@ -119,6 +119,7 @@ export default function NavBar() {
           {installPrompt && <button type="button" onClick={installApp}>Install iVote</button>}
           <Link to="/admin/billing" onClick={closeMenu}>Billing</Link>
           <Link to="/admin/moderation" onClick={closeMenu}>Moderation</Link>
+          <Link to="/feedback" onClick={closeMenu}>Share product feedback</Link>
           <Link to="/account" onClick={closeMenu}>Account</Link>
           <button type="button" onClick={signOut}>Sign out</button>
         </>}

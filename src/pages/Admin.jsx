@@ -73,6 +73,7 @@ export default function Admin() {
   const [newRuleAnswer, setNewRuleAnswer] = useState("");
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskAlertId, setNewTaskAlertId] = useState("");
+  const [organizerMessages, setOrganizerMessages] = useState([]);
 
   async function createShortLink(longUrl) {
     const response = await fetch(
@@ -163,16 +164,18 @@ export default function Admin() {
         const nextLocations = await loadQrLocations();
         setQrLocations(nextLocations);
         setQrCampaigns(await loadQrCampaigns());
-        const [rulesResult, alertsResult, tasksResult, reportsResult] = await Promise.all([
+        const [rulesResult, alertsResult, tasksResult, reportsResult, messagesResult] = await Promise.all([
           supabase.from("feedback_alert_rules").select("*").order("created_at", { ascending: false }),
           supabase.from("feedback_alerts").select("*").order("created_at", { ascending: false }).limit(30),
           supabase.from("feedback_recovery_tasks").select("*").order("created_at", { ascending: false }).limit(30),
-          supabase.from("weekly_report_settings").select("recipient_email, is_enabled").eq("workspace_id", profile.id).maybeSingle()
+          supabase.from("weekly_report_settings").select("recipient_email, is_enabled").eq("workspace_id", profile.id).maybeSingle(),
+          supabase.from("organizer_messages").select("*").order("created_at", { ascending: false }).limit(30)
         ]);
         if (!rulesResult.error) setAlertRules(rulesResult.data || []);
         if (!alertsResult.error) setFeedbackAlerts(alertsResult.data || []);
         if (!tasksResult.error) setRecoveryTasks(tasksResult.data || []);
         if (!reportsResult.error && reportsResult.data) setReportSettings(reportsResult.data);
+        if (!messagesResult.error) setOrganizerMessages(messagesResult.data || []);
       } catch (error) {
         console.error(error);
         alert(error.message || "Unable to load workspace role data.");
@@ -1078,6 +1081,20 @@ export default function Admin() {
             ))
           )}
         </div>
+        </div>
+      </details>
+
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">Messages from voters</summary>
+        <div className="px-4 pb-4">
+          <p className="mb-3 text-sm text-slate-400">Private messages submitted with a vote. Reply only when the voter provided an email address.</p>
+          {organizerMessages.length === 0 ? <p className="text-sm text-slate-400">No voter messages yet.</p> : <div className="space-y-3">{organizerMessages.map((message) => (
+            <article key={message.id} className="rounded border border-slate-700 p-3">
+              <p>{message.message}</p>
+              <p className="mt-2 text-xs text-slate-400">Poll #{message.poll_id} · {new Date(message.created_at).toLocaleString()}</p>
+              {message.reply_email && <a className="mt-2 inline-block text-sm text-teal-300 underline" href={`mailto:${message.reply_email}`}>Reply to voter</a>}
+            </article>
+          ))}</div>}
         </div>
       </details>
 

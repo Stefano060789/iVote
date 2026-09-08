@@ -39,6 +39,8 @@ export default function Vote() {
   const [translationError, setTranslationError] = useState("");
   const [followUpEmail, setFollowUpEmail] = useState("");
   const [followUpConsent, setFollowUpConsent] = useState(false);
+  const [organizerMessage, setOrganizerMessage] = useState("");
+  const [messageReplyEmail, setMessageReplyEmail] = useState("");
   const campaignId = Number(searchParams.get("campaign"));
   const validCampaignId = Number.isSafeInteger(campaignId) && campaignId > 0 ? campaignId : null;
 
@@ -122,6 +124,16 @@ export default function Vote() {
         has_consented: true
       });
       if (leadError) console.error("Optional follow-up sign-up failed", leadError);
+    }
+
+    if (organizerMessage.trim()) {
+      const { error: messageError } = await supabase.rpc("send_organizer_message", {
+        target_poll_id: poll.id,
+        target_campaign_id: validCampaignId,
+        message_text: organizerMessage.trim(),
+        contact_email: messageReplyEmail.trim() || null
+      });
+      if (messageError) console.error("Optional organizer message failed", messageError);
     }
 
     setSubmitted(true);
@@ -478,6 +490,26 @@ export default function Vote() {
             <span>I agree that the organizer may contact me about this poll.</span>
           </label>
         </div>
+
+        <details className="mt-4 border-t border-slate-600 pt-4">
+          <summary className="cursor-pointer text-sm font-semibold">Send a private message to the organizer</summary>
+          <p className="mt-2 text-xs text-slate-300">Optional. Your message is visible only to the team running this poll.</p>
+          <textarea
+            value={organizerMessage}
+            onChange={(event) => setOrganizerMessage(event.target.value)}
+            maxLength={2000}
+            rows="3"
+            className="mt-3 w-full rounded border p-2 text-black"
+            placeholder="Write your message"
+          />
+          <input
+            type="email"
+            value={messageReplyEmail}
+            onChange={(event) => setMessageReplyEmail(event.target.value)}
+            className="mt-2 w-full rounded border p-2 text-black"
+            placeholder="Your email for a reply (optional)"
+          />
+        </details>
       </div>
     </Layout>
   );

@@ -20,6 +20,7 @@ import Account from "./pages/Account";
 import Legal from "./pages/Legal";
 import Support from "./pages/Support";
 import Moderation from "./pages/Moderation";
+import ProductFeedback from "./pages/ProductFeedback";
 
 import "./style.css";
 
@@ -52,6 +53,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Route path="/privacy" element={<Legal kind="privacy" />} />
       <Route path="/terms" element={<Legal kind="terms" />} />
       <Route path="/support" element={<Support />} />
+      <Route path="/feedback" element={<ProductFeedback />} />
     </Routes>
   </BrowserRouter>
 );
