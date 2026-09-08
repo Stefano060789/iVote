@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { supabase } from "../lib/supabase";
 
 const steps = [
   {
@@ -19,6 +21,14 @@ const steps = [
 ];
 
 export default function Landing() {
+  const [isSignedIn, setIsSignedIn] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setIsSignedIn(Boolean(data.user)));
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => setIsSignedIn(Boolean(session?.user)));
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
   return (
     <main className="landing-page">
       <section className="landing-hero">
@@ -28,13 +38,21 @@ export default function Landing() {
           <p className="landing-lede">
             iVote helps venues turn a simple QR scan into feedback, campaign insight, and permission-based follow-up.
           </p>
-          <div className="landing-actions">
-            <Link to="/register" className="landing-primary-action">Create a workspace</Link>
-            <Link to="/login" className="landing-secondary-action">Sign in</Link>
-          </div>
+          {isSignedIn ? (
+            <div className="landing-actions">
+              <Link to="/admin" className="landing-primary-action">Go to my workspace</Link>
+              <Link to="/create" className="landing-secondary-action">Create a poll</Link>
+            </div>
+          ) : (
+            <div className="landing-actions">
+              <Link to="/register" className="landing-primary-action">Create a workspace</Link>
+              <Link to="/login" className="landing-secondary-action">Sign in</Link>
+            </div>
+          )}
           <p className="landing-note">Built for venues, events, hospitality, retail, and in-person teams.</p>
         </div>
       </section>
+
 
       <section className="landing-section" aria-labelledby="how-it-works-title">
         <div className="landing-section-heading">
@@ -72,7 +90,7 @@ export default function Landing() {
           <Link to="/create" className="landing-primary-action">Create poll</Link>
           <Link to="/admin" className="landing-admin-action">Admin dashboard</Link>
         </div>
-        <Link to="/register" className="landing-register-link">New to iVote? Create a workspace</Link>
+        {!isSignedIn && <Link to="/register" className="landing-register-link">New to iVote? Create a workspace</Link>}
       </section>
     </main>
   );

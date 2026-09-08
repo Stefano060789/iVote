@@ -10,6 +10,7 @@ import { extractQrToken, reassignManagedCampaignPoll, resolveManagedQrToken } fr
 import QrScanner from "../components/QrScanner";
 import { loadLeadNurtureSettings, saveLeadNurtureSettings } from "../lib/leadNurture";
 import { loadPollRotations, createPollRotation, deletePollRotation } from "../lib/pollRotations";
+import { loadApiKeys, createApiKey, deleteApiKey } from "../lib/apiKeys";
 import {
   getCurrentUserRole,
   getPermissionSet,
@@ -48,6 +49,8 @@ export default function Admin() {
   const [imageGenerationStatus, setImageGenerationStatus] = useState("idle");
   const [imageGenerationError, setImageGenerationError] = useState("");
   const [analytics, setAnalytics] = useState({ total: 0, active: 0, closed: 0, scheduled: 0, withLocation: 0 });
+  const [locationStats, setLocationStats] = useState([]);
+  const [templateBenchmark, setTemplateBenchmark] = useState(null);
   const [workspaceProfile, setWorkspaceProfile] = useState({
     companyName: "iVote",
     logoUrl: "",
@@ -97,14 +100,16 @@ export default function Admin() {
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
   const [qrShared, setQrShared] = useState(false);
   const [weeklyInsight, setWeeklyInsight] = useState(null);
+  const [voteTrend, setVoteTrend] = useState(null);
   const [workspaceUpdates, setWorkspaceUpdates] = useState([]);
   const [newUpdateMessage, setNewUpdateMessage] = useState("");
   const [newUpdatePollId, setNewUpdatePollId] = useState("");
-  const [pollRotations, setPollRotations] = useState([]);
-  const [newRotationName, setNewRotationName] = useState("");
+  const [pollRotations, setPollRotations] = useState([]);  const [newRotationName, setNewRotationName] = useState("");
   const [newRotationFrequency, setNewRotationFrequency] = useState("daily");
   const [newRotationPollIds, setNewRotationPollIds] = useState([]);
   const [rotationPollToAdd, setRotationPollToAdd] = useState("");
+  const [apiKeys, setApiKeys] = useState([]);
+  const [newApiKeyLabel, setNewApiKeyLabel] = useState("");
 
   async function createShortLink(longUrl) {
     const response = await fetch(
@@ -222,8 +227,11 @@ export default function Admin() {
         setQrShared(localStorage.getItem(`ivote_qr_shared_${profile.id}`) === "true");
 
         const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+        const fourteenDaysAgo = new Date(Date.now() - 14 * 86400000).toISOString();
         const { count: votesCount } = await supabase.from("votes").select("id", { count: "exact", head: true });
         setTotalVotesCount(votesCount || 0);
+
+        const { count: priorWeekCount } = await supabase.from("votes").select("id", { count: "exact", head: true }).gte("created_at", fourteenDaysAgo).lt("created_at", sevenDaysAgo);
 
         const { data: recentVotes } = await supabase.from("votes").select("answer, poll_id").gte("created_at", sevenDaysAgo);
         if (recentVotes && recentVotes.length > 0) {
@@ -237,11 +245,14 @@ export default function Admin() {
         } else {
           setWeeklyInsight(null);
         }
+        setVoteTrend({ thisWeek: recentVotes?.length || 0, lastWeek: priorWeekCount || 0 });
+
 
         const { data: updatesRows } = await supabase.from("workspace_updates").select("*").order("created_at", { ascending: false }).limit(20);
         setWorkspaceUpdates(updatesRows || []);
 
         setPollRotations(await loadPollRotations());
+        setApiKeys(await loadApiKeys(supabase, profile.id));
       } catch (error) {
         console.error(error);
         alert(error.message || "Unable to load workspace role data.");
@@ -259,6 +270,69 @@ export default function Admin() {
 
     return () => clearInterval(interval);
   }, [navigate]);
+
+  useEffect(() => {
+    async function loadLocationStats() {
+      if (polls.length === 0) {
+        setLocationStats([]);
+        return;
+      }
+      const { data: voteRows } = await supabase.from("votes").select("poll_id, answer");
+      if (!voteRows) return;
+      const countsByPoll = {};
+      voteRows.forEach((vote) => {
+        countsByPoll[vote.poll_id] = (countsByPoll[vote.poll_id] || 0) + 1;
+      });
+      const byLocation = {};
+      polls.forEach((poll) => {
+        const location = poll.location_name ?? readPollMeta(poll.id).location_name;
+        if (!location) return;
+        byLocation[location] = byLocation[location] || { votes: 0, polls: 0 };
+        byLocation[location].votes += countsByPoll[poll.id] || 0;
+        byLocation[location].polls += 1;
+      });
+      setLocationStats(Object.entries(byLocation).map(([name, stats]) => ({ name, ...stats })).sort((a, b) => b.votes - a.votes));
+
+      const templateCounts = {};
+      polls.forEach((poll) => {
+        const key = poll.template_key ?? readPollMeta(poll.id).template_key;
+        if (!key || key === "blank") return;
+        templateCounts[key] = (templateCounts[key] || 0) + (countsByPoll[poll.id] || 0);
+      });
+      const topTemplateKey = Object.entries(templateCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
+      if (!topTemplateKey || !workspaceUserId) {
+        setTemplateBenchmark(null);
+        return;
+      }
+
+      const templatePolls = polls.filter((poll) => (poll.template_key ?? readPollMeta(poll.id).template_key) === topTemplateKey);
+      let scoredVotes = 0;
+      let scoreSum = 0;
+      templatePolls.forEach((poll) => {
+        const answers = Array.isArray(poll.answers) ? poll.answers : [];
+        if (answers.length <= 1) return;
+        voteRows.filter((vote) => vote.poll_id === poll.id).forEach((vote) => {
+          const index = answers.indexOf(vote.answer);
+          if (index < 0) return;
+          scoreSum += (1 - index / (answers.length - 1)) * 100;
+          scoredVotes += 1;
+        });
+      });
+      if (scoredVotes === 0) {
+        setTemplateBenchmark(null);
+        return;
+      }
+
+      const { data: benchmarkRows } = await supabase.rpc("get_template_benchmark", { target_template_key: topTemplateKey, excluded_workspace_id: workspaceUserId }).maybeSingle();
+      setTemplateBenchmark({
+        templateKey: topTemplateKey,
+        ownScore: Math.round(scoreSum / scoredVotes),
+        industryScore: benchmarkRows?.average_score ? Math.round(benchmarkRows.average_score) : null,
+        sampleSize: benchmarkRows?.sample_size || 0
+      });
+    }
+    loadLocationStats();
+  }, [polls, workspaceUserId]);
 
   async function saveWorkspaceSettings() {
     if (!workspaceUserId) return;
@@ -403,6 +477,30 @@ export default function Admin() {
     } catch (error) {
       console.error(error);
       alert(error.message || "Unable to delete poll rotation.");
+    }
+  }
+
+  async function handleCreateApiKey() {
+    try {
+      const { record, plaintextKey } = await createApiKey(supabase, workspaceUserId, newApiKeyLabel);
+      setApiKeys((current) => [record, ...current]);
+      setNewApiKeyLabel("");
+      window.prompt("Copy this API key now. It won't be shown again:", plaintextKey);
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Unable to create API key.");
+    }
+  }
+
+  async function handleDeleteApiKey(keyId) {
+    const confirmed = window.confirm("Delete this API key? Anything using it will stop working immediately.");
+    if (!confirmed) return;
+    try {
+      await deleteApiKey(supabase, keyId);
+      setApiKeys((current) => current.filter((item) => item.id !== keyId));
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Unable to delete API key.");
     }
   }
 
@@ -1287,6 +1385,16 @@ export default function Admin() {
 
       {activeTab === "overview" && (
       <>
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-lg font-bold">What's new in iVote</summary>
+        <div className="px-4 pb-4 space-y-2 text-sm text-slate-300">
+          <p><span className="font-semibold text-teal-300">Rotating polls, smart review routing, anomaly alerts</span> - QR codes can now auto-swap polls on a schedule, and the dashboard flags unusual vote-volume drops.</p>
+          <p><span className="font-semibold text-teal-300">Prize draws, AI sentiment, lead nurture emails</span> - run opt-in prize draws, auto-classify open-text feedback, and email voters who opt in for follow-up.</p>
+          <p><span className="font-semibold text-teal-300">Embeddable widget and trust badge</span> - add a feedback button or a live trust score badge to any website, not just QR codes.</p>
+          <p><span className="font-semibold text-teal-300">In-dashboard QR scanner and bulk QR generation</span> - scan a printed code with your camera to manage it, or generate many QR codes at once.</p>
+        </div>
+      </details>
+
       <div className="flex justify-center mb-6">
         <Link to="/admin/analytics" className="bg-purple-600 text-white px-3 py-2 rounded font-semibold">
           Analytics
@@ -1359,11 +1467,29 @@ export default function Admin() {
           <p className="text-gray-400 text-sm">Locations</p>
           <p className="text-2xl font-bold text-blue-400">{analytics.withLocation}</p>
         </div>
+        {voteTrend && voteTrend.lastWeek > 0 && (
+          <div className="border rounded p-3 bg-gray-900">
+            <p className="text-gray-400 text-sm">Votes this week</p>
+            <p className={`text-2xl font-bold ${voteTrend.thisWeek >= voteTrend.lastWeek ? "text-emerald-400" : "text-red-400"}`}>
+              {voteTrend.thisWeek} {voteTrend.thisWeek >= voteTrend.lastWeek ? "\u25b2" : "\u25bc"} {Math.abs(Math.round(((voteTrend.thisWeek - voteTrend.lastWeek) / voteTrend.lastWeek) * 100))}%
+            </p>
+          </div>
+        )}
       </div>
+
+      {templateBenchmark && templateBenchmark.industryScore !== null && templateBenchmark.sampleSize >= 3 && (
+        <div className="mb-6 rounded border border-emerald-700 bg-slate-900 p-4">
+          <p className="text-sm font-semibold text-emerald-300">Benchmark</p>
+          <p className="mt-1 text-sm text-slate-200">
+            Your average score on "{templateBenchmark.templateKey}" polls is <span className="font-semibold">{templateBenchmark.ownScore}%</span>, vs an industry average of <span className="font-semibold">{templateBenchmark.industryScore}%</span> across {templateBenchmark.sampleSize} other venues using the same template.
+          </p>
+        </div>
+      )}
       </>
       )}
 
       {activeTab === "polls" && (
+      <>
       <div className="mb-6">
         <h2 className="text-xl font-bold">Your polls</h2>
         <p className="mt-1 mb-3 text-sm text-slate-400">Search and filter the polls you need to manage.</p>
@@ -1398,6 +1524,24 @@ export default function Admin() {
         </select>
         </div>
       </div>
+
+      {locationStats.length > 0 && (
+        <details className="mb-6 border rounded bg-gray-900">
+          <summary className="cursor-pointer p-4 text-lg font-bold">Locations overview</summary>
+          <div className="px-4 pb-4">
+            <p className="mb-3 text-sm text-slate-400">Votes collected per QR location name, useful for chains and multi-location venues to compare performance.</p>
+            <div className="space-y-2 text-sm">
+              {locationStats.map((location) => (
+                <div key={location.name} className="flex items-center justify-between border-b border-gray-700 py-1">
+                  <span>{location.name} ({location.polls} poll{location.polls === 1 ? "" : "s"})</span>
+                  <span className="font-semibold text-teal-300">{location.votes} votes</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </details>
+      )}
+      </>
       )}
 
       {activeTab === "engagement" && (
@@ -1793,6 +1937,18 @@ export default function Admin() {
             className="border p-2 rounded text-black md:col-span-2"
             placeholder="Webhook URL (optional) - get notified in Slack/Zapier/Sheets on every vote"
           />
+          <label className="block font-semibold md:col-span-2">
+            Auto-delete votes after (days, optional)
+            <input
+              type="number"
+              min="7"
+              max="3650"
+              value={workspaceProfile.voteRetentionDays}
+              onChange={(event) => setWorkspaceProfile((current) => ({ ...current, voteRetentionDays: event.target.value }))}
+              className="mt-1 w-full border p-2 rounded text-black"
+              placeholder="Leave blank to keep votes forever"
+            />
+          </label>
           <label className="block font-semibold">
             Primary color
             <input
@@ -1824,6 +1980,29 @@ export default function Admin() {
             Save workspace settings
           </button>
         </div>
+        </div>
+      </details>
+
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">Developer API</summary>
+        <div className="px-4 pb-4">
+          <p className="mb-3 text-sm text-slate-400">Generate a key to pull your workspace summary from <code>/api/v1-summary</code> with an <code>Authorization: Bearer &lt;key&gt;</code> header.</p>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <input value={newApiKeyLabel} onChange={(event) => setNewApiKeyLabel(event.target.value)} className="flex-1 border p-2 rounded text-black" placeholder="Label: BI dashboard, Zapier" />
+            <button onClick={handleCreateApiKey} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">Generate key</button>
+          </div>
+          <div className="mt-4 space-y-2 text-sm">
+            {apiKeys.length === 0 ? (
+              <p className="text-gray-400">No API keys yet.</p>
+            ) : (
+              apiKeys.map((key) => (
+                <div key={key.id} className="flex items-center justify-between border-b border-gray-700 py-1">
+                  <span>{key.label || "Untitled key"} · created {new Date(key.created_at).toLocaleDateString()}{key.last_used_at ? ` · last used ${new Date(key.last_used_at).toLocaleDateString()}` : ""}</span>
+                  <button onClick={() => handleDeleteApiKey(key.id)} className="shrink-0 text-xs text-red-300 underline">Delete</button>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </details>
 
