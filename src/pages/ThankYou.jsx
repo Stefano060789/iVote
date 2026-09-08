@@ -5,6 +5,7 @@ import { supabase } from "../lib/supabase";
 export default function ThankYou() {
   const [searchParams] = useSearchParams();
   const pollId = searchParams.get("poll");
+  const isPositive = searchParams.get("positive") !== "0";
   const [poll, setPoll] = useState(null);
 
   useEffect(() => {
@@ -39,7 +40,7 @@ export default function ThankYou() {
         </div>
       )}
 
-      {poll?.review_url && (
+      {poll?.review_url && isPositive && (
         <div className="mt-6 rounded border border-amber-700 bg-slate-900 p-5">
           <p className="font-semibold text-amber-200">Enjoyed your experience? Tell others about it.</p>
           <a href={poll.review_url} target="_blank" rel="noreferrer" className="mt-3 inline-block rounded bg-amber-400 px-4 py-2 font-semibold text-slate-950">
@@ -47,6 +48,13 @@ export default function ThankYou() {
           </a>
         </div>
       )}
+
+      {poll?.review_url && !isPositive && (
+        <div className="mt-6 rounded border border-slate-700 bg-slate-900 p-5">
+          <p className="text-sm text-slate-300">Thanks for the honest feedback. The team running this poll will see it directly and follow up if needed.</p>
+        </div>
+      )}
+
 
       <div className="mt-8 border-t border-slate-700 pt-5">
         <p className="text-sm text-slate-300">iVote helps venues turn simple QR scans into useful feedback.</p>

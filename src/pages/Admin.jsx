@@ -9,6 +9,7 @@ import { createQrCampaign, loadQrCampaigns } from "../lib/qrCampaigns";
 import { extractQrToken, reassignManagedCampaignPoll, resolveManagedQrToken } from "../lib/qrManage";
 import QrScanner from "../components/QrScanner";
 import { loadLeadNurtureSettings, saveLeadNurtureSettings } from "../lib/leadNurture";
+import { loadPollRotations, createPollRotation, deletePollRotation } from "../lib/pollRotations";
 import {
   getCurrentUserRole,
   getPermissionSet,
@@ -99,6 +100,11 @@ export default function Admin() {
   const [workspaceUpdates, setWorkspaceUpdates] = useState([]);
   const [newUpdateMessage, setNewUpdateMessage] = useState("");
   const [newUpdatePollId, setNewUpdatePollId] = useState("");
+  const [pollRotations, setPollRotations] = useState([]);
+  const [newRotationName, setNewRotationName] = useState("");
+  const [newRotationFrequency, setNewRotationFrequency] = useState("daily");
+  const [newRotationPollIds, setNewRotationPollIds] = useState([]);
+  const [rotationPollToAdd, setRotationPollToAdd] = useState("");
 
   async function createShortLink(longUrl) {
     const response = await fetch(
@@ -234,6 +240,8 @@ export default function Admin() {
 
         const { data: updatesRows } = await supabase.from("workspace_updates").select("*").order("created_at", { ascending: false }).limit(20);
         setWorkspaceUpdates(updatesRows || []);
+
+        setPollRotations(await loadPollRotations());
       } catch (error) {
         console.error(error);
         alert(error.message || "Unable to load workspace role data.");
@@ -341,12 +349,61 @@ export default function Admin() {
 
   async function reassignQrCampaignPoll(campaignId, nextPollId) {
     if (!nextPollId) return;
-    const { error } = await supabase.from("qr_campaigns").update({ poll_id: Number(nextPollId) }).eq("id", campaignId);
+    const { error } = await supabase.from("qr_campaigns").update({ poll_id: Number(nextPollId), rotation_id: null }).eq("id", campaignId);
     if (error) {
       alert(error.message);
       return;
     }
-    setQrCampaigns((current) => current.map((item) => item.id === campaignId ? { ...item, poll_id: Number(nextPollId) } : item));
+    setQrCampaigns((current) => current.map((item) => item.id === campaignId ? { ...item, poll_id: Number(nextPollId), rotation_id: null } : item));
+  }
+
+  async function assignCampaignRotation(campaignId, rotationId) {
+    const { error } = await supabase.from("qr_campaigns").update({ rotation_id: rotationId ? Number(rotationId) : null }).eq("id", campaignId);
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    setQrCampaigns((current) => current.map((item) => item.id === campaignId ? { ...item, rotation_id: rotationId ? Number(rotationId) : null } : item));
+  }
+
+  function addPollToRotationDraft() {
+    if (!rotationPollToAdd) return;
+    setNewRotationPollIds((current) => [...current, rotationPollToAdd]);
+    setRotationPollToAdd("");
+  }
+
+  function removePollFromRotationDraft(index) {
+    setNewRotationPollIds((current) => current.filter((_, itemIndex) => itemIndex !== index));
+  }
+
+  async function handleCreateRotation() {
+    if (!newRotationName.trim() || newRotationPollIds.length < 2) {
+      alert("Name the rotation and add at least 2 polls in the order you want them to rotate.");
+      return;
+    }
+    try {
+      const rotation = await createPollRotation({ name: newRotationName, pollIds: newRotationPollIds, frequency: newRotationFrequency });
+      setPollRotations((current) => [rotation, ...current]);
+      setNewRotationName("");
+      setNewRotationPollIds([]);
+      setNewRotationFrequency("daily");
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Unable to create poll rotation.");
+    }
+  }
+
+  async function handleDeleteRotation(rotationId) {
+    const confirmed = window.confirm("Delete this rotation? QR codes using it will need a new poll or rotation assigned.");
+    if (!confirmed) return;
+    try {
+      await deletePollRotation(rotationId);
+      setPollRotations((current) => current.filter((item) => item.id !== rotationId));
+      setQrCampaigns((current) => current.map((item) => item.rotation_id === rotationId ? { ...item, rotation_id: null } : item));
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Unable to delete poll rotation.");
+    }
   }
 
   async function lookUpScannedQr(rawValue) {
@@ -1474,7 +1531,7 @@ export default function Admin() {
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <p className="font-semibold">{campaign.name}</p>
-                      <p className="text-xs text-gray-400">Poll #{campaign.poll_id} · {campaign.placement_label || "Unlabeled placement"}{campaign.variant_label ? ` · ${campaign.variant_label}` : ""} · {campaign.is_active ? "Active" : "Paused"}</p>
+                      <p className="text-xs text-gray-400">Poll #{campaign.poll_id} · {campaign.placement_label || "Unlabeled placement"}{campaign.variant_label ? ` · ${campaign.variant_label}` : ""} · {campaign.is_active ? "Active" : "Paused"}{campaign.rotation_id ? " · Rotating" : ""}</p>
                       <p className="truncate text-xs text-blue-300">{url}</p>
                     </div>
                     <button onClick={() => navigator.clipboard.writeText(url)} className="shrink-0 bg-slate-700 text-white px-3 py-2 rounded font-semibold">Copy link</button>
@@ -1489,11 +1546,68 @@ export default function Admin() {
                       <option value="">Choose a poll</option>
                       {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
                     </select>
+                    <label className="text-xs text-slate-400">Or rotate:</label>
+                    <select
+                      value={campaign.rotation_id ? String(campaign.rotation_id) : ""}
+                      onChange={(event) => assignCampaignRotation(campaign.id, event.target.value)}
+                      className="border p-1.5 rounded text-black text-sm"
+                    >
+                      <option value="">No rotation</option>
+                      {pollRotations.map((rotation) => <option key={rotation.id} value={String(rotation.id)}>{rotation.name}</option>)}
+                    </select>
                   </div>
                 </div>
               );
             })}
           </div>
+        </div>
+      </details>
+
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">Poll rotations</summary>
+        <div className="px-4 pb-4">
+          <p className="mb-3 text-sm text-slate-400">Build an ordered list of polls that automatically swap on a schedule, so a printed QR code stays fresh without any admin action.</p>
+          <div className="grid gap-3 md:grid-cols-3 mb-3">
+            <input value={newRotationName} onChange={(event) => setNewRotationName(event.target.value)} className="border p-2 rounded text-black" placeholder="Rotation name: Daily question" />
+            <select value={newRotationFrequency} onChange={(event) => setNewRotationFrequency(event.target.value)} className="border p-2 rounded text-black">
+              <option value="daily">Change daily</option>
+              <option value="weekly">Change weekly</option>
+            </select>
+            <div className="flex gap-2">
+              <select value={rotationPollToAdd} onChange={(event) => setRotationPollToAdd(event.target.value)} className="flex-1 border p-2 rounded text-black">
+                <option value="">Choose a poll to add</option>
+                {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
+              </select>
+              <button onClick={addPollToRotationDraft} className="bg-slate-700 text-white px-3 py-2 rounded font-semibold">Add</button>
+            </div>
+          </div>
+          {newRotationPollIds.length > 0 && (
+            <ol className="mb-3 list-decimal space-y-1 pl-5 text-sm">
+              {newRotationPollIds.map((pollId, index) => {
+                const poll = polls.find((item) => String(item.id) === String(pollId));
+                return (
+                  <li key={`${pollId}-${index}`} className="flex items-center justify-between gap-2">
+                    <span>{poll ? `#${poll.id} - ${poll.question}` : `Poll #${pollId}`}</span>
+                    <button onClick={() => removePollFromRotationDraft(index)} className="text-xs text-red-300 underline">Remove</button>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+          <button onClick={handleCreateRotation} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">Create rotation</button>
+          <div className="mt-4 space-y-2 text-sm">
+            {pollRotations.length === 0 ? (
+              <p className="text-gray-400">No poll rotations yet.</p>
+            ) : (
+              pollRotations.map((rotation) => (
+                <div key={rotation.id} className="flex items-center justify-between border-b border-gray-700 py-2">
+                  <span>{rotation.name} · {rotation.frequency} · {rotation.poll_ids.length} polls</span>
+                  <button onClick={() => handleDeleteRotation(rotation.id)} className="text-xs text-red-300 underline">Delete</button>
+                </div>
+              ))
+            )}
+          </div>
+          <p className="mt-3 text-xs text-slate-500">Assign a rotation to a QR campaign above using "Or rotate".</p>
         </div>
       </details>
 
@@ -1629,6 +1743,7 @@ export default function Admin() {
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">Feedback recovery and weekly reports</summary>
         <div className="px-4 pb-4 space-y-5">
+          <div><p className="mb-2 text-sm text-slate-400">Open alerts, including low-score/answer matches and automatic vote-volume drop warnings (checked daily).</p><div className="text-sm">{feedbackAlerts.filter((alert) => alert.status !== "resolved").length ? feedbackAlerts.filter((alert) => alert.status !== "resolved").map((alert) => <div key={alert.id} className="flex items-center justify-between gap-2 border-b border-gray-700 py-1"><span>Poll #{alert.poll_id}: {alert.answer}</span><button onClick={async () => { const { error } = await supabase.from("feedback_alerts").update({ status: "resolved" }).eq("id", alert.id); if (!error) setFeedbackAlerts((current) => current.map((item) => item.id === alert.id ? { ...item, status: "resolved" } : item)); }} className="shrink-0 text-xs text-emerald-300 underline">Resolve</button></div>) : <p className="text-gray-400">No open alerts.</p>}</div></div>
           <div><p className="mb-2 text-sm text-slate-400">Create alerts for low numeric scores or an exact answer. New matching votes create manager-only alerts.</p><div className="grid md:grid-cols-4 gap-3"><select value={newRulePollId} onChange={(event) => setNewRulePollId(event.target.value)} className="border p-2 rounded text-black"><option value="">Choose a poll</option>{polls.map((poll) => <option key={poll.id} value={poll.id}>#{poll.id} - {poll.question}</option>)}</select><select value={newRuleType} onChange={(event) => setNewRuleType(event.target.value)} className="border p-2 rounded text-black"><option value="low_score">Low score</option><option value="answer_match">Exact answer</option></select>{newRuleType === "low_score" ? <input type="number" min="0" max="10" value={newRuleThreshold} onChange={(event) => setNewRuleThreshold(event.target.value)} className="border p-2 rounded text-black" placeholder="Score at or below" /> : <input value={newRuleAnswer} onChange={(event) => setNewRuleAnswer(event.target.value)} className="border p-2 rounded text-black" placeholder="Answer trigger" />}<button onClick={createAlertRule} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">Add alert rule</button></div><div className="mt-3 text-sm">{alertRules.length ? alertRules.map((rule) => <p key={rule.id} className="border-b border-gray-700 py-1">Poll #{rule.poll_id}: {rule.trigger_type === "low_score" ? `score at or below ${rule.score_threshold}` : `answer “${rule.answer_match}”`}</p>) : <p className="text-gray-400">No feedback alert rules yet.</p>}</div></div>
           <div><p className="mb-2 text-sm text-slate-400">Turn an alert into a recovery task and track completion.</p><div className="grid md:grid-cols-3 gap-3"><input value={newTaskTitle} onChange={(event) => setNewTaskTitle(event.target.value)} className="border p-2 rounded text-black" placeholder="Call customer, review service issue" /><select value={newTaskAlertId} onChange={(event) => setNewTaskAlertId(event.target.value)} className="border p-2 rounded text-black"><option value="">No linked alert</option>{feedbackAlerts.filter((alert) => alert.status !== "resolved").map((alert) => <option key={alert.id} value={alert.id}>#{alert.id} Poll #{alert.poll_id}: {alert.answer}</option>)}</select><button onClick={createRecoveryTask} className="bg-emerald-600 text-white px-4 py-2 rounded font-semibold">Add recovery task</button></div><div className="mt-3 text-sm">{recoveryTasks.length ? recoveryTasks.map((task) => <div key={task.id} className="flex justify-between border-b border-gray-700 py-1"><span>{task.title}</span><select value={task.status} onChange={async (event) => { const status = event.target.value; const { error } = await supabase.from("feedback_recovery_tasks").update({ status, completed_at: status === "done" ? new Date().toISOString() : null }).eq("id", task.id); if (!error) setRecoveryTasks((current) => current.map((item) => item.id === task.id ? { ...item, status } : item)); }} className="text-black"><option value="open">Open</option><option value="in_progress">In progress</option><option value="done">Done</option></select></div>) : <p className="text-gray-400">No recovery tasks yet.</p>}</div></div>
           <div><p className="mb-2 text-sm text-slate-400">The Monday Vercel cron prepares a workspace summary. It delivers through Resend only when the server key is configured.</p><div className="grid md:grid-cols-3 gap-3 items-center"><input type="email" value={reportSettings.recipient_email} onChange={(event) => setReportSettings((current) => ({ ...current, recipient_email: event.target.value }))} className="border p-2 rounded text-black" placeholder="manager@example.com" /><label className="flex gap-2 items-center"><input type="checkbox" checked={reportSettings.is_enabled} onChange={(event) => setReportSettings((current) => ({ ...current, is_enabled: event.target.checked }))} /> Enable weekly report</label><button onClick={saveReportSettings} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save report settings</button></div></div>

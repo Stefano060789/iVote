@@ -156,7 +156,12 @@ export default function Vote() {
     if (isAdmin) {
       navigate("/admin");
     } else {
-      navigate(`/thanks?poll=${poll.id}`);
+      const answerCount = Array.isArray(poll.answers) ? poll.answers.length : 0;
+      const positions = answersToSubmit.map((answer) => poll.answers.indexOf(answer)).filter((index) => index >= 0);
+      const isPositiveVote = answerCount <= 1 || positions.length === 0
+        ? true
+        : Math.min(...positions) <= Math.floor((answerCount - 1) / 2);
+      navigate(`/thanks?poll=${poll.id}&positive=${isPositiveVote ? "1" : "0"}`);
     }
   }
 
