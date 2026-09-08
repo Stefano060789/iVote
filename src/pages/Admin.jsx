@@ -1208,18 +1208,18 @@ export default function Admin() {
         </div>
       )}
 
-      <div className="mb-6 flex flex-wrap justify-center gap-2">
+      <div className="mb-6 -mx-6 flex gap-2 overflow-x-auto px-6 pb-1 sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0">
         {[
           { key: "overview", label: "Overview" },
           { key: "polls", label: "Polls" },
-          { key: "engagement", label: "Engagement & growth" },
+          { key: "engagement", label: "Engagement" },
           { key: "feedback", label: "Feedback" },
           { key: "settings", label: "Settings" }
         ].map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`rounded px-4 py-2 font-semibold ${activeTab === tab.key ? "bg-teal-500 text-slate-950" : "bg-gray-800 text-slate-300"}`}
+            className={`shrink-0 whitespace-nowrap rounded px-4 py-2 font-semibold ${activeTab === tab.key ? "bg-teal-500 text-slate-950" : "bg-gray-800 text-slate-300"}`}
           >
             {tab.label}
           </button>
