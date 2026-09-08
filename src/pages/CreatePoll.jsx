@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import { supabase } from "../lib/supabase";
 import QRCode from "qrcode";
@@ -11,6 +11,9 @@ import { DEFAULT_ACCENT_COLOR, DEFAULT_PRIMARY_COLOR } from "../lib/pollBranding
 import { loadWorkspaceProfile } from "../lib/workspaceProfile";
 
 export default function CreatePoll() {
+  const [searchParams] = useSearchParams();
+  const assignCampaignId = searchParams.get("campaign");
+  const [assignedCampaignName, setAssignedCampaignName] = useState("");
   const [question, setQuestion] = useState("");
   const [answers, setAnswers] = useState([""]);
   const [multipleChoice, setMultipleChoice] = useState(false);
@@ -161,6 +164,16 @@ export default function CreatePoll() {
       brand_accent_color: brandAccentColor || DEFAULT_ACCENT_COLOR
     });
 
+    if (assignCampaignId) {
+      const { data: campaign, error: assignError } = await supabase
+        .from("qr_campaigns")
+        .update({ poll_id: data.id })
+        .eq("id", assignCampaignId)
+        .select("name")
+        .maybeSingle();
+      if (!assignError && campaign) setAssignedCampaignName(campaign.name);
+    }
+
     setPollId(data.id);
     const qr = await QRCode.toDataURL(stableShortUrl);
     setQrCodeUrl(qr);
@@ -172,6 +185,11 @@ export default function CreatePoll() {
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-bold">Create a Poll</h1>
           <p className="mt-2 text-sm text-slate-400">Add a question and answers, then share the voting link.</p>
+          {assignCampaignId && (
+            <p className="mt-2 rounded border border-teal-700 bg-teal-950 p-2 text-sm text-teal-200">
+              This poll will be assigned to your scanned QR code automatically.
+            </p>
+          )}
         </div>
 
         <label className="block mb-2 font-semibold">Template</label>
@@ -319,6 +337,11 @@ export default function CreatePoll() {
         {pollId && (
           <div className="mt-8 text-center">
             <h2 className="text-xl font-bold mb-4">Poll Created!</h2>
+            {assignedCampaignName && (
+              <p className="mb-4 rounded border border-teal-700 bg-teal-950 p-2 text-sm text-teal-200">
+                Assigned to QR code "{assignedCampaignName}".
+              </p>
+            )}
             <p className="mb-4">Poll ID: {pollId}</p>
 
             {qrCodeUrl && (

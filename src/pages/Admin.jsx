@@ -256,6 +256,16 @@ export default function Admin() {
     }
   }
 
+  async function reassignQrCampaignPoll(campaignId, nextPollId) {
+    if (!nextPollId) return;
+    const { error } = await supabase.from("qr_campaigns").update({ poll_id: Number(nextPollId) }).eq("id", campaignId);
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    setQrCampaigns((current) => current.map((item) => item.id === campaignId ? { ...item, poll_id: Number(nextPollId) } : item));
+  }
+
   async function createAlertRule() {
     if (!newRulePollId || (newRuleType === "answer_match" && !newRuleAnswer.trim())) return alert("Choose a poll and complete the trigger.");
     const rule = { workspace_id: workspaceUserId, poll_id: Number(newRulePollId), trigger_type: newRuleType, score_threshold: newRuleType === "low_score" ? Number(newRuleThreshold) : null, answer_match: newRuleType === "answer_match" ? newRuleAnswer.trim() : null };
@@ -1102,6 +1112,7 @@ export default function Admin() {
         <summary className="cursor-pointer p-4 text-xl font-bold">QR campaigns</summary>
         <div className="px-4 pb-4">
           <p className="mb-3 text-sm text-slate-400">Create a durable QR code per placement to measure scans, responses, and opted-in follow-up leads.</p>
+          <p className="mb-3 text-xs text-slate-500">Tip: open a printed QR code while signed in to see its name and poll, and change them directly.</p>
           <div className="grid md:grid-cols-3 gap-3 mb-3">
             <input value={newCampaignName} onChange={(event) => setNewCampaignName(event.target.value)} className="border p-2 rounded text-black" placeholder="Lobby poster, receipt, table tent" />
             <select value={newCampaignPollId} onChange={(event) => setNewCampaignPollId(event.target.value)} className="border p-2 rounded text-black">
@@ -1123,13 +1134,26 @@ export default function Admin() {
             {qrCampaigns.length === 0 ? <p className="text-gray-400">No tracked QR campaigns yet.</p> : qrCampaigns.map((campaign) => {
               const url = `${window.location.origin}/qr/${campaign.token}`;
               return (
-                <div key={campaign.id} className="flex items-center justify-between gap-3 border border-gray-700 rounded p-3">
-                  <div className="min-w-0">
-                    <p className="font-semibold">{campaign.name}</p>
-                    <p className="text-xs text-gray-400">Poll #{campaign.poll_id} · {campaign.placement_label || "Unlabeled placement"}{campaign.variant_label ? ` · ${campaign.variant_label}` : ""} · {campaign.is_active ? "Active" : "Paused"}</p>
-                    <p className="truncate text-xs text-blue-300">{url}</p>
+                <div key={campaign.id} className="gap-3 border border-gray-700 rounded p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-semibold">{campaign.name}</p>
+                      <p className="text-xs text-gray-400">Poll #{campaign.poll_id} · {campaign.placement_label || "Unlabeled placement"}{campaign.variant_label ? ` · ${campaign.variant_label}` : ""} · {campaign.is_active ? "Active" : "Paused"}</p>
+                      <p className="truncate text-xs text-blue-300">{url}</p>
+                    </div>
+                    <button onClick={() => navigator.clipboard.writeText(url)} className="shrink-0 bg-slate-700 text-white px-3 py-2 rounded font-semibold">Copy link</button>
                   </div>
-                  <button onClick={() => navigator.clipboard.writeText(url)} className="shrink-0 bg-slate-700 text-white px-3 py-2 rounded font-semibold">Copy link</button>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <label className="text-xs text-slate-400">Change poll:</label>
+                    <select
+                      value={campaign.poll_id ? String(campaign.poll_id) : ""}
+                      onChange={(event) => reassignQrCampaignPoll(campaign.id, event.target.value)}
+                      className="border p-1.5 rounded text-black text-sm"
+                    >
+                      <option value="">Choose a poll</option>
+                      {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
+                    </select>
+                  </div>
                 </div>
               );
             })}
