@@ -1208,7 +1208,7 @@ export default function Admin() {
         </div>
       )}
 
-      <div className="mb-6 -mx-6 flex gap-2 overflow-x-auto px-6 pb-1 sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0">
+      <div className="mb-6 grid grid-cols-5 gap-1 sm:gap-2">
         {[
           { key: "overview", label: "Overview" },
           { key: "polls", label: "Polls" },
@@ -1219,7 +1219,7 @@ export default function Admin() {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`shrink-0 whitespace-nowrap rounded px-4 py-2 font-semibold ${activeTab === tab.key ? "bg-teal-500 text-slate-950" : "bg-gray-800 text-slate-300"}`}
+            className={`truncate rounded px-1 py-2 text-[11px] font-semibold sm:px-4 sm:text-sm ${activeTab === tab.key ? "bg-teal-500 text-slate-950" : "bg-gray-800 text-slate-300"}`}
           >
             {tab.label}
           </button>
