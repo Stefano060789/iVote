@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { supabase } from "../lib/supabase";
+import { supabase, supabaseUrl, supabaseAnonKey } from "../lib/supabase";
 import { createStableQrUrl } from "../lib/pollLinks";
 import { isRestrictedTopic } from "../lib/restrictedContent";
 import { appendAuditLog, readAuditLog, readPollMeta, savePollMeta, isPollClosed } from "../lib/pollMeta";
@@ -91,6 +91,13 @@ export default function Admin() {
   const [scanLookupValue, setScanLookupValue] = useState("");
   const [scanResult, setScanResult] = useState(null);
   const [scanMessage, setScanMessage] = useState("");
+  const [totalVotesCount, setTotalVotesCount] = useState(0);
+  const [onboardingDismissed, setOnboardingDismissed] = useState(false);
+  const [qrShared, setQrShared] = useState(false);
+  const [weeklyInsight, setWeeklyInsight] = useState(null);
+  const [workspaceUpdates, setWorkspaceUpdates] = useState([]);
+  const [newUpdateMessage, setNewUpdateMessage] = useState("");
+  const [newUpdatePollId, setNewUpdatePollId] = useState("");
 
   async function createShortLink(longUrl) {
     const response = await fetch(
@@ -203,6 +210,29 @@ export default function Admin() {
           summary[row.poll_id][row.sentiment] += 1;
         });
         setSentimentSummary(summary);
+
+        setOnboardingDismissed(localStorage.getItem(`ivote_onboarding_dismissed_${profile.id}`) === "true");
+        setQrShared(localStorage.getItem(`ivote_qr_shared_${profile.id}`) === "true");
+
+        const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+        const { count: votesCount } = await supabase.from("votes").select("id", { count: "exact", head: true });
+        setTotalVotesCount(votesCount || 0);
+
+        const { data: recentVotes } = await supabase.from("votes").select("answer, poll_id").gte("created_at", sevenDaysAgo);
+        if (recentVotes && recentVotes.length > 0) {
+          const tally = {};
+          recentVotes.forEach((vote) => {
+            const key = vote.answer;
+            tally[key] = (tally[key] || 0) + 1;
+          });
+          const [topAnswer, topCount] = Object.entries(tally).sort((a, b) => b[1] - a[1])[0];
+          setWeeklyInsight({ answer: topAnswer, count: topCount, totalVotes: recentVotes.length });
+        } else {
+          setWeeklyInsight(null);
+        }
+
+        const { data: updatesRows } = await supabase.from("workspace_updates").select("*").order("created_at", { ascending: false }).limit(20);
+        setWorkspaceUpdates(updatesRows || []);
       } catch (error) {
         console.error(error);
         alert(error.message || "Unable to load workspace role data.");
@@ -866,6 +896,46 @@ export default function Admin() {
   function copyShareLink(poll) {
     const shareLink = poll.stable_short_url || poll.short_url || `${window.location.origin}/vote/${poll.id}`;
     navigator.clipboard.writeText(shareLink);
+    if (workspaceUserId) {
+      localStorage.setItem(`ivote_qr_shared_${workspaceUserId}`, "true");
+      setQrShared(true);
+    }
+  }
+
+  function dismissOnboarding() {
+    if (workspaceUserId) localStorage.setItem(`ivote_onboarding_dismissed_${workspaceUserId}`, "true");
+    setOnboardingDismissed(true);
+  }
+
+  async function postWorkspaceUpdate() {
+    if (!newUpdateMessage.trim()) return alert("Write the update message first.");
+    const { data, error } = await supabase.from("workspace_updates").insert({
+      workspace_id: workspaceUserId,
+      poll_id: newUpdatePollId ? Number(newUpdatePollId) : null,
+      message: newUpdateMessage.trim()
+    }).select().single();
+    if (error) return alert(error.message);
+    setWorkspaceUpdates((current) => [data, ...current]);
+    setNewUpdateMessage("");
+    setNewUpdatePollId("");
+  }
+
+  async function deleteWorkspaceUpdate(id) {
+    const { error } = await supabase.from("workspace_updates").delete().eq("id", id);
+    if (error) return alert(error.message);
+    setWorkspaceUpdates((current) => current.filter((item) => item.id !== id));
+  }
+
+  function copyEmbedWidgetSnippet(poll) {
+    const snippet = `<script src="${window.location.origin}/widget.js" data-poll-id="${poll.id}" data-origin="${window.location.origin}" data-label="Give Feedback" data-color="${workspaceProfile.primaryColor || "#0d9488"}"></script>`;
+    navigator.clipboard.writeText(snippet);
+    alert("Embed code copied. Paste it before </body> on your website.");
+  }
+
+  function copyTrustBadgeSnippet(poll) {
+    const snippet = `<script src="${window.location.origin}/trust-badge.js" data-poll-id="${poll.id}" data-origin="${window.location.origin}" data-supabase-url="${supabaseUrl}" data-supabase-anon-key="${supabaseAnonKey}"></script>`;
+    navigator.clipboard.writeText(snippet);
+    alert("Trust badge embed code copied. Paste it anywhere on your website.");
   }
 
   function getQrPrintFormatConfig(format = qrPrintFormat) {
@@ -1113,6 +1183,29 @@ export default function Admin() {
         <h1 className="text-3xl font-bold">Admin Dashboard</h1>
         <p className="mt-2 text-sm text-slate-400">Create, share, and manage every poll from one place.</p>
       </div>
+
+      {!onboardingDismissed && (
+        <div className="mb-6 rounded border border-teal-700 bg-slate-900 p-4">
+          <div className="flex items-start justify-between gap-3">
+            <h2 className="text-lg font-bold">Get started</h2>
+            <button onClick={dismissOnboarding} className="text-xs text-slate-400 underline">Dismiss</button>
+          </div>
+          <div className="mt-3 space-y-2 text-sm">
+            <p className={polls.length > 0 ? "text-emerald-300" : "text-slate-300"}>{polls.length > 0 ? "\u2713" : "\u25cb"} Create your first poll</p>
+            <p className={qrShared ? "text-emerald-300" : "text-slate-300"}>{qrShared ? "\u2713" : "\u25cb"} Print or share your QR code</p>
+            <p className={totalVotesCount > 0 ? "text-emerald-300" : "text-slate-300"}>{totalVotesCount > 0 ? "\u2713" : "\u25cb"} Get your first vote</p>
+          </div>
+        </div>
+      )}
+
+      {weeklyInsight && (
+        <div className="mb-6 rounded border border-indigo-700 bg-slate-900 p-4">
+          <p className="text-sm font-semibold text-indigo-300">This week's insight</p>
+          <p className="mt-1 text-sm text-slate-200">
+            Your top mentioned answer was <span className="font-semibold">"{weeklyInsight.answer}"</span>, mentioned {weeklyInsight.count} time{weeklyInsight.count === 1 ? "" : "s"} out of {weeklyInsight.totalVotes} votes in the last 7 days.
+          </p>
+        </div>
+      )}
 
       <div className="flex justify-center mb-6">
         <Link to="/admin/analytics" className="bg-purple-600 text-white px-3 py-2 rounded font-semibold">
@@ -1463,6 +1556,36 @@ export default function Admin() {
       </details>
 
       <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">"We heard you" updates</summary>
+        <div className="px-4 pb-4">
+          <p className="mb-3 text-sm text-slate-400">Post a public update when you act on feedback (e.g., "We fixed the slow Wi-Fi you mentioned"). It shows on the poll's public results page.</p>
+          <div className="grid gap-3 md:grid-cols-3 mb-3">
+            <textarea value={newUpdateMessage} onChange={(event) => setNewUpdateMessage(event.target.value)} rows="2" maxLength={500} className="md:col-span-2 border p-2 rounded text-black" placeholder="We heard you and..." />
+            <select value={newUpdatePollId} onChange={(event) => setNewUpdatePollId(event.target.value)} className="border p-2 rounded text-black">
+              <option value="">All polls</option>
+              {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
+            </select>
+          </div>
+          <button onClick={postWorkspaceUpdate} className="bg-teal-500 text-slate-950 px-4 py-2 rounded font-semibold">Post update</button>
+          <div className="mt-4 space-y-2 text-sm">
+            {workspaceUpdates.length === 0 ? (
+              <p className="text-gray-400">No updates posted yet.</p>
+            ) : (
+              workspaceUpdates.map((update) => (
+                <div key={update.id} className="flex items-start justify-between gap-3 border-b border-gray-700 py-2">
+                  <div>
+                    <p>{update.message}</p>
+                    <p className="text-xs text-gray-500">{update.poll_id ? `Poll #${update.poll_id}` : "All polls"} · {new Date(update.created_at).toLocaleString()}</p>
+                  </div>
+                  <button onClick={() => deleteWorkspaceUpdate(update.id)} className="shrink-0 text-xs text-red-300 underline">Delete</button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </details>
+
+      <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">Feedback recovery and weekly reports</summary>
         <div className="px-4 pb-4 space-y-5">
           <div><p className="mb-2 text-sm text-slate-400">Create alerts for low numeric scores or an exact answer. New matching votes create manager-only alerts.</p><div className="grid md:grid-cols-4 gap-3"><select value={newRulePollId} onChange={(event) => setNewRulePollId(event.target.value)} className="border p-2 rounded text-black"><option value="">Choose a poll</option>{polls.map((poll) => <option key={poll.id} value={poll.id}>#{poll.id} - {poll.question}</option>)}</select><select value={newRuleType} onChange={(event) => setNewRuleType(event.target.value)} className="border p-2 rounded text-black"><option value="low_score">Low score</option><option value="answer_match">Exact answer</option></select>{newRuleType === "low_score" ? <input type="number" min="0" max="10" value={newRuleThreshold} onChange={(event) => setNewRuleThreshold(event.target.value)} className="border p-2 rounded text-black" placeholder="Score at or below" /> : <input value={newRuleAnswer} onChange={(event) => setNewRuleAnswer(event.target.value)} className="border p-2 rounded text-black" placeholder="Answer trigger" />}<button onClick={createAlertRule} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">Add alert rule</button></div><div className="mt-3 text-sm">{alertRules.length ? alertRules.map((rule) => <p key={rule.id} className="border-b border-gray-700 py-1">Poll #{rule.poll_id}: {rule.trigger_type === "low_score" ? `score at or below ${rule.score_threshold}` : `answer “${rule.answer_match}”`}</p>) : <p className="text-gray-400">No feedback alert rules yet.</p>}</div></div>
@@ -1696,7 +1819,7 @@ export default function Admin() {
                 View Results
               </Link>
 
-              <button onClick={() => setShowQR(showQR === poll.id ? null : poll.id)} className="rounded border border-slate-500 px-3 py-2 font-semibold text-slate-100">
+              <button onClick={() => { setShowQR(showQR === poll.id ? null : poll.id); if (workspaceUserId) { localStorage.setItem(`ivote_qr_shared_${workspaceUserId}`, "true"); setQrShared(true); } }} className="rounded border border-slate-500 px-3 py-2 font-semibold text-slate-100">
                 {showQR === poll.id ? "Hide QR" : "Open QR tools"}
               </button>
 
@@ -1712,6 +1835,8 @@ export default function Admin() {
                   <button onClick={() => duplicatePoll(poll)} disabled={!canDuplicatePolls} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">Duplicate poll</button>
                   <button onClick={() => reuseQR(poll)} disabled={!canReuseQr} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">Assign existing QR</button>
                   <button onClick={() => exportPollCsv(poll)} disabled={!canExportResults} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">Export responses CSV</button>
+                  <button onClick={() => copyEmbedWidgetSnippet(poll)} className="rounded px-3 py-2 text-left hover:bg-slate-800">Copy feedback widget embed code</button>
+                  <button onClick={() => copyTrustBadgeSnippet(poll)} className="rounded px-3 py-2 text-left hover:bg-slate-800">Copy trust badge embed code</button>
                   <button onClick={() => closePoll(poll)} disabled={!canClosePolls} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">{isClosed ? "Reopen poll" : "Close poll"}</button>
                   <button onClick={() => deletePoll(poll.id)} disabled={!canDeletePolls} className="rounded px-3 py-2 text-left text-red-300 hover:bg-red-950 disabled:text-slate-500">Delete poll</button>
                 </div>

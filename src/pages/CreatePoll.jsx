@@ -6,7 +6,7 @@ import QRCode from "qrcode";
 import { isRestrictedTopic } from "../lib/restrictedContent";
 import { createStableQrUrl } from "../lib/pollLinks";
 import { savePollMeta } from "../lib/pollMeta";
-import { POLL_TEMPLATES, getTemplateByKey } from "../lib/pollTemplates";
+import { POLL_TEMPLATES, INDUSTRY_LABELS, getTemplateByKey } from "../lib/pollTemplates";
 import { DEFAULT_ACCENT_COLOR, DEFAULT_PRIMARY_COLOR } from "../lib/pollBranding";
 import { loadWorkspaceProfile } from "../lib/workspaceProfile";
 
@@ -80,6 +80,9 @@ export default function CreatePoll() {
       nextAnswers.push("");
     }
     setAnswers(nextAnswers);
+    if (template.suggestedPrimaryColor) {
+      setBrandPrimaryColor(template.suggestedPrimaryColor);
+    }
   }
 
   async function createPoll() {
@@ -210,10 +213,14 @@ export default function CreatePoll() {
           onChange={(e) => applyTemplate(e.target.value)}
           className="w-full border p-2 rounded mb-4 text-black"
         >
-          {POLL_TEMPLATES.map((template) => (
-            <option key={template.key} value={template.key}>
-              {template.label}
-            </option>
+          {Object.entries(INDUSTRY_LABELS).map(([industryKey, industryLabel]) => (
+            <optgroup key={industryKey} label={industryLabel}>
+              {POLL_TEMPLATES.filter((template) => template.industry === industryKey).map((template) => (
+                <option key={template.key} value={template.key}>
+                  {template.label}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
 

@@ -31,6 +31,7 @@ export default function Results() {
   const [loading, setLoading] = useState(true);
   const [totalVotes, setTotalVotes] = useState(0);
   const [votesToday, setVotesToday] = useState(0);
+  const [updates, setUpdates] = useState([]);
 
   useEffect(() => {
     async function loadPoll() {
@@ -66,6 +67,10 @@ export default function Results() {
 
     loadPoll();
     fetchVotes();
+
+    supabase.rpc("get_public_workspace_updates", { target_poll_id: Number(pollId) }).then(({ data, error }) => {
+      if (!error) setUpdates(data || []);
+    });
 
     const interval = setInterval(() => {
       fetchVotes();
@@ -198,6 +203,19 @@ export default function Results() {
           <Bar data={chartData} />
         </div>
 
+        {updates.length > 0 && (
+          <div className="mt-6 mb-8 rounded border border-teal-700 bg-slate-900 p-4 text-white">
+            <h3 className="text-lg font-bold text-teal-300">We heard you</h3>
+            <div className="mt-2 space-y-2 text-sm">
+              {updates.map((update) => (
+                <div key={update.id} className="border-b border-slate-700 pb-2 last:border-b-0">
+                  <p>{update.message}</p>
+                  <p className="text-xs text-slate-400">{new Date(update.created_at).toLocaleDateString()}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="mt-10 mb-8 bg-white p-4 rounded">
           <Line data={lineData} />
         </div>
