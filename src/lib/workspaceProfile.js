@@ -72,7 +72,7 @@ export async function loadWorkspaceProfile() {
 
   const { data: workspace, error } = await supabase
     .from("workspaces")
-    .select("id, name, logo_url, primary_color, accent_color")
+    .select("id, name, logo_url, primary_color, accent_color, webhook_url")
     .eq("id", workspaceId)
     .single();
 
@@ -88,6 +88,7 @@ export async function loadWorkspaceProfile() {
     logoUrl: workspace.logo_url || "",
     primaryColor: workspace.primary_color || "#2563eb",
     accentColor: workspace.accent_color || "#0f172a",
+    webhookUrl: workspace.webhook_url || "",
     role
   };
 }
@@ -115,7 +116,8 @@ export async function saveWorkspaceProfile(workspaceId, patch = {}) {
       name: next.companyName,
       logo_url: next.logoUrl || null,
       primary_color: next.primaryColor,
-      accent_color: next.accentColor
+      accent_color: next.accentColor,
+      webhook_url: patch.webhookUrl?.trim() || null
     })
     .eq("id", workspaceId);
 
@@ -227,4 +229,23 @@ export async function removeWorkspaceMember(workspaceId, memberId) {
     throw new Error(`Unable to remove workspace member: ${error.message}`);
   }
   return readWorkspaceMembers(workspaceId);
+}
+
+export async function inviteWorkspaceMember(workspaceId, { email, name, role }) {
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
+  if (!token) throw new Error("Sign in again to send an invite.");
+
+  const response = await fetch("/api/invite-team-member", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ workspaceId, email, name, role })
+  });
+
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(result?.error || "Unable to send invite.");
+  }
+
+  return result;
 }

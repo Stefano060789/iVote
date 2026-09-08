@@ -11,6 +11,7 @@ import QrScanner from "../components/QrScanner";
 import {
   getCurrentUserRole,
   getPermissionSet,
+  inviteWorkspaceMember,
   loadWorkspaceProfile,
   readWorkspaceMembers,
   readWorkspaceProfile,
@@ -49,6 +50,7 @@ export default function Admin() {
     logoUrl: "",
     primaryColor: "#2563eb",
     accentColor: "#0f172a",
+    webhookUrl: "",
     role: "owner"
   });
   const [workspaceUserId, setWorkspaceUserId] = useState(null);
@@ -65,6 +67,10 @@ export default function Admin() {
   const [newCampaignPortalTitle, setNewCampaignPortalTitle] = useState("");
   const [newCampaignPortalMessage, setNewCampaignPortalMessage] = useState("");
   const [newCampaignPortalButton, setNewCampaignPortalButton] = useState("");
+  const [newBulkBaseName, setNewBulkBaseName] = useState("");
+  const [newBulkCount, setNewBulkCount] = useState("10");
+  const [newBulkPollId, setNewBulkPollId] = useState("");
+  const [invitingMember, setInvitingMember] = useState(false);
   const [alertRules, setAlertRules] = useState([]);
   const [feedbackAlerts, setFeedbackAlerts] = useState([]);
   const [recoveryTasks, setRecoveryTasks] = useState([]);
@@ -262,6 +268,31 @@ export default function Admin() {
     }
   }
 
+  async function handleBulkGenerateCampaigns() {
+    const base = newBulkBaseName.trim();
+    const count = Number(newBulkCount);
+    if (!base || !Number.isInteger(count) || count < 1 || count > 50) {
+      alert("Enter a name and a count between 1 and 50.");
+      return;
+    }
+    try {
+      const created = [];
+      for (let index = 1; index <= count; index += 1) {
+        const label = `${base} ${index}`;
+        const campaign = await createQrCampaign({ name: label, pollId: newBulkPollId || null, placementLabel: label });
+        created.push(campaign);
+      }
+      setQrCampaigns((current) => [...created, ...current]);
+      setNewBulkBaseName("");
+      setNewBulkCount("10");
+      setNewBulkPollId("");
+      alert(`Created ${created.length} QR codes. Open each printed code to assign or change its poll.`);
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Unable to generate QR codes.");
+    }
+  }
+
   async function reassignQrCampaignPoll(campaignId, nextPollId) {
     if (!nextPollId) return;
     const { error } = await supabase.from("qr_campaigns").update({ poll_id: Number(nextPollId) }).eq("id", campaignId);
@@ -374,6 +405,34 @@ export default function Admin() {
   async function addTeamMember() {
     if (!newMemberName.trim()) {
       alert("Add a team member name first.");
+      return;
+    }
+
+    const email = newMemberEmail.trim();
+
+    if (email) {
+      setInvitingMember(true);
+      try {
+        const result = await inviteWorkspaceMember(workspaceUserId, {
+          email,
+          name: newMemberName.trim(),
+          role: newMemberRole
+        });
+        setTeamMembers(await readWorkspaceMembers(workspaceUserId));
+        setNewMemberName("");
+        setNewMemberEmail("");
+        setNewMemberRole("viewer");
+        if (result.actionLink) {
+          window.prompt("Invite created. Copy this sign-in link and send it to your teammate:", result.actionLink);
+        } else {
+          alert(`Invited ${email}. They'll receive an email to set up their account.`);
+        }
+      } catch (error) {
+        console.error(error);
+        alert(error.message || "Unable to invite team member.");
+      } finally {
+        setInvitingMember(false);
+      }
       return;
     }
 
@@ -1217,6 +1276,19 @@ export default function Admin() {
               <textarea value={newCampaignPortalMessage} onChange={(event) => setNewCampaignPortalMessage(event.target.value)} maxLength={280} className="border p-2 rounded text-black md:col-span-2" placeholder="Short welcome message (optional)" rows="3" />
             </div>
           </details>
+          <details className="mb-4 rounded border border-slate-700">
+            <summary className="cursor-pointer p-3 text-sm font-semibold">Generate multiple QR codes at once</summary>
+            <div className="grid gap-3 px-3 pb-3 md:grid-cols-3">
+              <input value={newBulkBaseName} onChange={(event) => setNewBulkBaseName(event.target.value)} className="border p-2 rounded text-black" placeholder="Base name: Table" />
+              <input type="number" min="1" max="50" value={newBulkCount} onChange={(event) => setNewBulkCount(event.target.value)} className="border p-2 rounded text-black" placeholder="How many? (1-50)" />
+              <select value={newBulkPollId} onChange={(event) => setNewBulkPollId(event.target.value)} className="border p-2 rounded text-black">
+                <option value="">Assign later</option>
+                {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
+              </select>
+              <button onClick={handleBulkGenerateCampaigns} className="md:col-span-3 bg-violet-600 text-white px-4 py-2 rounded font-semibold">Generate QR codes</button>
+              <p className="md:col-span-3 text-xs text-slate-500">Creates "Table 1", "Table 2"... You can scan or open each one later to assign or change its poll.</p>
+            </div>
+          </details>
           <div className="space-y-2">
             {qrCampaigns.length === 0 ? <p className="text-gray-400">No tracked QR campaigns yet.</p> : qrCampaigns.map((campaign) => {
               const url = `${window.location.origin}/qr/${campaign.token}`;
@@ -1289,6 +1361,13 @@ export default function Admin() {
             className="border p-2 rounded text-black md:col-span-2"
             placeholder="Logo URL"
           />
+          <input
+            type="url"
+            value={workspaceProfile.webhookUrl}
+            onChange={(event) => setWorkspaceProfile((current) => ({ ...current, webhookUrl: event.target.value }))}
+            className="border p-2 rounded text-black md:col-span-2"
+            placeholder="Webhook URL (optional) - get notified in Slack/Zapier/Sheets on every vote"
+          />
           <label className="block font-semibold">
             Primary color
             <input
@@ -1327,7 +1406,7 @@ export default function Admin() {
         <summary className="cursor-pointer p-4 text-xl font-bold">Team access</summary>
         <div className="px-4 pb-4">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm text-slate-400">Invite colleagues and choose what they can manage.</p>
+          <p className="text-sm text-slate-400">Invite colleagues and choose what they can manage. Add an email to send them a real sign-in invite; leave it blank to just note a name.</p>
           <span className="text-xs uppercase tracking-wide text-gray-300">{teamMembers.length} members</span>
         </div>
 
@@ -1359,12 +1438,12 @@ export default function Admin() {
 
         <button
           onClick={addTeamMember}
-          disabled={!permission.canManageWorkspace}
+          disabled={!permission.canManageWorkspace || invitingMember}
           className={`px-4 py-2 rounded font-semibold mb-4 ${
             permission.canManageWorkspace ? "bg-indigo-600 text-white" : "bg-gray-600 text-gray-300 cursor-not-allowed"
           }`}
         >
-          Add team member
+          {invitingMember ? "Sending invite..." : newMemberEmail.trim() ? "Send invite" : "Add team member"}
         </button>
 
         <div className="space-y-2">

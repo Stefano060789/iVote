@@ -5,6 +5,7 @@ import { supabase } from "../lib/supabase";
 import { isRestrictedTopic } from "../lib/restrictedContent";
 import { readPollMeta, isPollClosed } from "../lib/pollMeta";
 import { getPollBranding } from "../lib/pollBranding";
+import { dispatchWorkspaceWebhook } from "../lib/webhooks";
 
 const TRANSLATION_LANGUAGES = [
   { value: "original", label: "Original" },
@@ -98,9 +99,10 @@ export default function Vote() {
 
     const isAdmin = !!user;
 
-    const { error } = await supabase
+    const { data: insertedVotes, error } = await supabase
       .from("votes")
-      .insert(rows);
+      .insert(rows)
+      .select("id, workspace_id");
 
     if (error) {
       if (error.code === "23505") {
@@ -110,6 +112,11 @@ export default function Vote() {
 
       console.error(error);
       return;
+    }
+
+    const workspaceId = insertedVotes?.[0]?.workspace_id;
+    if (workspaceId && insertedVotes?.[0]?.id) {
+      dispatchWorkspaceWebhook(workspaceId, "vote_submitted", insertedVotes[0].id);
     }
 
     if (!isAdmin) {
@@ -141,7 +148,7 @@ export default function Vote() {
     if (isAdmin) {
       navigate("/admin");
     } else {
-      navigate("/thanks");
+      navigate(`/thanks?poll=${poll.id}`);
     }
   }
 

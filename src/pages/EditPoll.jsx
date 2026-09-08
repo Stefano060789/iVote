@@ -20,6 +20,10 @@ export default function EditPoll() {
   const [brandLogoUrl, setBrandLogoUrl] = useState("");
   const [brandPrimaryColor, setBrandPrimaryColor] = useState(DEFAULT_PRIMARY_COLOR);
   const [brandAccentColor, setBrandAccentColor] = useState(DEFAULT_ACCENT_COLOR);
+  const [rewardMessage, setRewardMessage] = useState("");
+  const [rewardCode, setRewardCode] = useState("");
+  const [rewardUrl, setRewardUrl] = useState("");
+  const [reviewUrl, setReviewUrl] = useState("");
 
   useEffect(() => {
     async function loadPoll() {
@@ -44,6 +48,10 @@ export default function EditPoll() {
       setBrandLogoUrl(data.brand_logo_url ?? pollMeta.brand_logo_url ?? "");
       setBrandPrimaryColor(data.brand_primary_color ?? pollMeta.brand_primary_color ?? DEFAULT_PRIMARY_COLOR);
       setBrandAccentColor(data.brand_accent_color ?? pollMeta.brand_accent_color ?? DEFAULT_ACCENT_COLOR);
+      setRewardMessage(data.reward_message ?? pollMeta.reward_message ?? "");
+      setRewardCode(data.reward_code ?? pollMeta.reward_code ?? "");
+      setRewardUrl(data.reward_url ?? pollMeta.reward_url ?? "");
+      setReviewUrl(data.review_url ?? pollMeta.review_url ?? "");
 
       const { data: { user } } = await supabase.auth.getUser();
       if (user?.id && !data.brand_name && !pollMeta.brand_name) {
@@ -126,7 +134,11 @@ export default function EditPoll() {
       brand_name: brandName.trim() || null,
       brand_logo_url: brandLogoUrl.trim() || null,
       brand_primary_color: brandPrimaryColor || DEFAULT_PRIMARY_COLOR,
-      brand_accent_color: brandAccentColor || DEFAULT_ACCENT_COLOR
+      brand_accent_color: brandAccentColor || DEFAULT_ACCENT_COLOR,
+      reward_message: rewardMessage.trim() || null,
+      reward_code: rewardCode.trim() || null,
+      reward_url: rewardUrl.trim() || null,
+      review_url: reviewUrl.trim() || null
     });
 
     navigate("/admin");
@@ -236,6 +248,43 @@ export default function EditPoll() {
        value={expiresAt}
        onChange={(e) => setExpiresAt(e.target.value)}
        className="w-full border p-2 rounded mb-4 text-black"
+      />
+
+      <h2 className="text-xl font-bold mb-3">After voting (optional)</h2>
+
+      <label className="block mb-2 font-semibold">Reward message</label>
+      <input
+        type="text"
+        value={rewardMessage}
+        onChange={(e) => setRewardMessage(e.target.value)}
+        className="w-full border p-2 rounded mb-4 text-black"
+        placeholder="Enjoy 10% off your next visit!"
+      />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+        <input
+          type="text"
+          value={rewardCode}
+          onChange={(e) => setRewardCode(e.target.value)}
+          className="w-full border p-2 rounded text-black"
+          placeholder="Discount code (optional)"
+        />
+        <input
+          type="url"
+          value={rewardUrl}
+          onChange={(e) => setRewardUrl(e.target.value)}
+          className="w-full border p-2 rounded text-black"
+          placeholder="Link to redeem (optional)"
+        />
+      </div>
+
+      <label className="block mb-2 font-semibold">Review link</label>
+      <input
+        type="url"
+        value={reviewUrl}
+        onChange={(e) => setReviewUrl(e.target.value)}
+        className="w-full border p-2 rounded mb-4 text-black"
+        placeholder="Your Google/TripAdvisor review link"
       />
 
       <button

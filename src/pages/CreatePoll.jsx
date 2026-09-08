@@ -26,6 +26,10 @@ export default function CreatePoll() {
   const [brandLogoUrl, setBrandLogoUrl] = useState("");
   const [brandPrimaryColor, setBrandPrimaryColor] = useState(DEFAULT_PRIMARY_COLOR);
   const [brandAccentColor, setBrandAccentColor] = useState(DEFAULT_ACCENT_COLOR);
+  const [rewardMessage, setRewardMessage] = useState("");
+  const [rewardCode, setRewardCode] = useState("");
+  const [rewardUrl, setRewardUrl] = useState("");
+  const [reviewUrl, setReviewUrl] = useState("");
   const [pollId, setPollId] = useState(null);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
 
@@ -161,7 +165,11 @@ export default function CreatePoll() {
       brand_name: brandName.trim() || null,
       brand_logo_url: brandLogoUrl.trim() || null,
       brand_primary_color: brandPrimaryColor || DEFAULT_PRIMARY_COLOR,
-      brand_accent_color: brandAccentColor || DEFAULT_ACCENT_COLOR
+      brand_accent_color: brandAccentColor || DEFAULT_ACCENT_COLOR,
+      reward_message: rewardMessage.trim() || null,
+      reward_code: rewardCode.trim() || null,
+      reward_url: rewardUrl.trim() || null,
+      review_url: reviewUrl.trim() || null
     });
 
     if (assignCampaignId) {
@@ -323,6 +331,45 @@ export default function CreatePoll() {
               value={expiresAt}
               onChange={(e) => setExpiresAt(e.target.value)}
               className="w-full border p-2 rounded text-black placeholder-black"
+            />
+          </div>
+        </details>
+
+        <details className="mb-6 border border-slate-700 rounded">
+          <summary className="cursor-pointer p-3 font-semibold">After voting (optional)</summary>
+          <div className="px-3 pb-3">
+            <p className="mb-3 text-sm text-slate-400">Show a thank-you reward and/or ask happy voters to leave a public review.</p>
+            <label className="block mb-2 font-semibold">Reward message</label>
+            <input
+              type="text"
+              value={rewardMessage}
+              onChange={(e) => setRewardMessage(e.target.value)}
+              className="w-full border p-2 rounded mb-4 text-black placeholder-black"
+              placeholder="Enjoy 10% off your next visit!"
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+              <input
+                type="text"
+                value={rewardCode}
+                onChange={(e) => setRewardCode(e.target.value)}
+                className="w-full border p-2 rounded text-black placeholder-black"
+                placeholder="Discount code (optional)"
+              />
+              <input
+                type="url"
+                value={rewardUrl}
+                onChange={(e) => setRewardUrl(e.target.value)}
+                className="w-full border p-2 rounded text-black placeholder-black"
+                placeholder="Link to redeem (optional)"
+              />
+            </div>
+            <label className="block mb-2 font-semibold">Review link</label>
+            <input
+              type="url"
+              value={reviewUrl}
+              onChange={(e) => setReviewUrl(e.target.value)}
+              className="w-full border p-2 rounded text-black placeholder-black"
+              placeholder="Your Google/TripAdvisor review link"
             />
           </div>
         </details>

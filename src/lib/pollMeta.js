@@ -58,7 +58,11 @@ export async function savePollMeta(pollId, patch) {
         "brand_logo_url",
         "brand_primary_color",
         "brand_accent_color",
-        "template_key"
+        "template_key",
+        "reward_message",
+        "reward_code",
+        "reward_url",
+        "review_url"
       ].includes(key)
     ) {
       supabasePatch[key] = value;
