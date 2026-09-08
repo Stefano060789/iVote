@@ -71,6 +71,8 @@ export default function Admin() {
   const [newBulkCount, setNewBulkCount] = useState("10");
   const [newBulkPollId, setNewBulkPollId] = useState("");
   const [invitingMember, setInvitingMember] = useState(false);
+  const [redeemCode, setRedeemCode] = useState("");
+  const [redeemMessage, setRedeemMessage] = useState("");
   const [alertRules, setAlertRules] = useState([]);
   const [feedbackAlerts, setFeedbackAlerts] = useState([]);
   const [recoveryTasks, setRecoveryTasks] = useState([]);
@@ -325,6 +327,22 @@ export default function Admin() {
   async function handleScanDecode(rawValue) {
     setScannerOpen(false);
     await lookUpScannedQr(rawValue);
+  }
+
+  async function handleRedeemCode() {
+    const code = redeemCode.trim();
+    if (!code) {
+      setRedeemMessage("Enter the reward code first.");
+      return;
+    }
+    const { data, error } = await supabase.rpc("redeem_reward_code", { target_code: code }).maybeSingle();
+    if (error) {
+      setRedeemMessage(error.message);
+      return;
+    }
+    setRedeemMessage(`Redeemed for "${data.question}". Total redemptions: ${data.reward_redeemed_count}.`);
+    setRedeemCode("");
+    setPolls((current) => current.map((poll) => poll.id === data.poll_id ? { ...poll, reward_redeemed_count: data.reward_redeemed_count } : poll));
   }
 
   async function changeScannedPoll(nextPollId) {
@@ -1316,6 +1334,30 @@ export default function Admin() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </details>
+
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">Reward redemptions</summary>
+        <div className="px-4 pb-4">
+          <p className="mb-3 text-sm text-slate-400">When a customer shows their reward code, enter it here to mark it redeemed and track how often it's used.</p>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <input value={redeemCode} onChange={(event) => setRedeemCode(event.target.value)} className="flex-1 border p-2 rounded text-black" placeholder="Enter the reward code" />
+            <button onClick={handleRedeemCode} className="bg-teal-500 text-slate-950 px-4 py-2 rounded font-semibold">Mark redeemed</button>
+          </div>
+          {redeemMessage && <p className="mt-3 text-sm text-amber-300">{redeemMessage}</p>}
+          <div className="mt-4 space-y-2 text-sm">
+            {polls.filter((poll) => poll.reward_code).length === 0 ? (
+              <p className="text-gray-400">No polls have a reward code yet. Add one under "After voting" when creating or editing a poll.</p>
+            ) : (
+              polls.filter((poll) => poll.reward_code).map((poll) => (
+                <div key={poll.id} className="flex items-center justify-between border-b border-gray-700 py-1">
+                  <span>#{poll.id} - {poll.question} · code {poll.reward_code}</span>
+                  <span className="text-teal-300">{poll.reward_redeemed_count || 0} redeemed</span>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </details>
