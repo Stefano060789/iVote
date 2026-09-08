@@ -1216,27 +1216,16 @@ export default function Admin() {
         </div>
       )}
 
-      <div className="mb-6">
-        <select
-          value={activeTab}
-          onChange={(event) => setActiveTab(event.target.value)}
-          className="w-full rounded border border-slate-600 bg-gray-800 p-3 font-semibold text-white sm:hidden"
-        >
-          {adminTabs.map((tab) => (
-            <option key={tab.key} value={tab.key}>{tab.label}</option>
-          ))}
-        </select>
-        <div className="hidden flex-wrap justify-center gap-2 sm:flex">
-          {adminTabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`rounded px-4 py-2 font-semibold ${activeTab === tab.key ? "bg-teal-500 text-slate-950" : "bg-gray-800 text-slate-300"}`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+      <div className="mb-6 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center">
+        {adminTabs.map((tab, index) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`rounded px-4 py-3 text-center font-semibold ${index === adminTabs.length - 1 ? "col-span-2" : ""} ${activeTab === tab.key ? "bg-teal-500 text-slate-950" : "bg-gray-800 text-slate-300"}`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       {activeTab === "overview" && (
