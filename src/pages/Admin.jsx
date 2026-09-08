@@ -27,6 +27,7 @@ export default function Admin() {
   const qrRef = useRef(null);
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("overview");
   const [showQR, setShowQR] = useState(null);
   const [reuseQrPoll, setReuseQrPoll] = useState(null);
   const [reuseQrTargetId, setReuseQrTargetId] = useState("");
@@ -1207,6 +1208,26 @@ export default function Admin() {
         </div>
       )}
 
+      <div className="mb-6 flex flex-wrap justify-center gap-2">
+        {[
+          { key: "overview", label: "Overview" },
+          { key: "polls", label: "Polls" },
+          { key: "engagement", label: "Engagement & growth" },
+          { key: "feedback", label: "Feedback" },
+          { key: "settings", label: "Settings" }
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`rounded px-4 py-2 font-semibold ${activeTab === tab.key ? "bg-teal-500 text-slate-950" : "bg-gray-800 text-slate-300"}`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === "overview" && (
+      <>
       <div className="flex justify-center mb-6">
         <Link to="/admin/analytics" className="bg-purple-600 text-white px-3 py-2 rounded font-semibold">
           Analytics
@@ -1280,7 +1301,10 @@ export default function Admin() {
           <p className="text-2xl font-bold text-blue-400">{analytics.withLocation}</p>
         </div>
       </div>
+      </>
+      )}
 
+      {activeTab === "polls" && (
       <div className="mb-6">
         <h2 className="text-xl font-bold">Your polls</h2>
         <p className="mt-1 mb-3 text-sm text-slate-400">Search and filter the polls you need to manage.</p>
@@ -1315,7 +1339,9 @@ export default function Admin() {
         </select>
         </div>
       </div>
+      )}
 
+      {activeTab === "engagement" && (
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">QR locations</summary>
         <div className="px-4 pb-4">
@@ -1383,7 +1409,9 @@ export default function Admin() {
         </div>
         </div>
       </details>
+      )}
 
+      {activeTab === "feedback" && (
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">Messages from voters</summary>
         <div className="px-4 pb-4">
@@ -1397,7 +1425,10 @@ export default function Admin() {
           ))}</div>}
         </div>
       </details>
+      )}
 
+      {activeTab === "engagement" && (
+      <>
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">QR campaigns</summary>
         <div className="px-4 pb-4">
@@ -1511,7 +1542,10 @@ export default function Admin() {
           </div>
         </div>
       </details>
+      </>
+      )}
 
+      {activeTab === "feedback" && (
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">Answer sentiment (AI)</summary>
         <div className="px-4 pb-4">
@@ -1539,7 +1573,9 @@ export default function Admin() {
           </div>
         </div>
       </details>
+      )}
 
+      {activeTab === "engagement" && (
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">Lead nurture emails</summary>
         <div className="px-4 pb-4 space-y-3">
@@ -1554,7 +1590,10 @@ export default function Admin() {
           <p className="text-xs text-slate-500">Delivery requires the RESEND_API_KEY and REPORT_FROM_EMAIL server settings, same as weekly reports.</p>
         </div>
       </details>
+      )}
 
+      {activeTab === "feedback" && (
+      <>
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">"We heard you" updates</summary>
         <div className="px-4 pb-4">
@@ -1593,7 +1632,11 @@ export default function Admin() {
           <div><p className="mb-2 text-sm text-slate-400">The Monday Vercel cron prepares a workspace summary. It delivers through Resend only when the server key is configured.</p><div className="grid md:grid-cols-3 gap-3 items-center"><input type="email" value={reportSettings.recipient_email} onChange={(event) => setReportSettings((current) => ({ ...current, recipient_email: event.target.value }))} className="border p-2 rounded text-black" placeholder="manager@example.com" /><label className="flex gap-2 items-center"><input type="checkbox" checked={reportSettings.is_enabled} onChange={(event) => setReportSettings((current) => ({ ...current, is_enabled: event.target.checked }))} /> Enable weekly report</label><button onClick={saveReportSettings} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save report settings</button></div></div>
         </div>
       </details>
+      </>
+      )}
 
+      {activeTab === "settings" && (
+      <>
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">Workspace settings</summary>
         <div className="px-4 pb-4">
@@ -1756,7 +1799,11 @@ export default function Admin() {
         </div>
         </div>
       </details>
+      </>
+      )}
 
+      {activeTab === "polls" && (
+      <>
       {filteredPolls.length === 0 && <p className="text-center text-gray-600">No matching polls found.</p>}
 
       <div className="space-y-4">
@@ -1989,6 +2036,8 @@ export default function Admin() {
          );
        })}
      </div>
+     </>
+     )}
    </div>
  );
 }
