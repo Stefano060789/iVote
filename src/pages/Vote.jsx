@@ -124,13 +124,21 @@ export default function Vote() {
     }
 
     if (followUpConsent && followUpEmail.trim()) {
-      const { error: leadError } = await supabase.rpc("capture_voter_lead", {
+      const { data: leadId, error: leadError } = await supabase.rpc("capture_voter_lead", {
         target_poll_id: poll.id,
         target_campaign_id: validCampaignId,
         contact_email: followUpEmail.trim(),
         has_consented: true
       });
       if (leadError) console.error("Optional follow-up sign-up failed", leadError);
+      else if (workspaceId && leadId) {
+        dispatchWorkspaceWebhook(workspaceId, "lead_captured", leadId);
+        fetch("/api/send-lead-nurture", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ workspaceId, leadId })
+        }).catch((nurtureError) => console.error("Nurture email dispatch failed", nurtureError));
+      }
     }
 
     if (organizerMessage.trim()) {
@@ -173,17 +181,27 @@ export default function Vote() {
       return;
     }
 
-    const { error } = await supabase
+    const { data: insertedAnswer, error } = await supabase
       .from("user_answers")
       .insert({
         poll_id: poll.id,
         answer: trimmed
-      });
+      })
+      .select("id")
+      .single();
 
     if (error) {
       console.error(error);
       alert("Error saving answer");
       return;
+    }
+
+    if (insertedAnswer?.id) {
+      fetch("/api/classify-sentiment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answerId: insertedAnswer.id })
+      }).catch((sentimentError) => console.error("Sentiment classification dispatch failed", sentimentError));
     }
 
     setNewAnswer("");
@@ -477,8 +495,12 @@ export default function Vote() {
         </button>
 
         <div className="mt-5 border-t border-slate-600 pt-4">
-          <p className="text-sm font-semibold">Keep in touch (optional)</p>
-          <p className="mt-1 text-xs text-slate-300">Share your email only if you want follow-up from the poll organizer.</p>
+          <p className="text-sm font-semibold">{poll.raffle_enabled ? "Enter our prize draw (optional)" : "Keep in touch (optional)"}</p>
+          <p className="mt-1 text-xs text-slate-300">
+            {poll.raffle_enabled
+              ? `Share your email for a chance to win: ${poll.raffle_prize || "a prize"}.`
+              : "Share your email only if you want follow-up from the poll organizer."}
+          </p>
           <input
             type="email"
             value={followUpEmail}
@@ -494,7 +516,7 @@ export default function Vote() {
               onChange={(event) => setFollowUpConsent(event.target.checked)}
               className="mt-0.5"
             />
-            <span>I agree that the organizer may contact me about this poll.</span>
+            <span>{poll.raffle_enabled ? "Enter me in the prize draw and let the organizer contact me if I win." : "I agree that the organizer may contact me about this poll."}</span>
           </label>
         </div>
 

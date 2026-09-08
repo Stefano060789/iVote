@@ -8,6 +8,7 @@ import { buildQrToken, deleteQrLocation, loadQrLocations, saveQrLocation } from 
 import { createQrCampaign, loadQrCampaigns } from "../lib/qrCampaigns";
 import { extractQrToken, reassignManagedCampaignPoll, resolveManagedQrToken } from "../lib/qrManage";
 import QrScanner from "../components/QrScanner";
+import { loadLeadNurtureSettings, saveLeadNurtureSettings } from "../lib/leadNurture";
 import {
   getCurrentUserRole,
   getPermissionSet,
@@ -77,6 +78,8 @@ export default function Admin() {
   const [feedbackAlerts, setFeedbackAlerts] = useState([]);
   const [recoveryTasks, setRecoveryTasks] = useState([]);
   const [reportSettings, setReportSettings] = useState({ recipient_email: "", is_enabled: false });
+  const [nurtureSettings, setNurtureSettings] = useState({ is_enabled: false, subject: "", message: "" });
+  const [sentimentSummary, setSentimentSummary] = useState({});
   const [newRulePollId, setNewRulePollId] = useState("");
   const [newRuleType, setNewRuleType] = useState("low_score");
   const [newRuleThreshold, setNewRuleThreshold] = useState("3");
@@ -190,6 +193,16 @@ export default function Admin() {
         if (!tasksResult.error) setRecoveryTasks(tasksResult.data || []);
         if (!reportsResult.error && reportsResult.data) setReportSettings(reportsResult.data);
         if (!messagesResult.error) setOrganizerMessages(messagesResult.data || []);
+
+        setNurtureSettings(await loadLeadNurtureSettings(profile.id));
+
+        const { data: sentimentRows } = await supabase.from("user_answers").select("poll_id, sentiment").not("sentiment", "is", null);
+        const summary = {};
+        (sentimentRows || []).forEach((row) => {
+          summary[row.poll_id] = summary[row.poll_id] || { positive: 0, neutral: 0, negative: 0 };
+          summary[row.poll_id][row.sentiment] += 1;
+        });
+        setSentimentSummary(summary);
       } catch (error) {
         console.error(error);
         alert(error.message || "Unable to load workspace role data.");
@@ -377,6 +390,26 @@ export default function Admin() {
     const { error } = await supabase.from("weekly_report_settings").upsert({ workspace_id: workspaceUserId, recipient_email: reportSettings.recipient_email.trim(), is_enabled: reportSettings.is_enabled, updated_at: new Date().toISOString() });
     if (error) return alert(error.message);
     alert("Weekly report settings saved.");
+  }
+
+  async function saveNurtureSettings() {
+    try {
+      await saveLeadNurtureSettings(workspaceUserId, nurtureSettings);
+      alert("Lead nurture email settings saved.");
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Unable to save nurture email settings.");
+    }
+  }
+
+  async function pickRaffleWinner(pollId) {
+    const { data, error } = await supabase.rpc("pick_raffle_winner", { target_poll_id: pollId }).maybeSingle();
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    setPolls((current) => current.map((poll) => poll.id === pollId ? { ...poll, raffle_winner_email: data.email, raffle_winner_picked_at: new Date().toISOString() } : poll));
+    alert(`Winner picked: ${data.email}`);
   }
 
   async function assignLocationToPoll() {
@@ -1359,6 +1392,73 @@ export default function Admin() {
               ))
             )}
           </div>
+        </div>
+      </details>
+
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">Prize draws</summary>
+        <div className="px-4 pb-4">
+          <p className="mb-3 text-sm text-slate-400">Enable a prize draw when creating or editing a poll. Entrants are voters who opted in with their email. Pick a winner here when you're ready.</p>
+          <div className="space-y-2 text-sm">
+            {polls.filter((poll) => poll.raffle_enabled).length === 0 ? (
+              <p className="text-gray-400">No polls have a prize draw enabled yet.</p>
+            ) : (
+              polls.filter((poll) => poll.raffle_enabled).map((poll) => (
+                <div key={poll.id} className="border-b border-gray-700 py-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <span>#{poll.id} - {poll.question} · prize: {poll.raffle_prize || "Not set"}</span>
+                    <button onClick={() => pickRaffleWinner(poll.id)} className="shrink-0 bg-amber-500 text-slate-950 px-3 py-1.5 rounded font-semibold">Pick a winner</button>
+                  </div>
+                  {poll.raffle_winner_email && (
+                    <p className="mt-1 text-xs text-amber-300">Winner: {poll.raffle_winner_email} ({new Date(poll.raffle_winner_picked_at).toLocaleString()})</p>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </details>
+
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">Answer sentiment (AI)</summary>
+        <div className="px-4 pb-4">
+          <p className="mb-3 text-sm text-slate-400">Free-text answers voters add are automatically classified once an OpenAI key is configured.</p>
+          <div className="space-y-2 text-sm">
+            {Object.keys(sentimentSummary).length === 0 ? (
+              <p className="text-gray-400">No classified answers yet.</p>
+            ) : (
+              Object.entries(sentimentSummary).map(([pollId, counts]) => {
+                const total = counts.positive + counts.neutral + counts.negative;
+                const poll = polls.find((item) => String(item.id) === String(pollId));
+                return (
+                  <div key={pollId} className="border-b border-gray-700 py-2">
+                    <span>#{pollId}{poll ? ` - ${poll.question}` : ""}: </span>
+                    <span className="text-emerald-300">{Math.round((counts.positive / total) * 100)}% positive</span>
+                    {" · "}
+                    <span className="text-slate-300">{Math.round((counts.neutral / total) * 100)}% neutral</span>
+                    {" · "}
+                    <span className="text-red-300">{Math.round((counts.negative / total) * 100)}% negative</span>
+                    <span className="text-gray-500"> ({total} answers)</span>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </details>
+
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">Lead nurture emails</summary>
+        <div className="px-4 pb-4 space-y-3">
+          <p className="text-sm text-slate-400">Automatically email voters who opted in for follow-up (or a prize draw) right after they vote.</p>
+          <label className="flex items-center gap-2">
+            <input type="checkbox" checked={nurtureSettings.is_enabled} onChange={(event) => setNurtureSettings((current) => ({ ...current, is_enabled: event.target.checked }))} />
+            <span>Send a nurture email automatically</span>
+          </label>
+          <input value={nurtureSettings.subject || ""} onChange={(event) => setNurtureSettings((current) => ({ ...current, subject: event.target.value }))} className="w-full border p-2 rounded text-black" placeholder="Email subject: Thanks for your feedback!" />
+          <textarea value={nurtureSettings.message || ""} onChange={(event) => setNurtureSettings((current) => ({ ...current, message: event.target.value }))} rows="4" className="w-full border p-2 rounded text-black" placeholder="Email message body" />
+          <button onClick={saveNurtureSettings} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save nurture email settings</button>
+          <p className="text-xs text-slate-500">Delivery requires the RESEND_API_KEY and REPORT_FROM_EMAIL server settings, same as weekly reports.</p>
         </div>
       </details>
 

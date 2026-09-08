@@ -1,0 +1,56 @@
+async function supabaseGet(path) {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error("Supabase credentials are not configured.");
+  const result = await fetch(`${url}/rest/v1/${path}`, { headers: { apikey: key, Authorization: `Bearer ${key}` } });
+  if (!result.ok) throw new Error(`Supabase query failed (${result.status}).`);
+  return result.json();
+}
+
+async function supabasePatch(path, body) {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const result = await fetch(`${url}/rest/v1/${path}`, {
+    method: "PATCH",
+    headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+    body: JSON.stringify(body)
+  });
+  if (!result.ok) throw new Error(`Supabase update failed (${result.status}).`);
+}
+
+export default async function handler(request, response) {
+  if (request.method !== "POST") {
+    response.setHeader("Allow", "POST");
+    return response.status(405).json({ error: "Method not allowed." });
+  }
+
+  const workspaceId = request.body?.workspaceId;
+  const leadId = Number(request.body?.leadId);
+  if (!workspaceId || !Number.isSafeInteger(leadId) || leadId <= 0) {
+    return response.status(400).json({ error: "A valid workspaceId and leadId are required." });
+  }
+
+  try {
+    const [lead] = await supabaseGet(`voter_leads?id=eq.${leadId}&workspace_id=eq.${encodeURIComponent(workspaceId)}&select=id,email,nurture_sent_at`);
+    if (!lead || lead.nurture_sent_at) return response.status(200).json({ sent: false });
+
+    const [settings] = await supabaseGet(`lead_nurture_settings?workspace_id=eq.${encodeURIComponent(workspaceId)}&select=is_enabled,subject,message`);
+    if (!settings?.is_enabled || !settings.subject || !settings.message) return response.status(200).json({ sent: false });
+
+    if (!process.env.RESEND_API_KEY || !process.env.REPORT_FROM_EMAIL) return response.status(200).json({ sent: false });
+
+    const delivery = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from: process.env.REPORT_FROM_EMAIL, to: [lead.email], subject: settings.subject, text: settings.message })
+    });
+
+    if (!delivery.ok) throw new Error(`Resend request failed (${delivery.status}).`);
+
+    await supabasePatch(`voter_leads?id=eq.${leadId}`, { nurture_sent_at: new Date().toISOString() });
+    return response.status(200).json({ sent: true });
+  } catch (error) {
+    console.error("Lead nurture email failed", error);
+    return response.status(200).json({ sent: false });
+  }
+}

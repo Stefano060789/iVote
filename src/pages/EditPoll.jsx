@@ -24,6 +24,8 @@ export default function EditPoll() {
   const [rewardCode, setRewardCode] = useState("");
   const [rewardUrl, setRewardUrl] = useState("");
   const [reviewUrl, setReviewUrl] = useState("");
+  const [raffleEnabled, setRaffleEnabled] = useState(false);
+  const [rafflePrize, setRafflePrize] = useState("");
 
   useEffect(() => {
     async function loadPoll() {
@@ -52,6 +54,8 @@ export default function EditPoll() {
       setRewardCode(data.reward_code ?? pollMeta.reward_code ?? "");
       setRewardUrl(data.reward_url ?? pollMeta.reward_url ?? "");
       setReviewUrl(data.review_url ?? pollMeta.review_url ?? "");
+      setRaffleEnabled(data.raffle_enabled ?? pollMeta.raffle_enabled ?? false);
+      setRafflePrize(data.raffle_prize ?? pollMeta.raffle_prize ?? "");
 
       const { data: { user } } = await supabase.auth.getUser();
       if (user?.id && !data.brand_name && !pollMeta.brand_name) {
@@ -138,7 +142,9 @@ export default function EditPoll() {
       reward_message: rewardMessage.trim() || null,
       reward_code: rewardCode.trim() || null,
       reward_url: rewardUrl.trim() || null,
-      review_url: reviewUrl.trim() || null
+      review_url: reviewUrl.trim() || null,
+      raffle_enabled: raffleEnabled,
+      raffle_prize: raffleEnabled ? rafflePrize.trim() || null : null
     });
 
     navigate("/admin");
@@ -286,6 +292,24 @@ export default function EditPoll() {
         className="w-full border p-2 rounded mb-4 text-black"
         placeholder="Your Google/TripAdvisor review link"
       />
+
+      <label className="mb-2 flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={raffleEnabled}
+          onChange={(e) => setRaffleEnabled(e.target.checked)}
+        />
+        <span className="font-semibold">Run a prize draw for this poll</span>
+      </label>
+      {raffleEnabled && (
+        <input
+          type="text"
+          value={rafflePrize}
+          onChange={(e) => setRafflePrize(e.target.value)}
+          className="w-full border p-2 rounded mb-4 text-black"
+          placeholder="Prize: a free dessert, a $50 voucher..."
+        />
+      )}
 
       <button
         onClick={updatePoll}

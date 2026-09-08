@@ -30,6 +30,8 @@ export default function CreatePoll() {
   const [rewardCode, setRewardCode] = useState("");
   const [rewardUrl, setRewardUrl] = useState("");
   const [reviewUrl, setReviewUrl] = useState("");
+  const [raffleEnabled, setRaffleEnabled] = useState(false);
+  const [rafflePrize, setRafflePrize] = useState("");
   const [pollId, setPollId] = useState(null);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
 
@@ -169,7 +171,9 @@ export default function CreatePoll() {
       reward_message: rewardMessage.trim() || null,
       reward_code: rewardCode.trim() || null,
       reward_url: rewardUrl.trim() || null,
-      review_url: reviewUrl.trim() || null
+      review_url: reviewUrl.trim() || null,
+      raffle_enabled: raffleEnabled,
+      raffle_prize: raffleEnabled ? rafflePrize.trim() || null : null
     });
 
     if (assignCampaignId) {
@@ -371,6 +375,23 @@ export default function CreatePoll() {
               className="w-full border p-2 rounded text-black placeholder-black"
               placeholder="Your Google/TripAdvisor review link"
             />
+            <label className="mt-4 flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={raffleEnabled}
+                onChange={(e) => setRaffleEnabled(e.target.checked)}
+              />
+              <span className="font-semibold">Run a prize draw for this poll</span>
+            </label>
+            {raffleEnabled && (
+              <input
+                type="text"
+                value={rafflePrize}
+                onChange={(e) => setRafflePrize(e.target.value)}
+                className="mt-2 w-full border p-2 rounded text-black placeholder-black"
+                placeholder="Prize: a free dessert, a $50 voucher..."
+              />
+            )}
           </div>
         </details>
 
