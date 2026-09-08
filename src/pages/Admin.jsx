@@ -6,6 +6,8 @@ import { isRestrictedTopic } from "../lib/restrictedContent";
 import { appendAuditLog, readAuditLog, readPollMeta, savePollMeta, isPollClosed } from "../lib/pollMeta";
 import { buildQrToken, deleteQrLocation, loadQrLocations, saveQrLocation } from "../lib/qrLocations";
 import { createQrCampaign, loadQrCampaigns } from "../lib/qrCampaigns";
+import { extractQrToken, reassignManagedCampaignPoll, resolveManagedQrToken } from "../lib/qrManage";
+import QrScanner from "../components/QrScanner";
 import {
   getCurrentUserRole,
   getPermissionSet,
@@ -74,6 +76,10 @@ export default function Admin() {
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskAlertId, setNewTaskAlertId] = useState("");
   const [organizerMessages, setOrganizerMessages] = useState([]);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [scanLookupValue, setScanLookupValue] = useState("");
+  const [scanResult, setScanResult] = useState(null);
+  const [scanMessage, setScanMessage] = useState("");
 
   async function createShortLink(longUrl) {
     const response = await fetch(
@@ -264,6 +270,42 @@ export default function Admin() {
       return;
     }
     setQrCampaigns((current) => current.map((item) => item.id === campaignId ? { ...item, poll_id: Number(nextPollId) } : item));
+  }
+
+  async function lookUpScannedQr(rawValue) {
+    const token = extractQrToken(rawValue);
+    if (!token) {
+      setScanResult(null);
+      setScanMessage("Could not read a QR link from that value.");
+      return;
+    }
+
+    const managed = await resolveManagedQrToken(token);
+    if (!managed) {
+      setScanResult(null);
+      setScanMessage("This QR code isn't linked to a poll in your workspace.");
+      return;
+    }
+
+    setScanResult(managed);
+    setScanMessage("");
+  }
+
+  async function handleScanDecode(rawValue) {
+    setScannerOpen(false);
+    await lookUpScannedQr(rawValue);
+  }
+
+  async function changeScannedPoll(nextPollId) {
+    if (!scanResult || !nextPollId) return;
+    const error = await reassignManagedCampaignPoll(scanResult.campaign.id, nextPollId);
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    const nextPoll = scanResult.polls.find((poll) => String(poll.id) === String(nextPollId)) || null;
+    setScanResult((current) => ({ ...current, currentPoll: nextPoll, campaign: { ...current.campaign, poll_id: Number(nextPollId) } }));
+    setQrCampaigns((current) => current.map((item) => item.id === scanResult.campaign.id ? { ...item, poll_id: Number(nextPollId) } : item));
   }
 
   async function createAlertRule() {
@@ -967,6 +1009,51 @@ export default function Admin() {
           Analytics
         </Link>
       </div>
+
+      <div className="mb-6 border rounded bg-gray-900 p-4">
+        <h2 className="text-xl font-bold">Scan a QR code</h2>
+        <p className="mt-1 mb-3 text-sm text-slate-400">Scan a printed QR code to see which poll it uses right now, and switch it to another poll instantly.</p>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <button onClick={() => { setScannerOpen(true); setScanMessage(""); }} className="bg-teal-500 text-slate-950 px-4 py-2 rounded font-semibold">
+            Open camera scanner
+          </button>
+          <input
+            value={scanLookupValue}
+            onChange={(event) => setScanLookupValue(event.target.value)}
+            placeholder="Or paste the QR link here"
+            className="flex-1 border p-2 rounded text-black"
+          />
+          <button onClick={() => lookUpScannedQr(scanLookupValue)} className="bg-slate-700 text-white px-4 py-2 rounded font-semibold">
+            Look up
+          </button>
+        </div>
+        {scanMessage && <p className="mt-3 text-sm text-amber-300">{scanMessage}</p>}
+        {scanResult && (
+          <div className="mt-4 rounded border border-teal-700 bg-slate-950 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-teal-300">{scanResult.campaign.name}</p>
+            <p className="mt-1 text-sm text-slate-400">
+              {scanResult.campaign.placement_label || "Unlabeled placement"}{scanResult.campaign.variant_label ? ` · ${scanResult.campaign.variant_label}` : ""}
+            </p>
+            <p className="mt-3 font-semibold">{scanResult.currentPoll?.question || "No poll assigned yet"}</p>
+            <label className="mt-4 block text-sm font-semibold">Redirect this QR code to another poll</label>
+            <select
+              value={scanResult.campaign.poll_id ? String(scanResult.campaign.poll_id) : ""}
+              onChange={(event) => changeScannedPoll(event.target.value)}
+              className="mt-2 w-full rounded border p-2 text-black"
+            >
+              <option value="">Choose a poll</option>
+              {scanResult.polls.map((poll) => (
+                <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>
+              ))}
+            </select>
+            <Link to={`/create?campaign=${scanResult.campaign.id}`} className="mt-3 block rounded bg-teal-400 px-4 py-2 text-center font-semibold text-slate-950">
+              Create a new poll for this QR code
+            </Link>
+          </div>
+        )}
+      </div>
+
+      {scannerOpen && <QrScanner onDecode={handleScanDecode} onClose={() => setScannerOpen(false)} />}
 
       <div className="mb-6 grid grid-cols-2 md:grid-cols-5 gap-3">
         <div className="border rounded p-3 bg-gray-900">

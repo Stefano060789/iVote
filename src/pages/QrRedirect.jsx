@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { getPollBranding } from "../lib/pollBranding";
+import { reassignManagedCampaignPoll, resolveManagedQrToken } from "../lib/qrManage";
 
 export default function QrRedirect() {
   const navigate = useNavigate();
@@ -17,20 +18,9 @@ export default function QrRedirect() {
       } = await supabase.auth.getUser();
 
       if (user) {
-        const { data: ownedCampaign } = await supabase
-          .from("qr_campaigns")
-          .select("id, name, poll_id, workspace_id, placement_label, variant_label")
-          .eq("token", token)
-          .maybeSingle();
-
-        if (ownedCampaign) {
-          const [{ data: polls }, { data: currentPoll }] = await Promise.all([
-            supabase.from("polls").select("id, question").eq("workspace_id", ownedCampaign.workspace_id).order("id", { ascending: false }),
-            ownedCampaign.poll_id
-              ? supabase.from("polls").select("id, question").eq("id", ownedCampaign.poll_id).maybeSingle()
-              : Promise.resolve({ data: null })
-          ]);
-          setManage({ campaign: ownedCampaign, currentPoll, polls: polls || [] });
+        const managed = await resolveManagedQrToken(token);
+        if (managed) {
+          setManage(managed);
           return;
         }
       }
@@ -71,7 +61,7 @@ export default function QrRedirect() {
 
   async function changeAssignedPoll(nextPollId) {
     if (!manage || !nextPollId) return;
-    const { error } = await supabase.from("qr_campaigns").update({ poll_id: Number(nextPollId) }).eq("id", manage.campaign.id);
+    const error = await reassignManagedCampaignPoll(manage.campaign.id, nextPollId);
     if (error) {
       alert(error.message);
       return;
