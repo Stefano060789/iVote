@@ -1178,6 +1178,14 @@ export default function Admin() {
     return matchesSearch && matchesStatus && matchesLocation;
   });
 
+  const adminTabs = [
+    { key: "overview", label: "Overview" },
+    { key: "polls", label: "Polls" },
+    { key: "engagement", label: "Engagement & growth" },
+    { key: "feedback", label: "Feedback" },
+    { key: "settings", label: "Settings" }
+  ];
+
   return (
     <div className="max-w-3xl mx-auto p-6">
       <div className="mb-6 text-center">
@@ -1208,22 +1216,27 @@ export default function Admin() {
         </div>
       )}
 
-      <div className="mb-6 grid grid-cols-5 gap-1 sm:gap-2">
-        {[
-          { key: "overview", label: "Overview" },
-          { key: "polls", label: "Polls" },
-          { key: "engagement", label: "Engagement" },
-          { key: "feedback", label: "Feedback" },
-          { key: "settings", label: "Settings" }
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`truncate rounded px-1 py-2 text-[11px] font-semibold sm:px-4 sm:text-sm ${activeTab === tab.key ? "bg-teal-500 text-slate-950" : "bg-gray-800 text-slate-300"}`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="mb-6">
+        <select
+          value={activeTab}
+          onChange={(event) => setActiveTab(event.target.value)}
+          className="w-full rounded border border-slate-600 bg-gray-800 p-3 font-semibold text-white sm:hidden"
+        >
+          {adminTabs.map((tab) => (
+            <option key={tab.key} value={tab.key}>{tab.label}</option>
+          ))}
+        </select>
+        <div className="hidden flex-wrap justify-center gap-2 sm:flex">
+          {adminTabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`rounded px-4 py-2 font-semibold ${activeTab === tab.key ? "bg-teal-500 text-slate-950" : "bg-gray-800 text-slate-300"}`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {activeTab === "overview" && (
