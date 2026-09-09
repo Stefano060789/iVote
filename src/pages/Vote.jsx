@@ -168,8 +168,12 @@ export default function Vote() {
       const isPositiveVote = answerCount <= 1 || positions.length === 0
         ? true
         : Math.min(...positions) <= Math.floor((answerCount - 1) / 2);
-      const reviewEligible = Array.isArray(poll.review_trigger_answers)
-        && answersToSubmit.some((answer) => poll.review_trigger_answers.includes(answer));
+      // Every respondent is offered the same public review link, regardless of
+      // their answer. Gating the review ask by sentiment ("review only if happy")
+      // violates Google/Tripadvisor review policies, so this must never depend on
+      // isPositiveVote or on which specific answer was chosen.
+      const reviewEligible = Boolean(poll.review_url)
+        || (Array.isArray(poll.review_platforms) && poll.review_platforms.length > 0);
       const thanksParams = new URLSearchParams({
         poll: String(poll.id),
         positive: isPositiveVote ? "1" : "0",

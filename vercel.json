@@ -13,10 +13,6 @@
       "schedule": "0 5 * * *"
     },
     {
-      "path": "/api/send-review-reminders",
-      "schedule": "0 8 * * *"
-    },
-    {
       "path": "/api/send-winback-emails",
       "schedule": "0 9 * * *"
     }

@@ -140,8 +140,8 @@ When a customer shows their reward code in person, staff can enter it into the d
 ### Prize draws / raffles
 As an alternative or complement to a fixed reward, a venue can enable an opt-in prize draw on any poll, describe the prize, and let voters enter by leaving their email with consent. When ready, the admin clicks "Pick a winner" and the system randomly selects one verified entrant. Prize draws are a well-established tactic for meaningfully boosting response rates, because the incentive to participate is a chance at something bigger rather than a small guaranteed discount.
 
-### Smart review routing
-The system can automatically route voters based on how positive their answer was: guests who gave a favorable response are shown a "leave us a public review" link, while guests whose answer was less positive are instead shown a private acknowledgment and kept out of the public review funnel. This is designed to increase the volume of genuine public reviews from happy customers while keeping constructive criticism in a private channel where it can actually be acted on.
+### Neutral public review invite + private recovery channel
+Every guest who completes a poll sees the same optional "leave a public review" links to the venue's configured platforms (Google, Tripadvisor, etc.), regardless of which answer they chose — the invite is never gated by sentiment and no reward is ever tied to leaving a review, in line with Google/Tripadvisor review policies. Separately, and not instead, a guest whose answer indicates a less positive experience also sees a private acknowledgment so the venue can follow up directly, keeping constructive criticism in a channel where it can actually be acted on.
 
 ### Opt-in lead capture with explicit consent
 At the point of voting, a guest can choose to leave their email address specifically to be contacted again, with an explicit consent checkbox built directly into the flow. Nothing is captured without deliberate, informed opt-in, which keeps the feature compliant with modern privacy expectations while still giving venues a legitimate way to build a contactable audience from real, engaged customers.
