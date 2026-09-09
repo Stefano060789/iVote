@@ -96,8 +96,7 @@ export default function NavBar() {
             >
               Dashboard
             </Link>
-          )}
-          {!user && <Link to="/register" onClick={closeMenu} className="site-nav-primary">Create workspace</Link>}
+          )}          {!user && <Link to="/register" onClick={closeMenu} className="site-nav-primary">Create workspace</Link>}
           <button
             type="button"
             className="site-nav-toggle"
@@ -111,6 +110,7 @@ export default function NavBar() {
       </div>
 
       <div id="site-navigation" className={`site-nav-links ${menuOpen ? "is-open" : ""}`}>
+        <Link to="/essentials" onClick={closeMenu}>Quick start</Link>
         <Link to="/support" onClick={closeMenu}>Support</Link>
         {!user && <>
           <Link to="/login" onClick={closeMenu}>Sign in</Link>

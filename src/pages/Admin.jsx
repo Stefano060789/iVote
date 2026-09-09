@@ -1458,6 +1458,9 @@ export default function Admin() {
             <h2 className="text-lg font-bold">Get started</h2>
             <button onClick={dismissOnboarding} className="text-xs text-slate-400 underline">Dismiss</button>
           </div>
+          <p className="mt-1 text-xs text-slate-400">
+            New here? <Link to="/essentials" className="underline">Read the 3-step simple guide</Link> - everything else on this page is optional.
+          </p>
           <div className="mt-3 space-y-3 text-sm">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className={polls.length > 0 ? "text-emerald-300" : "text-slate-300"}>{polls.length > 0 ? "\u2713" : "\u25cb"} Create your first poll</p>
