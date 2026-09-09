@@ -6,8 +6,8 @@ const LAST_UPDATED = "9 September 2026";
 // Fill these in for your business before sending real pilot venues to these
 // pages. Nothing else on this page is a placeholder - only these facts are
 // specific to you and can't be inferred from the codebase.
-const OPERATOR_NAME = "[Your business/legal name]";
-const OPERATOR_ADDRESS = "[Your registered business address, Austria]";
+const OPERATOR_NAME = "Stefano Bonomi";
+const OPERATOR_ADDRESS = "Hausergasse 37/3, Villach, Austria";
 const SUPPORT_EMAIL = import.meta.env.VITE_SUPPORT_EMAIL;
 
 function ContactEmail() {
