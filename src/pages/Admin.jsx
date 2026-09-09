@@ -1375,6 +1375,7 @@ export default function Admin() {
   const adminTabs = [
     { key: "overview", label: "Overview" },
     { key: "polls", label: "Polls" },
+    { key: "connection", label: "Customer connection" },
     { key: "engagement", label: "Engagement & growth" },
     { key: "feedback", label: "Feedback" },
     { key: "settings", label: "Settings" }
@@ -1424,6 +1425,15 @@ export default function Admin() {
 
       {activeTab === "overview" && (
       <>
+      <div className="mb-6 rounded border border-sky-700 bg-slate-900 p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-sky-300">Grow the customer relationship</p>
+            <p className="mt-1 text-sm text-slate-300">Collect consented emails, invite honest reviews, and manage benefits from one simple workflow.</p>
+          </div>
+          <button onClick={() => setActiveTab("connection")} className="shrink-0 rounded bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950">Open customer connection</button>
+        </div>
+      </div>
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-lg font-bold">What's new in iVote</summary>
         <div className="px-4 pb-4 space-y-2 text-sm text-slate-300">
@@ -1525,6 +1535,47 @@ export default function Admin() {
         </div>
       )}
       </>
+      )}
+
+      {activeTab === "connection" && (
+      <section className="space-y-6">
+        <div className="rounded border border-teal-700 bg-slate-900 p-5">
+          <p className="text-sm font-semibold uppercase tracking-wide text-teal-300">Your customer connection workflow</p>
+          <h2 className="mt-2 text-2xl font-bold">Turn one QR scan into an ongoing relationship.</h2>
+          <p className="mt-2 max-w-2xl text-sm text-slate-300">Use this page as your checklist. Ask for an email only with clear consent, invite selected voters to leave honest public feedback, and release benefits according to your configured rules.</p>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <article className="rounded border border-slate-700 bg-gray-900 p-4">
+            <span className="text-2xl font-bold text-teal-300">1</span>
+            <h3 className="mt-2 text-lg font-bold">Configure the offer</h3>
+            <p className="mt-2 text-sm text-slate-400">Choose the poll answers that should trigger a review request. Add Google, Tripadvisor, or another honest review destination and set the benefit.</p>
+            <Link to="/create" className="mt-4 inline-block rounded bg-teal-500 px-3 py-2 text-sm font-semibold text-slate-950">Create a configured poll</Link>
+          </article>
+          <article className="rounded border border-slate-700 bg-gray-900 p-4">
+            <span className="text-2xl font-bold text-sky-300">2</span>
+            <h3 className="mt-2 text-lg font-bold">Collect permission</h3>
+            <p className="mt-2 text-sm text-slate-400">Voters can voluntarily share their email after voting. Use the nurture email settings to send event news, offers, or a follow-up message.</p>
+            <button onClick={() => setActiveTab("engagement")} className="mt-4 rounded bg-sky-500 px-3 py-2 text-sm font-semibold text-slate-950">Open email settings</button>
+          </article>
+          <article className="rounded border border-slate-700 bg-gray-900 p-4">
+            <span className="text-2xl font-bold text-amber-300">3</span>
+            <h3 className="mt-2 text-lg font-bold">Verify and reward</h3>
+            <p className="mt-2 text-sm text-slate-400">Check pending claims in the review queue. Approve the benefit only after confirming the voter left honest feedback on the selected platform.</p>
+            <button onClick={() => setActiveTab("feedback")} className="mt-4 rounded bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950">Open review claims</button>
+          </article>
+        </div>
+
+        <div className="rounded border border-slate-700 bg-gray-900 p-5">
+          <h2 className="text-xl font-bold">What the customer sees</h2>
+          <div className="mt-3 grid gap-3 text-sm text-slate-300 md:grid-cols-3">
+            <p><strong className="text-white">Vote:</strong> They scan the QR code and answer without creating an account.</p>
+            <p><strong className="text-white">Stay connected:</strong> They choose whether to share an email for follow-up and benefits.</p>
+            <p><strong className="text-white">Share honestly:</strong> Eligible answers receive your review links and can submit a verification claim.</p>
+          </div>
+          <p className="mt-4 text-xs text-slate-500">Do not require or script a positive review. Benefits should be offered transparently and review requests should invite honest feedback.</p>
+        </div>
+      </section>
       )}
 
       {activeTab === "polls" && (
