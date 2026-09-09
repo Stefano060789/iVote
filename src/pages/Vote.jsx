@@ -528,6 +528,11 @@ export default function Vote() {
               ? `Share your email for a chance to win: ${poll.raffle_prize || "a prize"}.`
               : "Share your email only if you want follow-up from the poll organizer."}
           </p>
+          {poll.raffle_enabled && (
+            <p className="mt-2 text-xs text-slate-400">
+              No purchase necessary. Open only to entrants who are 18+ and legally eligible to receive this prize where they live. One entry per person. The organizer selects a winner at random from all entries and contacts the email provided. Void where prohibited.
+            </p>
+          )}
           <input
             type="email"
             value={followUpEmail}
@@ -543,7 +548,7 @@ export default function Vote() {
               onChange={(event) => setFollowUpConsent(event.target.checked)}
               className="mt-0.5"
             />
-            <span>{poll.raffle_enabled ? "Enter me in the prize draw and let the organizer contact me if I win." : "I agree that the organizer may contact me about this poll."}</span>
+            <span>{poll.raffle_enabled ? "I'm 18+ and eligible to receive this prize under local law. Enter me in the prize draw and let the organizer contact me if I win." : "I agree that the organizer may contact me about this poll."}</span>
           </label>
         </div>
 

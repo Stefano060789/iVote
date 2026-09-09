@@ -21,6 +21,7 @@ import Legal from "./pages/Legal";
 import Support from "./pages/Support";
 import Moderation from "./pages/Moderation";
 import ProductFeedback from "./pages/ProductFeedback";
+import Unsubscribe from "./pages/Unsubscribe";
 
 import "./style.css";
 
@@ -54,6 +55,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Route path="/terms" element={<Legal kind="terms" />} />
       <Route path="/support" element={<Support />} />
       <Route path="/feedback" element={<ProductFeedback />} />
+      <Route path="/unsubscribe" element={<Unsubscribe />} />
     </Routes>
   </BrowserRouter>
 );

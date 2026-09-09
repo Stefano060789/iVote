@@ -453,13 +453,18 @@ export default function CreatePoll() {
               <span className="font-semibold">Run a prize draw for this poll</span>
             </label>
             {raffleEnabled && (
-              <input
-                type="text"
-                value={rafflePrize}
-                onChange={(e) => setRafflePrize(e.target.value)}
-                className="mt-2 w-full border p-2 rounded text-black placeholder-black"
-                placeholder="Prize: a free dessert, a $50 voucher..."
-              />
+              <>
+                <input
+                  type="text"
+                  value={rafflePrize}
+                  onChange={(e) => setRafflePrize(e.target.value)}
+                  className="mt-2 w-full border p-2 rounded text-black placeholder-black"
+                  placeholder="Prize: a free dessert, a $50 voucher..."
+                />
+                <p className="mt-2 text-xs text-slate-400">
+                  Voters will see official rules automatically: no purchase necessary, 18+ and locally eligible only, one entry per person, winner picked at random, void where prohibited. Check your local sweepstakes/prize-draw rules if the prize has significant value.
+                </p>
+              </>
             )}
             <div className="mt-5 border-t border-slate-600 pt-4">
               <p className="font-semibold">Returning customer bonus</p>

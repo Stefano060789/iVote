@@ -47,7 +47,7 @@ export default async function handler(request, response) {
     for (const setting of settings) {
       const cutoff = new Date(Date.now() - setting.days_since_last_visit * 86400000).toISOString();
       const lapsedVoters = await supabaseGet(
-        `voter_profiles?workspace_id=eq.${encodeURIComponent(setting.workspace_id)}&last_seen_at=lte.${encodeURIComponent(cutoff)}&winback_sent_at=is.null&select=id,email`
+        `voter_profiles?workspace_id=eq.${encodeURIComponent(setting.workspace_id)}&last_seen_at=lte.${encodeURIComponent(cutoff)}&winback_sent_at=is.null&unsubscribed_at=is.null&select=id,email,unsubscribe_token`
       );
 
       for (const voter of lapsedVoters) {
@@ -56,6 +56,11 @@ export default async function handler(request, response) {
           continue;
         }
 
+        const appUrl = process.env.APP_URL || "";
+        const unsubscribeLine = voter.unsubscribe_token
+          ? `\n\n---\nDon't want these emails? Unsubscribe: ${appUrl}/unsubscribe?token=${voter.unsubscribe_token}`
+          : "";
+
         const delivery = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
@@ -63,7 +68,7 @@ export default async function handler(request, response) {
             from: process.env.REPORT_FROM_EMAIL,
             to: [voter.email],
             subject: setting.subject || "We miss you!",
-            text: setting.message || "It's been a while since your last visit. Come back soon!"
+            text: `${setting.message || "It's been a while since your last visit. Come back soon!"}${unsubscribeLine}`
           })
         });
 

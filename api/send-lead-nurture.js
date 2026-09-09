@@ -39,10 +39,20 @@ export default async function handler(request, response) {
 
     if (!process.env.RESEND_API_KEY || !process.env.REPORT_FROM_EMAIL) return response.status(200).json({ sent: false });
 
+    const [profile] = await supabaseGet(
+      `voter_profiles?workspace_id=eq.${encodeURIComponent(workspaceId)}&email=eq.${encodeURIComponent(lead.email)}&select=unsubscribed_at,unsubscribe_token`
+    );
+    if (profile?.unsubscribed_at) return response.status(200).json({ sent: false, reason: "unsubscribed" });
+
+    const appUrl = process.env.APP_URL || "";
+    const unsubscribeLine = profile?.unsubscribe_token
+      ? `\n\n---\nDon't want these emails? Unsubscribe: ${appUrl}/unsubscribe?token=${profile.unsubscribe_token}`
+      : "";
+
     const delivery = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: process.env.REPORT_FROM_EMAIL, to: [lead.email], subject: settings.subject, text: settings.message })
+      body: JSON.stringify({ from: process.env.REPORT_FROM_EMAIL, to: [lead.email], subject: settings.subject, text: `${settings.message}${unsubscribeLine}` })
     });
 
     if (!delivery.ok) throw new Error(`Resend request failed (${delivery.status}).`);

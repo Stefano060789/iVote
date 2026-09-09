@@ -355,13 +355,18 @@ export default function EditPoll() {
         <span className="font-semibold">Run a prize draw for this poll</span>
       </label>
       {raffleEnabled && (
-        <input
-          type="text"
-          value={rafflePrize}
-          onChange={(e) => setRafflePrize(e.target.value)}
-          className="w-full border p-2 rounded mb-4 text-black"
-          placeholder="Prize: a free dessert, a $50 voucher..."
-        />
+        <>
+          <input
+            type="text"
+            value={rafflePrize}
+            onChange={(e) => setRafflePrize(e.target.value)}
+            className="w-full border p-2 rounded mb-1 text-black"
+            placeholder="Prize: a free dessert, a $50 voucher..."
+          />
+          <p className="mb-4 text-xs text-slate-400">
+            Voters will see official rules automatically: no purchase necessary, 18+ and locally eligible only, one entry per person, winner picked at random, void where prohibited.
+          </p>
+        </>
       )}
 
       <div className="mt-1 mb-4 border-t border-slate-600 pt-4">
