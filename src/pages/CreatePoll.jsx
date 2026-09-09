@@ -41,6 +41,10 @@ export default function CreatePoll() {
   const [reviewBenefitUrl, setReviewBenefitUrl] = useState("");
   const [raffleEnabled, setRaffleEnabled] = useState(false);
   const [rafflePrize, setRafflePrize] = useState("");
+  const [loyaltyVisitThreshold, setLoyaltyVisitThreshold] = useState("");
+  const [loyaltyBenefitMessage, setLoyaltyBenefitMessage] = useState("");
+  const [loyaltyBenefitCode, setLoyaltyBenefitCode] = useState("");
+  const [loyaltyBenefitUrl, setLoyaltyBenefitUrl] = useState("");
   const [pollId, setPollId] = useState(null);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
 
@@ -206,7 +210,11 @@ export default function CreatePoll() {
       review_benefit_value: reviewBenefitValue.trim() || null,
       review_benefit_url: reviewBenefitUrl.trim() || null,
       raffle_enabled: raffleEnabled,
-      raffle_prize: raffleEnabled ? rafflePrize.trim() || null : null
+      raffle_prize: raffleEnabled ? rafflePrize.trim() || null : null,
+      loyalty_visit_threshold: loyaltyVisitThreshold.trim() ? Number(loyaltyVisitThreshold) : null,
+      loyalty_benefit_message: loyaltyBenefitMessage.trim() || null,
+      loyalty_benefit_code: loyaltyBenefitCode.trim() || null,
+      loyalty_benefit_url: loyaltyBenefitUrl.trim() || null
     });
 
     if (assignCampaignId) {
@@ -483,6 +491,44 @@ export default function CreatePoll() {
                 placeholder="Prize: a free dessert, a $50 voucher..."
               />
             )}
+            <div className="mt-5 border-t border-slate-600 pt-4">
+              <p className="font-semibold">Returning customer bonus</p>
+              <p className="mt-1 text-xs text-slate-400">Show an extra thank-you once a voter who left their email crosses this many visits. No account or sign-up is ever required to vote.</p>
+              <input
+                type="number"
+                min="2"
+                max="50"
+                value={loyaltyVisitThreshold}
+                onChange={(e) => setLoyaltyVisitThreshold(e.target.value)}
+                className="mt-3 w-full border p-2 rounded text-black placeholder-black"
+                placeholder="Visit number that unlocks the bonus, e.g. 3"
+              />
+              {loyaltyVisitThreshold.trim() && <>
+                <input
+                  type="text"
+                  value={loyaltyBenefitMessage}
+                  onChange={(e) => setLoyaltyBenefitMessage(e.target.value)}
+                  className="mt-3 w-full border p-2 rounded text-black placeholder-black"
+                  placeholder="Welcome back message: Thanks for being a regular!"
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                  <input
+                    type="text"
+                    value={loyaltyBenefitCode}
+                    onChange={(e) => setLoyaltyBenefitCode(e.target.value)}
+                    className="border p-2 rounded text-black placeholder-black"
+                    placeholder="Bonus code (optional)"
+                  />
+                  <input
+                    type="url"
+                    value={loyaltyBenefitUrl}
+                    onChange={(e) => setLoyaltyBenefitUrl(e.target.value)}
+                    className="border p-2 rounded text-black placeholder-black"
+                    placeholder="Redemption link (optional)"
+                  />
+                </div>
+              </>}
+            </div>
           </div>
         </details>
 

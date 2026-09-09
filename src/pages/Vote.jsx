@@ -124,16 +124,19 @@ export default function Vote() {
     }
 
     let emailBenefitEligible = false;
+    let visitCount = 0;
     if (followUpConsent && followUpEmail.trim()) {
-      const { data: leadId, error: leadError } = await supabase.rpc("capture_voter_lead", {
+      const { data: leadResult, error: leadError } = await supabase.rpc("capture_voter_lead", {
         target_poll_id: poll.id,
         target_campaign_id: validCampaignId,
         contact_email: followUpEmail.trim(),
         has_consented: true
-      });
+      }).single();
       if (leadError) console.error("Optional follow-up sign-up failed", leadError);
       else {
         emailBenefitEligible = poll.email_benefit_type && poll.email_benefit_type !== "none";
+        visitCount = leadResult?.visit_count || 0;
+        const leadId = leadResult?.id;
         if (workspaceId && leadId) {
         dispatchWorkspaceWebhook(workspaceId, "lead_captured", leadId);
         fetch("/api/send-lead-nurture", {
@@ -174,6 +177,8 @@ export default function Vote() {
       });
       if (emailBenefitEligible) thanksParams.set("emailBenefit", "1");
       if (reviewEligible) thanksParams.set("reviewEligible", "1");
+      if (visitCount > 0) thanksParams.set("visits", String(visitCount));
+      if (followUpConsent && followUpEmail.trim()) thanksParams.set("contactEmail", followUpEmail.trim());
       navigate(`/thanks?${thanksParams.toString()}`);
     }
   }

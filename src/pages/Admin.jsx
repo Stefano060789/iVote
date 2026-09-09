@@ -9,6 +9,8 @@ import { createQrCampaign, loadQrCampaigns } from "../lib/qrCampaigns";
 import { extractQrToken, reassignManagedCampaignPoll, resolveManagedQrToken } from "../lib/qrManage";
 import QrScanner from "../components/QrScanner";
 import { loadLeadNurtureSettings, saveLeadNurtureSettings } from "../lib/leadNurture";
+import { loadWinbackSettings, saveWinbackSettings } from "../lib/winbackSettings";
+import { loadLatestReputationSnapshot, refreshReputationSnapshot } from "../lib/reputation";
 import { loadPollRotations, createPollRotation, deletePollRotation } from "../lib/pollRotations";
 import { loadApiKeys, createApiKey, deleteApiKey } from "../lib/apiKeys";
 import {
@@ -58,6 +60,7 @@ export default function Admin() {
     primaryColor: "#0f766e",
     accentColor: "#172b2b",
     webhookUrl: "",
+    googlePlaceId: "",
     role: "owner"
   });
   const [workspaceUserId, setWorkspaceUserId] = useState(null);
@@ -85,6 +88,10 @@ export default function Admin() {
   const [recoveryTasks, setRecoveryTasks] = useState([]);
   const [reportSettings, setReportSettings] = useState({ recipient_email: "", is_enabled: false });
   const [nurtureSettings, setNurtureSettings] = useState({ is_enabled: false, subject: "", message: "" });
+  const [winbackSettings, setWinbackSettings] = useState({ is_enabled: false, days_since_last_visit: 30, subject: "", message: "" });
+  const [reputationSnapshot, setReputationSnapshot] = useState(null);
+  const [reputationLoading, setReputationLoading] = useState(false);
+  const [reputationError, setReputationError] = useState("");
   const [sentimentSummary, setSentimentSummary] = useState({});
   const [newRulePollId, setNewRulePollId] = useState("");
   const [newRuleType, setNewRuleType] = useState("low_score");
@@ -217,6 +224,12 @@ export default function Admin() {
         if (!messagesResult.error) setOrganizerMessages(messagesResult.data || []);
 
         setNurtureSettings(await loadLeadNurtureSettings(profile.id));
+        setWinbackSettings(await loadWinbackSettings(profile.id));
+        try {
+          setReputationSnapshot(await loadLatestReputationSnapshot(profile.id));
+        } catch (reputationLoadError) {
+          console.error(reputationLoadError);
+        }
         const { data: reviewClaimRows, error: reviewClaimError } = await supabase
           .from("review_benefit_claims")
           .select("*")
@@ -599,6 +612,30 @@ export default function Admin() {
     } catch (error) {
       console.error(error);
       alert(error.message || "Unable to save nurture email settings.");
+    }
+  }
+
+  async function saveWinbackEmailSettings() {
+    try {
+      await saveWinbackSettings(workspaceUserId, winbackSettings);
+      alert("Win-back email settings saved.");
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Unable to save win-back email settings.");
+    }
+  }
+
+  async function refreshPublicReputation() {
+    setReputationLoading(true);
+    setReputationError("");
+    try {
+      const snapshot = await refreshReputationSnapshot(workspaceUserId);
+      setReputationSnapshot(snapshot);
+    } catch (error) {
+      console.error(error);
+      setReputationError(error.message || "Unable to refresh public reputation.");
+    } finally {
+      setReputationLoading(false);
     }
   }
 
@@ -1986,6 +2023,27 @@ export default function Admin() {
       </details>
       )}
 
+      {activeTab === "engagement" && (
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">Win-back emails</summary>
+        <div className="px-4 pb-4 space-y-3">
+          <p className="text-sm text-slate-400">Automatically email a voter who left their email and consented, but hasn't voted again after the number of days below. This only reaches people who opted in - voting itself always stays anonymous.</p>
+          <label className="flex items-center gap-2">
+            <input type="checkbox" checked={winbackSettings.is_enabled} onChange={(event) => setWinbackSettings((current) => ({ ...current, is_enabled: event.target.checked }))} />
+            <span>Send a win-back email automatically</span>
+          </label>
+          <label className="block font-semibold">
+            Days since their last visit
+            <input type="number" min="7" max="365" value={winbackSettings.days_since_last_visit} onChange={(event) => setWinbackSettings((current) => ({ ...current, days_since_last_visit: event.target.value }))} className="mt-1 w-full border p-2 rounded text-black" />
+          </label>
+          <input value={winbackSettings.subject || ""} onChange={(event) => setWinbackSettings((current) => ({ ...current, subject: event.target.value }))} className="w-full border p-2 rounded text-black" placeholder="Email subject: We miss you!" />
+          <textarea value={winbackSettings.message || ""} onChange={(event) => setWinbackSettings((current) => ({ ...current, message: event.target.value }))} rows="4" className="w-full border p-2 rounded text-black" placeholder="Email message body" />
+          <button onClick={saveWinbackEmailSettings} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save win-back email settings</button>
+          <p className="text-xs text-slate-500">Delivery requires the RESEND_API_KEY and REPORT_FROM_EMAIL server settings, same as weekly reports.</p>
+        </div>
+      </details>
+      )}
+
       {activeTab === "feedback" && (
       <>
       <details className="mb-6 border rounded bg-gray-900">
@@ -2083,6 +2141,17 @@ export default function Admin() {
               placeholder="Leave blank to keep votes forever"
             />
           </label>
+          <label className="block font-semibold md:col-span-2">
+            Google Place ID (optional)
+            <span className="mt-1 block text-xs font-normal text-slate-400">Lets the dashboard pull in your real public Google rating. Find it with Google's Place ID Finder.</span>
+            <input
+              type="text"
+              value={workspaceProfile.googlePlaceId || ""}
+              onChange={(event) => setWorkspaceProfile((current) => ({ ...current, googlePlaceId: event.target.value }))}
+              className="mt-1 w-full border p-2 rounded text-black"
+              placeholder="ChIJ..."
+            />
+          </label>
           <label className="block font-semibold">
             Button and link color
             <span className="mt-1 block text-xs font-normal text-slate-400">Used for actions people can click.</span>
@@ -2115,6 +2184,24 @@ export default function Admin() {
           >
             Save workspace settings
           </button>
+        </div>
+
+        <div className="mt-6 border-t border-slate-700 pt-4">
+          <p className="font-semibold">Public reputation</p>
+          <p className="mt-1 text-xs text-slate-400">Your real public rating, pulled in from Google. Add a Google Place ID above first.</p>
+          {reputationSnapshot ? (
+            <p className="mt-3 text-sm">
+              <span className="text-2xl font-bold text-amber-300">{reputationSnapshot.rating ?? "-"}</span>
+              <span className="ml-2 text-slate-400">out of 5 - {reputationSnapshot.rating_count ?? 0} Google reviews</span>
+              <span className="ml-2 block text-xs text-slate-500 sm:inline sm:ml-2">as of {new Date(reputationSnapshot.captured_at).toLocaleString()}</span>
+            </p>
+          ) : (
+            <p className="mt-3 text-sm text-slate-400">No public rating pulled in yet.</p>
+          )}
+          <button onClick={refreshPublicReputation} disabled={reputationLoading || !workspaceProfile.googlePlaceId} className="mt-3 rounded bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-950 disabled:opacity-60">
+            {reputationLoading ? "Refreshing..." : "Refresh public rating"}
+          </button>
+          {reputationError && <p className="mt-2 text-sm text-red-300">{reputationError}</p>}
         </div>
         </div>
       </details>

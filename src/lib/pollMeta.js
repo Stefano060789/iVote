@@ -72,7 +72,11 @@ export async function savePollMeta(pollId, patch) {
         "review_benefit_value",
         "review_benefit_url",
         "raffle_enabled",
-        "raffle_prize"
+        "raffle_prize",
+        "loyalty_visit_threshold",
+        "loyalty_benefit_message",
+        "loyalty_benefit_code",
+        "loyalty_benefit_url"
       ].includes(key)
     ) {
       supabasePatch[key] = value;

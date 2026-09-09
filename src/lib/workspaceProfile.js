@@ -72,7 +72,7 @@ export async function loadWorkspaceProfile() {
 
   const { data: workspace, error } = await supabase
     .from("workspaces")
-    .select("id, name, logo_url, primary_color, accent_color, webhook_url, vote_retention_days")
+    .select("id, name, logo_url, primary_color, accent_color, webhook_url, vote_retention_days, google_place_id")
     .eq("id", workspaceId)
     .single();
 
@@ -90,6 +90,7 @@ export async function loadWorkspaceProfile() {
     accentColor: workspace.accent_color || "#0f172a",
     webhookUrl: workspace.webhook_url || "",
     voteRetentionDays: workspace.vote_retention_days || "",
+    googlePlaceId: workspace.google_place_id || "",
     role
   };
 }
@@ -119,7 +120,8 @@ export async function saveWorkspaceProfile(workspaceId, patch = {}) {
       primary_color: next.primaryColor,
       accent_color: next.accentColor,
       webhook_url: patch.webhookUrl?.trim() || null,
-      vote_retention_days: patch.voteRetentionDays ? Number(patch.voteRetentionDays) : null
+      vote_retention_days: patch.voteRetentionDays ? Number(patch.voteRetentionDays) : null,
+      google_place_id: patch.googlePlaceId?.trim() || null
     })
     .eq("id", workspaceId);
 

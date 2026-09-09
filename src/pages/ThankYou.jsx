@@ -8,6 +8,8 @@ export default function ThankYou() {
   const isPositive = searchParams.get("positive") !== "0";
   const emailBenefitEligible = searchParams.get("emailBenefit") === "1";
   const reviewEligible = searchParams.get("reviewEligible") === "1";
+  const visitCount = Number(searchParams.get("visits") || 0);
+  const contactEmail = searchParams.get("contactEmail") || "";
   const selectedAnswers = (() => {
     try {
       const parsed = JSON.parse(searchParams.get("answers") || "[]");
@@ -47,7 +49,8 @@ export default function ThankYou() {
     setReviewClaimMessage("");
     const { data, error } = await supabase.rpc("create_review_benefit_claim", {
       target_poll_id: Number(pollId),
-      selected_answers: selectedAnswers
+      selected_answers: selectedAnswers,
+      contact_email: contactEmail || null
     });
     const claim = data?.[0];
     if (error || !claim?.claim_token) {
@@ -70,6 +73,8 @@ export default function ThankYou() {
   }
 
   const hasReward = Boolean(poll?.reward_message || poll?.reward_code || poll?.reward_url);
+  const loyaltyEligible = Boolean(poll?.loyalty_visit_threshold) && visitCount >= poll.loyalty_visit_threshold
+    && Boolean(poll?.loyalty_benefit_message || poll?.loyalty_benefit_code || poll?.loyalty_benefit_url);
   const reviewPlatforms = Array.isArray(poll?.review_platforms) && poll.review_platforms.length > 0
     ? poll.review_platforms
     : poll?.review_url ? [{ name: "Review platform", url: poll.review_url }] : [];
@@ -88,6 +93,21 @@ export default function ThankYou() {
           {poll.reward_url && (
             <a href={poll.reward_url} target="_blank" rel="noreferrer" className="mt-3 block text-sm font-semibold text-teal-300 underline">
               Redeem your reward
+            </a>
+          )}
+        </div>
+      )}
+
+      {loyaltyEligible && (
+        <div className="mt-6 rounded border border-amber-700 bg-slate-900 p-5">
+          <p className="font-semibold text-amber-200">Welcome back! Thanks for visiting again.</p>
+          {poll.loyalty_benefit_message && <p className="mt-2 text-sm text-slate-300">{poll.loyalty_benefit_message}</p>}
+          {poll.loyalty_benefit_code && (
+            <p className="mt-2 inline-block rounded bg-teal-950 px-3 py-1 font-mono text-teal-300">{poll.loyalty_benefit_code}</p>
+          )}
+          {poll.loyalty_benefit_url && (
+            <a href={poll.loyalty_benefit_url} target="_blank" rel="noreferrer" className="mt-3 block text-sm font-semibold text-teal-300 underline">
+              Redeem your returning-customer bonus
             </a>
           )}
         </div>
