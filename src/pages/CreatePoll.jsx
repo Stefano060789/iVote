@@ -14,6 +14,7 @@ export default function CreatePoll() {
   const [searchParams] = useSearchParams();
   const assignCampaignId = searchParams.get("campaign");
   const [assignedCampaignName, setAssignedCampaignName] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [question, setQuestion] = useState("");
   const [answers, setAnswers] = useState([""]);
   const [multipleChoice, setMultipleChoice] = useState(false);
@@ -46,6 +47,7 @@ export default function CreatePoll() {
   useEffect(() => {
     async function loadDefaultBranding() {
       const { data: { user } } = await supabase.auth.getUser();
+      setIsAuthenticated(Boolean(user?.id));
       if (!user?.id) return;
 
       const profile = await loadWorkspaceProfile();
@@ -226,14 +228,29 @@ export default function CreatePoll() {
     <Layout>
       <div className="max-w-xl mx-auto p-6">
         <div className="mb-6 text-center">
-          <h1 className="text-3xl font-bold">Create a Poll</h1>
-          <p className="mt-2 text-sm text-slate-400">Add a question and answers, then share the voting link.</p>
+          <h1 className="text-3xl font-bold">Create a poll</h1>
+          <p className="mt-2 text-sm text-slate-400">Polls live inside your workspace and collect feedback from your customers.</p>
           {assignCampaignId && (
             <p className="mt-2 rounded border border-teal-700 bg-teal-950 p-2 text-sm text-teal-200">
               This poll will be assigned to your scanned QR code automatically.
             </p>
           )}
         </div>
+
+        {isAuthenticated === false && (
+          <div className="rounded border border-sky-700 bg-slate-900 p-5 text-center">
+            <h2 className="text-xl font-bold">Create a workspace first</h2>
+            <p className="mt-2 text-sm text-slate-300">A workspace is your venue or business account. Once you create one and sign in, you can create polls, QR codes, and manage customer feedback here.</p>
+            <div className="mt-4 flex flex-col justify-center gap-3 sm:flex-row">
+              <Link to="/register" className="rounded bg-sky-500 px-4 py-2 font-semibold text-slate-950">Create a workspace</Link>
+              <Link to="/login" className="rounded border border-slate-500 px-4 py-2 font-semibold text-slate-100">Sign in</Link>
+            </div>
+          </div>
+        )}
+
+        {isAuthenticated === null && <p className="text-center text-sm text-slate-400">Checking your workspace access...</p>}
+
+        {isAuthenticated !== true ? null : <>
 
         <label className="block mb-2 font-semibold">Template</label>
         <select
@@ -521,6 +538,8 @@ export default function CreatePoll() {
             </div>
           </div>
         )}
+
+        </>}
 
         <p className="mt-10 text-center text-xs text-slate-400">
           iVote v1.0.1

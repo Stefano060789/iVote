@@ -152,6 +152,7 @@ export default function Admin() {
     if (userError) {
       console.error(userError);
       setLoading(false);
+      navigate("/login");
       return;
     }
 
