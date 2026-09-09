@@ -47,7 +47,7 @@ Keep RLS enabled, never expose `SUPABASE_SERVICE_ROLE_KEY`, rotate Stripe and Su
 
 ## Privacy, moderation, email, and operations
 
-The Privacy and Terms pages are intentionally marked as legal drafts. Have EU-qualified counsel supply controller details, lawful bases, retention schedule, processor/subprocessor list, DPA terms, and final contact details. The Account page makes revocation, export, and account-deletion requests reviewable rather than irreversibly removing production data. Configure a private operational process for reviewing and resolving those requests.
+The Privacy and Terms pages now contain real, product-accurate content instead of a placeholder, but still have two bracketed fields (`OPERATOR_NAME`, `OPERATOR_ADDRESS` in `src/pages/Legal.jsx`) that only you can fill in - your legal business name and registered address. Fill those in, then have a lawyer review before scaling meaningfully past a small local pilot. The Account page makes revocation, export, and account-deletion requests reviewable rather than irreversibly removing production data. Configure a private operational process for reviewing and resolving those requests.
 
 Configure transactional mail through Supabase Auth SMTP using a verified sender domain and a provider such as Postmark, Resend, or Amazon SES. Test sign-up confirmation, password recovery, and changed-email messages in production with SPF, DKIM, and DMARC in place. Do not use a personal mailbox as the sender.
 
