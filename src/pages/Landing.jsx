@@ -41,7 +41,6 @@ export default function Landing() {
           {isSignedIn ? (
             <div className="landing-actions">
               <Link to="/admin" className="landing-admin-action">Workspace dashboard</Link>
-              <Link to="/create" className="landing-secondary-action">Create poll</Link>
             </div>
           ) : (
             <div className="landing-actions">
@@ -87,12 +86,14 @@ export default function Landing() {
       <section className="landing-final">
         <p className="landing-eyebrow">Ready to measure the room?</p>
         <h2>Launch your first QR feedback campaign.</h2>
-        <p className="landing-final-copy">Create a poll, grow your permission-based audience, and turn customer feedback into the next conversation.</p>
+        <p className="landing-final-copy">Set up your workspace, create a QR feedback campaign, and turn customer responses into your next decision.</p>
         <div className="landing-admin-actions">
-          <Link to="/create" className="landing-primary-action">Create poll</Link>
-          <Link to="/admin" className="landing-admin-action">Workspace dashboard</Link>
+          {isSignedIn ? (
+            <Link to="/admin" className="landing-admin-action">Open workspace dashboard</Link>
+          ) : (
+            <Link to="/register" className="landing-primary-action">Create a workspace</Link>
+          )}
         </div>
-        {!isSignedIn && <Link to="/register" className="landing-register-link">New to iVote? Create a workspace</Link>}
       </section>
     </main>
   );
