@@ -35,7 +35,7 @@ export default function Register() {
 
   return (
     <div className="max-w-md mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center">Create Admin Account</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">Create your workspace</h1>
 
       {error && <p className="text-red-600 mb-4">{error}</p>}
       {message && <p className="text-green-600 mb-4">{message}</p>}
@@ -63,7 +63,7 @@ export default function Register() {
           type="submit"
           className="w-full bg-blue-600 text-white p-2 rounded font-semibold"
         >
-          Register
+          Create workspace
         </button>
       </form>
     </div>

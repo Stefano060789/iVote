@@ -395,7 +395,7 @@ export default function Vote() {
           </a>
 
           <div className="mt-4">
-            <a href="/admin" className="text-blue-600 underline">Back to Admin</a>
+            <a href="/admin" className="text-blue-600 underline">Back to workspace</a>
           </div>
         </div>
       </Layout>

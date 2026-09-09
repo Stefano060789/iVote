@@ -248,7 +248,7 @@ export default function Results() {
         </div>
 
         <div className="mt-8 text-center">
-          <a href="/admin" className="text-blue-600 underline">Back to Admin</a>
+          <a href="/admin" className="text-blue-600 underline">Back to workspace</a>
         </div>
       </div>
     </Layout>

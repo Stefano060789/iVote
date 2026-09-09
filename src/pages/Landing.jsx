@@ -40,13 +40,13 @@ export default function Landing() {
           </p>
           {isSignedIn ? (
             <div className="landing-actions">
-              <Link to="/admin" className="landing-admin-action">Admin Dashboard</Link>
+              <Link to="/admin" className="landing-admin-action">Workspace dashboard</Link>
               <Link to="/create" className="landing-secondary-action">Create a Poll</Link>
             </div>
           ) : (
             <div className="landing-actions">
-              <Link to="/register" className="landing-primary-action">Create admin account</Link>
-              <Link to="/login" className="landing-secondary-action">Admin login</Link>
+              <Link to="/register" className="landing-primary-action">Create a workspace</Link>
+              <Link to="/login" className="landing-secondary-action">Workspace login</Link>
             </div>
           )}
           <p className="landing-note">Built for venues, events, hospitality, retail, and in-person teams.</p>
@@ -90,7 +90,7 @@ export default function Landing() {
         <p className="landing-final-copy">Create a poll, grow your permission-based audience, and turn customer feedback into the next conversation.</p>
         <div className="landing-admin-actions">
           <Link to="/create" className="landing-primary-action">Create poll</Link>
-          <Link to="/admin" className="landing-admin-action">Admin dashboard</Link>
+          <Link to="/admin" className="landing-admin-action">Workspace dashboard</Link>
         </div>
         {!isSignedIn && <Link to="/register" className="landing-register-link">New to iVote? Create a workspace</Link>}
       </section>

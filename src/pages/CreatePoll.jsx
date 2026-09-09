@@ -516,7 +516,7 @@ export default function CreatePoll() {
                 to={`/admin?poll=${pollId}`}
                 className="inline-flex items-center justify-center rounded bg-slate-100 px-4 py-2 font-semibold text-slate-900"
               >
-                Manage this poll in Admin
+                Manage this poll in workspace
               </Link>
             </div>
           </div>

@@ -103,7 +103,7 @@ export default function QrRedirect() {
           Create a new poll for this QR code
         </Link>
 
-        <Link to="/admin" className="mt-6 block text-center text-sm text-slate-300 underline">Back to Admin dashboard</Link>
+        <Link to="/admin" className="mt-6 block text-center text-sm text-slate-300 underline">Back to workspace dashboard</Link>
       </main>
     );
   }

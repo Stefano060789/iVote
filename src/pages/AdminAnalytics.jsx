@@ -282,7 +282,7 @@ export default function AdminAnalytics() {
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center">Admin Analytics</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">Workspace analytics</h1>
 
       <div className="text-center mb-6">
         <button
