@@ -2141,17 +2141,6 @@ export default function Admin() {
               placeholder="Leave blank to keep votes forever"
             />
           </label>
-          <label className="block font-semibold md:col-span-2">
-            Google Place ID (optional)
-            <span className="mt-1 block text-xs font-normal text-slate-400">Lets the dashboard pull in your real public Google rating. Find it with Google's Place ID Finder.</span>
-            <input
-              type="text"
-              value={workspaceProfile.googlePlaceId || ""}
-              onChange={(event) => setWorkspaceProfile((current) => ({ ...current, googlePlaceId: event.target.value }))}
-              className="mt-1 w-full border p-2 rounded text-black"
-              placeholder="ChIJ..."
-            />
-          </label>
           <label className="block font-semibold">
             Button and link color
             <span className="mt-1 block text-xs font-normal text-slate-400">Used for actions people can click.</span>
@@ -2187,8 +2176,45 @@ export default function Admin() {
         </div>
 
         <div className="mt-6 border-t border-slate-700 pt-4">
+          <p className="font-semibold">Google Business Profile</p>
+          <p className="mt-1 text-xs text-slate-400">Connect your real Google Business listing so the dashboard can show your true public rating below. You only need to do this once.</p>
+          <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm text-slate-300">
+            <li>Click <strong>"Find my business on Google"</strong> below - it opens Google's official lookup tool in a new tab.</li>
+            <li>Type your business name (and city, if you have more than one location) into the search box on that page.</li>
+            <li>Click your business when it appears - a small popup shows a <strong>Place ID</strong> (a code like <code>ChIJN1t_tDeuEmsRUsoyG83frY4</code>).</li>
+            <li>Copy that code and paste it into the box below, then click <strong>Save Google Place ID</strong>.</li>
+          </ol>
+          <a
+            href="https://developers.google.com/maps/documentation/places/web-service/place-id"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 inline-block rounded bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-950"
+          >
+            Find my business on Google ↗
+          </a>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+            <input
+              type="text"
+              value={workspaceProfile.googlePlaceId || ""}
+              onChange={(event) => setWorkspaceProfile((current) => ({ ...current, googlePlaceId: event.target.value }))}
+              className="flex-1 border p-2 rounded text-black"
+              placeholder="Paste your Place ID here, e.g. ChIJ..."
+            />
+            <button
+              onClick={saveWorkspaceSettings}
+              disabled={!permission.canManageWorkspace}
+              className={`shrink-0 rounded px-4 py-2 font-semibold ${
+                permission.canManageWorkspace ? "bg-blue-600 text-white" : "bg-gray-600 text-gray-300 cursor-not-allowed"
+              }`}
+            >
+              Save Google Place ID
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-6 border-t border-slate-700 pt-4">
           <p className="font-semibold">Public reputation</p>
-          <p className="mt-1 text-xs text-slate-400">Your real public rating, pulled in from Google. Add a Google Place ID above first.</p>
+          <p className="mt-1 text-xs text-slate-400">Your real public rating, pulled in from Google. Connect your business above first.</p>
           {reputationSnapshot ? (
             <p className="mt-3 text-sm">
               <span className="text-2xl font-bold text-amber-300">{reputationSnapshot.rating ?? "-"}</span>
