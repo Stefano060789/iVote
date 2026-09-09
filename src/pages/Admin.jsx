@@ -55,8 +55,8 @@ export default function Admin() {
   const [workspaceProfile, setWorkspaceProfile] = useState({
     companyName: "iVote",
     logoUrl: "",
-    primaryColor: "#2563eb",
-    accentColor: "#0f172a",
+    primaryColor: "#0f766e",
+    accentColor: "#172b2b",
     webhookUrl: "",
     role: "owner"
   });
@@ -1383,7 +1383,7 @@ export default function Admin() {
   ];
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
+    <div className="workspace-page max-w-3xl mx-auto p-6">
       <div className="mb-6 text-center">
         <h1 className="text-3xl font-bold">Workspace dashboard</h1>
         <p className="mt-2 text-sm text-slate-400">Create, share, and manage every poll from one place.</p>
@@ -2059,7 +2059,8 @@ export default function Admin() {
             />
           </label>
           <label className="block font-semibold">
-            Primary color
+            Button and link color
+            <span className="mt-1 block text-xs font-normal text-slate-400">Used for actions people can click.</span>
             <input
               type="color"
               value={workspaceProfile.primaryColor}
@@ -2068,7 +2069,8 @@ export default function Admin() {
             />
           </label>
           <label className="block font-semibold">
-            Accent color
+            Page background color
+            <span className="mt-1 block text-xs font-normal text-slate-400">Used behind your public poll pages.</span>
             <input
               type="color"
               value={workspaceProfile.accentColor}

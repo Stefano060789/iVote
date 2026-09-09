@@ -3,11 +3,19 @@
 @tailwind utilities;
 
 :root {
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --ink: #172b2b;
+  --muted: #607170;
+  --canvas: #f4f7f5;
+  --surface: #ffffff;
+  --line: #d6e2de;
+  --teal: #0f766e;
+  --teal-soft: #d9f3ed;
+  --blue-soft: #e3f0f4;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #e2e8f0;
-  background-color: #020617;
+  color: var(--ink);
+  background-color: var(--canvas);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -24,7 +32,7 @@ body,
 
 body {
   min-height: 100vh;
-  background: #020617;
+  background: var(--canvas);
 }
 
 input {
@@ -100,6 +108,9 @@ textarea {
 .site-nav {
   position: relative;
   z-index: 20;
+  background: var(--ink);
+  color: #ffffff;
+  box-shadow: 0 1px 0 rgba(23, 43, 43, 0.12);
 }
 
 .site-nav-bar,
@@ -155,8 +166,8 @@ textarea {
   min-height: 38px;
   border-radius: 5px;
   padding: 0 12px;
-  background: #5eead4;
-  color: #042f2e;
+  background: #8de0c9;
+  color: var(--ink);
   font-size: 0.9rem;
   font-weight: 800;
   text-decoration: none;
@@ -169,8 +180,8 @@ textarea {
   min-height: 38px;
   border-radius: 5px;
   padding: 0 12px;
-  background: #38bdf8;
-  color: #082f49;
+  background: #c3e8ee;
+  color: #174b54;
   font-size: 0.9rem;
   font-weight: 800;
   text-decoration: none;
@@ -178,8 +189,110 @@ textarea {
 
 .site-nav-dashboard:hover,
 .site-nav-dashboard.is-active {
-  background: #0ea5e9;
-  color: #ffffff;
+  background: #8ed5df;
+  color: var(--ink);
+}
+
+.app-page,
+.workspace-page {
+  color: var(--ink);
+}
+
+.app-page h1,
+.workspace-page h1,
+.app-page h2,
+.workspace-page h2,
+.app-page h3,
+.workspace-page h3 {
+  letter-spacing: -0.02em;
+}
+
+.app-page input,
+.app-page textarea,
+.app-page select,
+.workspace-page input,
+.workspace-page textarea,
+.workspace-page select {
+  border-color: var(--line) !important;
+  border-radius: 8px !important;
+  background: var(--surface) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 1px 2px rgba(23, 43, 43, 0.05);
+}
+
+.app-page input:focus,
+.app-page textarea:focus,
+.app-page select:focus,
+.workspace-page input:focus,
+.workspace-page textarea:focus,
+.workspace-page select:focus {
+  outline: 3px solid rgba(15, 118, 110, 0.18);
+  border-color: var(--teal) !important;
+}
+
+.app-page input[type="color"],
+.workspace-page input[type="color"] {
+  min-height: 44px;
+  padding: 3px !important;
+  background: var(--surface) !important;
+}
+
+.app-page button,
+.workspace-page button,
+.app-page a[class*="bg-"],
+.workspace-page a[class*="bg-"] {
+  border-radius: 8px;
+}
+
+.workspace-page .bg-slate-900,
+.workspace-page .bg-gray-900,
+.app-page .bg-slate-900 {
+  background: var(--surface) !important;
+}
+
+.workspace-page .bg-gray-800 {
+  background: #e7efec !important;
+  color: var(--ink) !important;
+}
+
+.workspace-page .bg-teal-500,
+.workspace-page .bg-teal-400,
+.app-page .bg-blue-600 {
+  background: var(--teal) !important;
+  color: #ffffff !important;
+}
+
+.workspace-page .bg-sky-500 {
+  background: #b9e3e7 !important;
+  color: #174b54 !important;
+}
+
+.workspace-page .text-slate-400,
+.workspace-page .text-slate-300,
+.workspace-page .text-slate-200,
+.workspace-page .text-slate-100,
+.app-page .text-slate-400,
+.app-page .text-slate-300,
+.app-page .text-slate-200 {
+  color: var(--muted) !important;
+}
+
+.workspace-page .text-teal-300,
+.workspace-page .text-emerald-300,
+.app-page .text-emerald-400 {
+  color: var(--teal) !important;
+}
+
+.workspace-page [class*="border-teal-"],
+.workspace-page [class*="border-sky-"],
+.workspace-page [class*="border-indigo-"],
+.app-page [class*="border-slate-"] {
+  border-color: var(--line) !important;
+}
+
+.workspace-page [class*="bg-slate-950"],
+.workspace-page [class*="bg-gray-900"] {
+  background: #f7faf8 !important;
 }
 
 .site-nav-links {

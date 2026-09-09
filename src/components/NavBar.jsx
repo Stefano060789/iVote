@@ -80,7 +80,7 @@ export default function NavBar() {
   }
 
   return (
-    <nav className="site-nav" style={{ backgroundColor: workspace.accentColor, color: "white" }}>
+    <nav className="site-nav">
       <div className="site-nav-bar">
         <Link to="/" onClick={closeMenu} className="site-nav-brand">
           {workspace.companyName}

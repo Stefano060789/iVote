@@ -1,7 +1,7 @@
 import { readPollMeta } from "./pollMeta";
 
-export const DEFAULT_PRIMARY_COLOR = "#2563eb";
-export const DEFAULT_ACCENT_COLOR = "#0f172a";
+export const DEFAULT_PRIMARY_COLOR = "#0f766e";
+export const DEFAULT_ACCENT_COLOR = "#172b2b";
 
 export function getPollBranding(poll) {
   const pollMeta = readPollMeta(poll?.id);

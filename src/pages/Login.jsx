@@ -31,7 +31,7 @@ export default function Login() {
   }
 
   return (
-    <div className="max-w-md mx-auto p-6">
+    <div className="app-page max-w-md mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6 text-center">Sign in to your workspace</h1>
 
       {error && <p className="text-red-600 mb-4">{error}</p>}
@@ -57,7 +57,7 @@ export default function Login() {
           type="submit"
           className="w-full bg-blue-600 text-white p-2 rounded font-semibold"
         >
-          Login
+          Sign in
         </button>
         <button type="button" onClick={resetPassword} className="w-full text-sm text-blue-300 underline">Forgot password?</button>
       </form>

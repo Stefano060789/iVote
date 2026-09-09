@@ -41,7 +41,7 @@ export default function Landing() {
           {isSignedIn ? (
             <div className="landing-actions">
               <Link to="/admin" className="landing-admin-action">Workspace dashboard</Link>
-              <Link to="/create" className="landing-secondary-action">Create a Poll</Link>
+              <Link to="/create" className="landing-secondary-action">Create poll</Link>
             </div>
           ) : (
             <div className="landing-actions">

@@ -34,7 +34,7 @@ export default function Register() {
   }
 
   return (
-    <div className="max-w-md mx-auto p-6">
+    <div className="app-page max-w-md mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6 text-center">Create your workspace</h1>
 
       {error && <p className="text-red-600 mb-4">{error}</p>}

@@ -349,7 +349,8 @@ export default function CreatePoll() {
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <label className="block font-semibold">
-                Primary color
+                Button and link color
+                <span className="mt-1 block text-xs font-normal text-slate-400">Used for actions people can click.</span>
                 <input
                   type="color"
                   value={brandPrimaryColor}
@@ -358,7 +359,8 @@ export default function CreatePoll() {
                 />
               </label>
               <label className="block font-semibold">
-                Accent color
+                Page background color
+                <span className="mt-1 block text-xs font-normal text-slate-400">Used behind the poll and QR page.</span>
                 <input
                   type="color"
                   value={brandAccentColor}
