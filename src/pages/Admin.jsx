@@ -44,6 +44,7 @@ export default function Admin() {
   const [selectedPollForLocation, setSelectedPollForLocation] = useState("");
   const [qrPrintFormat, setQrPrintFormat] = useState("a4");
   const [qrStyleSeed, setQrStyleSeed] = useState(1);
+  const [qrStylePreset, setQrStylePreset] = useState("brand");
   const [aiImagePrompt, setAiImagePrompt] = useState("");
   const [generatedPosterImage, setGeneratedPosterImage] = useState("");
   const [imageGenerationStatus, setImageGenerationStatus] = useState("idle");
@@ -1125,14 +1126,17 @@ export default function Admin() {
       letter: { label: "Letter", size: "8.5in 11in", cssSize: "820px 1050px", margin: "0.5in" },
       a4: { label: "A4", size: "A4", cssSize: "794px 1123px", margin: "0.5in" },
       a5: { label: "A5", size: "A5", cssSize: "562px 794px", margin: "0.4in" },
+      a6: { label: "A6", size: "A6", cssSize: "397px 562px", margin: "0.25in" },
       a3: { label: "A3", size: "A3", cssSize: "1123px 1587px", margin: "0.5in" },
-      postcard: { label: "Postcard", size: "5in 7in", cssSize: "480px 680px", margin: "0.2in" }
+      postcard: { label: "Postcard", size: "5in 7in", cssSize: "480px 680px", margin: "0.2in" },
+      beerHolder: { label: "Round beer holder", size: "4in 4in", cssSize: "560px 560px", margin: "0.15in", shape: "round" },
+      ticket: { label: "Ticket", size: "3.5in 8in", cssSize: "420px 960px", margin: "0.15in", shape: "ticket" }
     };
 
     return formatMap[format] || formatMap.a4;
   }
 
-  function generateAiQrStyle(seedOverride = qrStyleSeed) {
+  function generateAiQrStyle(seedOverride = qrStyleSeed, presetOverride = qrStylePreset) {
     const baseName = `${workspaceProfile.companyName || "iVote"}-${seedOverride}`;
     const hash = Array.from(baseName).reduce((sum, char) => sum + char.charCodeAt(0), 0);
     const palette = [
@@ -1144,13 +1148,22 @@ export default function Admin() {
       "#ecfeff"
     ];
 
-    const first = palette[hash % palette.length];
-    const second = palette[(hash + 2) % palette.length];
-    const third = palette[(hash + 4) % palette.length];
-    const fourth = palette[(hash + 5) % palette.length];
+    const presetPalettes = {
+      brand: palette,
+      celebration: ["#fef3c7", "#fb7185", "#7c3aed", "#f97316", "#fefce8", "#be123c"],
+      fresh: ["#ecfeff", "#14b8a6", "#0ea5e9", "#f0fdf4", "#84cc16", "#f8fafc"],
+      premium: ["#f8fafc", "#cbd5e1", "#334155", "#0f172a", "#b08968", "#f5f5f4"]
+    };
+    const selectedPalette = presetPalettes[presetOverride] || palette;
+    const first = selectedPalette[hash % selectedPalette.length];
+    const second = selectedPalette[(hash + 2) % selectedPalette.length];
+    const third = selectedPalette[(hash + 4) % selectedPalette.length];
+    const fourth = selectedPalette[(hash + 5) % selectedPalette.length];
 
     return {
-      background: `radial-gradient(circle at top left, ${first} 0%, ${second} 32%, ${third} 62%, ${fourth} 100%)`,
+      background: presetOverride === "premium"
+        ? `linear-gradient(135deg, ${first} 0%, ${second} 48%, ${fourth} 100%)`
+        : `radial-gradient(circle at top left, ${first} 0%, ${second} 32%, ${third} 62%, ${fourth} 100%)`,
       shadow: `0 20px 45px rgba(15, 23, 42, 0.18)`
     };
   }
@@ -1177,7 +1190,7 @@ export default function Admin() {
           Authorization: `Bearer ${session?.access_token || ""}`
         },
         body: JSON.stringify({
-          description: `${description}. The poll topic is: ${poll.question || "general feedback"}.`
+          description: `${description}. The poll topic is: ${poll.question || "general feedback"}. Use a ${qrStylePreset} visual style.`
         })
       });
       const payload = await response.json();
@@ -1228,7 +1241,7 @@ export default function Admin() {
     }
 
     const formatConfig = getQrPrintFormatConfig();
-    const generatedStyle = generateAiQrStyle(qrStyleSeed);
+    const generatedStyle = generateAiQrStyle(qrStyleSeed, qrStylePreset);
     const posterBackground = generatedPosterImage
       ? `url("${generatedPosterImage}") center / cover no-repeat, ${generatedStyle.background}`
       : generatedStyle.background;
@@ -1267,9 +1280,9 @@ export default function Admin() {
               justify-content: center;
               align-items: center;
               background: ${posterBackground};
-              border-radius: 20px;
+              border-radius: ${formatConfig.shape === "round" ? "50%" : formatConfig.shape === "ticket" ? "18px 18px 4px 4px" : "20px"};
               box-shadow: ${generatedStyle.shadow};
-              padding: 36px;
+              padding: ${formatConfig.shape === "round" ? "28px" : formatConfig.shape === "ticket" ? "22px" : "36px"};
               box-sizing: border-box;
             }
             .header {
@@ -1293,8 +1306,8 @@ export default function Admin() {
             }
             .qr-box img {
               display: block;
-              width: 260px;
-              height: 260px;
+              width: ${formatConfig.shape === "round" ? "210px" : formatConfig.shape === "ticket" ? "220px" : "260px"};
+              height: ${formatConfig.shape === "round" ? "210px" : formatConfig.shape === "ticket" ? "220px" : "260px"};
               object-fit: contain;
             }
             .title {
@@ -2269,9 +2282,10 @@ export default function Admin() {
                   className="mx-auto flex max-w-sm flex-col items-center rounded-lg p-6 text-center"
                   style={{
                     background: generatedPosterImage
-                      ? `url("${generatedPosterImage}") center / cover no-repeat, ${generateAiQrStyle(qrStyleSeed).background}`
-                      : generateAiQrStyle(qrStyleSeed).background,
-                    boxShadow: generateAiQrStyle(qrStyleSeed).shadow
+                      ? `url("${generatedPosterImage}") center / cover no-repeat, ${generateAiQrStyle(qrStyleSeed, qrStylePreset).background}`
+                      : generateAiQrStyle(qrStyleSeed, qrStylePreset).background,
+                    boxShadow: generateAiQrStyle(qrStyleSeed, qrStylePreset).shadow,
+                    borderRadius: getQrPrintFormatConfig().shape === "round" ? "50%" : getQrPrintFormatConfig().shape === "ticket" ? "18px 18px 4px 4px" : undefined
                   }}
                 >
                   {workspaceProfile.logoUrl && (
@@ -2311,8 +2325,24 @@ export default function Admin() {
                       <option value="letter">Letter</option>
                       <option value="a4">A4</option>
                       <option value="a5">A5</option>
+                      <option value="a6">A6</option>
                       <option value="a3">A3</option>
                       <option value="postcard">Postcard</option>
+                      <option value="beerHolder">Round beer holder</option>
+                      <option value="ticket">Ticket</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">Visual style</label>
+                    <select
+                      value={qrStylePreset}
+                      onChange={(event) => setQrStylePreset(event.target.value)}
+                      className="border p-2 rounded text-black w-full"
+                    >
+                      <option value="brand">Brand colors</option>
+                      <option value="celebration">Celebration</option>
+                      <option value="fresh">Fresh and energetic</option>
+                      <option value="premium">Premium and minimal</option>
                     </select>
                   </div>
                   <div>
@@ -2327,7 +2357,7 @@ export default function Admin() {
                 </div>
                 <div className="mt-4 border border-slate-700 rounded p-4">
                   <label className="block text-sm font-semibold mb-2">Create an AI poster background</label>
-                  <p className="mb-3 text-xs text-slate-400">Describe an image to place behind your QR code. Keep the center clear so it stays easy to scan.</p>
+                  <p className="mb-3 text-xs text-slate-400">Describe the visual direction. Your workspace logo is overlaid separately so it stays sharp and your QR code remains scannable.</p>
                   <div className="flex flex-col sm:flex-row gap-3">
                     <input
                       type="text"

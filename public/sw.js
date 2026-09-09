@@ -1,4 +1,4 @@
-const CACHE_NAME = "ivote-shell-v2";
+const CACHE_NAME = "ivote-shell-v3";
 const APP_SHELL = ["/"];
 
 self.addEventListener("install", (event) => {

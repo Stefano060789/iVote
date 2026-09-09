@@ -41,12 +41,12 @@ export default function Landing() {
           {isSignedIn ? (
             <div className="landing-actions">
               <Link to="/admin" className="landing-admin-action">Admin Dashboard</Link>
-              <Link to="/create" className="landing-secondary-action">Create a poll</Link>
+              <Link to="/create" className="landing-secondary-action">Create a Poll</Link>
             </div>
           ) : (
             <div className="landing-actions">
-              <Link to="/register" className="landing-primary-action">Create a workspace</Link>
-              <Link to="/login" className="landing-secondary-action">Sign in</Link>
+              <Link to="/register" className="landing-primary-action">Create admin account</Link>
+              <Link to="/login" className="landing-secondary-action">Admin login</Link>
             </div>
           )}
           <p className="landing-note">Built for venues, events, hospitality, retail, and in-person teams.</p>

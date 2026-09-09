@@ -278,16 +278,22 @@ textarea {
   gap: 12px;
 }
 
+.landing-actions > a {
+  flex: 1 1 220px;
+  min-width: 220px;
+}
+
 .landing-primary-action,
 .landing-secondary-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
+  min-height: 52px;
   padding: 0 20px;
   border-radius: 6px;
   font-weight: 700;
   text-decoration: none;
+  box-sizing: border-box;
 }
 
 .landing-primary-action {
@@ -298,6 +304,13 @@ textarea {
 .landing-secondary-action {
   color: #f8fafc;
   border: 1px solid rgba(248, 250, 252, 0.7);
+}
+
+.landing-actions .landing-admin-action {
+  flex: 1 1 220px;
+  min-width: 220px;
+  min-height: 52px;
+  box-sizing: border-box;
 }
 
 .landing-note {

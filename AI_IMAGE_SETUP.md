@@ -14,4 +14,4 @@ Do not create an environment variable named `VITE_OPENAI_API_KEY`. Variables wit
 
 ## Use
 
-Open **Admin**, select **Show QR Code** on a poll, enter an image description, and select **Generate image**. The result is placed behind the QR code and used by **Print QR**. Generated images are only kept in the current browser session; they are not saved to the poll yet.
+Open **Admin**, select **Open QR tools** on a poll, choose a print format, choose a visual style, enter an image description, and select **Generate image**. The result is placed behind the QR code and used by **Print QR**. Available formats include Letter, A3, A4, A5, A6, postcard, round beer holder, and ticket. The workspace logo is overlaid separately so it stays sharp and does not interfere with QR scanning. Generated images are only kept in the current browser session; they are not saved to the poll yet.
