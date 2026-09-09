@@ -110,6 +110,7 @@ export default function Admin() {
   const [rotationPollToAdd, setRotationPollToAdd] = useState("");
   const [apiKeys, setApiKeys] = useState([]);
   const [newApiKeyLabel, setNewApiKeyLabel] = useState("");
+  const [reviewClaims, setReviewClaims] = useState([]);
 
   async function createShortLink(longUrl) {
     const response = await fetch(
@@ -214,6 +215,12 @@ export default function Admin() {
         if (!messagesResult.error) setOrganizerMessages(messagesResult.data || []);
 
         setNurtureSettings(await loadLeadNurtureSettings(profile.id));
+        const { data: reviewClaimRows, error: reviewClaimError } = await supabase
+          .from("review_benefit_claims")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(50);
+        if (!reviewClaimError) setReviewClaims(reviewClaimRows || []);
 
         const { data: sentimentRows } = await supabase.from("user_answers").select("poll_id, sentiment").not("sentiment", "is", null);
         const summary = {};
@@ -252,7 +259,12 @@ export default function Admin() {
         setWorkspaceUpdates(updatesRows || []);
 
         setPollRotations(await loadPollRotations());
-        setApiKeys(await loadApiKeys(supabase, profile.id));
+        try {
+          setApiKeys(await loadApiKeys(supabase, profile.id));
+        } catch (apiKeyError) {
+          console.warn("API key management is unavailable until its database table is installed.", apiKeyError);
+          setApiKeys([]);
+        }
       } catch (error) {
         console.error(error);
         alert(error.message || "Unable to load workspace role data.");
@@ -596,6 +608,20 @@ export default function Admin() {
     }
     setPolls((current) => current.map((poll) => poll.id === pollId ? { ...poll, raffle_winner_email: data.email, raffle_winner_picked_at: new Date().toISOString() } : poll));
     alert(`Winner picked: ${data.email}`);
+  }
+
+  async function reviewBenefitClaim(claimId, status) {
+    const { error } = await supabase.rpc("review_review_benefit_claim", {
+      target_claim_id: claimId,
+      next_status: status
+    });
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    setReviewClaims((current) => current.map((claim) => claim.id === claimId
+      ? { ...claim, status, reviewed_at: new Date().toISOString() }
+      : claim));
   }
 
   async function assignLocationToPoll() {
@@ -1626,6 +1652,24 @@ export default function Admin() {
               {message.reply_email && <a className="mt-2 inline-block text-sm text-teal-300 underline" href={`mailto:${message.reply_email}`}>Reply to voter</a>}
             </article>
           ))}</div>}
+        </div>
+      </details>
+      )}
+
+      {activeTab === "feedback" && (
+      <details className="mb-6 border rounded bg-gray-900" open>
+        <summary className="cursor-pointer p-4 text-xl font-bold">External review benefit claims</summary>
+        <div className="px-4 pb-4">
+          <p className="mb-3 text-sm text-slate-400">Review the configured platform link and approve a benefit only after checking that the voter left honest feedback.</p>
+          {reviewClaims.length === 0 ? <p className="text-sm text-slate-400">No review claims yet.</p> : <div className="space-y-3">{reviewClaims.map((claim) => {
+            const poll = polls.find((item) => item.id === claim.poll_id);
+            return <article key={claim.id} className="rounded border border-slate-700 p-3">
+              <p className="font-semibold">Poll #{claim.poll_id}{poll ? ` - ${poll.question}` : ""}</p>
+              <p className="mt-1 text-xs text-slate-400">Answers: {(claim.selected_answers || []).join(", ")} · {new Date(claim.created_at).toLocaleString()}</p>
+              <p className="mt-1 text-sm">Status: <span className={claim.status === "approved" ? "text-emerald-300" : claim.status === "rejected" ? "text-red-300" : "text-amber-300"}>{claim.status}</span></p>
+              {claim.status === "pending" && <div className="mt-2 flex gap-2"><button onClick={() => reviewBenefitClaim(claim.id, "approved")} className="rounded bg-emerald-600 px-3 py-1.5 text-sm font-semibold">Approve benefit</button><button onClick={() => reviewBenefitClaim(claim.id, "rejected")} className="rounded bg-red-700 px-3 py-1.5 text-sm font-semibold">Reject claim</button></div>}
+            </article>;
+          })}</div>}
         </div>
       </details>
       )}

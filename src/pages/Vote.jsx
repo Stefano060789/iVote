@@ -123,6 +123,7 @@ export default function Vote() {
       localStorage.setItem(`voted_${poll.id}`, "true");
     }
 
+    let emailBenefitEligible = false;
     if (followUpConsent && followUpEmail.trim()) {
       const { data: leadId, error: leadError } = await supabase.rpc("capture_voter_lead", {
         target_poll_id: poll.id,
@@ -131,13 +132,16 @@ export default function Vote() {
         has_consented: true
       });
       if (leadError) console.error("Optional follow-up sign-up failed", leadError);
-      else if (workspaceId && leadId) {
+      else {
+        emailBenefitEligible = poll.email_benefit_type && poll.email_benefit_type !== "none";
+        if (workspaceId && leadId) {
         dispatchWorkspaceWebhook(workspaceId, "lead_captured", leadId);
         fetch("/api/send-lead-nurture", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ workspaceId, leadId })
         }).catch((nurtureError) => console.error("Nurture email dispatch failed", nurtureError));
+        }
       }
     }
 
@@ -161,7 +165,16 @@ export default function Vote() {
       const isPositiveVote = answerCount <= 1 || positions.length === 0
         ? true
         : Math.min(...positions) <= Math.floor((answerCount - 1) / 2);
-      navigate(`/thanks?poll=${poll.id}&positive=${isPositiveVote ? "1" : "0"}`);
+      const reviewEligible = Array.isArray(poll.review_trigger_answers)
+        && answersToSubmit.some((answer) => poll.review_trigger_answers.includes(answer));
+      const thanksParams = new URLSearchParams({
+        poll: String(poll.id),
+        positive: isPositiveVote ? "1" : "0",
+        answers: JSON.stringify(answersToSubmit)
+      });
+      if (emailBenefitEligible) thanksParams.set("emailBenefit", "1");
+      if (reviewEligible) thanksParams.set("reviewEligible", "1");
+      navigate(`/thanks?${thanksParams.toString()}`);
     }
   }
 

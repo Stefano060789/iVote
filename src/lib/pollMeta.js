@@ -63,6 +63,14 @@ export async function savePollMeta(pollId, patch) {
         "reward_code",
         "reward_url",
         "review_url",
+        "email_benefit_type",
+        "email_benefit_value",
+        "email_benefit_url",
+        "review_platforms",
+        "review_trigger_answers",
+        "review_benefit_type",
+        "review_benefit_value",
+        "review_benefit_url",
         "raffle_enabled",
         "raffle_prize"
       ].includes(key)

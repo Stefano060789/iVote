@@ -8,8 +8,9 @@ Run these SQL files in this exact order in the Supabase SQL Editor:
 2. `supabase/20260907_roi_roadmap.sql`
 3. `supabase/20260907_launch_foundation.sql`
 4. `supabase/20260907_feedback_reports_qr_experiments.sql`
+5. `supabase/20260909_feedback_benefits.sql`
 
-The final migration adds strict manager-only RLS for alert rules, generated alerts, recovery tasks, and weekly report settings. It also adds QR placement and variant labels. Public anonymous voting remains permitted by the existing narrowly scoped vote policy; the new alert trigger runs after a successful vote.
+The fourth migration adds strict manager-only RLS for alert rules, generated alerts, recovery tasks, and weekly report settings. It also adds QR placement and variant labels. The fifth migration adds answer-triggered email and external-review benefits, with manager approval for review claims. Public anonymous voting remains permitted by the existing narrowly scoped vote policy; the new alert trigger runs after a successful vote.
 
 ## Required Environment Variables
 

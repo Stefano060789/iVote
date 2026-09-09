@@ -2,7 +2,7 @@
 alter table public.workspaces
   add column if not exists vote_retention_days integer check (vote_retention_days is null or vote_retention_days between 7 and 3650);
 
--- Anonymized cross-workspace benchmark: average trust score for polls sharing a template, excluding the caller's own workspace.
+-- Anonymized cross-workspace benchmark: average trust score for polls sharing a template.
 create or replace function public.get_template_benchmark(target_template_key text, excluded_workspace_id uuid)
 returns table(average_score numeric, sample_size integer)
 language sql
@@ -10,16 +10,35 @@ security definer
 set search_path = public
 stable
 as $$
-  select
-    coalesce(avg(
-      case when array_length(p.answers, 1) <= 1 then 100
-      else (1 - (array_position(p.answers, v.answer) - 1)::numeric / (array_length(p.answers, 1) - 1)) * 100
-      end
-    ), null),
-    count(distinct p.id)::integer
-  from public.polls p
-  join public.votes v on v.poll_id = p.id and v.answer = any(p.answers)
-  where p.template_key = target_template_key and p.workspace_id <> excluded_workspace_id;
+  with scored_votes as (
+    select
+      case
+        when jsonb_array_length(p.answers) <= 1 then 100::numeric
+        else (
+          1::numeric - (
+            (
+              select answer.position - 1
+              from jsonb_array_elements_text(p.answers)
+                with ordinality as answer(value, position)
+              where answer.value = v.answer
+              limit 1
+            )::numeric / (jsonb_array_length(p.answers) - 1)
+          )
+        ) * 100
+      end as score,
+      p.id as poll_id
+    from public.polls p
+    join public.votes v on v.poll_id = p.id
+    where p.template_key = target_template_key
+      and p.workspace_id <> excluded_workspace_id
+      and exists (
+        select 1
+        from jsonb_array_elements_text(p.answers) as answer(value)
+        where answer.value = v.answer
+      )
+  )
+  select coalesce(avg(score), 0)::numeric, count(distinct poll_id)::integer
+  from scored_votes;
 $$;
 
 grant execute on function public.get_template_benchmark(text, uuid) to authenticated;

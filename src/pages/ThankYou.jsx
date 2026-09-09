@@ -6,7 +6,20 @@ export default function ThankYou() {
   const [searchParams] = useSearchParams();
   const pollId = searchParams.get("poll");
   const isPositive = searchParams.get("positive") !== "0";
+  const emailBenefitEligible = searchParams.get("emailBenefit") === "1";
+  const reviewEligible = searchParams.get("reviewEligible") === "1";
+  const selectedAnswers = (() => {
+    try {
+      const parsed = JSON.parse(searchParams.get("answers") || "[]");
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  })();
   const [poll, setPoll] = useState(null);
+  const [reviewClaim, setReviewClaim] = useState(null);
+  const [reviewClaimLoading, setReviewClaimLoading] = useState(false);
+  const [reviewClaimMessage, setReviewClaimMessage] = useState("");
 
   useEffect(() => {
     async function loadPoll() {
@@ -19,7 +32,47 @@ export default function ThankYou() {
     loadPoll();
   }, [pollId]);
 
+  async function loadReviewClaim(token) {
+    const { data, error } = await supabase.rpc("get_public_review_benefit_claim", { target_token: token });
+    if (!error && data?.[0]) setReviewClaim(data[0]);
+  }
+
+  useEffect(() => {
+    const token = searchParams.get("reviewClaim");
+    if (token) loadReviewClaim(token);
+  }, [searchParams]);
+
+  async function submitReviewClaim() {
+    setReviewClaimLoading(true);
+    setReviewClaimMessage("");
+    const { data, error } = await supabase.rpc("create_review_benefit_claim", {
+      target_poll_id: Number(pollId),
+      selected_answers: selectedAnswers
+    });
+    const claim = data?.[0];
+    if (error || !claim?.claim_token) {
+      setReviewClaimMessage(error?.message || "We could not record the review claim.");
+    } else {
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.set("reviewClaim", claim.claim_token);
+      window.history.replaceState({}, "", `${window.location.pathname}?${nextParams.toString()}`);
+      setReviewClaim({
+        claim_token: claim.claim_token,
+        status: claim.status,
+        review_platforms: poll.review_platforms,
+        benefit_type: poll.review_benefit_type,
+        benefit_value: poll.review_benefit_value,
+        benefit_url: poll.review_benefit_url
+      });
+      setReviewClaimMessage("Your claim was sent to the organizer for verification.");
+    }
+    setReviewClaimLoading(false);
+  }
+
   const hasReward = Boolean(poll?.reward_message || poll?.reward_code || poll?.reward_url);
+  const reviewPlatforms = Array.isArray(poll?.review_platforms) && poll.review_platforms.length > 0
+    ? poll.review_platforms
+    : poll?.review_url ? [{ name: "Review platform", url: poll.review_url }] : [];
 
   return (
     <div className="mx-auto max-w-lg p-10 text-center text-white">
@@ -40,16 +93,28 @@ export default function ThankYou() {
         </div>
       )}
 
-      {poll?.review_url && isPositive && (
-        <div className="mt-6 rounded border border-amber-700 bg-slate-900 p-5">
-          <p className="font-semibold text-amber-200">Enjoyed your experience? Tell others about it.</p>
-          <a href={poll.review_url} target="_blank" rel="noreferrer" className="mt-3 inline-block rounded bg-amber-400 px-4 py-2 font-semibold text-slate-950">
-            Leave a review
-          </a>
+      {emailBenefitEligible && poll?.email_benefit_type && poll.email_benefit_type !== "none" && (
+        <div className="mt-6 rounded border border-teal-700 bg-slate-900 p-5">
+          <p className="font-semibold text-teal-200">Your opt-in benefit</p>
+          <p className="mt-2 text-sm text-slate-300">{poll.email_benefit_type === "voucher" ? "Voucher" : "Discount code"}</p>
+          {poll.email_benefit_value && <p className="mt-2 inline-block rounded bg-teal-950 px-3 py-1 font-mono text-teal-300">{poll.email_benefit_value}</p>}
+          {poll.email_benefit_url && <a href={poll.email_benefit_url} target="_blank" rel="noreferrer" className="mt-3 block text-sm font-semibold text-teal-300 underline">Redeem your benefit</a>}
         </div>
       )}
 
-      {poll?.review_url && !isPositive && (
+      {reviewEligible && isPositive && reviewPlatforms.length > 0 && (
+        <div className="mt-6 rounded border border-amber-700 bg-slate-900 p-5">
+          <p className="font-semibold text-amber-200">Your answer qualifies for a review benefit</p>
+          <p className="mt-2 text-sm text-slate-300">Choose a platform, leave honest feedback, then tell the organizer so they can verify it.</p>
+          <div className="mt-3 flex flex-wrap justify-center gap-2">{reviewPlatforms.map((platform) => <a key={platform.url} href={platform.url} target="_blank" rel="noreferrer" className="rounded bg-amber-400 px-4 py-2 font-semibold text-slate-950">Review on {platform.name}</a>)}</div>
+          {!reviewClaim && <button onClick={submitReviewClaim} disabled={reviewClaimLoading} className="mt-4 rounded border border-amber-400 px-4 py-2 text-sm font-semibold text-amber-200 disabled:opacity-60">{reviewClaimLoading ? "Sending claim..." : "I left a review"}</button>}
+          {reviewClaim && <p className="mt-4 text-sm text-amber-200">Review claim status: {reviewClaim.status}.</p>}
+          {reviewClaim?.status === "approved" && poll.review_benefit_type !== "none" && <div className="mt-3"><p className="font-semibold text-teal-200">Your review benefit</p><p className="mt-2 inline-block rounded bg-teal-950 px-3 py-1 font-mono text-teal-300">{poll.review_benefit_value}</p>{poll.review_benefit_url && <a href={poll.review_benefit_url} target="_blank" rel="noreferrer" className="mt-3 block text-sm font-semibold text-teal-300 underline">Redeem your benefit</a>}</div>}
+          {reviewClaimMessage && <p className="mt-2 text-xs text-slate-300">{reviewClaimMessage}</p>}
+        </div>
+      )}
+
+      {reviewEligible && !isPositive && (
         <div className="mt-6 rounded border border-slate-700 bg-slate-900 p-5">
           <p className="text-sm text-slate-300">Thanks for the honest feedback. The team running this poll will see it directly and follow up if needed.</p>
         </div>

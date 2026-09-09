@@ -15,8 +15,8 @@ const steps = [
   },
   {
     number: "03",
-    title: "See what works by location",
-    detail: "Measure scans, responses, and conversion for every campaign you run."
+    title: "Turn responses into growth",
+    detail: "Use answer patterns to invite honest public reviews, offer a benefit, and learn what brings customers back."
   }
 ];
 
@@ -40,7 +40,7 @@ export default function Landing() {
           </p>
           {isSignedIn ? (
             <div className="landing-actions">
-              <Link to="/admin" className="landing-primary-action">Go to my workspace</Link>
+              <Link to="/admin" className="landing-admin-action">Admin Dashboard</Link>
               <Link to="/create" className="landing-secondary-action">Create a poll</Link>
             </div>
           ) : (
@@ -72,20 +72,22 @@ export default function Landing() {
 
       <section className="landing-outcomes" aria-labelledby="outcomes-title">
         <div>
-          <p className="landing-eyebrow">More than a poll</p>
-          <h2 id="outcomes-title">See the real response to every campaign.</h2>
+          <p className="landing-eyebrow">Feedback that compounds</p>
+          <h2 id="outcomes-title">Build a stronger connection after every response.</h2>
         </div>
         <ul>
           <li><strong>Reusable QR locations</strong><span>Keep the same printed QR code while changing the active poll.</span></li>
           <li><strong>Campaign conversion</strong><span>Compare scans with completed votes to see where engagement happens.</span></li>
-          <li><strong>Optional follow-up</strong><span>Invite contact only when a voter actively gives consent.</span></li>
+          <li><strong>Permission-based market growth</strong><span>Invite voters to share their email for event news and offers only after clear consent.</span></li>
+          <li><strong>More public feedback</strong><span>Send selected responses to Google, Tripadvisor, or another review platform with an optional voucher or discount code.</span></li>
+          <li><strong>Customer connection</strong><span>Reward email opt-ins immediately and verify external review claims before releasing the second benefit.</span></li>
         </ul>
       </section>
 
       <section className="landing-final">
         <p className="landing-eyebrow">Ready to measure the room?</p>
         <h2>Launch your first QR feedback campaign.</h2>
-        <p className="landing-final-copy">Create a new poll or manage the feedback campaigns already running in your workspace.</p>
+        <p className="landing-final-copy">Create a poll, grow your permission-based audience, and turn customer feedback into the next conversation.</p>
         <div className="landing-admin-actions">
           <Link to="/create" className="landing-primary-action">Create poll</Link>
           <Link to="/admin" className="landing-admin-action">Admin dashboard</Link>
