@@ -1382,11 +1382,59 @@ export default function Admin() {
     { key: "settings", label: "Settings" }
   ];
 
+  const adminTabDescriptions = {
+    overview: "A snapshot of your workspace: quick actions, this week's activity, and key numbers.",
+    polls: "Search, share, and manage every poll you've created.",
+    connection: "Turn a QR scan into an ongoing customer relationship.",
+    engagement: "QR locations, campaigns, rotations, rewards, and prize draws.",
+    feedback: "Voter messages, review claims, sentiment, and recovery tasks.",
+    settings: "Brand, team access, developer API, and recent activity."
+  };
+
+  const quickActions = [
+    { key: "create", icon: "\u2795", label: "Create a poll", description: "Start a new QR feedback poll for a table, counter, or event.", onSelect: () => navigate("/create") },
+    { key: "polls", icon: "\ud83d\udcca", label: "Manage your polls", description: "Share QR codes, print posters, and see how each poll performs.", onSelect: () => setActiveTab("polls") },
+    { key: "connection", icon: "\ud83e\udd1d", label: "Customer connection", description: "Collect emails, invite honest reviews, and manage rewards.", onSelect: () => setActiveTab("connection") },
+    { key: "analytics", icon: "\ud83d\udcc8", label: "View analytics", description: "See trends across every poll and location.", onSelect: () => navigate("/admin/analytics") },
+    { key: "feedback", icon: "\ud83d\udcac", label: "Review feedback", description: "Read voter messages and approve pending review claims.", onSelect: () => setActiveTab("feedback") },
+    { key: "settings", icon: "\u2699\ufe0f", label: "Workspace settings", description: "Manage your brand, team access, and billing.", onSelect: () => setActiveTab("settings") }
+  ];
+
   return (
     <div className="workspace-page max-w-3xl mx-auto p-6">
       <div className="mb-6 text-center">
         <h1 className="text-3xl font-bold">Workspace dashboard</h1>
-        <p className="mt-2 text-sm text-slate-400">Create, share, and manage every poll from one place.</p>
+        <p className="mt-2 text-sm text-slate-400">Everything you need to run QR feedback, guided in one place.</p>
+      </div>
+
+      <div className="mb-2 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center">
+        {adminTabs.map((tab, index) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`rounded px-4 py-3 text-center font-semibold ${index === adminTabs.length - 1 ? "col-span-2" : ""} ${activeTab === tab.key ? "bg-teal-500 text-slate-950" : "bg-gray-800 text-slate-300"}`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+      <p className="mb-6 text-center text-sm text-slate-400">{adminTabDescriptions[activeTab]}</p>
+
+      {activeTab === "overview" && (
+      <>
+      <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {quickActions.map((action) => (
+          <button
+            key={action.key}
+            type="button"
+            onClick={action.onSelect}
+            className="rounded border border-slate-700 bg-gray-900 p-4 text-left transition hover:border-teal-500"
+          >
+            <span className="text-2xl" aria-hidden="true">{action.icon}</span>
+            <p className="mt-2 font-bold">{action.label}</p>
+            <p className="mt-1 text-sm text-slate-400">{action.description}</p>
+          </button>
+        ))}
       </div>
 
       {!onboardingDismissed && (
@@ -1395,9 +1443,15 @@ export default function Admin() {
             <h2 className="text-lg font-bold">Get started</h2>
             <button onClick={dismissOnboarding} className="text-xs text-slate-400 underline">Dismiss</button>
           </div>
-          <div className="mt-3 space-y-2 text-sm">
-            <p className={polls.length > 0 ? "text-emerald-300" : "text-slate-300"}>{polls.length > 0 ? "\u2713" : "\u25cb"} Create your first poll</p>
-            <p className={qrShared ? "text-emerald-300" : "text-slate-300"}>{qrShared ? "\u2713" : "\u25cb"} Print or share your QR code</p>
+          <div className="mt-3 space-y-3 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className={polls.length > 0 ? "text-emerald-300" : "text-slate-300"}>{polls.length > 0 ? "\u2713" : "\u25cb"} Create your first poll</p>
+              {polls.length === 0 && <Link to="/create" className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">Create a poll</Link>}
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className={qrShared ? "text-emerald-300" : "text-slate-300"}>{qrShared ? "\u2713" : "\u25cb"} Print or share your QR code</p>
+              {!qrShared && polls.length > 0 && <button onClick={() => setActiveTab("polls")} className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">Go to your polls</button>}
+            </div>
             <p className={totalVotesCount > 0 ? "text-emerald-300" : "text-slate-300"}>{totalVotesCount > 0 ? "\u2713" : "\u25cb"} Get your first vote</p>
           </div>
         </div>
@@ -1411,45 +1465,6 @@ export default function Admin() {
           </p>
         </div>
       )}
-
-      <div className="mb-6 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center">
-        {adminTabs.map((tab, index) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`rounded px-4 py-3 text-center font-semibold ${index === adminTabs.length - 1 ? "col-span-2" : ""} ${activeTab === tab.key ? "bg-teal-500 text-slate-950" : "bg-gray-800 text-slate-300"}`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {activeTab === "overview" && (
-      <>
-      <div className="mb-6 rounded border border-sky-700 bg-slate-900 p-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold text-sky-300">Grow the customer relationship</p>
-            <p className="mt-1 text-sm text-slate-300">Collect consented emails, invite honest reviews, and manage benefits from one simple workflow.</p>
-          </div>
-          <button onClick={() => setActiveTab("connection")} className="shrink-0 rounded bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950">Open customer connection</button>
-        </div>
-      </div>
-      <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-lg font-bold">What's new in iVote</summary>
-        <div className="px-4 pb-4 space-y-2 text-sm text-slate-300">
-          <p><span className="font-semibold text-teal-300">Rotating polls, smart review routing, anomaly alerts</span> - QR codes can now auto-swap polls on a schedule, and the dashboard flags unusual vote-volume drops.</p>
-          <p><span className="font-semibold text-teal-300">Prize draws, AI sentiment, lead nurture emails</span> - run opt-in prize draws, auto-classify open-text feedback, and email voters who opt in for follow-up.</p>
-          <p><span className="font-semibold text-teal-300">Embeddable widget and trust badge</span> - add a feedback button or a live trust score badge to any website, not just QR codes.</p>
-          <p><span className="font-semibold text-teal-300">In-dashboard QR scanner and bulk QR generation</span> - scan a printed code with your camera to manage it, or generate many QR codes at once.</p>
-        </div>
-      </details>
-
-      <div className="flex justify-center mb-6">
-        <Link to="/admin/analytics" className="bg-purple-600 text-white px-3 py-2 rounded font-semibold">
-          Analytics
-        </Link>
-      </div>
 
       <div className="mb-6 border rounded bg-gray-900 p-4">
         <h2 className="text-xl font-bold">Scan a QR code</h2>
@@ -1535,6 +1550,16 @@ export default function Admin() {
           </p>
         </div>
       )}
+
+      <details className="mb-2 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-lg font-bold">What's new in iVote</summary>
+        <div className="px-4 pb-4 space-y-2 text-sm text-slate-300">
+          <p><span className="font-semibold text-teal-300">Rotating polls, smart review routing, anomaly alerts</span> - QR codes can now auto-swap polls on a schedule, and the dashboard flags unusual vote-volume drops.</p>
+          <p><span className="font-semibold text-teal-300">Prize draws, AI sentiment, lead nurture emails</span> - run opt-in prize draws, auto-classify open-text feedback, and email voters who opt in for follow-up.</p>
+          <p><span className="font-semibold text-teal-300">Embeddable widget and trust badge</span> - add a feedback button or a live trust score badge to any website, not just QR codes.</p>
+          <p><span className="font-semibold text-teal-300">In-dashboard QR scanner and bulk QR generation</span> - scan a printed code with your camera to manage it, or generate many QR codes at once.</p>
+        </div>
+      </details>
       </>
       )}
 
