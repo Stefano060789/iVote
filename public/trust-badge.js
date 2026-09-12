@@ -15,7 +15,7 @@
     background: "#0f172a", color: "#fff", borderRadius: "10px", padding: "10px 14px",
     textDecoration: "none", fontSize: "13px", boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
   });
-  link.textContent = "Loading iVote score...";
+  link.textContent = "Loading Godwit score...";
 
   fetch(supabaseUrl + "/rest/v1/rpc/get_public_poll_trust_score", {
     method: "POST",
@@ -26,12 +26,12 @@
     .then(function (rows) {
       var row = Array.isArray(rows) ? rows[0] : rows;
       if (!row || !row.total_votes) {
-        link.textContent = "\u2605 Powered by iVote";
+        link.textContent = "\u2605 Powered by Godwit";
         return;
       }
-      link.textContent = "\u2605 " + Math.round(row.score) + "% Trust Score \u00b7 Powered by iVote (" + row.total_votes + " votes)";
+      link.textContent = "\u2605 " + Math.round(row.score) + "% Trust Score \u00b7 Powered by Godwit (" + row.total_votes + " votes)";
     })
-    .catch(function () { link.textContent = "\u2605 Powered by iVote"; });
+    .catch(function () { link.textContent = "\u2605 Powered by Godwit"; });
 
   current.parentNode.insertBefore(link, current);
 })();

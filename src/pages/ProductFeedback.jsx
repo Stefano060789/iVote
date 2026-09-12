@@ -30,7 +30,7 @@ export default function ProductFeedback() {
       });
       if (error) throw error;
       setMessage("");
-      setStatus("Thank you. Your feedback has been sent to the iVote team.");
+      setStatus("Thank you. Your feedback has been sent to the Godwit team.");
     } catch (error) {
       console.error(error);
       setStatus("Unable to send feedback right now. Please try again.");
@@ -42,7 +42,7 @@ export default function ProductFeedback() {
     <Layout>
       <main className="mx-auto max-w-xl p-2 sm:p-6">
         <h1 className="text-3xl font-bold">Share product feedback</h1>
-        <p className="mt-2 text-slate-300">Tell us what worked, what was confusing, or what would make iVote more useful for your venue.</p>
+        <p className="mt-2 text-slate-300">Tell us what worked, what was confusing, or what would make Godwit more useful for your venue.</p>
         <form onSubmit={submitFeedback} className="mt-6 space-y-4">
           <textarea
             value={message}

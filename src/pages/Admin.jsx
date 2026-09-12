@@ -6,13 +6,22 @@ import { isRestrictedTopic } from "../lib/restrictedContent";
 import { appendAuditLog, readAuditLog, readPollMeta, savePollMeta, isPollClosed } from "../lib/pollMeta";
 import { buildQrToken, deleteQrLocation, loadQrLocations, saveQrLocation } from "../lib/qrLocations";
 import { createQrCampaign, loadQrCampaigns } from "../lib/qrCampaigns";
+import {
+  loadQrCampaignItems,
+  addQrCampaignPollItem,
+  addQrCampaignInfoItem,
+  removeQrCampaignItem,
+  swapQrCampaignItemPositions
+} from "../lib/qrCampaignItems";
 import { extractQrToken, reassignManagedCampaignPoll, resolveManagedQrToken } from "../lib/qrManage";
 import QrScanner from "../components/QrScanner";
+import LockedFeature from "../components/LockedFeature";
 import { loadLeadNurtureSettings, saveLeadNurtureSettings } from "../lib/leadNurture";
 import { loadWinbackSettings, saveWinbackSettings } from "../lib/winbackSettings";
 import { loadLatestReputationSnapshot, refreshReputationSnapshot } from "../lib/reputation";
 import { loadPollRotations, createPollRotation, deletePollRotation } from "../lib/pollRotations";
 import { loadApiKeys, createApiKey, deleteApiKey } from "../lib/apiKeys";
+import { getEntitlements, planLabel } from "../lib/entitlements";
 import {
   getCurrentUserRole,
   getPermissionSet,
@@ -55,13 +64,14 @@ export default function Admin() {
   const [locationStats, setLocationStats] = useState([]);
   const [templateBenchmark, setTemplateBenchmark] = useState(null);
   const [workspaceProfile, setWorkspaceProfile] = useState({
-    companyName: "iVote",
+    companyName: "Godwit",
     logoUrl: "",
     primaryColor: "#0f766e",
     accentColor: "#172b2b",
     webhookUrl: "",
     googlePlaceId: "",
-    role: "owner"
+    role: "owner",
+    plan: "free"
   });
   const [workspaceUserId, setWorkspaceUserId] = useState(null);
   const [currentUserRole, setCurrentUserRole] = useState("viewer");
@@ -70,6 +80,13 @@ export default function Admin() {
   const [newMemberEmail, setNewMemberEmail] = useState("");
   const [newMemberRole, setNewMemberRole] = useState("viewer");
   const [qrCampaigns, setQrCampaigns] = useState([]);
+  const [qrCampaignItems, setQrCampaignItems] = useState([]);
+  const [itemFormCampaignId, setItemFormCampaignId] = useState(null);
+  const [itemPollId, setItemPollId] = useState("");
+  const [itemTitle, setItemTitle] = useState("");
+  const [itemBody, setItemBody] = useState("");
+  const [itemLinkUrl, setItemLinkUrl] = useState("");
+  const [itemLinkLabel, setItemLinkLabel] = useState("");
   const [newCampaignName, setNewCampaignName] = useState("");
   const [newCampaignPollId, setNewCampaignPollId] = useState("");
   const [newCampaignPlacement, setNewCampaignPlacement] = useState("");
@@ -209,6 +226,7 @@ export default function Admin() {
         const nextLocations = await loadQrLocations();
         setQrLocations(nextLocations);
         setQrCampaigns(await loadQrCampaigns());
+        setQrCampaignItems(await loadQrCampaignItems());
         const [rulesResult, alertsResult, tasksResult, reportsResult, messagesResult] = await Promise.all([
           supabase.from("feedback_alert_rules").select("*").order("created_at", { ascending: false }),
           supabase.from("feedback_alerts").select("*").order("created_at", { ascending: false }).limit(30),
@@ -448,6 +466,83 @@ export default function Admin() {
       return;
     }
     setQrCampaigns((current) => current.map((item) => item.id === campaignId ? { ...item, poll_id: Number(nextPollId), rotation_id: null } : item));
+  }
+
+  // --- QR code items: let one QR code show a menu of several polls and/or info cards at once ---
+
+  function itemsForCampaign(campaignId) {
+    return qrCampaignItems
+      .filter((item) => item.campaign_id === campaignId)
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  }
+
+  async function handleAddCurrentPollAsItem(campaign) {
+    try {
+      const item = await addQrCampaignPollItem(campaign.id, campaign.poll_id);
+      setQrCampaignItems((current) => [...current, item]);
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
+  async function handleAddPollItem(campaignId) {
+    if (!itemPollId) {
+      alert("Choose a poll to add.");
+      return;
+    }
+    try {
+      const item = await addQrCampaignPollItem(campaignId, itemPollId);
+      setQrCampaignItems((current) => [...current, item]);
+      setItemPollId("");
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
+  async function handleAddInfoItem(campaignId) {
+    if (!itemTitle.trim()) {
+      alert("Give the info card a title.");
+      return;
+    }
+    try {
+      const item = await addQrCampaignInfoItem(campaignId, { title: itemTitle, body: itemBody, linkUrl: itemLinkUrl, linkLabel: itemLinkLabel });
+      setQrCampaignItems((current) => [...current, item]);
+      setItemTitle("");
+      setItemBody("");
+      setItemLinkUrl("");
+      setItemLinkLabel("");
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
+  async function handleRemoveItem(itemId) {
+    if (!confirm("Remove this item from the QR code?")) return;
+    try {
+      await removeQrCampaignItem(itemId);
+      setQrCampaignItems((current) => current.filter((item) => item.id !== itemId));
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
+  async function handleMoveItem(campaignId, itemId, direction) {
+    const items = itemsForCampaign(campaignId);
+    const index = items.findIndex((item) => item.id === itemId);
+    const swapIndex = direction === "up" ? index - 1 : index + 1;
+    if (index < 0 || swapIndex < 0 || swapIndex >= items.length) return;
+    const current = items[index];
+    const swapWith = items[swapIndex];
+    try {
+      await swapQrCampaignItemPositions(current, swapWith);
+      setQrCampaignItems((prev) => prev.map((item) => {
+        if (item.id === current.id) return { ...item, sort_order: swapWith.sort_order };
+        if (item.id === swapWith.id) return { ...item, sort_order: current.sort_order };
+        return item;
+      }));
+    } catch (error) {
+      alert(error.message);
+    }
   }
 
   async function assignCampaignRotation(campaignId, rotationId) {
@@ -1153,7 +1248,7 @@ export default function Admin() {
   }
 
   function generateAiQrStyle(seedOverride = qrStyleSeed, presetOverride = qrStylePreset) {
-    const baseName = `${workspaceProfile.companyName || "iVote"}-${seedOverride}`;
+    const baseName = `${workspaceProfile.companyName || "Godwit"}-${seedOverride}`;
     const hash = Array.from(baseName).reduce((sum, char) => sum + char.charCodeAt(0), 0);
     const palette = [
       workspaceProfile.primaryColor || "#2563eb",
@@ -1264,7 +1359,7 @@ export default function Admin() {
     const logoMarkup = workspaceProfile.logoUrl
       ? `<img src="${workspaceProfile.logoUrl}" alt="Brand logo" style="max-height: 56px; max-width: 160px; object-fit: contain; margin-right: 16px;" />`
       : "";
-    const companyName = (workspaceProfile.companyName || "iVote").replace(/[<>&"']/g, "");
+    const companyName = (workspaceProfile.companyName || "Godwit").replace(/[<>&"']/g, "");
     const pollTitle = (poll?.question || "Poll QR").replace(/[<>&"']/g, "");
 
     const printWindow = window.open("", "_blank");
@@ -1367,12 +1462,13 @@ export default function Admin() {
   if (loading) return <p className="text-center p-6">Loading polls...</p>;
 
   const auditEntries = auditLog.slice(0, 5);
+  const entitlements = getEntitlements(workspaceProfile.plan);
   const permission = getPermissionSet(currentUserRole);
   const canEditPolls = permission.canEditPolls;
   const canDeletePolls = permission.canDeletePolls;
   const canDuplicatePolls = permission.canDuplicatePolls;
   const canReuseQr = permission.canReuseQr;
-  const canExportResults = permission.canExportResults;
+  const canExportResults = permission.canExportResults && entitlements.csvExport;
   const canClosePolls = permission.canClosePolls;
   const selectedPollId = new URLSearchParams(location.search).get("poll");
 
@@ -1570,7 +1666,7 @@ export default function Admin() {
       )}
 
       <details className="mb-2 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-lg font-bold">What's new in iVote</summary>
+        <summary className="cursor-pointer p-4 text-lg font-bold">What's new in Godwit</summary>
         <div className="px-4 pb-4 space-y-2 text-sm text-slate-300">
           <p><span className="font-semibold text-teal-300">Rotating polls, smart review routing, anomaly alerts</span> - QR codes can now auto-swap polls on a schedule, and the dashboard flags unusual vote-volume drops.</p>
           <p><span className="font-semibold text-teal-300">Prize draws, AI sentiment, lead nurture emails</span> - run opt-in prize draws, auto-classify open-text feedback, and email voters who opt in for follow-up.</p>
@@ -1834,6 +1930,92 @@ export default function Admin() {
                       {pollRotations.map((rotation) => <option key={rotation.id} value={String(rotation.id)}>{rotation.name}</option>)}
                     </select>
                   </div>
+
+                  <details className="mt-3 rounded border border-slate-700">
+                    <summary className="cursor-pointer p-2 text-sm font-semibold">
+                      Items on this QR code ({itemsForCampaign(campaign.id).length})
+                    </summary>
+                    <div className="space-y-3 p-3">
+                      <p className="text-xs text-slate-400">
+                        Add one or more polls and info cards here to turn this QR code into a menu: scanning it will show
+                        everything listed below at once, instead of going straight to a single poll.
+                      </p>
+                      {campaign.poll_id && !itemsForCampaign(campaign.id).some((item) => item.item_type === "poll" && item.poll_id === campaign.poll_id) && (
+                        <button
+                          type="button"
+                          onClick={() => handleAddCurrentPollAsItem(campaign)}
+                          className="text-xs font-semibold text-blue-300 underline"
+                        >
+                          Add the current default poll (#{campaign.poll_id}) as an item too
+                        </button>
+                      )}
+
+                      {itemsForCampaign(campaign.id).length > 0 && (
+                        <div className="space-y-1.5">
+                          {itemsForCampaign(campaign.id).map((item, index, all) => (
+                            <div key={item.id} className="flex items-center justify-between gap-2 rounded border border-slate-700 p-2 text-sm">
+                              <div className="min-w-0">
+                                {item.item_type === "poll" ? (
+                                  <p className="truncate">📊 Poll #{item.poll_id} - {polls.find((poll) => poll.id === item.poll_id)?.question || "Unknown poll"}</p>
+                                ) : (
+                                  <p className="truncate">📄 {item.title}{item.link_url ? ` · ${item.link_label || "Link"}` : ""}</p>
+                                )}
+                              </div>
+                              <div className="flex shrink-0 items-center gap-1">
+                                <button type="button" onClick={() => handleMoveItem(campaign.id, item.id, "up")} disabled={index === 0} className="rounded px-2 py-1 disabled:opacity-30">↑</button>
+                                <button type="button" onClick={() => handleMoveItem(campaign.id, item.id, "down")} disabled={index === all.length - 1} className="rounded px-2 py-1 disabled:opacity-30">↓</button>
+                                <button type="button" onClick={() => handleRemoveItem(item.id)} className="rounded px-2 py-1 font-semibold text-red-400">Remove</button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="grid gap-2 md:grid-cols-3">
+                        <select
+                          value={itemFormCampaignId === campaign.id ? itemPollId : ""}
+                          onChange={(event) => { setItemFormCampaignId(campaign.id); setItemPollId(event.target.value); }}
+                          className="border p-2 rounded text-black md:col-span-2"
+                        >
+                          <option value="">Add a poll...</option>
+                          {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
+                        </select>
+                        <button type="button" onClick={() => handleAddPollItem(campaign.id)} className="bg-violet-600 text-white px-3 py-2 rounded font-semibold">Add poll</button>
+                      </div>
+
+                      <div className="grid gap-2 md:grid-cols-2">
+                        <input
+                          value={itemFormCampaignId === campaign.id ? itemTitle : ""}
+                          onChange={(event) => { setItemFormCampaignId(campaign.id); setItemTitle(event.target.value); }}
+                          maxLength={120}
+                          className="border p-2 rounded text-black"
+                          placeholder="Info title: Today's specials, House rules..."
+                        />
+                        <input
+                          value={itemFormCampaignId === campaign.id ? itemLinkUrl : ""}
+                          onChange={(event) => { setItemFormCampaignId(campaign.id); setItemLinkUrl(event.target.value); }}
+                          className="border p-2 rounded text-black"
+                          placeholder="Optional link URL"
+                        />
+                        <textarea
+                          value={itemFormCampaignId === campaign.id ? itemBody : ""}
+                          onChange={(event) => { setItemFormCampaignId(campaign.id); setItemBody(event.target.value); }}
+                          maxLength={2000}
+                          rows="2"
+                          className="border p-2 rounded text-black md:col-span-2"
+                          placeholder="What should this info card say?"
+                        />
+                        <input
+                          value={itemFormCampaignId === campaign.id ? itemLinkLabel : ""}
+                          onChange={(event) => { setItemFormCampaignId(campaign.id); setItemLinkLabel(event.target.value); }}
+                          maxLength={60}
+                          className="border p-2 rounded text-black"
+                          placeholder="Link button label (optional)"
+                        />
+                        <button type="button" onClick={() => handleAddInfoItem(campaign.id)} className="bg-violet-600 text-white px-3 py-2 rounded font-semibold">Add info card</button>
+                      </div>
+                    </div>
+                  </details>
                 </div>
               );
             })}
@@ -1892,6 +2074,8 @@ export default function Admin() {
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">Reward redemptions</summary>
         <div className="px-4 pb-4">
+          {entitlements.redemptionTracking ? (
+          <>
           <p className="mb-3 text-sm text-slate-400">When a customer shows their reward code, enter it here to mark it redeemed and track how often it's used.</p>
           <div className="flex flex-col gap-3 sm:flex-row">
             <input value={redeemCode} onChange={(event) => setRedeemCode(event.target.value)} className="flex-1 border p-2 rounded text-black" placeholder="Enter the reward code" />
@@ -1910,12 +2094,22 @@ export default function Admin() {
               ))
             )}
           </div>
+          </>
+          ) : (
+            <LockedFeature
+              feature="redemptionTracking"
+              title="See how often rewards are actually redeemed"
+              description="Track redemption counts per poll to prove your rewards are bringing customers back."
+            />
+          )}
         </div>
       </details>
 
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">Prize draws</summary>
         <div className="px-4 pb-4">
+          {entitlements.prizeDraws ? (
+          <>
           <p className="mb-3 text-sm text-slate-400">Enable a prize draw when creating or editing a poll. Entrants are voters who opted in with their email. Pick a winner here when you're ready.</p>
           <div className="space-y-2 text-sm">
             {polls.filter((poll) => poll.raffle_enabled).length === 0 ? (
@@ -1934,6 +2128,14 @@ export default function Admin() {
               ))
             )}
           </div>
+          </>
+          ) : (
+            <LockedFeature
+              feature="prizeDraws"
+              title="Run prize draws to boost response rates"
+              description="Let voters enter a raffle with their email, then pick a winner at random from right here."
+            />
+          )}
         </div>
       </details>
       </>
@@ -1973,6 +2175,8 @@ export default function Admin() {
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">Lead nurture emails</summary>
         <div className="px-4 pb-4 space-y-3">
+          {entitlements.automatedNurture ? (
+          <>
           <p className="text-sm text-slate-400">Automatically email voters who opted in for follow-up (or a prize draw) right after they vote.</p>
           <label className="flex items-center gap-2">
             <input type="checkbox" checked={nurtureSettings.is_enabled} onChange={(event) => setNurtureSettings((current) => ({ ...current, is_enabled: event.target.checked }))} />
@@ -1982,6 +2186,14 @@ export default function Admin() {
           <textarea value={nurtureSettings.message || ""} onChange={(event) => setNurtureSettings((current) => ({ ...current, message: event.target.value }))} rows="4" className="w-full border p-2 rounded text-black" placeholder="Email message body" />
           <button onClick={saveNurtureSettings} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save nurture email settings</button>
           <p className="text-xs text-slate-500">Delivery requires the RESEND_API_KEY and REPORT_FROM_EMAIL server settings, same as weekly reports.</p>
+          </>
+          ) : (
+            <LockedFeature
+              feature="automatedNurture"
+              title="Follow up with leads automatically"
+              description="You're collecting emails already - turn them into repeat visits with an automatic thank-you email, no manual work required."
+            />
+          )}
         </div>
       </details>
       )}
@@ -1990,6 +2202,8 @@ export default function Admin() {
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">Win-back emails</summary>
         <div className="px-4 pb-4 space-y-3">
+          {entitlements.automatedNurture ? (
+          <>
           <p className="text-sm text-slate-400">Automatically email a voter who left their email and consented, but hasn't voted again after the number of days below. This only reaches people who opted in - voting itself always stays anonymous.</p>
           <label className="flex items-center gap-2">
             <input type="checkbox" checked={winbackSettings.is_enabled} onChange={(event) => setWinbackSettings((current) => ({ ...current, is_enabled: event.target.checked }))} />
@@ -2003,6 +2217,14 @@ export default function Admin() {
           <textarea value={winbackSettings.message || ""} onChange={(event) => setWinbackSettings((current) => ({ ...current, message: event.target.value }))} rows="4" className="w-full border p-2 rounded text-black" placeholder="Email message body" />
           <button onClick={saveWinbackEmailSettings} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save win-back email settings</button>
           <p className="text-xs text-slate-500">Delivery requires the RESEND_API_KEY and REPORT_FROM_EMAIL server settings, same as weekly reports.</p>
+          </>
+          ) : (
+            <LockedFeature
+              feature="automatedNurture"
+              title="Win back customers who've gone quiet"
+              description="Automatically re-engage voters who haven't come back in a while, without manually tracking who's overdue."
+            />
+          )}
         </div>
       </details>
       )}
@@ -2045,7 +2267,15 @@ export default function Admin() {
           <div><p className="mb-2 text-sm text-slate-400">Open alerts, including low-score/answer matches and automatic vote-volume drop warnings (checked daily).</p><div className="text-sm">{feedbackAlerts.filter((alert) => alert.status !== "resolved").length ? feedbackAlerts.filter((alert) => alert.status !== "resolved").map((alert) => <div key={alert.id} className="flex items-center justify-between gap-2 border-b border-gray-700 py-1"><span>Poll #{alert.poll_id}: {alert.answer}</span><button onClick={async () => { const { error } = await supabase.from("feedback_alerts").update({ status: "resolved" }).eq("id", alert.id); if (!error) setFeedbackAlerts((current) => current.map((item) => item.id === alert.id ? { ...item, status: "resolved" } : item)); }} className="shrink-0 text-xs text-emerald-300 underline">Resolve</button></div>) : <p className="text-gray-400">No open alerts.</p>}</div></div>
           <div><p className="mb-2 text-sm text-slate-400">Create alerts for low numeric scores or an exact answer. New matching votes create manager-only alerts.</p><div className="grid md:grid-cols-4 gap-3"><select value={newRulePollId} onChange={(event) => setNewRulePollId(event.target.value)} className="border p-2 rounded text-black"><option value="">Choose a poll</option>{polls.map((poll) => <option key={poll.id} value={poll.id}>#{poll.id} - {poll.question}</option>)}</select><select value={newRuleType} onChange={(event) => setNewRuleType(event.target.value)} className="border p-2 rounded text-black"><option value="low_score">Low score</option><option value="answer_match">Exact answer</option></select>{newRuleType === "low_score" ? <input type="number" min="0" max="10" value={newRuleThreshold} onChange={(event) => setNewRuleThreshold(event.target.value)} className="border p-2 rounded text-black" placeholder="Score at or below" /> : <input value={newRuleAnswer} onChange={(event) => setNewRuleAnswer(event.target.value)} className="border p-2 rounded text-black" placeholder="Answer trigger" />}<button onClick={createAlertRule} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">Add alert rule</button></div><div className="mt-3 text-sm">{alertRules.length ? alertRules.map((rule) => <p key={rule.id} className="border-b border-gray-700 py-1">Poll #{rule.poll_id}: {rule.trigger_type === "low_score" ? `score at or below ${rule.score_threshold}` : `answer “${rule.answer_match}”`}</p>) : <p className="text-gray-400">No feedback alert rules yet.</p>}</div></div>
           <div><p className="mb-2 text-sm text-slate-400">Turn an alert into a recovery task and track completion.</p><div className="grid md:grid-cols-3 gap-3"><input value={newTaskTitle} onChange={(event) => setNewTaskTitle(event.target.value)} className="border p-2 rounded text-black" placeholder="Call customer, review service issue" /><select value={newTaskAlertId} onChange={(event) => setNewTaskAlertId(event.target.value)} className="border p-2 rounded text-black"><option value="">No linked alert</option>{feedbackAlerts.filter((alert) => alert.status !== "resolved").map((alert) => <option key={alert.id} value={alert.id}>#{alert.id} Poll #{alert.poll_id}: {alert.answer}</option>)}</select><button onClick={createRecoveryTask} className="bg-emerald-600 text-white px-4 py-2 rounded font-semibold">Add recovery task</button></div><div className="mt-3 text-sm">{recoveryTasks.length ? recoveryTasks.map((task) => <div key={task.id} className="flex justify-between border-b border-gray-700 py-1"><span>{task.title}</span><select value={task.status} onChange={async (event) => { const status = event.target.value; const { error } = await supabase.from("feedback_recovery_tasks").update({ status, completed_at: status === "done" ? new Date().toISOString() : null }).eq("id", task.id); if (!error) setRecoveryTasks((current) => current.map((item) => item.id === task.id ? { ...item, status } : item)); }} className="text-black"><option value="open">Open</option><option value="in_progress">In progress</option><option value="done">Done</option></select></div>) : <p className="text-gray-400">No recovery tasks yet.</p>}</div></div>
+          {entitlements.weeklyReport ? (
           <div><p className="mb-2 text-sm text-slate-400">The Monday Vercel cron prepares a workspace summary. It delivers through Resend only when the server key is configured.</p><div className="grid md:grid-cols-3 gap-3 items-center"><input type="email" value={reportSettings.recipient_email} onChange={(event) => setReportSettings((current) => ({ ...current, recipient_email: event.target.value }))} className="border p-2 rounded text-black" placeholder="manager@example.com" /><label className="flex gap-2 items-center"><input type="checkbox" checked={reportSettings.is_enabled} onChange={(event) => setReportSettings((current) => ({ ...current, is_enabled: event.target.checked }))} /> Enable weekly report</label><button onClick={saveReportSettings} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save report settings</button></div></div>
+          ) : (
+            <LockedFeature
+              feature="weeklyReport"
+              title="Get a weekly summary in your inbox"
+              description="A Monday email with votes, open alerts, and recovery tasks - so you don't have to log in to stay on top of things."
+            />
+          )}
         </div>
       </details>
       </>
@@ -2089,8 +2319,9 @@ export default function Admin() {
             type="url"
             value={workspaceProfile.webhookUrl}
             onChange={(event) => setWorkspaceProfile((current) => ({ ...current, webhookUrl: event.target.value }))}
-            className="border p-2 rounded text-black md:col-span-2"
-            placeholder="Webhook URL (optional) - get notified in Slack/Zapier/Sheets on every vote"
+            className="border p-2 rounded text-black md:col-span-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            placeholder={entitlements.webhooks ? "Webhook URL (optional) - get notified in Slack/Zapier/Sheets on every vote" : "Webhooks are available on the Growth plan"}
+            disabled={!entitlements.webhooks}
           />
           <label className="block font-semibold md:col-span-2">
             Auto-delete votes after (days, optional)
@@ -2125,6 +2356,12 @@ export default function Admin() {
             />
           </label>
         </div>
+
+        {!entitlements.webhooks && (
+          <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-amber-300">
+            Webhooks available on Growth · <Link to="/admin/billing" className="underline">Upgrade</Link>
+          </p>
+        )}
 
         <div className="mt-4">
           <button
@@ -2177,6 +2414,8 @@ export default function Admin() {
 
         <div className="mt-6 border-t border-slate-700 pt-4">
           <p className="font-semibold">Public reputation</p>
+          {entitlements.reputationMonitoring ? (
+          <>
           <p className="mt-1 text-xs text-slate-400">Your real public rating, pulled in from Google. Connect your business above first.</p>
           {reputationSnapshot ? (
             <p className="mt-3 text-sm">
@@ -2191,6 +2430,14 @@ export default function Admin() {
             {reputationLoading ? "Refreshing..." : "Refresh public rating"}
           </button>
           {reputationError && <p className="mt-2 text-sm text-red-300">{reputationError}</p>}
+          </>
+          ) : (
+            <LockedFeature
+              feature="reputationMonitoring"
+              title="Track your public rating automatically"
+              description="Pull in your real Google rating so you can watch your reputation trend alongside your feedback data."
+            />
+          )}
         </div>
         </div>
       </details>
@@ -2198,6 +2445,8 @@ export default function Admin() {
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">Developer API</summary>
         <div className="px-4 pb-4">
+          {entitlements.apiAccess ? (
+          <>
           <p className="mb-3 text-sm text-slate-400">Generate a key to pull your workspace summary from <code>/api/v1-summary</code> with an <code>Authorization: Bearer &lt;key&gt;</code> header.</p>
           <div className="flex flex-col gap-3 sm:flex-row">
             <input value={newApiKeyLabel} onChange={(event) => setNewApiKeyLabel(event.target.value)} className="flex-1 border p-2 rounded text-black" placeholder="Label: BI dashboard, Zapier" />
@@ -2215,6 +2464,14 @@ export default function Admin() {
               ))
             )}
           </div>
+          </>
+          ) : (
+            <LockedFeature
+              feature="apiAccess"
+              title="Pull your data into your own tools"
+              description="Generate a secure API key and read your workspace summary programmatically from any system you already use."
+            />
+          )}
         </div>
       </details>
 
@@ -2223,8 +2480,14 @@ export default function Admin() {
         <div className="px-4 pb-4">
         <div className="flex items-center justify-between mb-3">
           <p className="text-sm text-slate-400">Invite colleagues and choose what they can manage. Add an email to send them a real sign-in invite; leave it blank to just note a name.</p>
-          <span className="text-xs uppercase tracking-wide text-gray-300">{teamMembers.length} members</span>
+          <span className="text-xs uppercase tracking-wide text-gray-300">{teamMembers.length} / {entitlements.seatLimit} seats</span>
         </div>
+
+        {teamMembers.length >= entitlements.seatLimit && (
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-amber-300">
+            Seat limit reached for the {planLabel(workspaceProfile.plan)} plan · <Link to="/admin/billing" className="underline">Upgrade for more seats</Link>
+          </p>
+        )}
 
         <div className="grid md:grid-cols-3 gap-3 mb-4">
           <input
@@ -2233,6 +2496,7 @@ export default function Admin() {
             onChange={(event) => setNewMemberName(event.target.value)}
             className="border p-2 rounded text-black"
             placeholder="Name or email"
+            disabled={teamMembers.length >= entitlements.seatLimit}
           />
           <input
             type="email"
@@ -2240,11 +2504,13 @@ export default function Admin() {
             onChange={(event) => setNewMemberEmail(event.target.value)}
             className="border p-2 rounded text-black"
             placeholder="member@example.com"
+            disabled={teamMembers.length >= entitlements.seatLimit}
           />
           <select
             value={newMemberRole}
             onChange={(event) => setNewMemberRole(event.target.value)}
             className="border p-2 rounded text-black"
+            disabled={teamMembers.length >= entitlements.seatLimit}
           >
             <option value="owner">Owner</option>
             <option value="editor">Editor</option>
@@ -2254,9 +2520,9 @@ export default function Admin() {
 
         <button
           onClick={addTeamMember}
-          disabled={!permission.canManageWorkspace || invitingMember}
+          disabled={!permission.canManageWorkspace || invitingMember || teamMembers.length >= entitlements.seatLimit}
           className={`px-4 py-2 rounded font-semibold mb-4 ${
-            permission.canManageWorkspace ? "bg-indigo-600 text-white" : "bg-gray-600 text-gray-300 cursor-not-allowed"
+            permission.canManageWorkspace && teamMembers.length < entitlements.seatLimit ? "bg-indigo-600 text-white" : "bg-gray-600 text-gray-300 cursor-not-allowed"
           }`}
         >
           {invitingMember ? "Sending invite..." : newMemberEmail.trim() ? "Send invite" : "Add team member"}
@@ -2292,6 +2558,8 @@ export default function Admin() {
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">Recent activity</summary>
         <div className="px-4 pb-4">
+        {entitlements.auditLog ? (
+        <>
         <p className="mb-3 text-sm text-slate-400">Review the latest administrative actions in this workspace.</p>
         <div className="space-y-2 text-sm">
           {auditEntries.length === 0 ? (
@@ -2305,6 +2573,14 @@ export default function Admin() {
             ))
           )}
         </div>
+        </>
+        ) : (
+          <LockedFeature
+            feature="auditLog"
+            title="See who changed what, and when"
+            description="A full accountability trail of administrative actions taken in your workspace."
+          />
+        )}
         </div>
       </details>
       </>
@@ -2450,7 +2726,7 @@ export default function Admin() {
                       className="mb-3 max-h-10 max-w-32 object-contain"
                     />
                   )}
-                  <p className="mb-3 text-sm font-bold text-slate-900">{workspaceProfile.companyName || "iVote"}</p>
+                  <p className="mb-3 text-sm font-bold text-slate-900">{workspaceProfile.companyName || "Godwit"}</p>
                   <div className="rounded-lg bg-white p-3 shadow-sm">
                     <img
                       ref={qrRef}

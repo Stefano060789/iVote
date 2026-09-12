@@ -34,6 +34,10 @@ export default async function handler(request, response) {
     const [lead] = await supabaseGet(`voter_leads?id=eq.${leadId}&workspace_id=eq.${encodeURIComponent(workspaceId)}&select=id,email,nurture_sent_at`);
     if (!lead || lead.nurture_sent_at) return response.status(200).json({ sent: false });
 
+    const [subscription] = await supabaseGet(`workspace_subscriptions?workspace_id=eq.${encodeURIComponent(workspaceId)}&select=plan,status`);
+    const plan = subscription?.plan === "growth" && ["active", "trialing"].includes(subscription.status) ? "growth" : "free";
+    if (plan !== "growth") return response.status(200).json({ sent: false });
+
     const [settings] = await supabaseGet(`lead_nurture_settings?workspace_id=eq.${encodeURIComponent(workspaceId)}&select=is_enabled,subject,message`);
     if (!settings?.is_enabled || !settings.subject || !settings.message) return response.status(200).json({ sent: false });
 

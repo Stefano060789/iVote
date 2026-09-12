@@ -1,11 +1,11 @@
 {
-  "name": "iVote QR Feedback",
-  "short_name": "iVote",
+  "name": "Godwit — QR Feedback",
+  "short_name": "Godwit",
   "description": "QR feedback campaigns for physical locations.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#020617",
-  "theme_color": "#0f172a",
+  "background_color": "#0b1a33",
+  "theme_color": "#0b1a33",
   "icons": [
     {
       "src": "/favicon.svg",

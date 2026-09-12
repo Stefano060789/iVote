@@ -20,7 +20,7 @@ async function supabaseGet(path) {
   return result.json();
 }
 
-const EVENT_TABLES = { vote_submitted: "votes", lead_captured: "voter_leads" };
+const EVENT_TABLES = { vote_submitted: "votes", lead_captured: "voter_leads", content_reported: "content_reports" };
 
 export default async function handler(request, response) {
   if (request.method !== "POST") {
@@ -40,6 +40,10 @@ export default async function handler(request, response) {
     if (!webhookUrl || !isSafeWebhookUrl(webhookUrl)) {
       return response.status(200).json({ delivered: false });
     }
+
+    const [subscription] = await supabaseGet(`workspace_subscriptions?workspace_id=eq.${encodeURIComponent(workspaceId)}&select=plan,status`);
+    const plan = subscription?.plan === "growth" && ["active", "trialing"].includes(subscription.status) ? "growth" : "free";
+    if (plan !== "growth") return response.status(200).json({ delivered: false });
 
     // Re-fetch the record server-side instead of trusting client-supplied payload data.
     const [record] = await supabaseGet(`${table}?id=eq.${encodeURIComponent(recordId)}&workspace_id=eq.${encodeURIComponent(workspaceId)}&select=*`);

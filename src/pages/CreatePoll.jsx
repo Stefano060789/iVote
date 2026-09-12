@@ -9,6 +9,8 @@ import { savePollMeta } from "../lib/pollMeta";
 import { POLL_TEMPLATES, INDUSTRY_LABELS, getTemplateByKey } from "../lib/pollTemplates";
 import { DEFAULT_ACCENT_COLOR, DEFAULT_PRIMARY_COLOR } from "../lib/pollBranding";
 import { loadWorkspaceProfile } from "../lib/workspaceProfile";
+import { getEntitlements } from "../lib/entitlements";
+import LockedFeature from "../components/LockedFeature";
 
 export default function CreatePoll() {
   const [searchParams] = useSearchParams();
@@ -43,6 +45,7 @@ export default function CreatePoll() {
   const [loyaltyBenefitUrl, setLoyaltyBenefitUrl] = useState("");
   const [pollId, setPollId] = useState(null);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
+  const [plan, setPlan] = useState("free");
 
   useEffect(() => {
     async function loadDefaultBranding() {
@@ -51,6 +54,7 @@ export default function CreatePoll() {
       if (!user?.id) return;
 
       const profile = await loadWorkspaceProfile();
+      setPlan(profile.plan || "free");
       setBrandName((current) => current || profile.companyName || "");
       setBrandLogoUrl((current) => current || profile.logoUrl || "");
       setBrandPrimaryColor((current) => current === DEFAULT_PRIMARY_COLOR ? profile.primaryColor : current);
@@ -217,6 +221,8 @@ export default function CreatePoll() {
     const qr = await QRCode.toDataURL(stableShortUrl);
     setQrCodeUrl(qr);
   }
+
+  const entitlements = getEntitlements(plan);
 
   return (
     <Layout>
@@ -391,6 +397,8 @@ export default function CreatePoll() {
           <summary className="cursor-pointer p-3 font-semibold">After voting (optional)</summary>
           <div className="px-3 pb-3">
             <p className="mb-3 text-sm text-slate-400">Show a thank-you reward and/or ask happy voters to leave a public review.</p>
+            {entitlements.rewardMessage ? (
+            <>
             <label className="block mb-2 font-semibold">Reward message</label>
             <input
               type="text"
@@ -415,6 +423,16 @@ export default function CreatePoll() {
                 placeholder="Link to redeem (optional)"
               />
             </div>
+            </>
+            ) : (
+              <div className="mb-4">
+                <LockedFeature
+                  feature="rewardMessage"
+                  title="Show a thank-you reward after voting"
+                  description="Give every voter a message, discount code, or redemption link right after they submit."
+                />
+              </div>
+            )}
             <label className="block mb-2 font-semibold">Review link</label>
             <input
               type="url"
@@ -444,6 +462,8 @@ export default function CreatePoll() {
                 <input type="url" value={platform.url} onChange={(event) => updateReviewPlatform(index, "url", event.target.value)} className="border p-2 rounded text-black" placeholder="Review page URL" />
               </div>)}
             </div>
+            {entitlements.prizeDraws ? (
+            <>
             <label className="mt-4 flex items-center gap-2">
               <input
                 type="checkbox"
@@ -465,6 +485,16 @@ export default function CreatePoll() {
                   Voters will see official rules automatically: no purchase necessary, 18+ and locally eligible only, one entry per person, winner picked at random, void where prohibited. Check your local sweepstakes/prize-draw rules if the prize has significant value.
                 </p>
               </>
+            )}
+            </>
+            ) : (
+              <div className="mt-4">
+                <LockedFeature
+                  feature="prizeDraws"
+                  title="Run a prize draw for this poll"
+                  description="Let voters enter a raffle with their email for a chance to win, then pick a winner at random from the dashboard."
+                />
+              </div>
             )}
             <div className="mt-5 border-t border-slate-600 pt-4">
               <p className="font-semibold">Returning customer bonus</p>
@@ -565,7 +595,7 @@ export default function CreatePoll() {
         </>}
 
         <p className="mt-10 text-center text-xs text-slate-400">
-          iVote v1.0.1
+          Godwit v1.0.1
         </p>
       </div>
     </Layout>

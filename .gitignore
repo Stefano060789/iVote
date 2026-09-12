@@ -23,3 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Local-only logo exploration and bird-name research assets: draft SVGs, comparison
+# HTML pages, and reference images copied from chat attachments or downloaded for
+# trademark/naming research. Not deliverables - the final logo assets live in
+# src/assets/ and public/favicon.svg, which are tracked normally.
+marketing/logo-concepts/
+marketing/name-references/

@@ -1,5 +1,5 @@
 const politicalTerms = [
-  "politic", "election", "president", "government", "party", "vote"
+  "politic", "election", "president", "government", "referendum"
 ];
 
 const religiousTerms = [
@@ -10,12 +10,17 @@ const sexualTerms = [
   "sex", "sexual", "porn", "nude", "fetish"
 ];
 
-export function isRestrictedTopic(text) {
-  const lower = String(text).toLowerCase();
+const ALL_TERMS = [...politicalTerms, ...religiousTerms, ...sexualTerms];
 
-  return (
-    politicalTerms.some((t) => lower.includes(t)) ||
-    religiousTerms.some((t) => lower.includes(t)) ||
-    sexualTerms.some((t) => lower.includes(t))
-  );
+function normalize(text) {
+  return String(text)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, ""); // strip accents so "élection" still matches "election"
+}
+
+export function isRestrictedTopic(text) {
+  const normalized = normalize(text);
+
+  return ALL_TERMS.some((term) => new RegExp(`\\b${term}`, "i").test(normalized));
 }

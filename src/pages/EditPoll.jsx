@@ -4,7 +4,9 @@ import { supabase } from "../lib/supabase";
 import { savePollMeta, readPollMeta } from "../lib/pollMeta";
 import { POLL_TEMPLATES, getTemplateByKey } from "../lib/pollTemplates";
 import { DEFAULT_ACCENT_COLOR, DEFAULT_PRIMARY_COLOR } from "../lib/pollBranding";
-import { readWorkspaceProfile } from "../lib/workspaceProfile";
+import { readWorkspaceProfile, loadWorkspacePlan } from "../lib/workspaceProfile";
+import { getEntitlements } from "../lib/entitlements";
+import LockedFeature from "../components/LockedFeature";
 
 export default function EditPoll() {
   const { pollId } = useParams();
@@ -34,6 +36,7 @@ export default function EditPoll() {
   const [loyaltyBenefitMessage, setLoyaltyBenefitMessage] = useState("");
   const [loyaltyBenefitCode, setLoyaltyBenefitCode] = useState("");
   const [loyaltyBenefitUrl, setLoyaltyBenefitUrl] = useState("");
+  const [plan, setPlan] = useState("free");
 
   useEffect(() => {
     async function loadPoll() {
@@ -81,6 +84,7 @@ export default function EditPoll() {
         setBrandPrimaryColor(profile.primaryColor || DEFAULT_PRIMARY_COLOR);
         setBrandAccentColor(profile.accentColor || DEFAULT_ACCENT_COLOR);
       }
+      if (data.workspace_id) setPlan(await loadWorkspacePlan(data.workspace_id));
 
       if (Array.isArray(data.answers) && data.answers.length > 0) {
         const loadedAnswers = data.answers.slice(0, 10);
@@ -179,6 +183,8 @@ export default function EditPoll() {
 
     navigate("/admin");
   }
+
+  const entitlements = getEntitlements(plan);
 
   return (
     <div className="max-w-xl mx-auto p-6">
@@ -290,6 +296,8 @@ export default function EditPoll() {
 
       <h2 className="text-xl font-bold mb-3">After voting (optional)</h2>
 
+      {entitlements.rewardMessage ? (
+      <>
       <label className="block mb-2 font-semibold">Reward message</label>
       <input
         type="text"
@@ -315,6 +323,16 @@ export default function EditPoll() {
           placeholder="Link to redeem (optional)"
         />
       </div>
+      </>
+      ) : (
+        <div className="mb-4">
+          <LockedFeature
+            feature="rewardMessage"
+            title="Show a thank-you reward after voting"
+            description="Give every voter a message, discount code, or redemption link right after they submit."
+          />
+        </div>
+      )}
 
       <label className="block mb-2 font-semibold">Review link</label>
       <input
@@ -346,6 +364,8 @@ export default function EditPoll() {
           </div>)}
         </div>
 
+      {entitlements.prizeDraws ? (
+      <>
       <label className="mb-2 flex items-center gap-2">
         <input
           type="checkbox"
@@ -367,6 +387,16 @@ export default function EditPoll() {
             Voters will see official rules automatically: no purchase necessary, 18+ and locally eligible only, one entry per person, winner picked at random, void where prohibited.
           </p>
         </>
+      )}
+      </>
+      ) : (
+        <div className="mb-4">
+          <LockedFeature
+            feature="prizeDraws"
+            title="Run a prize draw for this poll"
+            description="Let voters enter a raffle with their email for a chance to win, then pick a winner at random from the dashboard."
+          />
+        </div>
       )}
 
       <div className="mt-1 mb-4 border-t border-slate-600 pt-4">

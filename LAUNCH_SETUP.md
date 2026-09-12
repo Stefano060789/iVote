@@ -1,4 +1,4 @@
-# iVote launch setup
+# Godwit launch setup
 
 ## Database requirement
 
@@ -47,7 +47,7 @@ Keep RLS enabled, never expose `SUPABASE_SERVICE_ROLE_KEY`, rotate Stripe and Su
 
 ## Privacy, moderation, email, and operations
 
-The Privacy and Terms pages now contain real, product-accurate content instead of a placeholder, but still have two bracketed fields (`OPERATOR_NAME`, `OPERATOR_ADDRESS` in `src/pages/Legal.jsx`) that only you can fill in - your legal business name and registered address. Fill those in, then have a lawyer review before scaling meaningfully past a small local pilot. The Account page makes revocation, export, and account-deletion requests reviewable rather than irreversibly removing production data. Configure a private operational process for reviewing and resolving those requests.
+The Privacy and Terms pages now contain real, product-accurate content instead of a placeholder, but still have two bracketed fields (`OPERATOR_NAME`, `OPERATOR_ADDRESS` in `src/pages/Legal.jsx`) that only you can fill in - your legal business name and registered address. Fill those in, then have a lawyer review before scaling meaningfully past a small local pilot. The Account page makes revocation, export, and account-deletion requests reviewable rather than irreversibly removing production data. Use `scripts/review-privacy-requests.mjs` to list and resolve them (`node scripts/review-privacy-requests.mjs list`, then `resolve <id> completed|rejected`), and commit to reviewing the list on a fixed cadence (e.g. weekly) so requests don't sit unresolved - GDPR expects action "without undue delay," generally interpreted as within a month.
 
 Configure transactional mail through Supabase Auth SMTP using a verified sender domain and a provider such as Postmark, Resend, or Amazon SES. Test sign-up confirmation, password recovery, and changed-email messages in production with SPF, DKIM, and DMARC in place. Do not use a personal mailbox as the sender.
 

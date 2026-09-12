@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="godwitBody" gradientUnits="userSpaceOnUse" x1="40" y1="28" x2="188" y2="150">
+      <stop offset="0%" stop-color="#FBDD86"/>
+      <stop offset="25%" stop-color="#F2C744"/>
+      <stop offset="100%" stop-color="#B8801E"/>
+    </linearGradient>
+    <linearGradient id="godwitBeak" gradientUnits="userSpaceOnUse" x1="140" y1="86" x2="186" y2="106">
+      <stop offset="0%" stop-color="#E7A63A"/>
+      <stop offset="100%" stop-color="#93630F"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(-2,10)">
+    <!-- tail: small feather cluster reusing the wing-feather shape, scaled down -->
+    <g transform="translate(64,132)" fill="url(#godwitBody)">
+      <path d="M0,0 C-9,-18 -12,-40 -3,-64 C6,-58 12,-40 9,-20 C7,-9 3,-3 0,0 Z" transform="rotate(146) scale(0.5)" opacity="0.85"/>
+      <path d="M0,0 C-9,-18 -12,-40 -3,-64 C6,-58 12,-40 9,-20 C7,-9 3,-3 0,0 Z" transform="rotate(163) scale(0.6)" opacity="0.9"/>
+      <path d="M0,0 C-9,-18 -12,-40 -3,-64 C6,-58 12,-40 9,-20 C7,-9 3,-3 0,0 Z" transform="rotate(180) scale(0.48)" opacity="0.85"/>
+    </g>
+    <!-- body -->
+    <ellipse cx="97" cy="122" rx="32" ry="23" fill="url(#godwitBody)" transform="rotate(-12 97 122)"/>
+    <!-- wing: 6 tapered feathers fanned from the shoulder pivot, longest and most forward on top -->
+    <g transform="translate(100,95)" fill="url(#godwitBody)" stroke="#8a5c0f" stroke-width="0.6" stroke-linejoin="round">
+      <path d="M0,0 C-9,-18 -12,-40 -3,-64 C6,-58 12,-40 9,-20 C7,-9 3,-3 0,0 Z" transform="rotate(16) scale(1.08)"/>
+      <path d="M0,0 C-9,-18 -12,-40 -3,-64 C6,-58 12,-40 9,-20 C7,-9 3,-3 0,0 Z" transform="rotate(-8) scale(1.0)" opacity="0.97"/>
+      <path d="M0,0 C-9,-18 -12,-40 -3,-64 C6,-58 12,-40 9,-20 C7,-9 3,-3 0,0 Z" transform="rotate(-32) scale(0.9)" opacity="0.94"/>
+      <path d="M0,0 C-9,-18 -12,-40 -3,-64 C6,-58 12,-40 9,-20 C7,-9 3,-3 0,0 Z" transform="rotate(-56) scale(0.78)" opacity="0.9"/>
+      <path d="M0,0 C-9,-18 -12,-40 -3,-64 C6,-58 12,-40 9,-20 C7,-9 3,-3 0,0 Z" transform="rotate(-80) scale(0.64)" opacity="0.86"/>
+      <path d="M0,0 C-9,-18 -12,-40 -3,-64 C6,-58 12,-40 9,-20 C7,-9 3,-3 0,0 Z" transform="rotate(-102) scale(0.5)" opacity="0.82"/>
+    </g>
+    <!-- head -->
+    <circle cx="130" cy="103" r="14" fill="url(#godwitBody)"/>
+    <!-- beak: long, thin, tapering -->
+    <path d="M142,100 L184,87 L182,93 L143,106 Z" fill="url(#godwitBeak)"/>
+    <!-- eye -->
+    <circle cx="136" cy="99" r="2.2" fill="#0b1a33"/>
+  </g>
+</svg>

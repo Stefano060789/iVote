@@ -1,14 +1,14 @@
-# iVote — Complete Feature Overview
+# Godwit — Complete Feature Overview
 ### QR-Based Feedback & Engagement Platform for Physical Venues
 *Prepared for marketing use — September 2026*
 
 ---
 
-## 1. What iVote Is
+## 1. What Godwit Is
 
-iVote turns any physical location — a restaurant table, a gym, a salon chair, a hotel room, an event entrance, a hospital waiting room — into a measurable feedback channel. A guest scans a single QR code, taps one answer, and the venue instantly sees what's working and what isn't. No app download, no account, no friction for the guest.
+Godwit turns any physical location — a restaurant table, a gym, a salon chair, a hotel room, an event entrance, a hospital waiting room — into a measurable feedback channel. A guest scans a single QR code, taps one answer, and the venue instantly sees what's working and what isn't. No app download, no account, no friction for the guest.
 
-Unlike a generic form builder or survey tool, iVote was designed from the ground up around **physical spaces and printed materials**: QR codes that never need to be reprinted, feedback that's tied to a specific table or location, and a two-way loop that turns a simple scan into a reward, a public review, or a private conversation with the venue — not just a row in a spreadsheet.
+Unlike a generic form builder or survey tool, Godwit was designed from the ground up around **physical spaces and printed materials**: QR codes that never need to be reprinted, feedback that's tied to a specific table or location, and a two-way loop that turns a simple scan into a reward, a public review, or a private conversation with the venue — not just a row in a spreadsheet.
 
 **Core promise:** *Turn every physical location into a measurable feedback channel.*
 
@@ -54,7 +54,7 @@ The entire respondent journey is a single scan and a single tap. There is no app
 Instead of starting from a blank question, a venue picks their industry — restaurant, gym, salon, healthcare, event, or general — and gets a ready-made question with sensible answer choices and a matching brand color already applied. A restaurant owner setting up their first poll sees "How was your meal today?" with options like Excellent/Good/Average/Poor, rather than having to invent a question from scratch. This dramatically shortens time-to-first-value for a new customer and makes the product feel purpose-built for their specific business, not a generic form tool repurposed for feedback.
 
 ### Custom branding per poll
-Every poll can carry the venue's own logo, brand name, primary color, and accent color. The voter never has to wonder whose feedback form they're filling out — it looks and feels like it belongs to the venue, which increases trust and completion rates, and reinforces the venue's own brand rather than iVote's.
+Every poll can carry the venue's own logo, brand name, primary color, and accent color. The voter never has to wonder whose feedback form they're filling out — it looks and feels like it belongs to the venue, which increases trust and completion rates, and reinforces the venue's own brand rather than Godwit's.
 
 ### Multi-language voting
 A voter can switch the poll's question and answers into any of nine languages (English, Italian, German, French, Spanish, Portuguese, Arabic, Simplified Chinese, or the original language) with one tap, translated instantly. This is particularly valuable for tourism-heavy venues, international hotels, and multicultural event audiences, where a language barrier would otherwise mean lost feedback entirely.
@@ -73,7 +73,7 @@ An existing poll can be cloned in one click, and an existing printed QR code can
 ## 5. QR & Campaign Tools
 
 ### Reusable QR codes
-Every QR code iVote generates points to a stable link that can be reassigned to a different poll at any time. A venue can print one QR poster and change what it asks about weekly, monthly, or in response to a specific issue — without ever reprinting a single sign. This alone removes one of the biggest ongoing costs and headaches of physical feedback campaigns.
+Every QR code Godwit generates points to a stable link that can be reassigned to a different poll at any time. A venue can print one QR poster and change what it asks about weekly, monthly, or in response to a specific issue — without ever reprinting a single sign. This alone removes one of the biggest ongoing costs and headaches of physical feedback campaigns.
 
 ### Trackable campaigns with placement & variant labels
 Each printed QR code can be registered as its own "campaign" with a placement label (lobby, receipt, table tent, restroom, etc.) and an optional variant label (for A/B testing different designs or wording). The dashboard then reports scans, completed votes, and the resulting conversion rate for every single placement separately — so a venue can see, for example, that the QR code by the register converts at 40% while the one on the receipt converts at 12%, and reallocate their printed materials accordingly.
@@ -82,7 +82,7 @@ Each printed QR code can be registered as its own "campaign" with a placement la
 Before a guest even sees the question, they can be shown a fully custom welcome screen — a headline, a short message, and a button label, all written and branded by the venue. This means the entire experience, start to finish, can carry the venue's own voice and identity, with no visible sign that a third-party tool is involved unless the venue chooses to say so.
 
 ### In-dashboard camera QR scanner
-Rather than requiring an admin to leave the app and use their phone's separate camera app, iVote includes a built-in camera scanner directly inside the admin dashboard. Point a phone or laptop camera at any printed QR code and the dashboard instantly shows which poll it's currently pointing to, how many entries it has, and lets the admin redirect it to a different poll on the spot — all without leaving the page.
+Rather than requiring an admin to leave the app and use their phone's separate camera app, Godwit includes a built-in camera scanner directly inside the admin dashboard. Point a phone or laptop camera at any printed QR code and the dashboard instantly shows which poll it's currently pointing to, how many entries it has, and lets the admin redirect it to a different poll on the spot — all without leaving the page.
 
 ### Bulk QR generation
 For venues with many physical locations under one roof — a restaurant with twenty tables, a hotel with fifty rooms — generating twenty individual QR codes one at a time is a real operational burden. Bulk generation lets an admin type a base name and a count, and instantly creates that many uniquely trackable QR codes (Table 1, Table 2, Table 3, and so on), ready to print and place.
@@ -94,10 +94,10 @@ A single printed QR code can be configured to automatically rotate through an or
 An admin can describe a visual style in plain language — "modern blue city lights for an event poll" — and the system generates a polished, print-ready background image to sit behind the QR code on a printed poster. This removes the need for a venue to hire a designer just to make their QR poster look professional, and turns a plain black-and-white QR code into something that matches their brand aesthetic.
 
 ### Embeddable feedback widget for any website
-A small snippet of code can be pasted into any website — not just a physical venue's own site, but any e-commerce store, SaaS product, or service business — to add a floating "Give Feedback" button. Clicking it opens the exact same voting experience in a slide-up panel, without the visitor ever leaving the page. This is a significant expansion of the addressable market: iVote is no longer limited to businesses with a physical QR-scannable location.
+A small snippet of code can be pasted into any website — not just a physical venue's own site, but any e-commerce store, SaaS product, or service business — to add a floating "Give Feedback" button. Clicking it opens the exact same voting experience in a slide-up panel, without the visitor ever leaving the page. This is a significant expansion of the addressable market: Godwit is no longer limited to businesses with a physical QR-scannable location.
 
 ### Public "Trust Score" badge
-A second embeddable snippet renders a small, live badge — for example, "★ 92% Trust Score · Powered by iVote" — that a venue can place anywhere on their own website. The score is calculated automatically from real voting data. Every time a visitor sees that badge, it's a small, ongoing marketing impression for iVote itself, functioning as a built-in, self-perpetuating referral channel embedded in every customer's own web presence.
+A second embeddable snippet renders a small, live badge — for example, "★ 92% Trust Score · Powered by Godwit" — that a venue can place anywhere on their own website. The score is calculated automatically from real voting data. Every time a visitor sees that badge, it's a small, ongoing marketing impression for Godwit itself, functioning as a built-in, self-perpetuating referral channel embedded in every customer's own web presence.
 
 ---
 
@@ -166,10 +166,10 @@ Adding a colleague isn't just a note in a list — entering their email sends th
 The product is structured around Free, Starter, and Growth tiers, fully wired into Stripe for billing, with plan-based limits already enforced on the number of polls and QR campaigns a workspace can create. The monetization foundation is not a future project — it already works end-to-end.
 
 ### Workspace webhooks
-A venue can paste in a webhook URL, and every new vote is automatically forwarded there as structured data — enabling a one-time setup that connects iVote to Slack, Zapier, Google Sheets, or virtually any other tool a business already uses, without iVote having to build a dedicated integration for each one individually.
+A venue can paste in a webhook URL, and every new vote is automatically forwarded there as structured data — enabling a one-time setup that connects Godwit to Slack, Zapier, Google Sheets, or virtually any other tool a business already uses, without Godwit having to build a dedicated integration for each one individually.
 
 ### Developer API with secure API keys
-A workspace can generate its own API key and use it to pull a summary of their poll and vote data programmatically from a dedicated endpoint. This is a small but important checkbox feature for larger, more technical customers who want to build their own internal dashboards or connect iVote to custom internal systems.
+A workspace can generate its own API key and use it to pull a summary of their poll and vote data programmatically from a dedicated endpoint. This is a small but important checkbox feature for larger, more technical customers who want to build their own internal dashboards or connect Godwit to custom internal systems.
 
 ### CSV export
 Full poll results can be exported to CSV at any time, giving venues complete ownership and portability of their own data — removing a common objection during sales conversations about vendor lock-in.
@@ -191,7 +191,7 @@ A workspace can set an optional number of days after which old votes are automat
 The legal and support foundation a real business needs — a privacy policy, terms of service, and a support page — is already built and live, rather than being an afterthought bolted on right before launch.
 
 ### Installable app (PWA)
-iVote can be installed directly onto a phone or desktop home screen like a native app, with no app store submission required, giving venues and their staff a persistent, one-tap way to reach their dashboard.
+Godwit can be installed directly onto a phone or desktop home screen like a native app, with no app store submission required, giving venues and their staff a persistent, one-tap way to reach their dashboard.
 
 ### Mobile-first, tab-organized admin dashboard
 The admin experience is organized into five clear tabs — Overview, Polls, Engagement & Growth, Feedback, and Settings — so that as the feature set has grown substantially, the day-to-day experience of running a single poll and printing a QR code has stayed simple and uncluttered rather than becoming an overwhelming wall of options.
@@ -201,7 +201,7 @@ Application errors are tracked in real time through integrated monitoring, so pr
 
 ---
 
-## 10. What Makes iVote Different
+## 10. What Makes Godwit Different
 
 1. **It's a two-way loop, not just a survey tool.** Rewards, prize draws, review routing, and public "we heard you" updates all close the loop back to the guest — most QR feedback tools stop at data collection and leave the venue to figure out what to do next on their own.
 2. **It's built for physical locations first.** Reusable QR codes, rotating polls, bulk QR generation, and per-location analytics are designed around the reality of printed materials and real venues, not just repurposed from a generic online form builder.

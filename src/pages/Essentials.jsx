@@ -30,7 +30,7 @@ export default function Essentials() {
           <p className="text-sm font-semibold uppercase tracking-wide text-teal-400">Start here</p>
           <h1 className="mt-2 text-3xl font-bold">The 3 things that actually matter</h1>
           <p className="mt-3 text-slate-300">
-            iVote has a lot of extra tools - rewards, prize draws, review links, benchmarks, an API. You don't need
+            Godwit has a lot of extra tools - rewards, prize draws, review links, benchmarks, an API. You don't need
             any of them to get value from your first poll. Do these three things, then come back here any time you
             feel lost.
           </p>

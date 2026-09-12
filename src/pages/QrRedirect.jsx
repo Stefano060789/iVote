@@ -8,6 +8,7 @@ export default function QrRedirect() {
   const navigate = useNavigate();
   const { token } = useParams();
   const [portal, setPortal] = useState(null);
+  const [menu, setMenu] = useState(null);
   const [manage, setManage] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -23,6 +24,25 @@ export default function QrRedirect() {
           setManage(managed);
           return;
         }
+      }
+
+      // A QR code can be linked to several things at once (extra polls, admin-authored
+      // info cards). If it has any, show a menu of everything instead of jumping
+      // straight to a single poll - this also covers info-only QR codes with no poll.
+      const { data: items, error: itemsError } = await supabase
+        .rpc("get_public_qr_campaign_items", { target_token: token });
+
+      if (!itemsError && Array.isArray(items) && items.length > 0) {
+        await supabase.rpc("record_qr_scan", { target_campaign_id: items[0].campaign_id });
+        const firstPollItem = items.find((item) => item.item_type === "poll");
+        const branding = getPollBranding(firstPollItem ? {
+          brand_name: firstPollItem.poll_brand_name,
+          brand_logo_url: firstPollItem.poll_brand_logo_url,
+          brand_primary_color: firstPollItem.poll_brand_primary_color,
+          brand_accent_color: firstPollItem.poll_brand_accent_color
+        } : null);
+        setMenu({ campaignId: items[0].campaign_id, portalTitle: items[0].portal_title, portalMessage: items[0].portal_message, items, branding });
+        return;
       }
 
       const { data: campaign, error: campaignError } = await supabase
@@ -108,6 +128,52 @@ export default function QrRedirect() {
     );
   }
 
+  if (menu) {
+    const { portalTitle, portalMessage, items, branding } = menu;
+    return (
+      <main className="qr-portal" style={{ backgroundColor: branding.accentColor }}>
+        <section className="qr-portal-card qr-portal-menu">
+          {branding.logoUrl && <img src={branding.logoUrl} alt="" className="qr-portal-logo" />}
+          <p className="qr-portal-brand" style={{ color: branding.primaryColor }}>{branding.brandName || "Godwit"}</p>
+          <h1>{portalTitle || "Welcome! Choose an option below."}</h1>
+          {portalMessage && <p>{portalMessage}</p>}
+          <div className="qr-portal-menu-list">
+            {items.map((item) => (
+              item.item_type === "poll" ? (
+                <button
+                  key={item.item_id}
+                  type="button"
+                  className="qr-portal-menu-item"
+                  onClick={() => navigate(`/vote/${item.poll_id}?campaign=${item.campaign_id}`)}
+                  style={{ borderColor: branding.primaryColor }}
+                >
+                  <span className="qr-portal-menu-item-title">{item.poll_question}</span>
+                  <span className="qr-portal-menu-item-cta" style={{ color: branding.primaryColor }}>Share feedback →</span>
+                </button>
+              ) : (
+                <div key={item.item_id} className="qr-portal-menu-item qr-portal-menu-info">
+                  <span className="qr-portal-menu-item-title">{item.title}</span>
+                  {item.body && <p className="qr-portal-menu-item-body">{item.body}</p>}
+                  {item.link_url && (
+                    <a
+                      href={item.link_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="qr-portal-menu-item-cta"
+                      style={{ color: branding.primaryColor }}
+                    >
+                      {item.link_label || "Open link"} →
+                    </a>
+                  )}
+                </div>
+              )
+            ))}
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   if (errorMessage) return <p className="p-6 text-center">{errorMessage}</p>;
   if (!portal) return <p className="p-6 text-center">Opening feedback...</p>;
 
@@ -116,7 +182,7 @@ export default function QrRedirect() {
     <main className="qr-portal" style={{ backgroundColor: branding.accentColor }}>
       <section className="qr-portal-card">
         {branding.logoUrl && <img src={branding.logoUrl} alt={`${branding.brandName || "Venue"} logo`} className="qr-portal-logo" />}
-        <p className="qr-portal-brand" style={{ color: branding.primaryColor }}>{branding.brandName || "iVote"}</p>
+        <p className="qr-portal-brand" style={{ color: branding.primaryColor }}>{branding.brandName || "Godwit"}</p>
         <h1>{campaign.portal_title || "Your feedback matters."}</h1>
         <p>{campaign.portal_message || `Take a moment to share feedback about ${poll.question}.`}</p>
         <button

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import { supabase } from "../lib/supabase";
@@ -6,6 +6,7 @@ import { isRestrictedTopic } from "../lib/restrictedContent";
 import { readPollMeta, isPollClosed } from "../lib/pollMeta";
 import { getPollBranding } from "../lib/pollBranding";
 import { dispatchWorkspaceWebhook } from "../lib/webhooks";
+import { isValidEmail } from "../lib/validators";
 
 const TRANSLATION_LANGUAGES = [
   { value: "original", label: "Original" },
@@ -18,6 +19,13 @@ const TRANSLATION_LANGUAGES = [
   { value: "ar", label: "العربية" },
   { value: "zh-CN", label: "中文 (简体)" }
 ];
+
+// Kill switch: the translation call below uses Google's unofficial, unsupported "gtx" endpoint
+// (there is no official-API key wiring yet). Set VITE_ENABLE_TRANSLATION=false to hide the
+// language switcher instantly, without a code change, if that endpoint gets rate-limited or
+// blocked. See TODO.md for the plan to move to the official Google Cloud Translation API.
+const TRANSLATION_ENABLED = import.meta.env.VITE_ENABLE_TRANSLATION !== "false";
+const TRANSLATION_TIMEOUT_MS = 5000;
 
 export default function Vote() {
   const { pollId } = useParams();
@@ -40,8 +48,16 @@ export default function Vote() {
   const [translationError, setTranslationError] = useState("");
   const [followUpEmail, setFollowUpEmail] = useState("");
   const [followUpConsent, setFollowUpConsent] = useState(false);
+  const [followUpEmailError, setFollowUpEmailError] = useState("");
   const [organizerMessage, setOrganizerMessage] = useState("");
   const [messageReplyEmail, setMessageReplyEmail] = useState("");
+  const [messageReplyEmailError, setMessageReplyEmailError] = useState("");
+  // Basic bot friction: a hidden field real visitors never fill in, plus a minimum time
+  // on the page before a submission is accepted. This is not a substitute for real
+  // rate limiting (see TODO.md) but stops the most naive scripted submissions for free.
+  const [honeypot, setHoneypot] = useState("");
+  const pageOpenedAtRef = useRef(Date.now());
+  const MIN_DWELL_MS = 1200;
   const campaignId = Number(searchParams.get("campaign"));
   const validCampaignId = Number.isSafeInteger(campaignId) && campaignId > 0 ? campaignId : null;
 
@@ -85,6 +101,26 @@ export default function Vote() {
 
   async function submitVote(answersToSubmit) {
     if (!Array.isArray(answersToSubmit) || answersToSubmit.length === 0) return;
+
+    // Silently drop obvious bot submissions: a filled honeypot, or a submission that
+    // arrived faster than a human could plausibly read the question and choose an answer.
+    if (honeypot.trim() || Date.now() - pageOpenedAtRef.current < MIN_DWELL_MS) {
+      return;
+    }
+
+    // Validate optional emails before the vote is inserted, not after - once the vote is
+    // in, the voter is redirected to /thanks and has no way back to fix a typo, and the
+    // opt-in email (or reply address) would just silently fail to save server-side.
+    setFollowUpEmailError("");
+    setMessageReplyEmailError("");
+    if (followUpConsent && followUpEmail.trim() && !isValidEmail(followUpEmail)) {
+      setFollowUpEmailError("Enter a valid email address, e.g. name@example.com.");
+      return;
+    }
+    if (messageReplyEmail.trim() && !isValidEmail(messageReplyEmail)) {
+      setMessageReplyEmailError("Enter a valid email address, e.g. name@example.com.");
+      return;
+    }
 
     const {
       data: { user }
@@ -240,25 +276,48 @@ export default function Vote() {
     const reason = window.prompt("Why are you reporting this answer? Use: offensive, personal_data, spam, or other.", "offensive");
     if (!reason) return;
     setReportingAnswer(answer);
-    const { error } = await supabase.rpc("report_public_user_answer", {
+    const { data: reportResult, error } = await supabase.rpc("report_public_user_answer", {
       target_poll_id: poll.id,
       target_answer: answer,
       report_reason: reason.trim().toLowerCase()
-    });
+    }).single();
     setReportingAnswer("");
     setReportMessage(error ? error.message : "Thank you. The organizer will review this answer.");
+
+    if (!error && reportResult?.workspace_id && reportResult?.id) {
+      dispatchWorkspaceWebhook(reportResult.workspace_id, "content_reported", reportResult.id);
+      fetch("/api/notify-content-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workspaceId: reportResult.workspace_id, reportId: reportResult.id })
+      }).catch((notifyError) => console.error("Content report notification dispatch failed", notifyError));
+    }
   }
 
   async function translateText(text, targetLanguage) {
     const normalizedText = String(text ?? "").trim();
     if (!normalizedText) return "";
 
-    const response = await fetch(
-      `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(targetLanguage)}&dt=t&q=${encodeURIComponent(normalizedText)}`
-    );
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), TRANSLATION_TIMEOUT_MS);
+
+    let response;
+    try {
+      response = await fetch(
+        `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(targetLanguage)}&dt=t&q=${encodeURIComponent(normalizedText)}`,
+        { signal: controller.signal }
+      );
+    } catch (fetchError) {
+      if (fetchError.name === "AbortError") {
+        throw new Error("Translation timed out. Showing the original text instead.");
+      }
+      throw new Error("Translation is unavailable right now. Showing the original text instead.");
+    } finally {
+      clearTimeout(timeout);
+    }
 
     if (!response.ok) {
-      throw new Error(`Translation request failed with status ${response.status}`);
+      throw new Error("Translation is unavailable right now. Showing the original text instead.");
     }
 
     const data = await response.json();
@@ -267,7 +326,7 @@ export default function Vote() {
       : "";
 
     if (!translated) {
-      throw new Error("Translation service returned an empty response.");
+      throw new Error("Translation is unavailable right now. Showing the original text instead.");
     }
 
     return translated;
@@ -292,7 +351,7 @@ export default function Vote() {
     let cancelled = false;
 
     async function runTranslation() {
-      if (!poll || !Array.isArray(poll.answers)) {
+      if (!TRANSLATION_ENABLED || !poll || !Array.isArray(poll.answers)) {
         setTranslatedQuestion("");
         setTranslatedAnswers({});
         setTranslationLoading(false);
@@ -437,6 +496,7 @@ export default function Vote() {
           </div>
           <label className="text-right text-xs text-slate-300">
             Language
+          {TRANSLATION_ENABLED ? (
           <select
             value={translationLanguage}
             onChange={(event) => setTranslationLanguage(event.target.value)}
@@ -448,9 +508,12 @@ export default function Vote() {
               </option>
             ))}
           </select>
+          ) : (
+            <span className="mt-1 block text-slate-500">Original only</span>
+          )}
           </label>
           {translationLoading && <p className="text-xs text-gray-400 mt-2">Translating poll content...</p>}
-          {translationError && <p className="text-xs text-red-400 mt-2">{translationError}</p>}
+          {translationError && <p className="text-xs text-amber-300 mt-2">{translationError}</p>}
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">{questionForDisplay}</h1>
 
@@ -512,6 +575,17 @@ export default function Vote() {
           </div>
         )}
 
+        <input
+          type="text"
+          name="company"
+          value={honeypot}
+          onChange={(event) => setHoneypot(event.target.value)}
+          autoComplete="off"
+          tabIndex={-1}
+          aria-hidden="true"
+          style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
+        />
+
         <button
           onClick={() => submitVote(selectedAnswers)}
           disabled={selectedAnswers.length === 0}
@@ -536,11 +610,18 @@ export default function Vote() {
           <input
             type="email"
             value={followUpEmail}
-            onChange={(event) => setFollowUpEmail(event.target.value)}
+            onChange={(event) => { setFollowUpEmail(event.target.value); setFollowUpEmailError(""); }}
+            onBlur={() => {
+              if (followUpConsent && followUpEmail.trim() && !isValidEmail(followUpEmail)) {
+                setFollowUpEmailError("Enter a valid email address, e.g. name@example.com.");
+              }
+            }}
             disabled={!followUpConsent}
-            className="mt-3 w-full border rounded p-2 text-black disabled:bg-slate-200"
+            aria-invalid={Boolean(followUpEmailError)}
+            className={`mt-3 w-full border rounded p-2 text-black disabled:bg-slate-200 ${followUpEmailError ? "border-red-500" : ""}`}
             placeholder="you@example.com"
           />
+          {followUpEmailError && <p className="mt-1 text-xs text-red-400">{followUpEmailError}</p>}
           <label className="mt-3 flex items-start gap-2 text-xs text-slate-200">
             <input
               type="checkbox"
@@ -566,10 +647,17 @@ export default function Vote() {
           <input
             type="email"
             value={messageReplyEmail}
-            onChange={(event) => setMessageReplyEmail(event.target.value)}
-            className="mt-2 w-full rounded border p-2 text-black"
+            onChange={(event) => { setMessageReplyEmail(event.target.value); setMessageReplyEmailError(""); }}
+            onBlur={() => {
+              if (messageReplyEmail.trim() && !isValidEmail(messageReplyEmail)) {
+                setMessageReplyEmailError("Enter a valid email address, e.g. name@example.com.");
+              }
+            }}
+            aria-invalid={Boolean(messageReplyEmailError)}
+            className={`mt-2 w-full rounded border p-2 text-black ${messageReplyEmailError ? "border-red-500" : ""}`}
             placeholder="Your email for a reply (optional)"
           />
+          {messageReplyEmailError && <p className="mt-1 text-xs text-red-400">{messageReplyEmailError}</p>}
         </details>
       </div>
     </Layout>

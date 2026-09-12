@@ -1,26 +1,33 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabase";
+import godwitLockup from "../assets/godwit-logo-lockup.svg";
 
-const steps = [
-  {
-    number: "01",
-    title: "Place a QR code",
-    detail: "Use one branded QR poster at a table, counter, room, or event entrance."
-  },
-  {
-    number: "02",
-    title: "Collect feedback in seconds",
-    detail: "Guests scan, choose an answer, and submit. No download or account is needed."
-  },
-  {
-    number: "03",
-    title: "Turn responses into growth",
-    detail: "Use answer patterns to invite honest public reviews, offer a benefit, and learn what brings customers back."
-  }
+const stepKeys = [
+  { number: "01", titleKey: "steps.step1Title", detailKey: "steps.step1Detail" },
+  { number: "02", titleKey: "steps.step2Title", detailKey: "steps.step2Detail" },
+  { number: "03", titleKey: "steps.step3Title", detailKey: "steps.step3Detail" }
+];
+
+const outcomeKeys = [
+  { titleKey: "outcomes.reusableTitle", detailKey: "outcomes.reusableDetail" },
+  { titleKey: "outcomes.conversionTitle", detailKey: "outcomes.conversionDetail" },
+  { titleKey: "outcomes.growthTitle", detailKey: "outcomes.growthDetail" },
+  { titleKey: "outcomes.publicTitle", detailKey: "outcomes.publicDetail" },
+  { titleKey: "outcomes.connectionTitle", detailKey: "outcomes.connectionDetail" }
+];
+
+const flockKeys = [
+  { key: "redshank", nameKey: "flock.redshankName", roleKey: "flock.redshankRole", detailKey: "flock.redshankDetail" },
+  { key: "magpie", nameKey: "flock.magpieName", roleKey: "flock.magpieRole", detailKey: "flock.magpieDetail" },
+  { key: "flamingo", nameKey: "flock.flamingoName", roleKey: "flock.flamingoRole", detailKey: "flock.flamingoDetail" },
+  { key: "tern", nameKey: "flock.ternName", roleKey: "flock.ternRole", detailKey: "flock.ternDetail" },
+  { key: "waxwing", nameKey: "flock.waxwingName", roleKey: "flock.waxwingRole", detailKey: "flock.waxwingDetail" }
 ];
 
 export default function Landing() {
+  const { t } = useTranslation("translation", { keyPrefix: "landing" });
   const [isSignedIn, setIsSignedIn] = useState(false);
 
   useEffect(() => {
@@ -33,37 +40,38 @@ export default function Landing() {
     <main className="landing-page">
       <section className="landing-hero">
         <div className="landing-hero-content">
-          <p className="landing-eyebrow">QR feedback for real-world spaces</p>
-          <h1>Turn every physical location into a measurable feedback channel.</h1>
-          <p className="landing-lede">
-            iVote helps venues turn a simple QR scan into feedback, campaign insight, and permission-based follow-up.
-          </p>
+          <p className="landing-eyebrow">{t("eyebrow")}</p>
+          <h1>{t("title")}</h1>
+          <p className="landing-lede">{t("lede")}</p>
           {isSignedIn ? (
             <div className="landing-actions">
-              <Link to="/admin" className="landing-admin-action">Workspace dashboard</Link>
+              <Link to="/admin" className="landing-admin-action">{t("workspaceDashboard")}</Link>
             </div>
           ) : (
             <div className="landing-actions">
-              <Link to="/register" className="landing-primary-action">Create a workspace</Link>
-              <Link to="/login" className="landing-secondary-action">Workspace login</Link>
+              <Link to="/register" className="landing-primary-action">{t("createWorkspace")}</Link>
+              <Link to="/login" className="landing-secondary-action">{t("workspaceLogin")}</Link>
             </div>
           )}
-          <p className="landing-note">Built for venues, events, hospitality, retail, and in-person teams.</p>
+          <p className="landing-note">{t("note")}</p>
+        </div>
+        <div className="landing-hero-visual" aria-hidden="true">
+          <img src={godwitLockup} alt="" />
         </div>
       </section>
 
 
       <section className="landing-section" aria-labelledby="how-it-works-title">
         <div className="landing-section-heading">
-          <p className="landing-eyebrow">A simple loop</p>
-          <h2 id="how-it-works-title">From a QR code to a better decision.</h2>
+          <p className="landing-eyebrow">{t("howItWorksEyebrow")}</p>
+          <h2 id="how-it-works-title">{t("howItWorksTitle")}</h2>
         </div>
         <div className="landing-steps">
-          {steps.map((step) => (
+          {stepKeys.map((step) => (
             <article key={step.number} className="landing-step">
               <span>{step.number}</span>
-              <h3>{step.title}</h3>
-              <p>{step.detail}</p>
+              <h3>{t(step.titleKey)}</h3>
+              <p>{t(step.detailKey)}</p>
             </article>
           ))}
         </div>
@@ -71,27 +79,47 @@ export default function Landing() {
 
       <section className="landing-outcomes" aria-labelledby="outcomes-title">
         <div>
-          <p className="landing-eyebrow">Feedback that compounds</p>
-          <h2 id="outcomes-title">Build a stronger connection after every response.</h2>
+          <p className="landing-eyebrow">{t("outcomesEyebrow")}</p>
+          <h2 id="outcomes-title">{t("outcomesTitle")}</h2>
         </div>
         <ul>
-          <li><strong>Reusable QR locations</strong><span>Keep the same printed QR code while changing the active poll.</span></li>
-          <li><strong>Campaign conversion</strong><span>Compare scans with completed votes to see where engagement happens.</span></li>
-          <li><strong>Permission-based market growth</strong><span>Invite voters to share their email for event news and offers only after clear consent.</span></li>
-          <li><strong>More public feedback</strong><span>Send selected responses to Google, Tripadvisor, or another review platform with an optional voucher or discount code.</span></li>
-          <li><strong>Customer connection</strong><span>Reward email opt-ins immediately and verify external review claims before releasing the second benefit.</span></li>
+          {outcomeKeys.map((outcome) => (
+            <li key={outcome.titleKey}><strong>{t(outcome.titleKey)}</strong><span>{t(outcome.detailKey)}</span></li>
+          ))}
         </ul>
       </section>
 
+      <section className="landing-flock" aria-labelledby="flock-title">
+        <div className="landing-section-heading">
+          <p className="landing-eyebrow">{t("flockEyebrow")}</p>
+          <h2 id="flock-title">{t("flockTitle")}</h2>
+          <p className="landing-flock-lede">{t("flockLede")}</p>
+        </div>
+        <div className="landing-flock-grid">
+          {flockKeys.map((bird) => (
+            <article key={bird.key} className="landing-flock-card">
+              <span className="landing-flock-badge" aria-hidden="true">
+                <svg viewBox="0 0 40 60" width="22" height="33">
+                  <path d="M20,58 C14,44 15,26 24,10 C31,17 35,29 33,41 C31,50 26,56 20,58 Z" fill="currentColor" />
+                </svg>
+              </span>
+              <h3>{t(bird.nameKey)}</h3>
+              <p className="landing-flock-role">{t(bird.roleKey)}</p>
+              <p>{t(bird.detailKey)}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <section className="landing-final">
-        <p className="landing-eyebrow">Ready to measure the room?</p>
-        <h2>Launch your first QR feedback campaign.</h2>
-        <p className="landing-final-copy">Set up your workspace, create a QR feedback campaign, and turn customer responses into your next decision.</p>
+        <p className="landing-eyebrow">{t("finalEyebrow")}</p>
+        <h2>{t("finalTitle")}</h2>
+        <p className="landing-final-copy">{t("finalCopy")}</p>
         <div className="landing-admin-actions">
           {isSignedIn ? (
-            <Link to="/admin" className="landing-admin-action">Open workspace dashboard</Link>
+            <Link to="/admin" className="landing-admin-action">{t("openDashboard")}</Link>
           ) : (
-            <Link to="/register" className="landing-primary-action">Create a workspace</Link>
+            <Link to="/register" className="landing-primary-action">{t("createWorkspace")}</Link>
           )}
         </div>
       </section>

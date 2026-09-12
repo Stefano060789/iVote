@@ -32,7 +32,7 @@ export default function Unsubscribe() {
         {status === "notfound" && <p className="text-sm text-slate-300">This unsubscribe link is no longer valid, but if you're trying to stop these emails, please contact the organizer directly.</p>}
         {status === "missing" && <p className="text-sm text-slate-300">This link is missing a token, so we couldn't identify your subscription.</p>}
         {status === "error" && <p className="text-sm text-slate-300">Something went wrong. Please try again in a moment.</p>}
-        <Link to="/" className="mt-6 inline-block text-sm font-semibold text-teal-300 underline">Back to iVote</Link>
+        <Link to="/" className="mt-6 inline-block text-sm font-semibold text-teal-300 underline">Back to Godwit</Link>
       </div>
     </Layout>
   );

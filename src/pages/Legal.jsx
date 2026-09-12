@@ -21,7 +21,7 @@ function OperatorNotice() {
     <p className="rounded border border-slate-600 bg-slate-900 p-4 text-xs text-slate-300">
       <strong>Operator:</strong> {OPERATOR_NAME}, {OPERATOR_ADDRESS}. Replace the bracketed fields above with your
       real business name and address before sending this link to pilot venues - everything else on this page already
-      reflects how iVote actually works.
+      reflects how Godwit actually works.
     </p>
   );
 }
@@ -32,9 +32,9 @@ function PrivacyNotice() {
       <section>
         <h2 className="text-xl font-semibold">Who is responsible for this data</h2>
         <p>
-          iVote is operated by {OPERATOR_NAME} ("iVote", "we"). For your own account and workspace settings, we are
+          Godwit is operated by {OPERATOR_NAME} ("Godwit", "we"). For your own account and workspace settings, we are
           the data controller under the GDPR. For personal data that voters choose to share through your polls
-          (an opted-in email, a private message, a prize-draw entry), your workspace is the controller and iVote
+          (an opted-in email, a private message, a prize-draw entry), your workspace is the controller and Godwit
           acts only as a data processor on your instructions - see "Data controller vs. processor" in our Terms of
           Service for what that means for you.
         </p>
@@ -47,7 +47,7 @@ function PrivacyNotice() {
           <li><strong>Poll and vote data:</strong> the questions and answers a workspace configures, and the answers voters submit. Voting itself never requires an account and is not linked to an identity unless a voter chooses to leave contact details.</li>
           <li><strong>Optional voter-provided data, only with explicit consent:</strong> an email address left for follow-up, a prize-draw entry, or return-visit recognition; a free-text message to the organizer with an optional reply email.</li>
           <li><strong>QR placement/staff labels:</strong> labels a workspace admin assigns to a QR code or a staff member, visible only inside that workspace.</li>
-          <li><strong>Billing data:</strong> handled directly by Stripe. iVote stores only your plan and subscription status, never full card details.</li>
+          <li><strong>Billing data:</strong> handled directly by Stripe. Godwit stores only your plan and subscription status, never full card details.</li>
           <li><strong>Technical/error data:</strong> if the workspace operator has enabled it, basic crash reports (Sentry) that may include a stack trace. IP address collection is switched off by default in our error monitoring configuration.</li>
           <li><strong>Local device storage:</strong> a flag on the voter's own device recording that a given poll was already answered, and a couple of small UI preference flags. Not used for cross-site tracking and not shared with third parties.</li>
         </ul>
@@ -60,7 +60,7 @@ function PrivacyNotice() {
           with you. Capturing a voter's email, prize-draw entry, or private message always requires their explicit,
           separate consent, given through a checkbox at the point of collection - it is never bundled with voting
           itself. Security, fraud prevention, and keeping the service running rely on our legitimate interest in
-          operating iVote safely.
+          operating Godwit safely.
         </p>
       </section>
 
@@ -75,7 +75,7 @@ function PrivacyNotice() {
 
       <section>
         <h2 className="text-xl font-semibold">Who we share data with</h2>
-        <p>We use the following processors to run iVote. We do not sell personal data, and we do not use data collected through your polls for our own marketing.</p>
+        <p>We use the following processors to run Godwit. We do not sell personal data, and we do not use data collected through your polls for our own marketing.</p>
         <ul className="list-disc space-y-1 pl-5">
           <li><strong>Supabase</strong> - database, authentication, and file storage</li>
           <li><strong>Vercel</strong> - application hosting and scheduled jobs</li>
@@ -104,7 +104,7 @@ function PrivacyNotice() {
 
       <section>
         <h2 className="text-xl font-semibold">Children</h2>
-        <p>iVote is not directed at children and we do not knowingly collect personal data from anyone below the applicable local minimum age of digital consent (14 in Austria; 16 in most other EU countries unless locally lowered).</p>
+        <p>Godwit is not directed at children and we do not knowingly collect personal data from anyone below the applicable local minimum age of digital consent (14 in Austria; 16 in most other EU countries unless locally lowered).</p>
       </section>
 
       <section>
@@ -129,20 +129,20 @@ function TermsOfService() {
   return (
     <>
       <section>
-        <h2 className="text-xl font-semibold">Using iVote</h2>
+        <h2 className="text-xl font-semibold">Using Godwit</h2>
         <p>By creating a workspace or using a poll link, you agree to these terms. Workspace owners are responsible for their polls, notices, and the lawful use of the responses they collect.</p>
       </section>
 
       <section>
         <h2 className="text-xl font-semibold">Acceptable use</h2>
-        <p>Poll questions, answers, and custom voter answers may not contain political, religious, or sexual content; iVote screens for this automatically and any voter can report content they believe is inappropriate for manual review.</p>
+        <p>Poll questions, answers, and custom voter answers may not contain political, religious, or sexual content; Godwit screens for this automatically and any voter can report content they believe is inappropriate for manual review.</p>
       </section>
 
       <section>
         <h2 className="text-xl font-semibold">Data controller vs. processor</h2>
         <p>
           Your workspace is the <strong>data controller</strong> for the personal data your own customers (voters)
-          choose to share through your polls - opted-in emails, prize-draw entries, private messages. iVote is only
+          choose to share through your polls - opted-in emails, prize-draw entries, private messages. Godwit is only
           a <strong>data processor</strong>: we store and process that data on your instructions and do not use it
           for our own purposes. You are responsible for having a lawful basis to collect it (the explicit consent
           checkboxes already built into voting exist for this reason) and for responding to your own customers'
@@ -153,7 +153,7 @@ function TermsOfService() {
       <section>
         <h2 className="text-xl font-semibold">Prize draws and rewards</h2>
         <p>
-          If you enable a prize draw, iVote automatically shows entrants the official rules (no purchase necessary,
+          If you enable a prize draw, Godwit automatically shows entrants the official rules (no purchase necessary,
           18+ and locally eligible only, one entry per person, random winner, void where prohibited). You are the
           sponsor of any prize draw or reward you configure and are responsible for complying with the sweepstakes,
           gambling, and consumer-protection laws that apply to you, including any registration or bonding
@@ -164,7 +164,7 @@ function TermsOfService() {
       <section>
         <h2 className="text-xl font-semibold">Reviews</h2>
         <p>
-          iVote's public review links are shown to every voter regardless of their answer, and no reward may be
+          Godwit's public review links are shown to every voter regardless of their answer, and no reward may be
           tied to leaving a review, in line with major review platforms' policies. Do not use the reward, message,
           or redemption fields to recreate a gated or incentivized review flow outside the product.
         </p>
@@ -182,7 +182,7 @@ function TermsOfService() {
 
       <section>
         <h2 className="text-xl font-semibold">Disclaimers</h2>
-        <p>iVote is provided "as is" during this pilot phase, without warranties of any kind, to the maximum extent permitted by law. Nothing here limits liability that cannot be limited under mandatory law, including statutory consumer rights.</p>
+        <p>Godwit is provided "as is" during this pilot phase, without warranties of any kind, to the maximum extent permitted by law. Nothing here limits liability that cannot be limited under mandatory law, including statutory consumer rights.</p>
       </section>
 
       <section>

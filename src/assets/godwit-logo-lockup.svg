@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 400" width="460" height="400">
+  <defs>
+    <linearGradient id="godwitBody" gradientUnits="userSpaceOnUse" x1="40" y1="28" x2="188" y2="150">
+      <stop offset="0%" stop-color="#FBDD86"/>
+      <stop offset="25%" stop-color="#F2C744"/>
+      <stop offset="100%" stop-color="#B8801E"/>
+    </linearGradient>
+    <linearGradient id="godwitBeak" gradientUnits="userSpaceOnUse" x1="140" y1="86" x2="186" y2="106">
+      <stop offset="0%" stop-color="#E7A63A"/>
+      <stop offset="100%" stop-color="#93630F"/>
+    </linearGradient>
+  </defs>
+
+  <!-- orbital wireframe arcs, suggesting global reach -->
+  <g fill="none" stroke="#C9971E" stroke-width="1" opacity="0.55">
+    <path d="M40,230 C110,150 190,90 260,70 C310,56 360,60 400,80"/>
+    <path d="M60,250 C130,190 210,140 280,120 C330,106 380,112 420,130"/>
+    <path d="M90,270 C150,225 220,185 285,168 C325,158 365,164 395,178"/>
+  </g>
+  <!-- star flare where the arcs converge -->
+  <path d="M262,58 L267,76 L285,81 L267,86 L262,104 L257,86 L239,81 L257,76 Z" fill="#FFEFB0"/>
+
+  <!-- the bird mark -->
+  <g transform="translate(60,60) scale(1.15)">
+    <g transform="translate(-2,10)">
+      <!-- tail: small feather cluster reusing the wing-feather shape, scaled down -->
+      <g transform="translate(64,132)" fill="url(#godwitBody)">
+        <path d="M0,0 C-9,-18 -12,-40 -3,-64 C6,-58 12,-40 9,-20 C7,-9 3,-3 0,0 Z" transform="rotate(146) scale(0.5)" opacity="0.85"/>
+        <path d="M0,0 C-9,-18 -12,-40 -3,-64 C6,-58 12,-40 9,-20 C7,-9 3,-3 0,0 Z" transform="rotate(163) scale(0.6)" opacity="0.9"/>
+        <path d="M0,0 C-9,-18 -12,-40 -3,-64 C6,-58 12,-40 9,-20 C7,-9 3,-3 0,0 Z" transform="rotate(180) scale(0.48)" opacity="0.85"/>
+      </g>
+      <!-- body -->
+      <ellipse cx="97" cy="122" rx="32" ry="23" fill="url(#godwitBody)" transform="rotate(-12 97 122)"/>
+      <!-- wing: 6 tapered feathers fanned from the shoulder pivot -->
+      <g transform="translate(100,95)" fill="url(#godwitBody)" stroke="#8a5c0f" stroke-width="0.6" stroke-linejoin="round">
+        <path d="M0,0 C-9,-18 -12,-40 -3,-64 C6,-58 12,-40 9,-20 C7,-9 3,-3 0,0 Z" transform="rotate(16) scale(1.08)"/>
+        <path d="M0,0 C-9,-18 -12,-40 -3,-64 C6,-58 12,-40 9,-20 C7,-9 3,-3 0,0 Z" transform="rotate(-8) scale(1.0)" opacity="0.97"/>
+        <path d="M0,0 C-9,-18 -12,-40 -3,-64 C6,-58 12,-40 9,-20 C7,-9 3,-3 0,0 Z" transform="rotate(-32) scale(0.9)" opacity="0.94"/>
+        <path d="M0,0 C-9,-18 -12,-40 -3,-64 C6,-58 12,-40 9,-20 C7,-9 3,-3 0,0 Z" transform="rotate(-56) scale(0.78)" opacity="0.9"/>
+        <path d="M0,0 C-9,-18 -12,-40 -3,-64 C6,-58 12,-40 9,-20 C7,-9 3,-3 0,0 Z" transform="rotate(-80) scale(0.64)" opacity="0.86"/>
+        <path d="M0,0 C-9,-18 -12,-40 -3,-64 C6,-58 12,-40 9,-20 C7,-9 3,-3 0,0 Z" transform="rotate(-102) scale(0.5)" opacity="0.82"/>
+      </g>
+      <!-- head -->
+      <circle cx="130" cy="103" r="14" fill="url(#godwitBody)"/>
+      <!-- beak -->
+      <path d="M142,100 L184,87 L182,93 L143,106 Z" fill="url(#godwitBeak)"/>
+      <!-- eye -->
+      <circle cx="136" cy="99" r="2.2" fill="#0b1a33"/>
+    </g>
+  </g>
+
+  <!-- wordmark -->
+  <text x="230" y="356" text-anchor="middle" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="48" font-weight="700" fill="#F5F6F4" letter-spacing="1">Godwit</text>
+  <path d="M175,374 C200,370 260,370 285,374" fill="none" stroke="#F2C744" stroke-width="2" stroke-linecap="round"/>
+</svg>

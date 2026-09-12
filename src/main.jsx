@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 
 import NavBar from "./components/NavBar";
+import { getCookieConsent, COOKIE_CONSENT_EVENT } from "./lib/cookieConsent";
+import "./i18n";
 
 // Every page is code-split into its own chunk. Vote/ThankYou are what a
 // customer's phone actually downloads after scanning a QR code, so keeping
@@ -32,9 +34,20 @@ const Essentials = lazy(() => import("./pages/Essentials"));
 
 import "./style.css";
 
-if (import.meta.env.VITE_SENTRY_DSN) {
-  Sentry.init({ dsn: import.meta.env.VITE_SENTRY_DSN, environment: import.meta.env.MODE, sendDefaultPii: false });
+function initSentry() {
+  if (import.meta.env.VITE_SENTRY_DSN) {
+    Sentry.init({ dsn: import.meta.env.VITE_SENTRY_DSN, environment: import.meta.env.MODE, sendDefaultPii: false });
+  }
 }
+
+// Only start error reporting once the visitor has explicitly accepted it (see CookieConsent).
+// If they accept later in the same session, start reporting from that point on.
+if (getCookieConsent() === "accepted") {
+  initSentry();
+}
+window.addEventListener(COOKIE_CONSENT_EVENT, (event) => {
+  if (event.detail === "accepted") initSentry();
+});
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(console.error));

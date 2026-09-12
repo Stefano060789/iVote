@@ -29,6 +29,10 @@ export default async function handler(request, response) {
     const [apiKey] = await supabaseGet(`api_keys?key_hash=eq.${keyHash}&select=id,workspace_id`);
     if (!apiKey) return response.status(401).json({ error: "Invalid API key." });
 
+    const [subscription] = await supabaseGet(`workspace_subscriptions?workspace_id=eq.${encodeURIComponent(apiKey.workspace_id)}&select=plan,status`);
+    const plan = subscription?.plan === "growth" && ["active", "trialing"].includes(subscription.status) ? "growth" : "free";
+    if (plan !== "growth") return response.status(403).json({ error: "Developer API access requires the Growth plan." });
+
     supabasePatch(`api_keys?id=eq.${apiKey.id}`, { last_used_at: new Date().toISOString() }).catch(() => {});
 
     const workspaceId = encodeURIComponent(apiKey.workspace_id);

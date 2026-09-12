@@ -46,6 +46,12 @@ export default async function handler(request, response) {
     );
     if (!membership?.length) return response.status(403).json({ error: "You do not manage this workspace." });
 
+    const [subscription] = await supabaseServiceRequest(
+      `workspace_subscriptions?workspace_id=eq.${encodeURIComponent(workspaceId)}&select=plan,status`
+    );
+    const plan = subscription?.plan === "growth" && ["active", "trialing"].includes(subscription.status) ? "growth" : "free";
+    if (plan !== "growth") return response.status(403).json({ error: "Public reputation monitoring is available on the Growth plan." });
+
     const [workspace] = await supabaseServiceRequest(
       `workspaces?id=eq.${encodeURIComponent(workspaceId)}&select=google_place_id`
     );

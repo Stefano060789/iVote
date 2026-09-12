@@ -56,7 +56,7 @@ export function readWorkspaceProfile(userId) {
   const profile = profiles[String(userId)] ?? {};
 
   return {
-    companyName: profile.companyName || "iVote",
+    companyName: profile.companyName || "Godwit",
     logoUrl: profile.logoUrl || "",
     primaryColor: profile.primaryColor || "#2563eb",
     accentColor: profile.accentColor || "#0f172a",
@@ -82,17 +82,31 @@ export async function loadWorkspaceProfile() {
 
   const { data: { user } } = await supabase.auth.getUser();
   const role = await getCurrentUserRole(user?.id);
+  const plan = await loadWorkspacePlan(workspaceId);
   return {
     id: workspace.id,
-    companyName: workspace.name || "iVote",
+    companyName: workspace.name || "Godwit",
     logoUrl: workspace.logo_url || "",
     primaryColor: workspace.primary_color || "#2563eb",
     accentColor: workspace.accent_color || "#0f172a",
     webhookUrl: workspace.webhook_url || "",
     voteRetentionDays: workspace.vote_retention_days || "",
     googlePlaceId: workspace.google_place_id || "",
-    role
+    role,
+    plan
   };
+}
+
+// Reads the workspace's billing plan ("free", "starter", or "growth"). Falls back to "free"
+// on any error so an entitlement lookup never blocks the rest of the dashboard from loading.
+export async function loadWorkspacePlan(workspaceId) {
+  if (!workspaceId) return "free";
+  const { data, error } = await supabase.rpc("workspace_plan", { target_workspace_id: workspaceId });
+  if (error) {
+    console.error("Unable to load workspace plan", error);
+    return "free";
+  }
+  return data || "free";
 }
 
 export async function saveWorkspaceProfile(workspaceId, patch = {}) {
@@ -103,7 +117,7 @@ export async function saveWorkspaceProfile(workspaceId, patch = {}) {
   const next = {
     ...current,
     ...patch,
-    companyName: patch.companyName ?? current.companyName ?? "iVote",
+    companyName: patch.companyName ?? current.companyName ?? "Godwit",
     primaryColor: patch.primaryColor ?? current.primaryColor ?? "#2563eb",
     accentColor: patch.accentColor ?? current.accentColor ?? "#0f172a",
     role: patch.role ?? current.role ?? "owner"

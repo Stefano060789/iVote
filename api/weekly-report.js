@@ -43,7 +43,7 @@ export default async function handler(request, response) {
         count(`feedback_alerts?workspace_id=eq.${workspace}&status=in.(open,acknowledged)&select=id`),
         count(`feedback_recovery_tasks?workspace_id=eq.${workspace}&status=in.(open,in_progress)&select=id`)
       ]);
-      return { to: setting.recipient_email, subject: "iVote weekly workspace summary", text: `Weekly iVote summary\n\nPolls: ${polls}\nVotes in the last 7 days: ${votes}\nOpen feedback alerts: ${alerts}\nOpen recovery tasks: ${tasks}` };
+      return { to: setting.recipient_email, subject: "Godwit weekly workspace summary", text: `Weekly Godwit summary\n\nPolls: ${polls}\nVotes in the last 7 days: ${votes}\nOpen feedback alerts: ${alerts}\nOpen recovery tasks: ${tasks}` };
     }));
     if (process.env.RESEND_API_KEY && reports.length) {
       const sender = process.env.REPORT_FROM_EMAIL;

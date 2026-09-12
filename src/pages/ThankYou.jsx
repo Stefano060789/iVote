@@ -88,8 +88,8 @@ export default function ThankYou() {
 
 
       <div className="mt-8 border-t border-slate-700 pt-5">
-        <p className="text-sm text-slate-300">iVote helps venues turn simple QR scans into useful feedback.</p>
-        <Link to="/" className="mt-3 inline-block text-sm font-semibold text-teal-300 underline">Learn about iVote</Link>
+        <p className="text-sm text-slate-300">Godwit helps venues turn simple QR scans into useful feedback.</p>
+        <Link to="/" className="mt-3 inline-block text-sm font-semibold text-teal-300 underline">Learn about Godwit</Link>
       </div>
     </div>
   );
