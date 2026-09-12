@@ -3,6 +3,26 @@
 Things that are known gaps but intentionally deferred, not forgotten. Check this file
 periodically and clear items as you address them.
 
+## Hosting / deployment
+
+- [x] **Fixed a Vercel deploy failure**: "No more than 12 Serverless Functions can be
+  added to a Deployment on the Hobby plan." Vercel Hobby caps a deployment at 12
+  functions, and every `.js` file directly under `api/` counts as one - this project had
+  grown to 15. Consolidated the 4 cron-only endpoints (`weekly-report`, `check-anomalies`,
+  `purge-old-votes`, `send-winback-emails` - none of these are ever called by name from
+  the browser, only by Vercel's own scheduler) into a single `api/cron.js`, dispatched by
+  a `?job=` query param set per-schedule in `vercel.json`. The actual job logic moved to
+  `lib/cron/` at the repo root - outside `api/` entirely, so Vercel bundles it as a plain
+  dependency instead of counting it as its own function. This brought the count from 15
+  down to exactly 12.
+  - **This is now sitting right at the Hobby limit, with zero headroom.** The next time a
+    new `api/*.js` file is genuinely needed, either consolidate another existing endpoint
+    the same way first, or upgrade to a paid Vercel plan (Pro removes the 12-function cap).
+    Good candidates to merge next if you need to add something without upgrading:
+    `notify-content-report.js` and `dispatch-webhook.js` are both "fire a workspace
+    notification" concerns and could plausibly become one function with an action param,
+    similar to how the cron jobs were merged.
+
 ## Billing
 
 - [x] **30-day free trial** on Starter and Growth. `api/create-checkout-session.js` adds

@@ -1,19 +1,19 @@
 {
   "crons": [
     {
-      "path": "/api/weekly-report",
+      "path": "/api/cron?job=weekly-report",
       "schedule": "0 13 * * 1"
     },
     {
-      "path": "/api/check-anomalies",
+      "path": "/api/cron?job=check-anomalies",
       "schedule": "0 6 * * *"
     },
     {
-      "path": "/api/purge-old-votes",
+      "path": "/api/cron?job=purge-old-votes",
       "schedule": "0 5 * * *"
     },
     {
-      "path": "/api/send-winback-emails",
+      "path": "/api/cron?job=send-winback-emails",
       "schedule": "0 9 * * *"
     }
   ],
