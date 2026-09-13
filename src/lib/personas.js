@@ -77,17 +77,17 @@ export const PERSONAS = [
   {
     key: "large-org",
     icon: "\ud83c\udfdb\ufe0f",
-    label: "Museum, city, or large venue",
+    label: "Hotel, museum, city, or large venue",
     pitch: "Coordinate feedback across many rooms, departments, or locations from one dashboard.",
     steps: [
       {
         title: "Create reusable QR locations",
-        detail: "One durable code per room, floor, or landmark - swap the active poll anytime without reprinting.",
+        detail: "One durable code per hotel room, museum floor, or landmark - swap the active poll anytime without reprinting.",
         tab: "engagement"
       },
       {
         title: "Invite your team",
-        detail: "Give each department or staff member their own login and role.",
+        detail: "Give each department or staff member - front desk, housekeeping, a museum wing - their own login and role.",
         tab: "settings"
       },
       {
@@ -96,8 +96,8 @@ export const PERSONAS = [
         route: "/admin/analytics"
       },
       {
-        title: "Add wayfinding or exhibit info cards",
-        detail: "Show opening hours, accessibility info, or an exhibit photo right in the QR menu.",
+        title: "Add wayfinding, exhibit, or amenity info cards",
+        detail: "Show opening hours, spa or restaurant hours, accessibility info, or an exhibit photo right in the QR menu.",
         tab: "engagement"
       },
       {
