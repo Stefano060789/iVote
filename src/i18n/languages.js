@@ -9,9 +9,7 @@ export const SUPPORTED_LANGUAGES = [
   { code: "ar", label: "العربية", dir: "rtl" },
   { code: "pt", label: "Português" },
   { code: "de", label: "Deutsch" },
-  { code: "it", label: "Italiano" },
-  { code: "nl", label: "Nederlands" },
-  { code: "pl", label: "Polski" }
+  { code: "it", label: "Italiano" }
 ];
 
 export const DEFAULT_LANGUAGE = "en";

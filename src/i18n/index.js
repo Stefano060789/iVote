@@ -9,8 +9,6 @@ import ar from "./locales/ar.json";
 import pt from "./locales/pt.json";
 import de from "./locales/de.json";
 import it from "./locales/it.json";
-import nl from "./locales/nl.json";
-import pl from "./locales/pl.json";
 import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE, getLanguageDirection } from "./languages";
 
 const resources = {
@@ -21,9 +19,7 @@ const resources = {
   ar: { translation: ar },
   pt: { translation: pt },
   de: { translation: de },
-  it: { translation: it },
-  nl: { translation: nl },
-  pl: { translation: pl }
+  it: { translation: it }
 };
 
 i18n

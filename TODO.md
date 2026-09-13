@@ -83,29 +83,32 @@ address them.
 
 ## Internationalization
 
-- [x] i18n infrastructure (`i18next` + `react-i18next`), 10 languages wired up (English,
-  Chinese, Spanish, French, Arabic, Portuguese, German, Italian, Dutch, Polish). The
+- [x] i18n infrastructure (`i18next` + `react-i18next`), 8 languages wired up (English,
+  Chinese, Spanish, French, Arabic, Portuguese, German, Italian). Dutch and Polish were removed
+  (2026-09-13) at the operator's request - `src/i18n/languages.js`, `src/i18n/index.js`, and the
+  `nl.json`/`pl.json` locale files were dropped; `LanguageSwitcher` reads the language list
+  dynamically so no other change was needed. The
   `LanguageSwitcher` lives in `NavBar.jsx`, which renders on every route (outside `<Routes>`
   in `main.jsx`), so it's already available everywhere - the gap was translated *content*,
   not the switcher's visibility.
 - [x] `Vote.jsx` (the actual voter-facing poll page - the highest-value page to localize,
   since real guests scanning a QR code may not read English) and `ThankYou.jsx` are now fully
-  wired with `useTranslation()` + `t("vote.*")`/`t("thankYou.*")` keys, translated in all ten
+  wired with `useTranslation()` + `t("vote.*")`/`t("thankYou.*")` keys, translated in all
   locale files. Note `Vote.jsx` still has a separate, unrelated feature that translates poll
   *content* (the question/answers themselves) via Google Translate - that's independent of
   the UI-chrome translation added here.
 - [x] `Admin.jsx` (the main dashboard, 3000+ lines, all 6 tabs: Overview, Polls, QR codes/Engagement,
-  Customer Connection, Feedback, Settings) is now fully localized in all 10 languages - a large `admin.*`
-  i18n namespace, key parity verified. Also translated: the accessibility-tag vocabulary
+  Customer Connection, Feedback, Settings) is now fully localized in all supported languages - a large
+  `admin.*` i18n namespace, key parity verified. Also translated: the accessibility-tag vocabulary
   (`src/lib/accessibilityTags.js`) and the print-QR popup window strings. **Not translated on purpose**:
   `alert()`/`confirm()` validation messages scattered through handler functions (~75 of them) - these are
   transient, low-visibility strings; worth a follow-up pass if it becomes a priority.
 - [ ] **Still hardcoded English**: `CreatePoll.jsx`, `EditPoll.jsx`. Lower priority than Vote/ThankYou since
   these are used by the workspace owner/admin, not the general public - but follow the same pattern
-  (`useTranslation()` + `t("key")`, new keys added to *all ten* `src/i18n/locales/*.json` files) to extend
+  (`useTranslation()` + `t("key")`, new keys added to *every* `src/i18n/locales/*.json` file) to extend
   further.
 - [x] `Billing.jsx` fully localized (plan names/descriptions, comparison table, trial/checkout messages, CTAs)
-  in all 10 languages - `billing.*` namespace, key parity verified across every locale file.
+  in every supported language - `billing.*` namespace, key parity verified across every locale file.
 - [x] `Legal.jsx` (Privacy notice / Terms of service) deliberately kept **English-only**, with a short notice
   added to the page explaining the English text is the sole official/governing version. Auto-translating legal
   text carries real liability risk (a mistranslated clause on refunds, data-processor terms, etc. could be read
