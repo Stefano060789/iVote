@@ -3,6 +3,45 @@
 Things that are known gaps but intentionally deferred, not forgotten. Check this file
 periodically and clear items as you address them.
 
+## QR code donations
+
+- [x] **Voters can now donate directly to the organizer's bank account from the QR menu.**
+  New migration `supabase/20260916_donations.sql` (**run this migration** - see
+  `LAUNCH_SETUP.md`'s migration list) adds:
+  - `donation_settings`: one row per workspace (IBAN, account holder name, optional BIC,
+    optional suggested amount, optional thank-you message, an `is_enabled` toggle). Set up
+    once in Admin -> Engagement -> Donations, reused by every QR code.
+  - `public.is_valid_iban(text)`: a real ISO 7064 MOD 97-10 IBAN checksum function (not
+    just a shape check), enforced as a DB constraint - mirrored in
+    `src/lib/validators.js` (`isValidIban`) so the admin form validates instantly without
+    a round trip, and the two never disagree about what counts as a valid IBAN.
+  - `qr_campaign_items` gained a third `item_type`: `'donation'`, alongside the existing
+    `'poll'` and `'info'` types added in the previous QR-menu migration. A donation item
+    can only be added while `donation_settings.is_enabled` is true with a valid IBAN
+    (enforced by the same `qr_campaign_items_before_write` trigger the other item types
+    already use).
+  - `get_public_qr_campaign_items` now also returns the workspace's donation details
+    (only for `item_type = 'donation'`, and only while `is_enabled` stays true - so
+    disabling donations later doesn't leave old printed QR codes showing stale bank
+    details).
+  - Voter-facing display: `src/components/DonationCard.jsx`, rendered from
+    `QrRedirect.jsx`'s menu view. Shows the IBAN (with a copy button), account holder
+    name, optional suggested amount, and a scannable **EPC069-12 "SEPA Credit Transfer"
+    QR code** (also called a "GiroCode" in Germany/Austria/Netherlands) built by
+    `src/lib/sepaQr.js` using the `qrcode` package already installed for poll QR codes -
+    most European banking apps can scan this to prefill the transfer automatically.
+  - **Godwit never touches the money.** This is purely a display of the organizer's own
+    bank details plus a standard, publicly documented QR text format; there is no payment
+    processing, custody, or fee anywhere in this feature. Documented for users in
+    `Legal.jsx` under a new "Donations" section, and in the Admin UI copy itself.
+  - Not plan-gated - available on every tier, same as QR campaigns and QR items
+    themselves, since it costs Godwit nothing to offer (no payment infrastructure
+    involved).
+  - **Worth being aware of** (not a blocker, just context): publishing an IBAN is normal
+    practice (it's on every invoice), but if you ever want to reduce even the theoretical
+    SEPA-direct-debit-mandate-fraud surface further, consider periodically reviewing who
+    has your IBAN on file, same as you would for any published business bank account.
+
 ## Hosting / deployment
 
 - [x] **Fixed a Vercel deploy failure**: "No more than 12 Serverless Functions can be

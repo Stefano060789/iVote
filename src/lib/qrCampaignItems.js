@@ -37,6 +37,25 @@ export async function addQrCampaignInfoItem(campaignId, { title, body, linkUrl, 
   return data;
 }
 
+// Attaches a donation option to this QR code. The IBAN/account holder/amount
+// come from the workspace's shared donation_settings row (set up once, reused
+// by every QR code) - a donation item only optionally carries its own
+// title/body to override the default "Support this venue" copy per QR code.
+export async function addQrCampaignDonationItem(campaignId, { title, body } = {}) {
+  const { data, error } = await supabase
+    .from("qr_campaign_items")
+    .insert({
+      campaign_id: Number(campaignId),
+      item_type: "donation",
+      title: title ? String(title).trim() || null : null,
+      body: body ? String(body).trim() || null : null
+    })
+    .select()
+    .single();
+  if (error) throw new Error(`Unable to add the donation option to the QR code: ${error.message}`);
+  return data;
+}
+
 export async function removeQrCampaignItem(itemId) {
   const { error } = await supabase.from("qr_campaign_items").delete().eq("id", itemId);
   if (error) throw new Error(`Unable to remove that item: ${error.message}`);

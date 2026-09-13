@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { getPollBranding } from "../lib/pollBranding";
 import { reassignManagedCampaignPoll, resolveManagedQrToken } from "../lib/qrManage";
+import DonationCard from "../components/DonationCard";
 
 export default function QrRedirect() {
   const navigate = useNavigate();
@@ -138,19 +139,25 @@ export default function QrRedirect() {
           <h1>{portalTitle || "Welcome! Choose an option below."}</h1>
           {portalMessage && <p>{portalMessage}</p>}
           <div className="qr-portal-menu-list">
-            {items.map((item) => (
-              item.item_type === "poll" ? (
-                <button
-                  key={item.item_id}
-                  type="button"
-                  className="qr-portal-menu-item"
-                  onClick={() => navigate(`/vote/${item.poll_id}?campaign=${item.campaign_id}`)}
-                  style={{ borderColor: branding.primaryColor }}
-                >
-                  <span className="qr-portal-menu-item-title">{item.poll_question}</span>
-                  <span className="qr-portal-menu-item-cta" style={{ color: branding.primaryColor }}>Share feedback →</span>
-                </button>
-              ) : (
+            {items.map((item) => {
+              if (item.item_type === "poll") {
+                return (
+                  <button
+                    key={item.item_id}
+                    type="button"
+                    className="qr-portal-menu-item"
+                    onClick={() => navigate(`/vote/${item.poll_id}?campaign=${item.campaign_id}`)}
+                    style={{ borderColor: branding.primaryColor }}
+                  >
+                    <span className="qr-portal-menu-item-title">{item.poll_question}</span>
+                    <span className="qr-portal-menu-item-cta" style={{ color: branding.primaryColor }}>Share feedback →</span>
+                  </button>
+                );
+              }
+              if (item.item_type === "donation") {
+                return <DonationCard key={item.item_id} item={item} />;
+              }
+              return (
                 <div key={item.item_id} className="qr-portal-menu-item qr-portal-menu-info">
                   <span className="qr-portal-menu-item-title">{item.title}</span>
                   {item.body && <p className="qr-portal-menu-item-body">{item.body}</p>}
@@ -166,8 +173,8 @@ export default function QrRedirect() {
                     </a>
                   )}
                 </div>
-              )
-            ))}
+              );
+            })}
           </div>
         </section>
       </main>

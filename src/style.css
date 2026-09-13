@@ -172,6 +172,75 @@ textarea {
   text-decoration: none;
 }
 
+.qr-portal-menu-donation {
+  cursor: default;
+}
+
+.qr-donation-details {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.qr-donation-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.qr-donation-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.qr-donation-value {
+  display: block;
+  font-weight: 700;
+  color: #0f172a;
+  word-break: break-all;
+}
+
+.qr-donation-copy {
+  flex: 0 0 auto;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.qr-donation-qr {
+  margin-top: 14px;
+  text-align: center;
+}
+
+.qr-donation-qr img {
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.qr-donation-qr p {
+  margin: 8px 0 0 !important;
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.qr-donation-disclaimer {
+  margin: 14px 0 0 !important;
+  color: #94a3b8;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
 .site-nav {
   position: relative;
   z-index: 20;

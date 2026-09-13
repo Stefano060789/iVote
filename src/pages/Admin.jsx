@@ -10,6 +10,7 @@ import {
   loadQrCampaignItems,
   addQrCampaignPollItem,
   addQrCampaignInfoItem,
+  addQrCampaignDonationItem,
   removeQrCampaignItem,
   swapQrCampaignItemPositions
 } from "../lib/qrCampaignItems";
@@ -18,6 +19,8 @@ import QrScanner from "../components/QrScanner";
 import LockedFeature from "../components/LockedFeature";
 import { loadLeadNurtureSettings, saveLeadNurtureSettings } from "../lib/leadNurture";
 import { loadWinbackSettings, saveWinbackSettings } from "../lib/winbackSettings";
+import { loadDonationSettings, saveDonationSettings } from "../lib/donationSettings";
+import { isValidIban } from "../lib/validators";
 import { loadLatestReputationSnapshot, refreshReputationSnapshot } from "../lib/reputation";
 import { loadPollRotations, createPollRotation, deletePollRotation } from "../lib/pollRotations";
 import { loadApiKeys, createApiKey, deleteApiKey } from "../lib/apiKeys";
@@ -106,6 +109,8 @@ export default function Admin() {
   const [reportSettings, setReportSettings] = useState({ recipient_email: "", is_enabled: false });
   const [nurtureSettings, setNurtureSettings] = useState({ is_enabled: false, subject: "", message: "" });
   const [winbackSettings, setWinbackSettings] = useState({ is_enabled: false, days_since_last_visit: 30, subject: "", message: "" });
+  const [donationSettings, setDonationSettings] = useState({ is_enabled: false, iban: "", account_holder_name: "", bic: "", currency: "EUR", suggested_amount: "", message: "" });
+  const [donationIbanError, setDonationIbanError] = useState("");
   const [reputationSnapshot, setReputationSnapshot] = useState(null);
   const [reputationLoading, setReputationLoading] = useState(false);
   const [reputationError, setReputationError] = useState("");
@@ -242,6 +247,7 @@ export default function Admin() {
 
         setNurtureSettings(await loadLeadNurtureSettings(profile.id));
         setWinbackSettings(await loadWinbackSettings(profile.id));
+        setDonationSettings(await loadDonationSettings(profile.id));
         try {
           setReputationSnapshot(await loadLatestReputationSnapshot(profile.id));
         } catch (reputationLoadError) {
@@ -516,6 +522,19 @@ export default function Admin() {
     }
   }
 
+  async function handleAddDonationItem(campaignId) {
+    if (!donationSettings.is_enabled) {
+      alert("Set up and enable donation settings first, in the Donations panel below.");
+      return;
+    }
+    try {
+      const item = await addQrCampaignDonationItem(campaignId);
+      setQrCampaignItems((current) => [...current, item]);
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
   async function handleRemoveItem(itemId) {
     if (!confirm("Remove this item from the QR code?")) return;
     try {
@@ -709,6 +728,25 @@ export default function Admin() {
     } catch (error) {
       console.error(error);
       alert(error.message || "Unable to save win-back email settings.");
+    }
+  }
+
+  async function saveDonationSettingsHandler() {
+    setDonationIbanError("");
+    if (donationSettings.iban && !isValidIban(donationSettings.iban)) {
+      setDonationIbanError("That doesn't look like a valid IBAN. Double-check the country code and digits.");
+      return;
+    }
+    if (donationSettings.is_enabled && (!donationSettings.iban || !donationSettings.account_holder_name?.trim())) {
+      alert("Enter a valid IBAN and account holder name before enabling donations.");
+      return;
+    }
+    try {
+      await saveDonationSettings(workspaceUserId, donationSettings);
+      alert("Donation settings saved.");
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Unable to save donation settings.");
     }
   }
 
@@ -1957,6 +1995,8 @@ export default function Admin() {
                               <div className="min-w-0">
                                 {item.item_type === "poll" ? (
                                   <p className="truncate">📊 Poll #{item.poll_id} - {polls.find((poll) => poll.id === item.poll_id)?.question || "Unknown poll"}</p>
+                                ) : item.item_type === "donation" ? (
+                                  <p className="truncate">💛 Donation{item.title ? ` - ${item.title}` : " (default)"}</p>
                                 ) : (
                                   <p className="truncate">📄 {item.title}{item.link_url ? ` · ${item.link_label || "Link"}` : ""}</p>
                                 )}
@@ -2013,6 +2053,16 @@ export default function Admin() {
                           placeholder="Link button label (optional)"
                         />
                         <button type="button" onClick={() => handleAddInfoItem(campaign.id)} className="bg-violet-600 text-white px-3 py-2 rounded font-semibold">Add info card</button>
+                      </div>
+
+                      <div className="rounded border border-slate-700 p-3">
+                        {donationSettings.is_enabled ? (
+                          <button type="button" onClick={() => handleAddDonationItem(campaign.id)} className="bg-amber-500 text-slate-950 px-3 py-2 rounded font-semibold">
+                            💛 Add donation option
+                          </button>
+                        ) : (
+                          <p className="text-xs text-slate-500">Set up and enable donations in the Donations panel below to add a donation option to this QR code.</p>
+                        )}
                       </div>
                     </div>
                   </details>
@@ -2194,6 +2244,77 @@ export default function Admin() {
               description="You're collecting emails already - turn them into repeat visits with an automatic thank-you email, no manual work required."
             />
           )}
+        </div>
+      </details>
+      )}
+
+      {activeTab === "engagement" && (
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">Donations</summary>
+        <div className="px-4 pb-4 space-y-3">
+          <p className="text-sm text-slate-400">
+            Let voters support your venue directly with a bank transfer from the QR menu. Set your IBAN once here, then
+            add a "Donation" item to any QR code below. Godwit never touches the money - voters see your account
+            details and a scannable bank-transfer QR code, and pay you directly.
+          </p>
+          <label className="flex items-center gap-2">
+            <input type="checkbox" checked={donationSettings.is_enabled} onChange={(event) => setDonationSettings((current) => ({ ...current, is_enabled: event.target.checked }))} />
+            <span>Accept donations</span>
+          </label>
+          <div className="grid gap-3 md:grid-cols-2">
+            <label className="block font-semibold">
+              IBAN
+              <input
+                value={donationSettings.iban || ""}
+                onChange={(event) => { setDonationSettings((current) => ({ ...current, iban: event.target.value })); setDonationIbanError(""); }}
+                className="mt-1 w-full border p-2 rounded text-black"
+                placeholder="DE89 3704 0044 0532 0130 00"
+              />
+              {donationIbanError && <span className="mt-1 block text-xs font-normal text-red-400">{donationIbanError}</span>}
+            </label>
+            <label className="block font-semibold">
+              Account holder name
+              <input
+                value={donationSettings.account_holder_name || ""}
+                onChange={(event) => setDonationSettings((current) => ({ ...current, account_holder_name: event.target.value }))}
+                maxLength={70}
+                className="mt-1 w-full border p-2 rounded text-black"
+                placeholder="Lakeside Cafe"
+              />
+            </label>
+            <label className="block font-semibold">
+              BIC (optional)
+              <input
+                value={donationSettings.bic || ""}
+                onChange={(event) => setDonationSettings((current) => ({ ...current, bic: event.target.value }))}
+                maxLength={11}
+                className="mt-1 w-full border p-2 rounded text-black"
+                placeholder="COBADEFFXXX"
+              />
+            </label>
+            <label className="block font-semibold">
+              Suggested amount (optional)
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={donationSettings.suggested_amount || ""}
+                onChange={(event) => setDonationSettings((current) => ({ ...current, suggested_amount: event.target.value }))}
+                className="mt-1 w-full border p-2 rounded text-black"
+                placeholder="5.00"
+              />
+            </label>
+          </div>
+          <textarea
+            value={donationSettings.message || ""}
+            onChange={(event) => setDonationSettings((current) => ({ ...current, message: event.target.value }))}
+            maxLength={300}
+            rows="2"
+            className="w-full border p-2 rounded text-black"
+            placeholder="Optional thank-you message shown with the donation option"
+          />
+          <button onClick={saveDonationSettingsHandler} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save donation settings</button>
+          <p className="text-xs text-slate-500">Not a payment processor: this only displays your bank details and a standard SEPA bank-transfer QR code. Donations are transferred directly to your account by the voter's own bank.</p>
         </div>
       </details>
       )}

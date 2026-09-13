@@ -171,6 +171,19 @@ function TermsOfService() {
       </section>
 
       <section>
+        <h2 className="text-xl font-semibold">Donations</h2>
+        <p>
+          If you enable donations, Godwit displays the bank account details (IBAN, account holder name, and an
+          optional suggested amount) you provide, along with a standard SEPA bank-transfer QR code, to any voter who
+          chooses to view them. Godwit is not a payment service provider: it never processes, receives, holds, or
+          takes any fee from a donation. Any transfer happens directly between the voter and your own bank account,
+          entirely outside Godwit. You are solely responsible for the accuracy of the bank details you provide, for
+          any tax, accounting, or reporting obligations that apply to donations you receive, and for promptly
+          disabling this feature if your bank details change.
+        </p>
+      </section>
+
+      <section>
         <h2 className="text-xl font-semibold">Billing</h2>
         <p>Paid plans renew monthly through Stripe until cancelled. Current prices and plan limits are shown in Billing and may change with notice.</p>
       </section>

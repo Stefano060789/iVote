@@ -10,6 +10,7 @@ Run these files in the Supabase SQL Editor, in this exact order, against the pro
 4. `supabase/20260908_retention_benchmark_api.sql`
 5. `supabase/20260908_feedback_reports_qr_experiments.sql` if feedback reports and weekly reports are enabled
 6. `supabase/20260909_feedback_benefits.sql` for answer-triggered email and external-review benefits
+7. `supabase/20260916_donations.sql` for QR-code bank-transfer donations (IBAN checksum function, `donation_settings` table, and the `donation` QR-item type)
 
 The final migration is additive. It creates workspace subscription records, secure plan-limit RPCs, privacy request records, and user-answer content reports. Do not run ad hoc deletes for account deletion requests; review `privacy_requests` and follow the documented retention process approved by counsel.
 
