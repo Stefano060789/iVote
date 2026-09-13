@@ -7,31 +7,19 @@ address them.
 
 ## Open action items (needs you, not code)
 
-- [x] **Stripe Connect enabled** (test mode) - business model "You collect payments and pay
-  recipients" (marketplace/destination charges), matching `api/create-checkout-session.js`'s
-  destination-charge implementation.
-- [x] **Second webhook destination created for Connect events** - turns out a webhook
-  destination's scope (Your account vs. Connected accounts) is fixed at creation and can't be
-  added to an existing endpoint, so this needed its own destination: "Godwit Connect webhook",
-  scoped to Connected accounts, event `account.updated`, same URL as the existing webhook. Its
-  signing secret must be set as a new env var, `STRIPE_CONNECT_WEBHOOK_SECRET` (different from
-  `STRIPE_WEBHOOK_SECRET`) - `api/stripe-webhook.js` now checks incoming signatures against
-  both. **Still to do**: add `STRIPE_CONNECT_WEBHOOK_SECRET` to Vercel's environment variables
-  (test mode value done in Stripe; still needs setting in Vercel, and repeating for live mode
-  once you go live - live/test webhook destinations and secrets are separate). See
-  `LAUNCH_SETUP.md`'s "Stripe Connect setup" section for the full walkthrough.
-- [x] **Checked `STRIPE_PRICE_STARTER`/`STRIPE_PRICE_GROWTH` for a duplicate trial.** Growth is
-  fully clean (no legacy trial field, no dashboard "Trials" entries). Starter's own price also
-  has an empty legacy trial field, but the product has a dashboard-level "Trials" (Preview)
-  entry - a paired €0 price transitioning to the real price after 1 month, created via the
-  Stripe dashboard's newer trial UI (separate from `api/create-checkout-session.js`'s
-  `subscription_data.trial_period_days=30`). Confirmed this only takes effect through a
-  Payment Link/Pricing Table, and the account has zero Payment Links, so it's currently
-  **inert** - it cannot double up with the app's own trial today. Attempted to remove it via
-  the dashboard (archiving the paired price) but Stripe's UI for this Preview feature doesn't
-  yet expose a delete action (400 error on archive attempt; the price's only row action is
-  "Copy trial ID"). **Watch for later**: if a Payment Link or Pricing Table is ever created
-  for the Starter plan, double-check it doesn't inherit this free-trial pairing unintentionally.
+- [ ] **Add `STRIPE_CONNECT_WEBHOOK_SECRET` to Vercel's environment variables.** Test mode
+  value already generated in Stripe; still needs setting in Vercel (then redeploy), and the
+  same two-destination setup needs repeating for live mode once you go live - live/test
+  webhook destinations and secrets are separate. See `LAUNCH_SETUP.md`'s "Stripe Connect
+  setup" section for the full walkthrough. This is now the only open item in this section.
+- [x] Stripe Connect enabled (test mode, "You collect payments and pay recipients"
+  marketplace/destination-charge model) and a second webhook destination created for
+  Connected-account events (`account.updated`), since a destination's event scope is fixed
+  at creation and can't be added to the existing one.
+- [x] Checked `STRIPE_PRICE_STARTER`/`STRIPE_PRICE_GROWTH` for a duplicate trial - Growth is
+  fully clean; Starter has a currently-inert dashboard-level "Trials" pairing (only takes
+  effect via a Payment Link, and the account has none). Watch for it if a Payment Link is
+  ever created for that price.
 - [x] Ran the pending migrations: `supabase/20260917_donations_stripe_connect.sql` and
   `supabase/20260918_qr_item_images.sql`.
 
@@ -112,6 +100,21 @@ address them.
   prerequisite), moved ahead of "QR campaigns", and the campaign item picker's copy calls out
   polls + info cards + donations explicitly. Lead nurture/win-back emails moved to the
   "Customer connection" tab, where they conceptually belong.
+- [x] Poll <-> QR code relationship is now visible in both directions: every poll card in the
+  Polls tab shows a "Linked QR codes" panel (which locations/campaigns point to it, click to
+  jump to the QR codes tab), and every poll reference inside the QR codes tab (location
+  assignment, campaign's default poll, each poll inside "Items on this QR code") links back
+  and highlights+scrolls to that exact poll. The "Scan a QR code" tool moved from Overview
+  into the QR codes tab, and each poll's quick "Open QR tools" preview now explains it's an
+  untracked, single-poll QR - distinct from the reusable/trackable QR codes tab.
+
+## AI features
+
+- [x] Fixed the AI poster-background generator (`api/generate-qr-poster.js`, used from a
+  poll's "Open QR tools") returning a generic "Image generation failed" for every OpenAI-side
+  rejection. It now passes through OpenAI's real error message, with friendly guidance for
+  the most common cause: the OpenAI organization needing to complete verification for
+  `gpt-image-1` access (separate from just having a valid API key). See `AI_IMAGE_SETUP.md`.
 
 ## Email validation
 
