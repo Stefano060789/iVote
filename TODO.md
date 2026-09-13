@@ -131,15 +131,28 @@ handful of venues.
   can be rate-limited/blocked without notice). A kill switch
   (`VITE_ENABLE_TRANSLATION=false`), timeout, and fallback message are in place, but the
   real fix is the official, paid Google Cloud Translation API.
-- [ ] **Configure real rate limiting at the infrastructure level.** A honeypot field and
-  minimum-dwell-time check deter naive scripted votes, but a QR code is a public URL anyone
-  can script against - do Vercel Firewall/WAF rate limiting first, Upstash Redis if you need
-  product-level per-user quotas, before a pilot QR code sees real foot traffic.
+- [x] **Configured rate limiting at the infrastructure level** via Vercel Firewall: a custom
+  rule rate-limits all `/api/*` requests to 30 per 60 seconds per IP address (Deny 403 when
+  exceeded), confirmed live ("Custom Rules: 1 active"). The Hobby plan caps custom rate-limit
+  rules at 1 (Pro allows up to 40), so this one rule was pointed at the highest-value target:
+  the serverless functions that cost real money per call (Stripe, OpenAI, Resend), not the
+  `/vote`/`/qr` page loads. **Important caveat**: votes are inserted directly from the browser
+  to Supabase's REST API, not through a Vercel `/api/*` route, so this rule does not rate-limit
+  vote submissions themselves - only page loads and the app's own serverless functions. A
+  honeypot + minimum-dwell-time check (already in `Vote.jsx`) is still the only defense against
+  scripted vote spam; a proper fix would be a Postgres-side rate limit (e.g. a trigger capping
+  votes per IP/poll in a time window) or routing votes through a `/api/*` function instead.
 - [ ] **Run a Supabase backup/restore drill.** Confirm daily backups/PITR are enabled, and
   actually perform one test restore before the pilot.
-- [ ] **Wire up monitoring/alert routing.** Sentry is integrated (consent-gated) but alert
-  rules for new error types, and Vercel alerts for function failures/elevated error rates,
-  still need to be configured and pointed at a channel someone actually watches.
+- [ ] **Wire up monitoring/alert routing - partially done.** Checked Vercel's own notification
+  settings: **Deployment Failure** emails are already on by default for the account owner
+  (Team Settings -> My Notifications -> Deployments). Real-time runtime error-rate/anomaly
+  alerting ("Observability Plus") is **gated behind Vercel Pro** on this project's current
+  Hobby plan - not configurable without upgrading. Sentry alert rules (for new frontend error
+  types) are still untouched - Sentry isn't connected as a Vercel integration, so it needs its
+  own dashboard access to configure; ask whoever set up `VITE_SENTRY_DSN` for the org/project
+  URL, or confirm whether a Sentry project was ever actually created (the env var could still
+  be a placeholder).
 - [x] **Accessibility pass on the public voting flow** (`Vote.jsx`, `ThankYou.jsx`,
   `QrRedirect.jsx`). Added `<main>` landmarks (Layout.jsx and ThankYou.jsx didn't have one);
   the answer list is a labelled `role="group"`; translated question/answers get a per-element
