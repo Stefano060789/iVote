@@ -21,6 +21,8 @@ address them.
   ever created for that price.
 - [x] Ran the pending migrations: `supabase/20260917_donations_stripe_connect.sql` and
   `supabase/20260918_qr_item_images.sql`.
+- [ ] **Run `supabase/20260919_ai_content_moderation.sql`** (widens `content_reports.reason`
+  to allow `'policy_violation'`, needed for the new AI auto-moderation audit trail).
 
 ## Robin's persona guide
 
