@@ -20,11 +20,18 @@ address them.
   (test mode value done in Stripe; still needs setting in Vercel, and repeating for live mode
   once you go live - live/test webhook destinations and secrets are separate). See
   `LAUNCH_SETUP.md`'s "Stripe Connect setup" section for the full walkthrough.
-- [ ] **Check the Stripe Dashboard for the `STRIPE_PRICE_STARTER` and `STRIPE_PRICE_GROWTH`
-  Price/Product objects and confirm neither one *also* has a trial period configured
-  directly on it.** The 30-day trial is requested per-Checkout-Session from
-  `api/create-checkout-session.js`, meant to be the single source of truth - a duplicate
-  trial on the Price/Product itself would make the actual trial length unpredictable.
+- [x] **Checked `STRIPE_PRICE_STARTER`/`STRIPE_PRICE_GROWTH` for a duplicate trial.** Growth is
+  fully clean (no legacy trial field, no dashboard "Trials" entries). Starter's own price also
+  has an empty legacy trial field, but the product has a dashboard-level "Trials" (Preview)
+  entry - a paired €0 price transitioning to the real price after 1 month, created via the
+  Stripe dashboard's newer trial UI (separate from `api/create-checkout-session.js`'s
+  `subscription_data.trial_period_days=30`). Confirmed this only takes effect through a
+  Payment Link/Pricing Table, and the account has zero Payment Links, so it's currently
+  **inert** - it cannot double up with the app's own trial today. Attempted to remove it via
+  the dashboard (archiving the paired price) but Stripe's UI for this Preview feature doesn't
+  yet expose a delete action (400 error on archive attempt; the price's only row action is
+  "Copy trial ID"). **Watch for later**: if a Payment Link or Pricing Table is ever created
+  for the Starter plan, double-check it doesn't inherit this free-trial pairing unintentionally.
 - [x] Ran the pending migrations: `supabase/20260917_donations_stripe_connect.sql` and
   `supabase/20260918_qr_item_images.sql`.
 
