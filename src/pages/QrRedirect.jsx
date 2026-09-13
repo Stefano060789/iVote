@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase";
 import { getPollBranding } from "../lib/pollBranding";
 import { reassignManagedCampaignPoll, resolveManagedQrToken } from "../lib/qrManage";
 import DonationCard from "../components/DonationCard";
+import { accessibilityTagIcon, accessibilityTagLabel } from "../lib/accessibilityTags";
 
 export default function QrRedirect() {
   const navigate = useNavigate();
@@ -163,6 +164,15 @@ export default function QrRedirect() {
                     <img src={item.image_url} alt={item.title || ""} className="qr-portal-menu-item-image" />
                   )}
                   <span className="qr-portal-menu-item-title">{item.title}</span>
+                  {item.accessibility_tags?.length > 0 && (
+                    <span className="qr-portal-menu-item-tags" aria-label={`Accessibility: ${item.accessibility_tags.map((tag) => accessibilityTagLabel(tag)).join(", ")}`}>
+                      {item.accessibility_tags.map((tag) => (
+                        <span key={tag} className="qr-portal-menu-item-tag" title={accessibilityTagLabel(tag)}>
+                          {accessibilityTagIcon(tag)}
+                        </span>
+                      ))}
+                    </span>
+                  )}
                   {item.body && <p className="qr-portal-menu-item-body">{item.body}</p>}
                   {item.link_url && (
                     <a

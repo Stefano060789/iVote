@@ -15,6 +15,7 @@ import {
   swapQrCampaignItemPositions
 } from "../lib/qrCampaignItems";
 import { extractQrToken, reassignManagedCampaignPoll, resolveManagedQrToken } from "../lib/qrManage";
+import { ACCESSIBILITY_TAGS } from "../lib/accessibilityTags";
 import QrScanner from "../components/QrScanner";
 import LockedFeature from "../components/LockedFeature";
 import { loadLeadNurtureSettings, saveLeadNurtureSettings } from "../lib/leadNurture";
@@ -23,7 +24,7 @@ import { loadDonationSettings, saveDonationSettings, startStripeConnectOnboardin
 import { loadLatestReputationSnapshot, refreshReputationSnapshot } from "../lib/reputation";
 import { loadPollRotations, createPollRotation, deletePollRotation } from "../lib/pollRotations";
 import { loadApiKeys, createApiKey, deleteApiKey } from "../lib/apiKeys";
-import { getEntitlements, planLabel } from "../lib/entitlements";
+import { getEntitlements, planLabel, minPlanLabelFor } from "../lib/entitlements";
 import { FLOCK, flockMemberForTab } from "../lib/flock";
 import { PERSONAS, findPersona } from "../lib/personas";
 import {
@@ -107,6 +108,7 @@ export default function Admin() {
   const [itemLinkUrl, setItemLinkUrl] = useState("");
   const [itemLinkLabel, setItemLinkLabel] = useState("");
   const [itemImageUrl, setItemImageUrl] = useState("");
+  const [itemAccessibilityTags, setItemAccessibilityTags] = useState([]);
   const [newCampaignName, setNewCampaignName] = useState("");
   const [newCampaignPollId, setNewCampaignPollId] = useState("");
   const [newCampaignPlacement, setNewCampaignPlacement] = useState("");
@@ -365,6 +367,15 @@ export default function Admin() {
       .catch((error) => console.error("Stripe status refresh failed", error));
   }, [workspaceUserId, location.search]);
 
+  // Lightweight usage instrumentation (see TODO.md "Product" section): log which tabs get
+  // opened at all, so future work can be prioritized by real usage instead of guesswork. Fire
+  // once per activeTab change; silently do nothing until the workspace has resolved.
+  useEffect(() => {
+    if (!workspaceUserId || !activeTab) return;
+    supabase.rpc("log_workspace_admin_event", { p_event_type: "tab_open", p_tab: activeTab })
+      .then(({ error }) => { if (error) console.error("Failed to log admin tab-open event", error); });
+  }, [workspaceUserId, activeTab]);
+
   useEffect(() => {
     async function loadLocationStats() {
       if (polls.length === 0) {
@@ -562,16 +573,23 @@ export default function Admin() {
       return;
     }
     try {
-      const item = await addQrCampaignInfoItem(campaignId, { title: itemTitle, body: itemBody, linkUrl: itemLinkUrl, linkLabel: itemLinkLabel, imageUrl: itemImageUrl });
+      const item = await addQrCampaignInfoItem(campaignId, { title: itemTitle, body: itemBody, linkUrl: itemLinkUrl, linkLabel: itemLinkLabel, imageUrl: itemImageUrl, accessibilityTags: itemAccessibilityTags });
       setQrCampaignItems((current) => [...current, item]);
       setItemTitle("");
       setItemBody("");
       setItemLinkUrl("");
       setItemLinkLabel("");
       setItemImageUrl("");
+      setItemAccessibilityTags([]);
     } catch (error) {
       alert(error.message);
     }
+  }
+
+  function toggleItemAccessibilityTag(value) {
+    setItemAccessibilityTags((current) =>
+      current.includes(value) ? current.filter((tag) => tag !== value) : [...current, value]
+    );
   }
 
   async function handleAddDonationItem(campaignId) {
@@ -1859,15 +1877,25 @@ export default function Admin() {
                   <button onClick={changePersona} className="text-xs text-slate-400 underline">Choose a different path</button>
                 </div>
                 <div className="mt-3 space-y-2">
-                  {persona.steps.map((step, index) => (
+                  {persona.steps.map((step, index) => {
+                    const isLocked = step.feature && !entitlements[step.feature];
+                    return (
                     <div key={step.title} className="flex flex-wrap items-center justify-between gap-2 rounded border border-slate-700 bg-gray-900 p-3">
                       <div className="min-w-0">
                         <p className="font-semibold">{index + 1}. {step.title}</p>
                         <p className="mt-1 text-xs text-slate-400">{step.detail}</p>
+                        {isLocked && (
+                          <p className="mt-1.5 text-xs font-semibold uppercase tracking-wide text-amber-300">
+                            🔒 Available on {minPlanLabelFor(step.feature)}
+                            {" · "}
+                            <Link to="/admin/billing" className="underline">Upgrade</Link>
+                          </p>
+                        )}
                       </div>
                       <button onClick={() => goToPersonaStep(step)} className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">Go</button>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </>
             );
@@ -2400,7 +2428,14 @@ export default function Admin() {
                                 ) : item.item_type === "donation" ? (
                                   <p className="truncate">💛 Donation{item.title ? ` - ${item.title}` : " (default)"}</p>
                                 ) : (
-                                  <p className="truncate">📄 {item.title}{item.link_url ? ` · ${item.link_label || "Link"}` : ""}</p>
+                                  <div className="min-w-0">
+                                    <p className="truncate">📄 {item.title}{item.link_url ? ` · ${item.link_label || "Link"}` : ""}</p>
+                                    {item.accessibility_tags?.length > 0 && (
+                                      <p className="truncate text-xs text-slate-400">
+                                        {item.accessibility_tags.map((tag) => ACCESSIBILITY_TAGS.find((entry) => entry.value === tag)?.icon).filter(Boolean).join(" ")}
+                                      </p>
+                                    )}
+                                  </div>
                                 )}
                               </div>
                               <div className="flex shrink-0 items-center gap-1">
@@ -2460,6 +2495,21 @@ export default function Admin() {
                           className="border p-2 rounded text-black md:col-span-2"
                           placeholder="Optional image URL (a portfolio photo, exhibit image, product shot...)"
                         />
+                        <fieldset className="md:col-span-2 rounded border border-slate-700 p-2">
+                          <legend className="text-xs font-semibold text-slate-300 px-1">Accessibility (optional - shown as badges to visitors)</legend>
+                          <div className="flex flex-wrap gap-3 pt-1">
+                            {ACCESSIBILITY_TAGS.map((tag) => (
+                              <label key={tag.value} className="flex items-center gap-1 text-sm text-slate-200">
+                                <input
+                                  type="checkbox"
+                                  checked={itemFormCampaignId === campaign.id && itemAccessibilityTags.includes(tag.value)}
+                                  onChange={() => { setItemFormCampaignId(campaign.id); toggleItemAccessibilityTag(tag.value); }}
+                                />
+                                <span aria-hidden="true">{tag.icon}</span> {tag.label}
+                              </label>
+                            ))}
+                          </div>
+                        </fieldset>
                         <button type="button" onClick={() => handleAddInfoItem(campaign.id)} className="bg-violet-600 text-white px-3 py-2 rounded font-semibold">Add info card</button>
                       </div>
 

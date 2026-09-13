@@ -167,6 +167,17 @@ textarea {
   color: #0f172a;
 }
 
+.qr-portal-menu-item-tags {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.qr-portal-menu-item-tag {
+  font-size: 1rem;
+  line-height: 1;
+}
+
 .qr-portal-menu-item-body {
   margin: 8px 0 0 !important;
   color: #475569;

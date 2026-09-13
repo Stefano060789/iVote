@@ -21,19 +21,29 @@ address them.
   ever created for that price.
 - [x] Ran the pending migrations: `supabase/20260917_donations_stripe_connect.sql`,
   `supabase/20260918_qr_item_images.sql`, and `supabase/20260919_ai_content_moderation.sql`.
+- [ ] **Two new migrations need to be run** in the Supabase SQL editor:
+  `supabase/20260920_usage_instrumentation.sql` (churn/usage tracking) and
+  `supabase/20260921_info_item_accessibility_tags.sql` (accessibility tags on info cards).
 
 ## Robin's persona guide
 
 - [x] Robin's Overview-tab guide (artist/creator, cafe/restaurant/shop, museum/city/venue -
   each a tailored checklist of existing features) and optional images on QR "info" cards
   (`supabase/20260918_qr_item_images.sql`) shipped.
-- [ ] **Ideas surfaced but not built** (lower priority, revisit if a real user asks):
-  - A dedicated "gallery"/portfolio item type (multiple images in one card) for artists with
-    a lot of work to show, rather than one image per info card.
-  - Accessibility tagging (wheelchair access, audio description available, etc.) for museum/
-    city info cards - currently just free-text body copy, which works but isn't structured.
-  - Surfacing entitlement limits (e.g. Free plan's `campaignLimit: 0`) directly inside Robin's
-    guide before a step, rather than relying on the destination tab's own upgrade prompt.
+- [x] **Ideas surfaced but not built** - all three now done:
+  - Accessibility tagging (wheelchair access, audio description, sign language, large print,
+    hearing loop, service animals welcome) for info cards: checkboxes in the "Add info card"
+    form (`Admin.jsx`), stored as `qr_campaign_items.accessibility_tags`
+    (`supabase/20260921_info_item_accessibility_tags.sql` - **needs to be run**), shown as
+    small icon badges on the public QR menu (`QrRedirect.jsx`). Shared vocabulary lives in
+    `src/lib/accessibilityTags.js`.
+  - Entitlement limits are now surfaced directly inside Robin's guide: steps tied to a
+    plan-gated feature (`src/lib/personas.js`'s new `feature` key) show a "🔒 Available on
+    {plan} · Upgrade" note before the step's "Go" button when the workspace's current plan
+    doesn't include it (`Admin.jsx`, reusing `minPlanLabelFor()` from `entitlements.js`).
+  - Still open (genuinely lower priority, revisit if an artist user asks): a dedicated
+    "gallery"/portfolio item type for multiple images in one card, instead of one image per
+    info card.
 
 ## QR code donations (Stripe Connect, 10% platform fee)
 
@@ -63,14 +73,13 @@ address them.
 
 ## Product
 
-- [ ] **No churn/usage instrumentation.** The dashboard shows raw vote counts, but nothing
-  tracks whether a venue owner is actually *using* the product - logging into `/admin`,
-  opening results, printing a new QR code. Before pricing/retention decisions, add at
-  minimum:
-  - Last admin login timestamp per workspace (`workspaces.last_active_at` or similar)
-  - A simple weekly "did this workspace open the dashboard" flag
-  - Ideally: which admin tabs/features get opened at all, to prioritize future work by real
-    usage instead of guesswork
+- [x] **Churn/usage instrumentation** added: `workspaces.last_active_at` bumped on every
+  dashboard load (`ensure_my_workspace()`), a new `workspace_admin_events` table +
+  `log_workspace_admin_event()` RPC logs each admin tab opened (`Admin.jsx` calls it on every
+  `activeTab` change), and a `workspace_engagement_summary` view (last-active + tab-open counts
+  per workspace) for direct querying in the Supabase SQL editor - intentionally *not* exposed
+  through the app UI yet, since there's no admin-facing analytics page for it.
+  `supabase/20260920_usage_instrumentation.sql` - **needs to be run**.
 
 ## Internationalization
 

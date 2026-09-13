@@ -2,10 +2,11 @@
 // of recommended next steps built entirely from features that already exist in the product.
 // Shown on the Admin Overview tab once a workspace picks "what are you using Godwit for?".
 //
-// Each step points at either an Admin tab (`tab`) or a direct route (`route`) to jump to.
-// Steps intentionally don't duplicate the plan-gating UI already built into each tab (e.g.
-// LockedFeature) - Robin just gets you to the right place, and the existing upgrade prompts
-// take over from there if a step needs a paid plan.
+// Each step points at either an Admin tab (`tab`) or a direct route (`route`) to jump to. A
+// step can optionally declare a `feature` key (matching entitlements.js/FEATURE_COPY) if it
+// needs a paid plan - Robin's guide then shows an inline "Available on X · Upgrade" note
+// before the admin clicks through, instead of only relying on the destination tab's own
+// LockedFeature prompt to break the news.
 
 export const PERSONAS = [
   {
@@ -32,12 +33,14 @@ export const PERSONAS = [
       {
         title: "Build your fan list",
         detail: "Invite fans to share an email for new show announcements, with clear consent - never bundled with voting.",
-        tab: "connection"
+        tab: "connection",
+        feature: "leadCapture"
       },
       {
         title: "Give something away",
         detail: "Run a free-to-enter prize draw for a signed print, a free ticket, or a shoutout.",
-        tab: "engagement"
+        tab: "engagement",
+        feature: "prizeDraws"
       }
     ]
   },
@@ -65,12 +68,14 @@ export const PERSONAS = [
       {
         title: "Reward returning customers",
         detail: "Recognize regulars automatically and offer a small thank-you after a few visits.",
-        tab: "engagement"
+        tab: "engagement",
+        feature: "redemptionTracking"
       },
       {
         title: "Watch your public reputation",
         detail: "See your Google rating trend in one place, without checking multiple apps.",
-        tab: "settings"
+        tab: "settings",
+        feature: "reputationMonitoring"
       }
     ]
   },
@@ -103,7 +108,8 @@ export const PERSONAS = [
       {
         title: "Connect the developer API or webhooks",
         detail: "Feed results into your own dashboards or public data systems.",
-        tab: "settings"
+        tab: "settings",
+        feature: "apiAccess"
       }
     ]
   }
