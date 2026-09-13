@@ -192,5 +192,85 @@
       "webhooks": "Webhooks",
       "apiAccess": "Toegang tot developer-API"
     }
+  },
+  "admin": {
+    "dashboardTitle": "Dashboard",
+    "dashboardSubtitle": "Alles wat je nodig hebt om QR-feedback te beheren, op één plek begeleid.",
+    "onDuty": "{{name}} heeft hier dienst — {{role}}.",
+    "nav": {
+      "overview": "Overzicht",
+      "polls": "Peilingen",
+      "engagement": "QR-codes",
+      "connection": "Klantrelatie",
+      "feedback": "Feedback",
+      "settings": "Instellingen"
+    },
+    "tabDescriptions": {
+      "overview": "Een overzicht van je werkruimte: snelle acties, de activiteit van deze week en belangrijke cijfers.",
+      "polls": "Zoek, deel en beheer elke vraag die je hebt gemaakt.",
+      "engagement": "Een QR-code is meer dan één peiling: bundel peilingen, infokaarten en een donatieverzoek onder één code.",
+      "connection": "Zet een QR-scan om in een blijvende klantrelatie.",
+      "feedback": "Berichten van stemmers, beoordelingsverzoeken, sentiment en herstelacties.",
+      "settings": "Merk, teamtoegang, developer-API en recente activiteit."
+    },
+    "quickActions": {
+      "create": { "label": "Maak een peiling", "description": "Start een nieuwe QR-feedbackpeiling voor een tafel, balie of evenement." },
+      "polls": { "label": "Beheer je peilingen", "description": "Zoek, filter en bekijk hoe elke peiling presteert." },
+      "engagement": { "label": "Maak een QR-code", "description": "Combineer peilingen, infokaarten en donaties onder één gedrukte code." },
+      "connection": { "label": "Klantrelatie", "description": "Verzamel e-mails, nodig uit voor eerlijke beoordelingen en beheer beloningen." },
+      "analytics": { "label": "Bekijk statistieken", "description": "Bekijk trends over alle peilingen en locaties." },
+      "feedback": { "label": "Feedback beoordelen", "description": "Lees berichten van stemmers en keur openstaande beoordelingsverzoeken goed." },
+      "settings": { "label": "Werkruimte-instellingen", "description": "Beheer je merk, teamtoegang en facturering." }
+    },
+    "overview": {
+      "stats": {
+        "totalPolls": "Totaal aantal peilingen",
+        "active": "Actief",
+        "closed": "Gesloten",
+        "scheduled": "Gepland",
+        "locations": "Locaties",
+        "votesThisWeek": "Stemmen deze week"
+      },
+      "weeklyInsightTitle": "Inzicht van de week",
+      "weeklyInsightBody": "Je meest genoemde antwoord was \"{{answer}}\", {{count}} {{countLabel}} genoemd op {{totalVotes}} stemmen in de afgelopen 7 dagen.",
+      "time": "keer",
+      "times": "keer",
+      "benchmarkTitle": "Benchmark",
+      "benchmarkBody": "Je gemiddelde score op \"{{templateKey}}\"-peilingen is {{ownScore}}%, tegenover een branchegemiddelde van {{industryScore}}% bij {{sampleSize}} andere locaties die dezelfde template gebruiken.",
+      "robinGuideTitle": "Robins gids",
+      "firstSteps": {
+        "heading": "Je eerste stappen",
+        "dismiss": "Sluiten",
+        "newHerePrefix": "Nieuw hier?",
+        "readGuide": "Lees de eenvoudige gids in 3 stappen",
+        "newHereSuffix": "al het overige op deze pagina is optioneel.",
+        "createFirstPoll": "Maak je eerste peiling",
+        "createPollCta": "Maak een peiling",
+        "shareQr": "Druk je QR-code af of deel deze",
+        "goToPolls": "Ga naar je peilingen",
+        "getFirstVote": "Krijg je eerste stem"
+      },
+      "personaPrompt": "Waarvoor gebruik je Godwit? Robin zet de functies op een rij die voor jou het belangrijkst zijn.",
+      "guideFor": "Gids voor",
+      "chooseDifferentPath": "Kies een ander pad",
+      "availableOn": "Beschikbaar bij het {{plan}}-abonnement",
+      "upgrade": "Upgraden",
+      "go": "Ga",
+      "meetFlock": {
+        "title": "Maak kennis met je vlucht",
+        "subtitle": "Zeven specialisten, elk verantwoordelijk voor een deel van Godwit"
+      },
+      "whatsNew": {
+        "title": "Nieuw in Godwit",
+        "item1Title": "Roterende peilingen, slimme beoordelingsroutering, meldingen bij afwijkingen",
+        "item1Body": "QR-codes kunnen nu automatisch peilingen wisselen volgens een schema, en het dashboard signaleert ongebruikelijke dalingen in het aantal stemmen.",
+        "item2Title": "Prijstrekkingen, AI-sentimentanalyse, klantwervings-e-mails",
+        "item2Body": "organiseer opt-in prijstrekkingen, classificeer vrije-tekstfeedback automatisch, en stuur e-mails naar stemmers die zich hiervoor aanmelden.",
+        "item3Title": "Insluitbare widget en vertrouwensbadge",
+        "item3Body": "voeg een feedbackknop of een live vertrouwensscorebadge toe aan elke website, niet alleen aan QR-codes.",
+        "item4Title": "QR-scanner in het dashboard en QR-codes in bulk genereren",
+        "item4Body": "scan een gedrukte code met je camera om deze te beheren, of genereer meteen meerdere QR-codes."
+      }
+    }
   }
 }

@@ -192,5 +192,85 @@
       "webhooks": "Webhook",
       "apiAccess": "开发者 API 访问"
     }
+  },
+  "admin": {
+    "dashboardTitle": "仪表盘",
+    "dashboardSubtitle": "运营二维码反馈所需的一切，都在这一个地方引导完成。",
+    "onDuty": "{{name}} 正在此值班 — {{role}}。",
+    "nav": {
+      "overview": "概览",
+      "polls": "投票",
+      "engagement": "二维码",
+      "connection": "客户关系",
+      "feedback": "反馈",
+      "settings": "设置"
+    },
+    "tabDescriptions": {
+      "overview": "工作区一览：快捷操作、本周活动和关键数据。",
+      "polls": "搜索、分享和管理您创建的每一个问题。",
+      "engagement": "一个二维码不止对应一个投票：将投票、信息卡片和捐赠请求整合到同一个二维码下。",
+      "connection": "把一次二维码扫描变成持续的客户关系。",
+      "feedback": "投票者留言、评价认领请求、情感分析和挽回任务。",
+      "settings": "品牌、团队权限、开发者 API 和最近活动。"
+    },
+    "quickActions": {
+      "create": { "label": "创建投票", "description": "为一张桌子、柜台或活动创建一个新的二维码反馈投票。" },
+      "polls": { "label": "管理您的投票", "description": "搜索、筛选并查看每个投票的表现。" },
+      "engagement": { "label": "创建二维码", "description": "将投票、信息卡片和捐赠整合到一个印刷二维码下。" },
+      "connection": { "label": "客户关系", "description": "收集邮箱、邀请真实评价并管理奖励。" },
+      "analytics": { "label": "查看数据分析", "description": "查看所有投票和地点的趋势。" },
+      "feedback": { "label": "查看反馈", "description": "阅读投票者的留言并批准待处理的评价认领请求。" },
+      "settings": { "label": "工作区设置", "description": "管理您的品牌、团队权限和账单。" }
+    },
+    "overview": {
+      "stats": {
+        "totalPolls": "投票总数",
+        "active": "进行中",
+        "closed": "已关闭",
+        "scheduled": "已计划",
+        "locations": "地点数",
+        "votesThisWeek": "本周投票数"
+      },
+      "weeklyInsightTitle": "本周洞察",
+      "weeklyInsightBody": "在过去 7 天的 {{totalVotes}} 次投票中，您被提及最多的答案是「{{answer}}」，共被提及 {{count}} {{countLabel}}。",
+      "time": "次",
+      "times": "次",
+      "benchmarkTitle": "基准对比",
+      "benchmarkBody": "您在「{{templateKey}}」类投票中的平均得分为 {{ownScore}}%，而使用相同模板的其他 {{sampleSize}} 家场所的行业平均分为 {{industryScore}}%。",
+      "robinGuideTitle": "Robin 的指南",
+      "firstSteps": {
+        "heading": "您的第一步",
+        "dismiss": "忽略",
+        "newHerePrefix": "第一次使用？",
+        "readGuide": "阅读简单的三步指南",
+        "newHereSuffix": "本页面上的其他内容都是可选的。",
+        "createFirstPoll": "创建您的第一个投票",
+        "createPollCta": "创建投票",
+        "shareQr": "打印或分享您的二维码",
+        "goToPolls": "前往您的投票",
+        "getFirstVote": "获得您的第一票"
+      },
+      "personaPrompt": "您使用 Godwit 是为了什么？Robin 会为您整理出最重要的功能。",
+      "guideFor": "适用于",
+      "chooseDifferentPath": "选择其他路径",
+      "availableOn": "{{plan}}套餐可用",
+      "upgrade": "升级",
+      "go": "前往",
+      "meetFlock": {
+        "title": "认识您的鸟群团队",
+        "subtitle": "七位专家，各自负责 Godwit 的一部分"
+      },
+      "whatsNew": {
+        "title": "Godwit 的最新功能",
+        "item1Title": "轮换投票、智能评价路由、异常提醒",
+        "item1Body": "二维码现在可以按计划自动切换投票，仪表盘也会标记出异常的投票量下滑。",
+        "item2Title": "抽奖活动、AI 情感分析、客户挽回邮件",
+        "item2Body": "开展自愿参与的抽奖活动，自动对开放式文本反馈进行情感分类，并向选择接收邮件的投票者发送邮件。",
+        "item3Title": "可嵌入小组件与信任徽章",
+        "item3Body": "在任何网站上添加反馈按钮或实时信任分数徽章，而不仅限于二维码。",
+        "item4Title": "仪表盘内二维码扫描与批量生成二维码",
+        "item4Body": "用摄像头扫描已打印的二维码即可管理它，或一次性批量生成多个二维码。"
+      }
+    }
   }
 }

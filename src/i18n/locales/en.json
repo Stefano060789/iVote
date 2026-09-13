@@ -192,5 +192,85 @@
       "webhooks": "Webhooks",
       "apiAccess": "Developer API access"
     }
+  },
+  "admin": {
+    "dashboardTitle": "Dashboard",
+    "dashboardSubtitle": "Everything you need to run QR feedback, guided in one place.",
+    "onDuty": "{{name}} is on duty here — {{role}}.",
+    "nav": {
+      "overview": "Overview",
+      "polls": "Polls",
+      "engagement": "QR codes",
+      "connection": "Customer connection",
+      "feedback": "Feedback",
+      "settings": "Settings"
+    },
+    "tabDescriptions": {
+      "overview": "A snapshot of your workspace: quick actions, this week's activity, and key numbers.",
+      "polls": "Search, share, and manage every question you've created.",
+      "engagement": "A QR code is more than one poll: bundle polls, info cards, and a donation ask under one code.",
+      "connection": "Turn a QR scan into an ongoing customer relationship.",
+      "feedback": "Voter messages, review claims, sentiment, and recovery tasks.",
+      "settings": "Brand, team access, developer API, and recent activity."
+    },
+    "quickActions": {
+      "create": { "label": "Create a poll", "description": "Start a new QR feedback poll for a table, counter, or event." },
+      "polls": { "label": "Manage your polls", "description": "Search, filter, and see how each poll performs." },
+      "engagement": { "label": "Build a QR code", "description": "Combine polls, info cards, and donations under one printed code." },
+      "connection": { "label": "Customer connection", "description": "Collect emails, invite honest reviews, and manage rewards." },
+      "analytics": { "label": "View analytics", "description": "See trends across every poll and location." },
+      "feedback": { "label": "Review feedback", "description": "Read voter messages and approve pending review claims." },
+      "settings": { "label": "Workspace settings", "description": "Manage your brand, team access, and billing." }
+    },
+    "overview": {
+      "stats": {
+        "totalPolls": "Total polls",
+        "active": "Active",
+        "closed": "Closed",
+        "scheduled": "Scheduled",
+        "locations": "Locations",
+        "votesThisWeek": "Votes this week"
+      },
+      "weeklyInsightTitle": "This week's insight",
+      "weeklyInsightBody": "Your top mentioned answer was \"{{answer}}\", mentioned {{count}} {{countLabel}} out of {{totalVotes}} votes in the last 7 days.",
+      "time": "time",
+      "times": "times",
+      "benchmarkTitle": "Benchmark",
+      "benchmarkBody": "Your average score on \"{{templateKey}}\" polls is {{ownScore}}%, vs an industry average of {{industryScore}}% across {{sampleSize}} other venues using the same template.",
+      "robinGuideTitle": "Robin's guide",
+      "firstSteps": {
+        "heading": "Your first steps",
+        "dismiss": "Dismiss",
+        "newHerePrefix": "New here?",
+        "readGuide": "Read the 3-step simple guide",
+        "newHereSuffix": "everything else on this page is optional.",
+        "createFirstPoll": "Create your first poll",
+        "createPollCta": "Create a poll",
+        "shareQr": "Print or share your QR code",
+        "goToPolls": "Go to your polls",
+        "getFirstVote": "Get your first vote"
+      },
+      "personaPrompt": "What are you using Godwit for? Robin will line up the features that matter most for you.",
+      "guideFor": "Guide for",
+      "chooseDifferentPath": "Choose a different path",
+      "availableOn": "Available on {{plan}}",
+      "upgrade": "Upgrade",
+      "go": "Go",
+      "meetFlock": {
+        "title": "Meet your flock",
+        "subtitle": "Seven specialists, each covering one part of Godwit"
+      },
+      "whatsNew": {
+        "title": "What's new in Godwit",
+        "item1Title": "Rotating polls, smart review routing, anomaly alerts",
+        "item1Body": "QR codes can now auto-swap polls on a schedule, and the dashboard flags unusual vote-volume drops.",
+        "item2Title": "Prize draws, AI sentiment, lead nurture emails",
+        "item2Body": "run opt-in prize draws, auto-classify open-text feedback, and email voters who opt in for follow-up.",
+        "item3Title": "Embeddable widget and trust badge",
+        "item3Body": "add a feedback button or a live trust score badge to any website, not just QR codes.",
+        "item4Title": "In-dashboard QR scanner and bulk QR generation",
+        "item4Body": "scan a printed code with your camera to manage it, or generate many QR codes at once."
+      }
+    }
   }
 }

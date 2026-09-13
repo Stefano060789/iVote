@@ -192,5 +192,85 @@
       "webhooks": "Webhooks",
       "apiAccess": "Accès API développeur"
     }
+  },
+  "admin": {
+    "dashboardTitle": "Tableau de bord",
+    "dashboardSubtitle": "Tout ce qu'il faut pour gérer les retours QR, guidé au même endroit.",
+    "onDuty": "{{name}} est de service ici — {{role}}.",
+    "nav": {
+      "overview": "Aperçu",
+      "polls": "Sondages",
+      "engagement": "Codes QR",
+      "connection": "Relation client",
+      "feedback": "Retours",
+      "settings": "Paramètres"
+    },
+    "tabDescriptions": {
+      "overview": "Un aperçu de votre espace de travail : actions rapides, activité de la semaine et chiffres clés.",
+      "polls": "Recherchez, partagez et gérez chaque question que vous avez créée.",
+      "engagement": "Un code QR, c'est plus qu'un sondage : regroupez sondages, fiches d'information et une demande de don sous un même code.",
+      "connection": "Transformez un scan QR en une relation client durable.",
+      "feedback": "Messages des votants, demandes d'avis, sentiment et tâches de récupération.",
+      "settings": "Marque, accès de l'équipe, API développeur et activité récente."
+    },
+    "quickActions": {
+      "create": { "label": "Créer un sondage", "description": "Lancez un nouveau sondage de retour QR pour une table, un comptoir ou un événement." },
+      "polls": { "label": "Gérer vos sondages", "description": "Recherchez, filtrez et consultez les performances de chaque sondage." },
+      "engagement": { "label": "Créer un code QR", "description": "Combinez sondages, fiches d'information et dons sous un seul code imprimé." },
+      "connection": { "label": "Relation client", "description": "Collectez des e-mails, invitez à des avis sincères et gérez les récompenses." },
+      "analytics": { "label": "Voir les statistiques", "description": "Consultez les tendances de tous les sondages et emplacements." },
+      "feedback": { "label": "Consulter les retours", "description": "Lisez les messages des votants et validez les demandes d'avis en attente." },
+      "settings": { "label": "Paramètres de l'espace de travail", "description": "Gérez votre marque, l'accès de l'équipe et la facturation." }
+    },
+    "overview": {
+      "stats": {
+        "totalPolls": "Total des sondages",
+        "active": "Actifs",
+        "closed": "Clôturés",
+        "scheduled": "Programmés",
+        "locations": "Emplacements",
+        "votesThisWeek": "Votes cette semaine"
+      },
+      "weeklyInsightTitle": "L'info de la semaine",
+      "weeklyInsightBody": "Votre réponse la plus mentionnée était « {{answer}} », citée {{count}} {{countLabel}} sur {{totalVotes}} votes au cours des 7 derniers jours.",
+      "time": "fois",
+      "times": "fois",
+      "benchmarkTitle": "Comparatif",
+      "benchmarkBody": "Votre score moyen sur les sondages « {{templateKey}} » est de {{ownScore}} %, contre une moyenne du secteur de {{industryScore}} % parmi {{sampleSize}} autres établissements utilisant le même modèle.",
+      "robinGuideTitle": "Le guide de Robin",
+      "firstSteps": {
+        "heading": "Vos premiers pas",
+        "dismiss": "Ignorer",
+        "newHerePrefix": "Nouveau ici ?",
+        "readGuide": "Lisez le guide simplifié en 3 étapes",
+        "newHereSuffix": "tout le reste sur cette page est facultatif.",
+        "createFirstPoll": "Créez votre premier sondage",
+        "createPollCta": "Créer un sondage",
+        "shareQr": "Imprimez ou partagez votre code QR",
+        "goToPolls": "Aller à vos sondages",
+        "getFirstVote": "Obtenez votre premier vote"
+      },
+      "personaPrompt": "À quoi utilisez-vous Godwit ? Robin mettra en avant les fonctionnalités qui comptent le plus pour vous.",
+      "guideFor": "Guide pour",
+      "chooseDifferentPath": "Choisir un autre parcours",
+      "availableOn": "Disponible avec l'offre {{plan}}",
+      "upgrade": "Mettre à niveau",
+      "go": "Aller",
+      "meetFlock": {
+        "title": "Découvrez votre équipe d'oiseaux",
+        "subtitle": "Sept spécialistes, chacun couvrant une partie de Godwit"
+      },
+      "whatsNew": {
+        "title": "Nouveautés de Godwit",
+        "item1Title": "Sondages tournants, routage intelligent des avis, alertes d'anomalies",
+        "item1Body": "les codes QR peuvent désormais faire tourner les sondages selon un calendrier, et le tableau de bord signale les baisses inhabituelles du volume de votes.",
+        "item2Title": "Tirages au sort, analyse de sentiment par IA, e-mails de relance",
+        "item2Body": "organisez des tirages au sort avec inscription volontaire, classez automatiquement les retours en texte libre, et envoyez des e-mails aux votants qui y consentent.",
+        "item3Title": "Widget intégrable et badge de confiance",
+        "item3Body": "ajoutez un bouton de retour ou un badge de score de confiance en direct sur n'importe quel site, pas seulement via les codes QR.",
+        "item4Title": "Scanner de QR intégré au tableau de bord et génération de codes QR en masse",
+        "item4Body": "scannez un code imprimé avec votre appareil photo pour le gérer, ou générez plusieurs codes QR à la fois."
+      }
+    }
   }
 }

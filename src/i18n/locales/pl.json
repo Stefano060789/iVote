@@ -192,5 +192,85 @@
       "webhooks": "Webhooki",
       "apiAccess": "Dostęp do API dla programistów"
     }
+  },
+  "admin": {
+    "dashboardTitle": "Panel",
+    "dashboardSubtitle": "Wszystko, czego potrzebujesz do prowadzenia opinii QR, w jednym miejscu.",
+    "onDuty": "{{name}} pełni tu dyżur — {{role}}.",
+    "nav": {
+      "overview": "Przegląd",
+      "polls": "Ankiety",
+      "engagement": "Kody QR",
+      "connection": "Relacje z klientami",
+      "feedback": "Opinie",
+      "settings": "Ustawienia"
+    },
+    "tabDescriptions": {
+      "overview": "Migawka Twojego obszaru roboczego: szybkie akcje, aktywność w tym tygodniu i kluczowe liczby.",
+      "polls": "Wyszukuj, udostępniaj i zarządzaj każdym utworzonym pytaniem.",
+      "engagement": "Kod QR to więcej niż jedna ankieta: połącz ankiety, karty informacyjne i prośbę o darowiznę pod jednym kodem.",
+      "connection": "Zamień skan kodu QR w trwałą relację z klientem.",
+      "feedback": "Wiadomości od głosujących, prośby o recenzje, sentyment i zadania odzyskiwania klientów.",
+      "settings": "Marka, dostęp zespołu, API dla programistów i ostatnia aktywność."
+    },
+    "quickActions": {
+      "create": { "label": "Utwórz ankietę", "description": "Rozpocznij nową ankietę opinii QR dla stolika, lady lub wydarzenia." },
+      "polls": { "label": "Zarządzaj ankietami", "description": "Wyszukuj, filtruj i sprawdzaj wyniki każdej ankiety." },
+      "engagement": { "label": "Utwórz kod QR", "description": "Połącz ankiety, karty informacyjne i darowizny pod jednym drukowanym kodem." },
+      "connection": { "label": "Relacje z klientami", "description": "Zbieraj e-maile, zapraszaj do szczerych recenzji i zarządzaj nagrodami." },
+      "analytics": { "label": "Zobacz statystyki", "description": "Sprawdź trendy we wszystkich ankietach i lokalizacjach." },
+      "feedback": { "label": "Przejrzyj opinie", "description": "Czytaj wiadomości od głosujących i zatwierdzaj oczekujące prośby o recenzje." },
+      "settings": { "label": "Ustawienia obszaru roboczego", "description": "Zarządzaj marką, dostępem zespołu i rozliczeniami." }
+    },
+    "overview": {
+      "stats": {
+        "totalPolls": "Łączna liczba ankiet",
+        "active": "Aktywne",
+        "closed": "Zamknięte",
+        "scheduled": "Zaplanowane",
+        "locations": "Lokalizacje",
+        "votesThisWeek": "Głosy w tym tygodniu"
+      },
+      "weeklyInsightTitle": "Spostrzeżenie tygodnia",
+      "weeklyInsightBody": "Twoją najczęściej wskazywaną odpowiedzią było \"{{answer}}\" — wybrano ją {{count}} {{countLabel}} spośród {{totalVotes}} głosów w ciągu ostatnich 7 dni.",
+      "time": "raz",
+      "times": "razy",
+      "benchmarkTitle": "Analiza porównawcza",
+      "benchmarkBody": "Twój średni wynik w ankietach \"{{templateKey}}\" wynosi {{ownScore}}%, wobec średniej branżowej {{industryScore}}% wśród {{sampleSize}} innych lokali korzystających z tego samego szablonu.",
+      "robinGuideTitle": "Przewodnik Robina",
+      "firstSteps": {
+        "heading": "Twoje pierwsze kroki",
+        "dismiss": "Odrzuć",
+        "newHerePrefix": "Jesteś tu nowy?",
+        "readGuide": "Przeczytaj prosty przewodnik w 3 krokach",
+        "newHereSuffix": "wszystko inne na tej stronie jest opcjonalne.",
+        "createFirstPoll": "Utwórz swoją pierwszą ankietę",
+        "createPollCta": "Utwórz ankietę",
+        "shareQr": "Wydrukuj lub udostępnij swój kod QR",
+        "goToPolls": "Przejdź do swoich ankiet",
+        "getFirstVote": "Zdobądź swój pierwszy głos"
+      },
+      "personaPrompt": "Do czego używasz Godwit? Robin dobierze funkcje, które są dla Ciebie najważniejsze.",
+      "guideFor": "Przewodnik dla",
+      "chooseDifferentPath": "Wybierz inną ścieżkę",
+      "availableOn": "Dostępne w planie {{plan}}",
+      "upgrade": "Ulepsz plan",
+      "go": "Przejdź",
+      "meetFlock": {
+        "title": "Poznaj swoje stado",
+        "subtitle": "Siedmiu specjalistów, każdy odpowiedzialny za jedną część Godwit"
+      },
+      "whatsNew": {
+        "title": "Nowości w Godwit",
+        "item1Title": "Rotujące ankiety, inteligentne kierowanie recenzji, alerty o anomaliach",
+        "item1Body": "kody QR mogą teraz automatycznie zmieniać ankiety według harmonogramu, a panel sygnalizuje nietypowe spadki liczby głosów.",
+        "item2Title": "Losowania nagród, analiza sentymentu AI, e-maile odzyskujące klientów",
+        "item2Body": "organizuj losowania nagród z dobrowolnym udziałem, automatycznie klasyfikuj opinie w formie wolnego tekstu i wysyłaj e-maile do głosujących, którzy się na to zgodzą.",
+        "item3Title": "Osadzalny widżet i odznaka zaufania",
+        "item3Body": "dodaj przycisk opinii lub odznakę wskaźnika zaufania na żywo do dowolnej witryny, nie tylko do kodów QR.",
+        "item4Title": "Skaner QR w panelu i masowe generowanie kodów QR",
+        "item4Body": "zeskanuj wydrukowany kod aparatem, aby nim zarządzać, lub wygeneruj wiele kodów QR naraz."
+      }
+    }
   }
 }

@@ -192,5 +192,85 @@
       "webhooks": "Webhooks",
       "apiAccess": "Entwickler-API-Zugriff"
     }
+  },
+  "admin": {
+    "dashboardTitle": "Dashboard",
+    "dashboardSubtitle": "Alles, was Sie für QR-Feedback brauchen, geführt an einem Ort.",
+    "onDuty": "{{name}} ist hier zuständig — {{role}}.",
+    "nav": {
+      "overview": "Übersicht",
+      "polls": "Umfragen",
+      "engagement": "QR-Codes",
+      "connection": "Kundenbindung",
+      "feedback": "Feedback",
+      "settings": "Einstellungen"
+    },
+    "tabDescriptions": {
+      "overview": "Ein Überblick über Ihren Arbeitsbereich: Schnellaktionen, die Aktivität dieser Woche und wichtige Kennzahlen.",
+      "polls": "Durchsuchen, teilen und verwalten Sie jede von Ihnen erstellte Frage.",
+      "engagement": "Ein QR-Code ist mehr als eine Umfrage: Bündeln Sie Umfragen, Infokarten und eine Spendenbitte unter einem einzigen Code.",
+      "connection": "Verwandeln Sie einen QR-Scan in eine dauerhafte Kundenbeziehung.",
+      "feedback": "Nachrichten von Wählern, Bewertungsanfragen, Stimmungsanalyse und Wiedergewinnungsaufgaben.",
+      "settings": "Marke, Teamzugriff, Entwickler-API und letzte Aktivitäten."
+    },
+    "quickActions": {
+      "create": { "label": "Umfrage erstellen", "description": "Starten Sie eine neue QR-Feedback-Umfrage für einen Tisch, Tresen oder ein Event." },
+      "polls": { "label": "Umfragen verwalten", "description": "Durchsuchen, filtern und prüfen Sie die Leistung jeder Umfrage." },
+      "engagement": { "label": "QR-Code erstellen", "description": "Kombinieren Sie Umfragen, Infokarten und Spenden unter einem gedruckten Code." },
+      "connection": { "label": "Kundenbindung", "description": "Sammeln Sie E-Mails, laden Sie zu ehrlichen Bewertungen ein und verwalten Sie Belohnungen." },
+      "analytics": { "label": "Statistiken ansehen", "description": "Sehen Sie Trends über alle Umfragen und Standorte hinweg." },
+      "feedback": { "label": "Feedback prüfen", "description": "Lesen Sie Nachrichten von Wählern und genehmigen Sie ausstehende Bewertungsanfragen." },
+      "settings": { "label": "Arbeitsbereich-Einstellungen", "description": "Verwalten Sie Ihre Marke, den Teamzugriff und die Abrechnung." }
+    },
+    "overview": {
+      "stats": {
+        "totalPolls": "Umfragen insgesamt",
+        "active": "Aktiv",
+        "closed": "Geschlossen",
+        "scheduled": "Geplant",
+        "locations": "Standorte",
+        "votesThisWeek": "Stimmen diese Woche"
+      },
+      "weeklyInsightTitle": "Erkenntnis der Woche",
+      "weeklyInsightBody": "Ihre meistgenannte Antwort war \"{{answer}}\", genannt {{count}} {{countLabel}} von {{totalVotes}} Stimmen in den letzten 7 Tagen.",
+      "time": "Mal",
+      "times": "Mal",
+      "benchmarkTitle": "Vergleich",
+      "benchmarkBody": "Ihr Durchschnittswert bei \"{{templateKey}}\"-Umfragen liegt bei {{ownScore}} %, gegenüber einem Branchendurchschnitt von {{industryScore}} % bei {{sampleSize}} anderen Standorten mit derselben Vorlage.",
+      "robinGuideTitle": "Robins Leitfaden",
+      "firstSteps": {
+        "heading": "Ihre ersten Schritte",
+        "dismiss": "Ausblenden",
+        "newHerePrefix": "Neu hier?",
+        "readGuide": "Lesen Sie die einfache 3-Schritte-Anleitung",
+        "newHereSuffix": "alles andere auf dieser Seite ist optional.",
+        "createFirstPoll": "Erstellen Sie Ihre erste Umfrage",
+        "createPollCta": "Umfrage erstellen",
+        "shareQr": "Drucken oder teilen Sie Ihren QR-Code",
+        "goToPolls": "Zu Ihren Umfragen",
+        "getFirstVote": "Holen Sie sich Ihre erste Stimme"
+      },
+      "personaPrompt": "Wofür nutzen Sie Godwit? Robin stellt die Funktionen zusammen, die für Sie am wichtigsten sind.",
+      "guideFor": "Leitfaden für",
+      "chooseDifferentPath": "Anderen Weg wählen",
+      "availableOn": "Verfügbar im Tarif {{plan}}",
+      "upgrade": "Upgrade",
+      "go": "Los",
+      "meetFlock": {
+        "title": "Lernen Sie Ihren Schwarm kennen",
+        "subtitle": "Sieben Spezialisten, jeder für einen Teil von Godwit zuständig"
+      },
+      "whatsNew": {
+        "title": "Neu bei Godwit",
+        "item1Title": "Rotierende Umfragen, intelligentes Bewertungsrouting, Anomalie-Warnungen",
+        "item1Body": "QR-Codes können jetzt Umfragen nach Zeitplan automatisch wechseln, und das Dashboard meldet ungewöhnliche Rückgänge im Stimmenvolumen.",
+        "item2Title": "Verlosungen, KI-Stimmungsanalyse, Kunden-Rückgewinnungs-E-Mails",
+        "item2Body": "führen Sie Opt-in-Verlosungen durch, klassifizieren Sie Freitext-Feedback automatisch und versenden Sie E-Mails an Wähler, die dem zustimmen.",
+        "item3Title": "Einbettbares Widget und Vertrauens-Badge",
+        "item3Body": "fügen Sie einer beliebigen Website einen Feedback-Button oder ein Live-Vertrauens-Badge hinzu, nicht nur QR-Codes.",
+        "item4Title": "QR-Scanner im Dashboard und QR-Massengenerierung",
+        "item4Body": "scannen Sie einen gedruckten Code mit Ihrer Kamera, um ihn zu verwalten, oder erstellen Sie viele QR-Codes auf einmal."
+      }
+    }
   }
 }

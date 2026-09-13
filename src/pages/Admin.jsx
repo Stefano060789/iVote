@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase, supabaseUrl, supabaseAnonKey } from "../lib/supabase";
 import { createStableQrUrl } from "../lib/pollLinks";
 import { isRestrictedTopic } from "../lib/restrictedContent";
@@ -40,6 +41,7 @@ import {
 } from "../lib/workspaceProfile";
 
 export default function Admin() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const qrRef = useRef(null);
@@ -1691,38 +1693,38 @@ export default function Admin() {
   });
 
   const adminTabs = [
-    { key: "overview", label: "Overview" },
-    { key: "polls", label: "Polls" },
-    { key: "engagement", label: "QR codes" },
-    { key: "connection", label: "Customer connection" },
-    { key: "feedback", label: "Feedback" },
-    { key: "settings", label: "Settings" }
+    { key: "overview", label: t("admin.nav.overview") },
+    { key: "polls", label: t("admin.nav.polls") },
+    { key: "engagement", label: t("admin.nav.engagement") },
+    { key: "connection", label: t("admin.nav.connection") },
+    { key: "feedback", label: t("admin.nav.feedback") },
+    { key: "settings", label: t("admin.nav.settings") }
   ];
 
   const adminTabDescriptions = {
-    overview: "A snapshot of your workspace: quick actions, this week's activity, and key numbers.",
-    polls: "Search, share, and manage every question you've created.",
-    engagement: "A QR code is more than one poll: bundle polls, info cards, and a donation ask under one code.",
-    connection: "Turn a QR scan into an ongoing customer relationship.",
-    feedback: "Voter messages, review claims, sentiment, and recovery tasks.",
-    settings: "Brand, team access, developer API, and recent activity."
+    overview: t("admin.tabDescriptions.overview"),
+    polls: t("admin.tabDescriptions.polls"),
+    engagement: t("admin.tabDescriptions.engagement"),
+    connection: t("admin.tabDescriptions.connection"),
+    feedback: t("admin.tabDescriptions.feedback"),
+    settings: t("admin.tabDescriptions.settings")
   };
 
   const quickActions = [
-    { key: "create", icon: "\u2795", label: "Create a poll", description: "Start a new QR feedback poll for a table, counter, or event.", onSelect: () => navigate("/create") },
-    { key: "polls", icon: flockMemberForTab("polls")?.icon || "\ud83d\udcca", label: "Manage your polls", description: "Search, filter, and see how each poll performs.", onSelect: () => setActiveTab("polls") },
-    { key: "engagement", icon: flockMemberForTab("engagement")?.icon || "\u2728", label: "Build a QR code", description: "Combine polls, info cards, and donations under one printed code.", onSelect: () => setActiveTab("engagement") },
-    { key: "connection", icon: flockMemberForTab("connection")?.icon || "\ud83e\udd1d", label: "Customer connection", description: "Collect emails, invite honest reviews, and manage rewards.", onSelect: () => setActiveTab("connection") },
-    { key: "analytics", icon: "\ud83d\udcca", label: "View analytics", description: "See trends across every poll and location.", onSelect: () => navigate("/admin/analytics") },
-    { key: "feedback", icon: flockMemberForTab("feedback")?.icon || "\ud83d\udcac", label: "Review feedback", description: "Read voter messages and approve pending review claims.", onSelect: () => setActiveTab("feedback") },
-    { key: "settings", icon: flockMemberForTab("settings")?.icon || "\u2699\ufe0f", label: "Workspace settings", description: "Manage your brand, team access, and billing.", onSelect: () => setActiveTab("settings") }
+    { key: "create", icon: "\u2795", label: t("admin.quickActions.create.label"), description: t("admin.quickActions.create.description"), onSelect: () => navigate("/create") },
+    { key: "polls", icon: flockMemberForTab("polls")?.icon || "\ud83d\udcca", label: t("admin.quickActions.polls.label"), description: t("admin.quickActions.polls.description"), onSelect: () => setActiveTab("polls") },
+    { key: "engagement", icon: flockMemberForTab("engagement")?.icon || "\u2728", label: t("admin.quickActions.engagement.label"), description: t("admin.quickActions.engagement.description"), onSelect: () => setActiveTab("engagement") },
+    { key: "connection", icon: flockMemberForTab("connection")?.icon || "\ud83e\udd1d", label: t("admin.quickActions.connection.label"), description: t("admin.quickActions.connection.description"), onSelect: () => setActiveTab("connection") },
+    { key: "analytics", icon: "\ud83d\udcca", label: t("admin.quickActions.analytics.label"), description: t("admin.quickActions.analytics.description"), onSelect: () => navigate("/admin/analytics") },
+    { key: "feedback", icon: flockMemberForTab("feedback")?.icon || "\ud83d\udcac", label: t("admin.quickActions.feedback.label"), description: t("admin.quickActions.feedback.description"), onSelect: () => setActiveTab("feedback") },
+    { key: "settings", icon: flockMemberForTab("settings")?.icon || "\u2699\ufe0f", label: t("admin.quickActions.settings.label"), description: t("admin.quickActions.settings.description"), onSelect: () => setActiveTab("settings") }
   ];
 
   return (
     <div className="workspace-page max-w-3xl mx-auto p-6">
       <div className="mb-6 text-center">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="mt-2 text-sm text-slate-400">Everything you need to run QR feedback, guided in one place.</p>
+        <h1 className="text-3xl font-bold">{t("admin.dashboardTitle")}</h1>
+        <p className="mt-2 text-sm text-slate-400">{t("admin.dashboardSubtitle")}</p>
       </div>
 
       <div className="mb-2 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center">
@@ -1745,8 +1747,7 @@ export default function Admin() {
         <p className="mb-6 flex items-center justify-center gap-2 text-xs text-slate-500">
           <span aria-hidden="true">{flockMemberForTab(activeTab).icon}</span>
           <span>
-            <strong className="text-slate-400">{flockMemberForTab(activeTab).name}</strong> is on duty here
-            {" — "}{flockMemberForTab(activeTab).role.toLowerCase()}.
+            {t("admin.onDuty", { name: flockMemberForTab(activeTab).name, role: flockMemberForTab(activeTab).role.toLowerCase() })}
           </span>
         </p>
       )}
@@ -1770,28 +1771,28 @@ export default function Admin() {
 
       <div className="mb-6 grid grid-cols-2 md:grid-cols-5 gap-3">
         <div className="border rounded p-3 bg-gray-900">
-          <p className="text-gray-400 text-sm">Total polls</p>
+          <p className="text-gray-400 text-sm">{t("admin.overview.stats.totalPolls")}</p>
           <p className="text-2xl font-bold">{analytics.total}</p>
         </div>
         <div className="border rounded p-3 bg-gray-900">
-          <p className="text-gray-400 text-sm">Active</p>
+          <p className="text-gray-400 text-sm">{t("admin.overview.stats.active")}</p>
           <p className="text-2xl font-bold text-green-400">{analytics.active}</p>
         </div>
         <div className="border rounded p-3 bg-gray-900">
-          <p className="text-gray-400 text-sm">Closed</p>
+          <p className="text-gray-400 text-sm">{t("admin.overview.stats.closed")}</p>
           <p className="text-2xl font-bold text-red-400">{analytics.closed}</p>
         </div>
         <div className="border rounded p-3 bg-gray-900">
-          <p className="text-gray-400 text-sm">Scheduled</p>
+          <p className="text-gray-400 text-sm">{t("admin.overview.stats.scheduled")}</p>
           <p className="text-2xl font-bold text-yellow-400">{analytics.scheduled}</p>
         </div>
         <div className="border rounded p-3 bg-gray-900">
-          <p className="text-gray-400 text-sm">Locations</p>
+          <p className="text-gray-400 text-sm">{t("admin.overview.stats.locations")}</p>
           <p className="text-2xl font-bold text-blue-400">{analytics.withLocation}</p>
         </div>
         {voteTrend && voteTrend.lastWeek > 0 && (
           <div className="border rounded p-3 bg-gray-900">
-            <p className="text-gray-400 text-sm">Votes this week</p>
+            <p className="text-gray-400 text-sm">{t("admin.overview.stats.votesThisWeek")}</p>
             <p className={`text-2xl font-bold ${voteTrend.thisWeek >= voteTrend.lastWeek ? "text-emerald-400" : "text-red-400"}`}>
               {voteTrend.thisWeek} {voteTrend.thisWeek >= voteTrend.lastWeek ? "\u25b2" : "\u25bc"} {Math.abs(Math.round(((voteTrend.thisWeek - voteTrend.lastWeek) / voteTrend.lastWeek) * 100))}%
             </p>
@@ -1801,18 +1802,18 @@ export default function Admin() {
 
       {weeklyInsight && (
         <div className="mb-6 rounded border border-indigo-700 bg-slate-900 p-4">
-          <p className="text-sm font-semibold text-indigo-300">This week's insight</p>
+          <p className="text-sm font-semibold text-indigo-300">{t("admin.overview.weeklyInsightTitle")}</p>
           <p className="mt-1 text-sm text-slate-200">
-            Your top mentioned answer was <span className="font-semibold">"{weeklyInsight.answer}"</span>, mentioned {weeklyInsight.count} time{weeklyInsight.count === 1 ? "" : "s"} out of {weeklyInsight.totalVotes} votes in the last 7 days.
+            {t("admin.overview.weeklyInsightBody", { answer: weeklyInsight.answer, count: weeklyInsight.count, totalVotes: weeklyInsight.totalVotes, countLabel: weeklyInsight.count === 1 ? t("admin.overview.time") : t("admin.overview.times") })}
           </p>
         </div>
       )}
 
       {templateBenchmark && templateBenchmark.industryScore !== null && templateBenchmark.sampleSize >= 3 && (
         <div className="mb-6 rounded border border-emerald-700 bg-slate-900 p-4">
-          <p className="text-sm font-semibold text-emerald-300">Benchmark</p>
+          <p className="text-sm font-semibold text-emerald-300">{t("admin.overview.benchmarkTitle")}</p>
           <p className="mt-1 text-sm text-slate-200">
-            Your average score on "{templateBenchmark.templateKey}" polls is <span className="font-semibold">{templateBenchmark.ownScore}%</span>, vs an industry average of <span className="font-semibold">{templateBenchmark.industryScore}%</span> across {templateBenchmark.sampleSize} other venues using the same template.
+            {t("admin.overview.benchmarkBody", { templateKey: templateBenchmark.templateKey, ownScore: templateBenchmark.ownScore, industryScore: templateBenchmark.industryScore, sampleSize: templateBenchmark.sampleSize })}
           </p>
         </div>
       )}
@@ -1820,35 +1821,35 @@ export default function Admin() {
       <div className="mb-6 rounded border border-teal-700 bg-slate-900 p-4">
         <div className="flex items-center gap-2">
           <span className="text-xl" aria-hidden="true">{flockMemberForTab("overview")?.icon || "\ud83d\udc26"}</span>
-          <span className="text-lg font-bold">Robin's guide</span>
+          <span className="text-lg font-bold">{t("admin.overview.robinGuideTitle")}</span>
         </div>
 
         {!onboardingDismissed && (
           <div className="mt-3 rounded border border-slate-700 bg-slate-950 p-3">
             <div className="flex items-start justify-between gap-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Your first steps</p>
-              <button onClick={dismissOnboarding} className="text-xs text-slate-400 underline">Dismiss</button>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{t("admin.overview.firstSteps.heading")}</p>
+              <button onClick={dismissOnboarding} className="text-xs text-slate-400 underline">{t("admin.overview.firstSteps.dismiss")}</button>
             </div>
             <p className="mt-1 text-xs text-slate-400">
-              New here? <Link to="/essentials" className="underline">Read the 3-step simple guide</Link> - everything else on this page is optional.
+              {t("admin.overview.firstSteps.newHerePrefix")} <Link to="/essentials" className="underline">{t("admin.overview.firstSteps.readGuide")}</Link> - {t("admin.overview.firstSteps.newHereSuffix")}
             </p>
             <div className="mt-3 space-y-2 text-sm">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className={polls.length > 0 ? "text-emerald-300" : "text-slate-300"}>{polls.length > 0 ? "\u2713" : "\u25cb"} Create your first poll</p>
-                {polls.length === 0 && <Link to="/create" className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">Create a poll</Link>}
+                <p className={polls.length > 0 ? "text-emerald-300" : "text-slate-300"}>{polls.length > 0 ? "\u2713" : "\u25cb"} {t("admin.overview.firstSteps.createFirstPoll")}</p>
+                {polls.length === 0 && <Link to="/create" className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">{t("admin.overview.firstSteps.createPollCta")}</Link>}
               </div>
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className={qrShared ? "text-emerald-300" : "text-slate-300"}>{qrShared ? "\u2713" : "\u25cb"} Print or share your QR code</p>
-                {!qrShared && polls.length > 0 && <button onClick={() => setActiveTab("polls")} className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">Go to your polls</button>}
+                <p className={qrShared ? "text-emerald-300" : "text-slate-300"}>{qrShared ? "\u2713" : "\u25cb"} {t("admin.overview.firstSteps.shareQr")}</p>
+                {!qrShared && polls.length > 0 && <button onClick={() => setActiveTab("polls")} className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">{t("admin.overview.firstSteps.goToPolls")}</button>}
               </div>
-              <p className={totalVotesCount > 0 ? "text-emerald-300" : "text-slate-300"}>{totalVotesCount > 0 ? "\u2713" : "\u25cb"} Get your first vote</p>
+              <p className={totalVotesCount > 0 ? "text-emerald-300" : "text-slate-300"}>{totalVotesCount > 0 ? "\u2713" : "\u25cb"} {t("admin.overview.firstSteps.getFirstVote")}</p>
             </div>
           </div>
         )}
 
         {!personaKey ? (
           <>
-            <p className="mt-3 text-sm text-slate-400">What are you using Godwit for? Robin will line up the features that matter most for you.</p>
+            <p className="mt-3 text-sm text-slate-400">{t("admin.overview.personaPrompt")}</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
               {PERSONAS.map((persona) => (
                 <button
@@ -1872,9 +1873,9 @@ export default function Admin() {
               <>
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                   <p className="text-sm text-slate-400">
-                    <span aria-hidden="true">{persona.icon}</span> Guide for <strong className="text-slate-200">{persona.label.toLowerCase()}</strong>
+                    <span aria-hidden="true">{persona.icon}</span> {t("admin.overview.guideFor")} <strong className="text-slate-200">{persona.label.toLowerCase()}</strong>
                   </p>
-                  <button onClick={changePersona} className="text-xs text-slate-400 underline">Choose a different path</button>
+                  <button onClick={changePersona} className="text-xs text-slate-400 underline">{t("admin.overview.chooseDifferentPath")}</button>
                 </div>
                 <div className="mt-3 space-y-2">
                   {persona.steps.map((step, index) => {
@@ -1886,13 +1887,13 @@ export default function Admin() {
                         <p className="mt-1 text-xs text-slate-400">{step.detail}</p>
                         {isLocked && (
                           <p className="mt-1.5 text-xs font-semibold uppercase tracking-wide text-amber-300">
-                            🔒 Available on {minPlanLabelFor(step.feature)}
+                            🔒 {t("admin.overview.availableOn", { plan: minPlanLabelFor(step.feature) })}
                             {" · "}
-                            <Link to="/admin/billing" className="underline">Upgrade</Link>
+                            <Link to="/admin/billing" className="underline">{t("admin.overview.upgrade")}</Link>
                           </p>
                         )}
                       </div>
-                      <button onClick={() => goToPersonaStep(step)} className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">Go</button>
+                      <button onClick={() => goToPersonaStep(step)} className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">{t("admin.overview.go")}</button>
                     </div>
                     );
                   })}
@@ -1906,8 +1907,8 @@ export default function Admin() {
       <div className="mb-6 rounded border border-slate-700 bg-slate-900 p-4">
         <button type="button" onClick={toggleFlockGuide} className="flex w-full items-center justify-between gap-3 text-left">
           <span>
-            <span className="text-lg font-bold">Meet your flock</span>
-            <span className="ml-2 text-xs text-slate-400">Seven specialists, each covering one part of Godwit</span>
+            <span className="text-lg font-bold">{t("admin.overview.meetFlock.title")}</span>
+            <span className="ml-2 text-xs text-slate-400">{t("admin.overview.meetFlock.subtitle")}</span>
           </span>
           <span className="text-slate-400" aria-hidden="true">{flockGuideOpen ? "\u25b2" : "\u25bc"}</span>
         </button>
@@ -1930,12 +1931,12 @@ export default function Admin() {
       </div>
 
       <details className="mb-2 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-lg font-bold">What's new in Godwit</summary>
+        <summary className="cursor-pointer p-4 text-lg font-bold">{t("admin.overview.whatsNew.title")}</summary>
         <div className="px-4 pb-4 space-y-2 text-sm text-slate-300">
-          <p><span className="font-semibold text-teal-300">Rotating polls, smart review routing, anomaly alerts</span> - QR codes can now auto-swap polls on a schedule, and the dashboard flags unusual vote-volume drops.</p>
-          <p><span className="font-semibold text-teal-300">Prize draws, AI sentiment, lead nurture emails</span> - run opt-in prize draws, auto-classify open-text feedback, and email voters who opt in for follow-up.</p>
-          <p><span className="font-semibold text-teal-300">Embeddable widget and trust badge</span> - add a feedback button or a live trust score badge to any website, not just QR codes.</p>
-          <p><span className="font-semibold text-teal-300">In-dashboard QR scanner and bulk QR generation</span> - scan a printed code with your camera to manage it, or generate many QR codes at once.</p>
+          <p><span className="font-semibold text-teal-300">{t("admin.overview.whatsNew.item1Title")}</span> - {t("admin.overview.whatsNew.item1Body")}</p>
+          <p><span className="font-semibold text-teal-300">{t("admin.overview.whatsNew.item2Title")}</span> - {t("admin.overview.whatsNew.item2Body")}</p>
+          <p><span className="font-semibold text-teal-300">{t("admin.overview.whatsNew.item3Title")}</span> - {t("admin.overview.whatsNew.item3Body")}</p>
+          <p><span className="font-semibold text-teal-300">{t("admin.overview.whatsNew.item4Title")}</span> - {t("admin.overview.whatsNew.item4Body")}</p>
         </div>
       </details>
       </>

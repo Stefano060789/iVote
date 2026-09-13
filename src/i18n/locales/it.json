@@ -192,5 +192,85 @@
       "webhooks": "Webhook",
       "apiAccess": "Accesso API per sviluppatori"
     }
+  },
+  "admin": {
+    "dashboardTitle": "Pannello di controllo",
+    "dashboardSubtitle": "Tutto ciò che serve per gestire il feedback via QR, guidato in un unico posto.",
+    "onDuty": "{{name}} è di turno qui — {{role}}.",
+    "nav": {
+      "overview": "Panoramica",
+      "polls": "Sondaggi",
+      "engagement": "Codici QR",
+      "connection": "Relazione con i clienti",
+      "feedback": "Feedback",
+      "settings": "Impostazioni"
+    },
+    "tabDescriptions": {
+      "overview": "Un riepilogo del tuo spazio di lavoro: azioni rapide, attività della settimana e numeri chiave.",
+      "polls": "Cerca, condividi e gestisci ogni domanda che hai creato.",
+      "engagement": "Un codice QR è più di un semplice sondaggio: raggruppa sondaggi, schede informative e una richiesta di donazione in un unico codice.",
+      "connection": "Trasforma una scansione QR in una relazione continuativa con il cliente.",
+      "feedback": "Messaggi dei votanti, richieste di recensione, sentiment e attività di recupero.",
+      "settings": "Marchio, accesso del team, API per sviluppatori e attività recente."
+    },
+    "quickActions": {
+      "create": { "label": "Crea un sondaggio", "description": "Avvia un nuovo sondaggio di feedback QR per un tavolo, un bancone o un evento." },
+      "polls": { "label": "Gestisci i tuoi sondaggi", "description": "Cerca, filtra e controlla le prestazioni di ogni sondaggio." },
+      "engagement": { "label": "Crea un codice QR", "description": "Combina sondaggi, schede informative e donazioni in un unico codice stampato." },
+      "connection": { "label": "Relazione con i clienti", "description": "Raccogli email, invita a lasciare recensioni sincere e gestisci i premi." },
+      "analytics": { "label": "Vedi le statistiche", "description": "Consulta le tendenze su tutti i sondaggi e le sedi." },
+      "feedback": { "label": "Rivedi il feedback", "description": "Leggi i messaggi dei votanti e approva le richieste di recensione in sospeso." },
+      "settings": { "label": "Impostazioni dello spazio di lavoro", "description": "Gestisci il tuo marchio, l'accesso del team e la fatturazione." }
+    },
+    "overview": {
+      "stats": {
+        "totalPolls": "Sondaggi totali",
+        "active": "Attivi",
+        "closed": "Chiusi",
+        "scheduled": "Programmati",
+        "locations": "Sedi",
+        "votesThisWeek": "Voti questa settimana"
+      },
+      "weeklyInsightTitle": "Approfondimento della settimana",
+      "weeklyInsightBody": "La tua risposta più citata è stata \"{{answer}}\", menzionata {{count}} {{countLabel}} su {{totalVotes}} voti negli ultimi 7 giorni.",
+      "time": "volta",
+      "times": "volte",
+      "benchmarkTitle": "Confronto",
+      "benchmarkBody": "Il tuo punteggio medio sui sondaggi \"{{templateKey}}\" è del {{ownScore}}%, contro una media di settore del {{industryScore}}% tra altri {{sampleSize}} locali che usano lo stesso modello.",
+      "robinGuideTitle": "La guida di Robin",
+      "firstSteps": {
+        "heading": "I tuoi primi passi",
+        "dismiss": "Ignora",
+        "newHerePrefix": "Sei nuovo qui?",
+        "readGuide": "Leggi la guida semplice in 3 passi",
+        "newHereSuffix": "tutto il resto in questa pagina è facoltativo.",
+        "createFirstPoll": "Crea il tuo primo sondaggio",
+        "createPollCta": "Crea un sondaggio",
+        "shareQr": "Stampa o condividi il tuo codice QR",
+        "goToPolls": "Vai ai tuoi sondaggi",
+        "getFirstVote": "Ottieni il tuo primo voto"
+      },
+      "personaPrompt": "Per cosa usi Godwit? Robin selezionerà le funzionalità più importanti per te.",
+      "guideFor": "Guida per",
+      "chooseDifferentPath": "Scegli un percorso diverso",
+      "availableOn": "Disponibile con il piano {{plan}}",
+      "upgrade": "Passa a un piano superiore",
+      "go": "Vai",
+      "meetFlock": {
+        "title": "Conosci il tuo stormo",
+        "subtitle": "Sette specialisti, ognuno responsabile di una parte di Godwit"
+      },
+      "whatsNew": {
+        "title": "Novità di Godwit",
+        "item1Title": "Sondaggi a rotazione, instradamento intelligente delle recensioni, avvisi di anomalie",
+        "item1Body": "i codici QR ora possono alternare automaticamente i sondaggi secondo una pianificazione, e il pannello segnala cali insoliti nel volume dei voti.",
+        "item2Title": "Estrazioni a premi, sentiment con IA, email di recupero clienti",
+        "item2Body": "organizza estrazioni a premi con adesione volontaria, classifica automaticamente il feedback in testo libero e invia email ai votanti che danno il consenso.",
+        "item3Title": "Widget incorporabile e badge di fiducia",
+        "item3Body": "aggiungi un pulsante di feedback o un badge di punteggio di fiducia in tempo reale a qualsiasi sito web, non solo ai codici QR.",
+        "item4Title": "Scanner QR integrato nel pannello e generazione massiva di codici QR",
+        "item4Body": "scansiona un codice stampato con la fotocamera per gestirlo, oppure genera molti codici QR in una sola volta."
+      }
+    }
   }
 }
