@@ -48,8 +48,11 @@
     },
     "flockEyebrow": "Eén product, een hele zwerm",
     "flockTitle": "Elk onderdeel van Godwit heeft zijn eigen karakter.",
-    "flockLede": "Vijf specialisten die samenwerken - elk vernoemd naar een vogel, elk met één taak die ze goed uitvoeren.",
+    "flockLede": "Zeven specialisten die samenwerken - elk vernoemd naar een vogel, elk met één taak die ze goed uitvoeren.",
     "flock": {
+      "robinName": "Robin",
+      "robinRole": "Jouw vriendelijke eerste gids",
+      "robinDetail": "Begeleidt gloednieuwe workspaces door hun eerste peiling, eerste QR-code en eerste stem - zonder handleiding.",
       "redshankName": "Redshank",
       "redshankRole": "Signaleert problemen vroeg",
       "redshankDetail": "Stuurt feedback met een lage score naar een privébericht voordat het Google, Booking of Tripadvisor bereikt.",
@@ -64,7 +67,10 @@
       "ternDetail": "Eén scan, één vraag, één eerlijk antwoord - polls licht genoeg voor een drukke balie of ingang.",
       "waxwingName": "Waxwing",
       "waxwingRole": "Het premium verenkleed",
-      "waxwingDetail": "Prijstrekkingen, beloningstracking en geautomatiseerde nurture-e-mails voor workspaces die sneller willen groeien."
+      "waxwingDetail": "Prijstrekkingen, beloningstracking en geautomatiseerde nurture-e-mails voor workspaces die sneller willen groeien.",
+      "owlName": "Owl",
+      "owlRole": "Waakt over het nest",
+      "owlDetail": "Houdt je merk, teamtoegang en abonnement in de gaten - stil, totdat er iets aandacht nodig heeft."
     },
     "finalEyebrow": "Klaar om de ruimte te meten?",
     "finalTitle": "Lanceer je eerste QR-feedbackcampagne.",

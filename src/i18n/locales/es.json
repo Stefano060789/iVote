@@ -48,8 +48,11 @@
     },
     "flockEyebrow": "Un producto, una bandada entera",
     "flockTitle": "Cada parte de Godwit tiene su propio carácter.",
-    "flockLede": "Cinco especialistas que trabajan juntos, cada uno con el nombre de un ave, cada uno con una tarea que hace bien.",
+    "flockLede": "Siete especialistas que trabajan juntos, cada uno con el nombre de un ave, cada uno con una tarea que hace bien.",
     "flock": {
+      "robinName": "Robin",
+      "robinRole": "Tu primer guía amigable",
+      "robinDetail": "Acompaña a los espacios de trabajo nuevos en su primera encuesta, su primer código QR y su primer voto, sin necesidad de manual.",
       "redshankName": "Redshank",
       "redshankRole": "Detecta los problemas a tiempo",
       "redshankDetail": "Redirige el feedback negativo a un mensaje privado antes de que llegue a Google, Booking o Tripadvisor.",
@@ -64,7 +67,10 @@
       "ternDetail": "Un escaneo, una pregunta, una respuesta honesta: encuestas lo bastante ligeras para un mostrador o entrada concurrida.",
       "waxwingName": "Waxwing",
       "waxwingRole": "El plumaje premium",
-      "waxwingDetail": "Sorteos de premios, seguimiento de recompensas y emails de seguimiento automatizados para espacios de trabajo listos para crecer más rápido."
+      "waxwingDetail": "Sorteos de premios, seguimiento de recompensas y emails de seguimiento automatizados para espacios de trabajo listos para crecer más rápido.",
+      "owlName": "Owl",
+      "owlRole": "Vigila el nido",
+      "owlDetail": "Vigila tu marca, el acceso de tu equipo y tu plan, en silencio, hasta que algo necesite tu atención."
     },
     "finalEyebrow": "¿Listo para medir el ambiente?",
     "finalTitle": "Lanza tu primera campaña de feedback por QR.",

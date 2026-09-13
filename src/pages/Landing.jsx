@@ -19,11 +19,13 @@ const outcomeKeys = [
 ];
 
 const flockKeys = [
-  { key: "redshank", nameKey: "flock.redshankName", roleKey: "flock.redshankRole", detailKey: "flock.redshankDetail" },
-  { key: "magpie", nameKey: "flock.magpieName", roleKey: "flock.magpieRole", detailKey: "flock.magpieDetail" },
-  { key: "flamingo", nameKey: "flock.flamingoName", roleKey: "flock.flamingoRole", detailKey: "flock.flamingoDetail" },
+  { key: "robin", nameKey: "flock.robinName", roleKey: "flock.robinRole", detailKey: "flock.robinDetail" },
   { key: "tern", nameKey: "flock.ternName", roleKey: "flock.ternRole", detailKey: "flock.ternDetail" },
-  { key: "waxwing", nameKey: "flock.waxwingName", roleKey: "flock.waxwingRole", detailKey: "flock.waxwingDetail" }
+  { key: "flamingo", nameKey: "flock.flamingoName", roleKey: "flock.flamingoRole", detailKey: "flock.flamingoDetail" },
+  { key: "waxwing", nameKey: "flock.waxwingName", roleKey: "flock.waxwingRole", detailKey: "flock.waxwingDetail" },
+  { key: "redshank", nameKey: "flock.redshankName", roleKey: "flock.redshankRole", detailKey: "flock.redshankDetail" },
+  { key: "owl", nameKey: "flock.owlName", roleKey: "flock.owlRole", detailKey: "flock.owlDetail" },
+  { key: "magpie", nameKey: "flock.magpieName", roleKey: "flock.magpieRole", detailKey: "flock.magpieDetail" }
 ];
 
 export default function Landing() {

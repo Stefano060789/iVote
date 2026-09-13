@@ -48,8 +48,11 @@
     },
     "flockEyebrow": "一个产品,一整个鸟群",
     "flockTitle": "Godwit 的每个部分都有自己的个性。",
-    "flockLede": "五位各司其职的专才协同工作——每一位都以一种鸟类命名,各自专注做好一件事。",
+    "flockLede": "七位各司其职的专才协同工作——每一位都以一种鸟类命名,各自专注做好一件事。",
     "flock": {
+      "robinName": "Robin",
+      "robinRole": "你友好的第一位向导",
+      "robinDetail": "带领全新的工作空间完成第一个投票、第一个二维码和第一张选票——无需任何说明书。",
       "redshankName": "Redshank",
       "redshankRole": "及早发现问题",
       "redshankDetail": "在低分反馈到达 Google、Booking 或 Tripadvisor 之前,先将其转入私信。",
@@ -64,7 +67,10 @@
       "ternDetail": "一次扫码、一个问题、一句真实的回答——足够轻量,适合繁忙的柜台或入口。",
       "waxwingName": "Waxwing",
       "waxwingRole": "高级羽衣",
-      "waxwingDetail": "为准备加速增长的工作空间提供抽奖、奖励兑换追踪和自动化培育邮件。"
+      "waxwingDetail": "为准备加速增长的工作空间提供抽奖、奖励兑换追踪和自动化培育邮件。",
+      "owlName": "Owl",
+      "owlRole": "守护巢穴",
+      "owlDetail": "默默关注你的品牌、团队权限和套餐——直到需要你留意的时候才会提醒你。"
     },
     "finalEyebrow": "准备好衡量现场氛围了吗?",
     "finalTitle": "启动你的第一场二维码反馈活动。",
