@@ -3,73 +3,63 @@
 Things that are known gaps but intentionally deferred, not forgotten. Check this file
 periodically and clear items as you address them.
 
-## QR code donations
+## QR code donations (now via Stripe Connect, with a 10% platform fee)
 
-- [x] **Voters can now donate directly to the organizer's bank account from the QR menu.**
-  New migration `supabase/20260916_donations.sql` (**run this migration** - see
-  `LAUNCH_SETUP.md`'s migration list) adds:
-  - `donation_settings`: one row per workspace (IBAN, account holder name, optional BIC,
-    optional suggested amount, optional thank-you message, an `is_enabled` toggle). Set up
-    once in Admin -> Engagement -> Donations, reused by every QR code.
-  - `public.is_valid_iban(text)`: a real ISO 7064 MOD 97-10 IBAN checksum function (not
-    just a shape check), enforced as a DB constraint - mirrored in
-    `src/lib/validators.js` (`isValidIban`) so the admin form validates instantly without
-    a round trip, and the two never disagree about what counts as a valid IBAN.
-  - `qr_campaign_items` gained a third `item_type`: `'donation'`, alongside the existing
-    `'poll'` and `'info'` types added in the previous QR-menu migration. A donation item
-    can only be added while `donation_settings.is_enabled` is true with a valid IBAN
-    (enforced by the same `qr_campaign_items_before_write` trigger the other item types
-    already use).
-  - `get_public_qr_campaign_items` now also returns the workspace's donation details
-    (only for `item_type = 'donation'`, and only while `is_enabled` stays true - so
-    disabling donations later doesn't leave old printed QR codes showing stale bank
-    details).
-  - Voter-facing display: `src/components/DonationCard.jsx`, rendered from
-    `QrRedirect.jsx`'s menu view. Shows the IBAN (with a copy button), account holder
-    name, optional suggested amount, and a scannable **EPC069-12 "SEPA Credit Transfer"
-    QR code** (also called a "GiroCode" in Germany/Austria/Netherlands) built by
-    `src/lib/sepaQr.js` using the `qrcode` package already installed for poll QR codes -
-    most European banking apps can scan this to prefill the transfer automatically.
-  - **Godwit never touches the money.** This is purely a display of the organizer's own
-    bank details plus a standard, publicly documented QR text format; there is no payment
-    processing, custody, or fee anywhere in this feature. Documented for users in
-    `Legal.jsx` under a new "Donations" section, and in the Admin UI copy itself.
-  - Not plan-gated - available on every tier, same as QR campaigns and QR items
-    themselves, since it costs Godwit nothing to offer (no payment infrastructure
-    involved).
-  - **Worth being aware of** (not a blocker, just context): publishing an IBAN is normal
-    practice (it's on every invoice), but if you ever want to reduce even the theoretical
-    SEPA-direct-debit-mandate-fraud surface further, consider periodically reviewing who
-    has your IBAN on file, same as you would for any published business bank account.
-
-- [ ] **ON HOLD: monetizing donations (Godwit earning something from the donation feature).**
-  User asked whether Godwit taking a cut of each donation is legally OK. Short answer: it
-  depends entirely on *how* - the current feature (static IBAN + SEPA QR, Godwit never
-  touches the money) is deliberately outside PSD2's scope because it's pure information
-  display, like an IBAN on an invoice. That safety disappears the moment Godwit tries to
-  earn money *from the transaction itself*. Options discussed, from simplest/no legal risk
-  to biggest project/needs real legal review:
-  1. **Gate the donation feature behind a paid plan** (e.g. Growth-only, or a paid add-on).
-     Zero new regulatory surface - this is just SaaS billing via the Stripe integration
-     already built. No code changes needed beyond adding an entitlements gate.
-  2. **Add a separate, independent "tip Godwit" option** via the existing Stripe checkout -
-     a voter pays Godwit directly and separately from the organizer's IBAN donation.
-     Godwit is a party to that transaction (selling its own "support us" product), so this
-     is normal e-commerce, not intermediation of someone else's money. No license needed.
-  3. **Take an actual percentage cut of each donation** - requires abandoning the current
-     manual-bank-transfer/static-QR architecture entirely and moving to a hosted-checkout
-     "platform payments" product (Stripe Connect, Mollie for Platforms, or Adyen for
-     Platforms are the standard choices - this is how Kickstarter/GoFundMe/Buy Me a Coffee
-     monetize). The PSP holds the actual payment-institution license; Godwit operates as
-     the "platform" collecting an application fee. Each venue would need to complete KYC
-     onboarding with the PSP. This is a genuinely bigger project (new payment architecture,
-     not just a fee field) and should not be built without a lawyer reviewing the
-     marketplace/facilitator terms and the chosen provider's platform agreement first.
-     Note also: having the *app itself* initiate a transfer (rather than a voter's own
-     banking app scanning a static QR) would separately require PISP (Payment Initiation
-     Service Provider) registration under PSD2, even without ever holding funds.
-  **Decision**: paused for now at the user's request - no code changes made. Revisit by
-  picking one of the three options above when ready to proceed.
+- [x] **Donations were rebuilt from a free IBAN/SEPA-QR display into a real payment flow.**
+  The original bank-transfer design (see git history for `20260916_donations.sql` if you need
+  it) has been fully replaced - not extended - by `supabase/20260917_donations_stripe_connect.sql`,
+  after the user explicitly decided to monetize donations at a 10% platform fee. Summary of the
+  new architecture:
+  - **Stripe Connect (Express accounts).** Each workspace connects its own Stripe account via
+    a hosted onboarding flow (Admin -> Engagement -> Donations -> "Connect with Stripe").
+    `donation_settings` now stores `stripe_account_id`, `stripe_onboarding_complete`,
+    `stripe_charges_enabled`, `stripe_payouts_enabled` instead of IBAN/holder/BIC. The old
+    `donation_settings_enabled_requires_details` constraint (valid IBAN + holder name) was
+    replaced with `donation_settings_enabled_requires_stripe` (a connected account with
+    charges enabled).
+  - **Destination charges.** A donation Checkout Session is created with
+    `payment_intent_data.transfer_data.destination` = the workspace's connected account and
+    `payment_intent_data.application_fee_amount` = 10% of the amount. Stripe automatically
+    transfers 90% to the workspace and keeps 10% in Godwit's own Stripe balance - no manual
+    fee bookkeeping needed.
+  - **No new API files** (the project is at Vercel Hobby's 12-function ceiling - see
+    "Hosting / deployment" below). `api/create-checkout-session.js` gained a `mode` dispatch:
+    `"subscription"` (unchanged), `"connect-onboarding"` (create/resume the Express account +
+    a hosted onboarding link, auth required), `"connect-status"` (live status refresh),
+    `"donation"` (public, no auth - creates the destination-charge Checkout Session for a
+    voter). `api/stripe-webhook.js` now also handles `account.updated` (keeps
+    `donation_settings`'s Stripe flags in sync) and `checkout.session.completed` with
+    `metadata.kind === "donation"` (records the transaction in a new `donations` ledger table).
+  - **Ledger table**: `public.donations` (workspace_id, amounts, Stripe ids, donor email if
+    given at checkout, status). Members can read their own workspace's rows; only the webhook
+    (service role) writes to it.
+  - **Voter experience**: `src/components/DonationCard.jsx` now shows an amount field and a
+    "Donate" button that redirects to Stripe Checkout, instead of an IBAN + static QR. The fee
+    split (90% venue / 10% Godwit) is disclosed directly on this card, not just in the Terms -
+    donors should know before they pay, same as GoFundMe/Kickstarter/Patreon disclose theirs.
+  - **Removed**: `src/lib/sepaQr.js` (+ its test), and the IBAN checksum helpers in
+    `src/lib/validators.js` (`isValidIban`, `normalizeIban`, `formatIbanForDisplay`) - both were
+    purpose-built for the retired bank-transfer flow and are no longer used anywhere.
+  - **Legal.jsx updated**: the Donations section no longer says "Godwit never takes any fee" -
+    it now discloses the 10% platform fee and explains Godwit is a party to the donation
+    transaction (not merely a processor acting on the workspace's instructions), same as any
+    platform running Stripe Connect / Mollie for Platforms / Adyen for Platforms.
+  - **Not plan-gated** - available on every plan tier, by the user's explicit choice, to
+    maximize transaction volume (Godwit now earns per-transaction rather than only via
+    subscriptions).
+  - **Stripe Dashboard setup required before this works in production** (see
+    `LAUNCH_SETUP.md`):
+    1. Enable **Connect** (Express accounts) under Stripe Settings -> Connect.
+    2. On the existing webhook endpoint, check **"Listen to events on Connected accounts"**
+       and add the `account.updated` event, alongside the existing subscription events.
+    3. No new API keys are needed - `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` (already
+       configured for subscriptions) are reused for Connect account creation, Account Links,
+       and destination-charge Checkout Sessions.
+  - **Worth knowing**: Stripe's own card-processing cost comes out of Godwit's 10% share
+    (this uses "destination charges", where the platform account is charged and a clean 90%
+    transfers out - see the migration file's header comment), not the venue's 90%. That means
+    the venue's take-home is a clean, easy-to-explain 90% of what the donor paid, and Godwit's
+    real net margin is a bit under 10% once Stripe's processing fee is accounted for.
 
 ## Hosting / deployment
 

@@ -10,7 +10,7 @@ Run these files in the Supabase SQL Editor, in this exact order, against the pro
 4. `supabase/20260908_retention_benchmark_api.sql`
 5. `supabase/20260908_feedback_reports_qr_experiments.sql` if feedback reports and weekly reports are enabled
 6. `supabase/20260909_feedback_benefits.sql` for answer-triggered email and external-review benefits
-7. `supabase/20260916_donations.sql` for QR-code bank-transfer donations (IBAN checksum function, `donation_settings` table, and the `donation` QR-item type)
+7. `supabase/20260916_donations.sql` then `supabase/20260917_donations_stripe_connect.sql` for QR-code donations. Run both, in order - the second migration alters what the first creates. The finished feature accepts card/wallet donations through Stripe Connect (10% Godwit platform fee, 90% to the workspace), not a bank transfer.
 
 The final migration is additive. It creates workspace subscription records, secure plan-limit RPCs, privacy request records, and user-answer content reports. Do not run ad hoc deletes for account deletion requests; review `privacy_requests` and follow the documented retention process approved by counsel.
 
@@ -35,6 +35,13 @@ Set these in Vercel for the Production environment. Do not put service-role, Str
 | `OPENAI_API_KEY` | Optional | Existing QR poster image generation endpoint only |
 
 Create a Stripe webhook for `https://YOUR_DOMAIN/api/stripe-webhook` and subscribe to `checkout.session.completed`, `customer.subscription.updated`, and `customer.subscription.deleted`. Stripe must send the raw request body unchanged; the endpoint validates the `Stripe-Signature` header using Node's built-in crypto API.
+
+### Stripe Connect setup (for donations)
+
+1. Enable **Connect** under Stripe Dashboard -> Settings -> Connect, and choose **Express** accounts (the account type `api/create-checkout-session.js` requests).
+2. On the same webhook endpoint above, also check **"Listen to events on Connected accounts"** and add the `account.updated` event - this is how a workspace's donation status (`stripe_charges_enabled`) gets updated once they finish onboarding.
+3. No additional API keys are required: `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are reused for both subscriptions and Connect.
+4. Each workspace connects their own Stripe account from Admin -> Engagement -> Donations -> "Connect with Stripe" - there is nothing to configure per-workspace on the Stripe Dashboard side.
 
 ## Payments and limits
 

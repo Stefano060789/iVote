@@ -19,8 +19,7 @@ import QrScanner from "../components/QrScanner";
 import LockedFeature from "../components/LockedFeature";
 import { loadLeadNurtureSettings, saveLeadNurtureSettings } from "../lib/leadNurture";
 import { loadWinbackSettings, saveWinbackSettings } from "../lib/winbackSettings";
-import { loadDonationSettings, saveDonationSettings } from "../lib/donationSettings";
-import { isValidIban } from "../lib/validators";
+import { loadDonationSettings, saveDonationSettings, startStripeConnectOnboarding, refreshStripeConnectStatus } from "../lib/donationSettings";
 import { loadLatestReputationSnapshot, refreshReputationSnapshot } from "../lib/reputation";
 import { loadPollRotations, createPollRotation, deletePollRotation } from "../lib/pollRotations";
 import { loadApiKeys, createApiKey, deleteApiKey } from "../lib/apiKeys";
@@ -44,7 +43,11 @@ export default function Admin() {
   const qrRef = useRef(null);
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState(() => {
+    const validTabs = ["overview", "polls", "connection", "engagement", "feedback", "settings"];
+    const tabParam = new URLSearchParams(window.location.search).get("tab");
+    return validTabs.includes(tabParam) ? tabParam : "overview";
+  });
   const [showQR, setShowQR] = useState(null);
   const [reuseQrPoll, setReuseQrPoll] = useState(null);
   const [reuseQrTargetId, setReuseQrTargetId] = useState("");
@@ -110,8 +113,18 @@ export default function Admin() {
   const [reportSettings, setReportSettings] = useState({ recipient_email: "", is_enabled: false });
   const [nurtureSettings, setNurtureSettings] = useState({ is_enabled: false, subject: "", message: "" });
   const [winbackSettings, setWinbackSettings] = useState({ is_enabled: false, days_since_last_visit: 30, subject: "", message: "" });
-  const [donationSettings, setDonationSettings] = useState({ is_enabled: false, iban: "", account_holder_name: "", bic: "", currency: "EUR", suggested_amount: "", message: "" });
-  const [donationIbanError, setDonationIbanError] = useState("");
+  const [donationSettings, setDonationSettings] = useState({
+    is_enabled: false,
+    currency: "EUR",
+    suggested_amount: "",
+    message: "",
+    stripe_account_id: null,
+    stripe_onboarding_complete: false,
+    stripe_charges_enabled: false,
+    stripe_payouts_enabled: false
+  });
+  const [stripeConnectBusy, setStripeConnectBusy] = useState(false);
+  const [stripeConnectError, setStripeConnectError] = useState("");
   const [reputationSnapshot, setReputationSnapshot] = useState(null);
   const [reputationLoading, setReputationLoading] = useState(false);
   const [reputationError, setReputationError] = useState("");
@@ -316,6 +329,26 @@ export default function Admin() {
 
     return () => clearInterval(interval);
   }, [navigate]);
+
+  // Returning from Stripe's hosted Connect onboarding lands back here with ?donations=
+  // connected|refresh (see the return_url/refresh_url built in api/create-checkout-session.js).
+  // Do a live status check rather than waiting on the account.updated webhook, which is
+  // usually near-instant but not guaranteed to have arrived before the redirect completes.
+  useEffect(() => {
+    if (!workspaceUserId) return;
+    const donationsParam = new URLSearchParams(location.search).get("donations");
+    if (donationsParam !== "connected" && donationsParam !== "refresh") return;
+    refreshStripeConnectStatus()
+      .then((result) => {
+        setDonationSettings((current) => ({
+          ...current,
+          stripe_charges_enabled: Boolean(result.chargesEnabled),
+          stripe_payouts_enabled: Boolean(result.payoutsEnabled),
+          stripe_onboarding_complete: Boolean(result.detailsSubmitted)
+        }));
+      })
+      .catch((error) => console.error("Stripe status refresh failed", error));
+  }, [workspaceUserId, location.search]);
 
   useEffect(() => {
     async function loadLocationStats() {
@@ -735,13 +768,8 @@ export default function Admin() {
   }
 
   async function saveDonationSettingsHandler() {
-    setDonationIbanError("");
-    if (donationSettings.iban && !isValidIban(donationSettings.iban)) {
-      setDonationIbanError("That doesn't look like a valid IBAN. Double-check the country code and digits.");
-      return;
-    }
-    if (donationSettings.is_enabled && (!donationSettings.iban || !donationSettings.account_holder_name?.trim())) {
-      alert("Enter a valid IBAN and account holder name before enabling donations.");
+    if (donationSettings.is_enabled && !donationSettings.stripe_charges_enabled) {
+      alert("Connect and finish onboarding with Stripe before enabling donations.");
       return;
     }
     try {
@@ -750,6 +778,38 @@ export default function Admin() {
     } catch (error) {
       console.error(error);
       alert(error.message || "Unable to save donation settings.");
+    }
+  }
+
+  async function connectStripeHandler() {
+    setStripeConnectError("");
+    setStripeConnectBusy(true);
+    try {
+      const url = await startStripeConnectOnboarding();
+      window.location.assign(url);
+    } catch (error) {
+      console.error(error);
+      setStripeConnectError(error.message || "Unable to start Stripe onboarding.");
+      setStripeConnectBusy(false);
+    }
+  }
+
+  async function refreshStripeStatusHandler() {
+    setStripeConnectError("");
+    setStripeConnectBusy(true);
+    try {
+      const result = await refreshStripeConnectStatus();
+      setDonationSettings((current) => ({
+        ...current,
+        stripe_charges_enabled: Boolean(result.chargesEnabled),
+        stripe_payouts_enabled: Boolean(result.payoutsEnabled),
+        stripe_onboarding_complete: Boolean(result.detailsSubmitted)
+      }));
+    } catch (error) {
+      console.error(error);
+      setStripeConnectError(error.message || "Unable to check Stripe status.");
+    } finally {
+      setStripeConnectBusy(false);
     }
   }
 
@@ -2323,43 +2383,51 @@ export default function Admin() {
         <summary className="cursor-pointer p-4 text-xl font-bold">Donations</summary>
         <div className="px-4 pb-4 space-y-3">
           <p className="text-sm text-slate-400">
-            Let voters support your venue directly with a bank transfer from the QR menu. Set your IBAN once here, then
-            add a "Donation" item to any QR code below. Godwit never touches the money - voters see your account
-            details and a scannable bank-transfer QR code, and pay you directly.
+            Let voters support your venue with a card or wallet payment from the QR menu. Connect a Stripe account
+            once here, then add a "Donation" item to any QR code below. Stripe processes the payment: 90% transfers
+            straight to your account and Godwit keeps a 10% platform fee.
           </p>
+
+          <div className="rounded border border-slate-700 bg-slate-950 p-4">
+            {donationSettings.stripe_charges_enabled ? (
+              <p className="text-sm font-semibold text-green-400">✓ Stripe is connected and ready to accept donations.</p>
+            ) : donationSettings.stripe_account_id ? (
+              <p className="text-sm font-semibold text-amber-300">Stripe account started, but onboarding isn't finished yet.</p>
+            ) : (
+              <p className="text-sm text-slate-400">No Stripe account connected yet.</p>
+            )}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button onClick={connectStripeHandler} disabled={stripeConnectBusy} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
+                {donationSettings.stripe_account_id ? "Continue Stripe setup" : "Connect with Stripe"}
+              </button>
+              {donationSettings.stripe_account_id && (
+                <button onClick={refreshStripeStatusHandler} disabled={stripeConnectBusy} className="bg-slate-700 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
+                  Refresh status
+                </button>
+              )}
+            </div>
+            {stripeConnectError && <p className="mt-2 text-xs font-semibold text-red-400">{stripeConnectError}</p>}
+          </div>
+
           <label className="flex items-center gap-2">
-            <input type="checkbox" checked={donationSettings.is_enabled} onChange={(event) => setDonationSettings((current) => ({ ...current, is_enabled: event.target.checked }))} />
-            <span>Accept donations</span>
+            <input
+              type="checkbox"
+              checked={donationSettings.is_enabled}
+              disabled={!donationSettings.stripe_charges_enabled}
+              onChange={(event) => setDonationSettings((current) => ({ ...current, is_enabled: event.target.checked }))}
+            />
+            <span>Accept donations{!donationSettings.stripe_charges_enabled && " (connect Stripe first)"}</span>
           </label>
+
           <div className="grid gap-3 md:grid-cols-2">
             <label className="block font-semibold">
-              IBAN
+              Currency
               <input
-                value={donationSettings.iban || ""}
-                onChange={(event) => { setDonationSettings((current) => ({ ...current, iban: event.target.value })); setDonationIbanError(""); }}
-                className="mt-1 w-full border p-2 rounded text-black"
-                placeholder="DE89 3704 0044 0532 0130 00"
-              />
-              {donationIbanError && <span className="mt-1 block text-xs font-normal text-red-400">{donationIbanError}</span>}
-            </label>
-            <label className="block font-semibold">
-              Account holder name
-              <input
-                value={donationSettings.account_holder_name || ""}
-                onChange={(event) => setDonationSettings((current) => ({ ...current, account_holder_name: event.target.value }))}
-                maxLength={70}
-                className="mt-1 w-full border p-2 rounded text-black"
-                placeholder="Lakeside Cafe"
-              />
-            </label>
-            <label className="block font-semibold">
-              BIC (optional)
-              <input
-                value={donationSettings.bic || ""}
-                onChange={(event) => setDonationSettings((current) => ({ ...current, bic: event.target.value }))}
-                maxLength={11}
-                className="mt-1 w-full border p-2 rounded text-black"
-                placeholder="COBADEFFXXX"
+                value={donationSettings.currency || "EUR"}
+                onChange={(event) => setDonationSettings((current) => ({ ...current, currency: event.target.value }))}
+                maxLength={3}
+                className="mt-1 w-full border p-2 rounded text-black uppercase"
+                placeholder="EUR"
               />
             </label>
             <label className="block font-semibold">
@@ -2384,7 +2452,10 @@ export default function Admin() {
             placeholder="Optional thank-you message shown with the donation option"
           />
           <button onClick={saveDonationSettingsHandler} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save donation settings</button>
-          <p className="text-xs text-slate-500">Not a payment processor: this only displays your bank details and a standard SEPA bank-transfer QR code. Donations are transferred directly to your account by the voter's own bank.</p>
+          <p className="text-xs text-slate-500">
+            Stripe is the payment processor - Godwit never sees or stores card details. Of each donation, 10% is a
+            platform fee retained by Godwit and 90% transfers to your connected Stripe account.
+          </p>
         </div>
       </details>
       )}

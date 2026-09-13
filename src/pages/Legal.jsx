@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import Layout from "../components/Layout";
 
-const LAST_UPDATED = "9 September 2026";
+const LAST_UPDATED = "13 September 2026";
 
 // Fill these in for your business before sending real pilot venues to these
 // pages. Nothing else on this page is a placeholder - only these facts are
@@ -46,6 +46,7 @@ function PrivacyNotice() {
           <li><strong>Account &amp; workspace data:</strong> your login email, workspace/company name, logo, brand colors, and team member roles and invitations.</li>
           <li><strong>Poll and vote data:</strong> the questions and answers a workspace configures, and the answers voters submit. Voting itself never requires an account and is not linked to an identity unless a voter chooses to leave contact details.</li>
           <li><strong>Optional voter-provided data, only with explicit consent:</strong> an email address left for follow-up, a prize-draw entry, or return-visit recognition; a free-text message to the organizer with an optional reply email.</li>
+          <li><strong>Donation payment data:</strong> if you donate through a workspace's QR code, Stripe (our payment processor) handles your card/wallet details directly - Godwit never sees or stores them. Godwit does receive the donation amount, currency, and, if you provide one at checkout, your email address, in order to record the transaction and calculate our platform fee.</li>
           <li><strong>QR placement/staff labels:</strong> labels a workspace admin assigns to a QR code or a staff member, visible only inside that workspace.</li>
           <li><strong>Billing data:</strong> handled directly by Stripe. Godwit stores only your plan and subscription status, never full card details.</li>
           <li><strong>Technical/error data:</strong> if the workspace operator has enabled it, basic crash reports (Sentry) that may include a stack trace. IP address collection is switched off by default in our error monitoring configuration.</li>
@@ -79,7 +80,7 @@ function PrivacyNotice() {
         <ul className="list-disc space-y-1 pl-5">
           <li><strong>Supabase</strong> - database, authentication, and file storage</li>
           <li><strong>Vercel</strong> - application hosting and scheduled jobs</li>
-          <li><strong>Stripe</strong> - payment processing for paid plans</li>
+          <li><strong>Stripe</strong> - payment processing for paid plans, and for donations (as a Stripe Connect platform)</li>
           <li><strong>Resend</strong> - delivery of transactional and opted-in follow-up emails</li>
           <li><strong>Sentry</strong> - error monitoring, only if the operator enables it</li>
           <li><strong>OpenAI</strong> - optional AI features (QR poster images, sentiment tagging), only if the operator enables them</li>
@@ -146,7 +147,9 @@ function TermsOfService() {
           a <strong>data processor</strong>: we store and process that data on your instructions and do not use it
           for our own purposes. You are responsible for having a lawful basis to collect it (the explicit consent
           checkboxes already built into voting exist for this reason) and for responding to your own customers'
-          rights requests regarding that data, using the tools provided or by contacting us for help.
+          rights requests regarding that data, using the tools provided or by contacting us for help. The one
+          exception is donations: because Godwit retains a fee from each donation, we act as an independent party to
+          that transaction rather than purely your processor - see "Donations" below.
         </p>
       </section>
 
@@ -173,13 +176,14 @@ function TermsOfService() {
       <section>
         <h2 className="text-xl font-semibold">Donations</h2>
         <p>
-          If you enable donations, Godwit displays the bank account details (IBAN, account holder name, and an
-          optional suggested amount) you provide, along with a standard SEPA bank-transfer QR code, to any voter who
-          chooses to view them. Godwit is not a payment service provider: it never processes, receives, holds, or
-          takes any fee from a donation. Any transfer happens directly between the voter and your own bank account,
-          entirely outside Godwit. You are solely responsible for the accuracy of the bank details you provide, for
-          any tax, accounting, or reporting obligations that apply to donations you receive, and for promptly
-          disabling this feature if your bank details change.
+          If you enable donations, Godwit acts as a payment facilitator using Stripe Connect: a voter's card or
+          wallet payment is processed by Stripe, 90% transfers directly to your own connected Stripe account, and
+          Godwit retains the remaining 10% as a platform fee. This fee is disclosed to the voter before they pay.
+          Unlike other data collected through your polls, Godwit is a party to each donation transaction (not merely
+          a processor acting on your instructions), because Godwit itself receives a fee from it. You are responsible
+          for completing Stripe's account verification (KYC), for the accuracy of your own account details, and for
+          any tax, accounting, or reporting obligations that apply to donations you receive. Godwit is not a bank and
+          does not guarantee the timing of Stripe payouts to your account.
         </p>
       </section>
 

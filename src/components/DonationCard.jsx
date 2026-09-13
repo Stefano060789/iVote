@@ -1,39 +1,31 @@
-import { useEffect, useState } from "react";
-import { formatIbanForDisplay, normalizeIban } from "../lib/validators";
-import { buildSepaQrDataUrl } from "../lib/sepaQr";
+import { useState } from "react";
+import { startDonationCheckout } from "../lib/donationCheckout";
 
-// Renders one "donation" QR-campaign item: the organizer's IBAN/account details
-// plus a scannable SEPA Credit Transfer QR (a "GiroCode"), so a voter's own
-// banking app can prefill the transfer. Godwit never touches the money - this
-// is purely a display of the organizer's own bank details.
-export default function DonationCard({ item }) {
-  const [qrDataUrl, setQrDataUrl] = useState("");
-  const [copiedField, setCopiedField] = useState("");
+// Renders one "donation" QR-campaign item: an amount field and a Donate button that redirects
+// to a Stripe-hosted Checkout page. Stripe splits the payment automatically - 90% transfers to
+// the venue's own connected Stripe account, and a 10% platform fee stays with Godwit - which is
+// why the fee is disclosed here rather than only in the Terms (donors should know before they pay).
+export default function DonationCard({ item, campaignToken }) {
+  const suggested = item.donation_suggested_amount ? Number(item.donation_suggested_amount) : null;
+  const [amount, setAmount] = useState(suggested ? String(suggested) : "");
+  const [status, setStatus] = useState("idle");
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    let cancelled = false;
-    if (item.donation_iban) {
-      buildSepaQrDataUrl({
-        iban: item.donation_iban,
-        accountHolderName: item.donation_account_holder_name,
-        bic: item.donation_bic,
-        amount: item.donation_suggested_amount,
-        currency: item.donation_currency || "EUR",
-        message: item.title || item.donation_message
-      })
-        .then((url) => { if (!cancelled) setQrDataUrl(url); })
-        .catch((error) => console.error("Unable to build donation QR code", error));
+  async function handleDonate() {
+    const numericAmount = Number(amount);
+    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+      setError("Enter an amount to donate.");
+      return;
     }
-    return () => { cancelled = true; };
-  }, [item.donation_iban, item.donation_account_holder_name, item.donation_bic, item.donation_suggested_amount, item.donation_currency, item.title, item.donation_message]);
-
-  if (!item.donation_iban) return null;
-
-  function copy(value, field) {
-    navigator.clipboard.writeText(value).then(() => {
-      setCopiedField(field);
-      setTimeout(() => setCopiedField(""), 2000);
-    });
+    setError("");
+    setStatus("loading");
+    try {
+      const url = await startDonationCheckout({ campaignToken, itemId: item.item_id, amount: numericAmount });
+      window.location.assign(url);
+    } catch (checkoutError) {
+      setError(checkoutError.message || "Unable to start the donation.");
+      setStatus("idle");
+    }
   }
 
   return (
@@ -43,41 +35,29 @@ export default function DonationCard({ item }) {
         <p className="qr-portal-menu-item-body">{item.body || item.donation_message}</p>
       )}
 
-      <div className="qr-donation-details">
-        <div className="qr-donation-row">
-          <div>
-            <span className="qr-donation-label">IBAN</span>
-            <span className="qr-donation-value">{formatIbanForDisplay(item.donation_iban)}</span>
-          </div>
-          <button type="button" onClick={() => copy(normalizeIban(item.donation_iban), "iban")} className="qr-donation-copy">
-            {copiedField === "iban" ? "Copied!" : "Copy"}
-          </button>
-        </div>
-        <div className="qr-donation-row">
-          <div>
-            <span className="qr-donation-label">Account holder</span>
-            <span className="qr-donation-value">{item.donation_account_holder_name}</span>
-          </div>
-        </div>
-        {item.donation_suggested_amount && (
-          <div className="qr-donation-row">
-            <div>
-              <span className="qr-donation-label">Suggested amount</span>
-              <span className="qr-donation-value">{item.donation_currency} {Number(item.donation_suggested_amount).toFixed(2)}</span>
-            </div>
-          </div>
-        )}
+      <div className="qr-donation-amount-row">
+        <span className="qr-donation-currency">{item.donation_currency || "EUR"}</span>
+        <input
+          type="number"
+          min="1"
+          step="0.01"
+          value={amount}
+          onChange={(event) => setAmount(event.target.value)}
+          placeholder="Amount"
+          className="qr-donation-amount-input"
+          aria-label="Donation amount"
+        />
       </div>
 
-      {qrDataUrl && (
-        <div className="qr-donation-qr">
-          <img src={qrDataUrl} alt="Scan with your banking app to donate" width="140" height="140" />
-          <p>Scan with your banking app to prefill the transfer</p>
-        </div>
-      )}
+      {error && <p className="qr-donation-error">{error}</p>}
+
+      <button type="button" onClick={handleDonate} disabled={status === "loading"} className="qr-donation-button">
+        {status === "loading" ? "Redirecting to Stripe…" : "Donate"}
+      </button>
 
       <p className="qr-donation-disclaimer">
-        Donations go directly to the organizer's own bank account. Godwit does not process, receive, or take a fee on donations.
+        Payments are securely processed by Stripe. Of each donation, 90% goes directly to this venue and 10% is a
+        platform fee that supports Godwit. Godwit never sees or stores your card details.
       </p>
     </div>
   );

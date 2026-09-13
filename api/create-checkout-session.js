@@ -1,11 +1,62 @@
+// This one endpoint now handles four related "create something Stripe-hosted" flows,
+// dispatched by request.body.mode, rather than adding new files - the project is already at
+// Vercel Hobby's 12-serverless-function ceiling (see TODO.md).
+//   - "subscription" (default, original behavior): workspace plan checkout.
+//   - "connect-onboarding": creates (or resumes) a Stripe Connect Express account for the
+//     workspace and returns a hosted onboarding link. Requires an authenticated owner/editor.
+//   - "connect-status": live refresh of a workspace's Connect account status, in case the
+//     account.updated webhook hasn't arrived yet by the time the admin returns from Stripe.
+//   - "donation": public, no auth - a voter donating through a QR code. Creates a destination
+//     charge Checkout Session that sends 90% to the workspace's connected account and a 10%
+//     application fee to the platform account.
+
 const PLANS = {
   starter: { priceEnv: "STRIPE_PRICE_STARTER", label: "Starter" },
   growth: { priceEnv: "STRIPE_PRICE_GROWTH", label: "Growth" }
 };
 
+const DONATION_PLATFORM_FEE_RATE = 0.10;
+const DONATION_MIN_AMOUNT = 1;
+const DONATION_MAX_AMOUNT = 10000;
+
 function readBearerToken(request) {
   const header = request.headers.authorization || "";
   return header.startsWith("Bearer ") ? header.slice(7) : "";
+}
+
+async function stripeRequest(path, form, secretKey, method = "POST") {
+  const response = await fetch(`https://api.stripe.com/v1${path}`, {
+    method,
+    headers: {
+      Authorization: `Bearer ${secretKey}`,
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: method === "GET" ? undefined : form
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.error?.message || "Stripe request failed.");
+  return data;
+}
+
+async function supabaseServiceRequest(path, { method = "GET", body, prefer } = {}) {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceRoleKey) throw new Error("Supabase service credentials are not configured.");
+  const response = await fetch(`${supabaseUrl}${path}`, {
+    method,
+    headers: {
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+      "Content-Type": "application/json",
+      ...(prefer ? { Prefer: prefer } : {})
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (!response.ok) {
+    const errorPayload = await response.json().catch(() => null);
+    throw new Error(errorPayload?.message || `Supabase request failed (${response.status}).`);
+  }
+  return response.status === 204 ? null : response.json();
 }
 
 async function getAuthenticatedUser(token) {
@@ -59,6 +110,14 @@ export default async function handler(request, response) {
     return response.status(405).json({ error: "Method not allowed." });
   }
 
+  const mode = String(request.body?.mode || "subscription");
+  if (mode === "connect-onboarding") return handleConnectOnboarding(request, response);
+  if (mode === "connect-status") return handleConnectStatus(request, response);
+  if (mode === "donation") return handleDonationCheckout(request, response);
+  return handleSubscriptionCheckout(request, response);
+}
+
+async function handleSubscriptionCheckout(request, response) {
   const planKey = String(request.body?.plan || "");
   const plan = PLANS[planKey];
   const priceId = plan && process.env[plan.priceEnv];
@@ -102,24 +161,166 @@ export default async function handler(request, response) {
   }
 
   try {
-    const stripeResponse = await fetch("https://api.stripe.com/v1/checkout/sessions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${stripeSecretKey}`,
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: form
-    });
-    const checkout = await stripeResponse.json();
-
-    if (!stripeResponse.ok || !checkout.url) {
-      console.error("Stripe Checkout session failed", checkout);
-      return response.status(502).json({ error: "Unable to start checkout. Please try again." });
-    }
-
+    const checkout = await stripeRequest("/checkout/sessions", form, stripeSecretKey);
+    if (!checkout.url) throw new Error("Stripe did not return a checkout URL.");
     return response.status(200).json({ url: checkout.url, plan: plan.label, trialDays: trialEligible ? FREE_TRIAL_DAYS : 0 });
   } catch (error) {
     console.error("Stripe Checkout error", error);
     return response.status(500).json({ error: "Unable to start checkout right now." });
+  }
+}
+
+// Creates (or resumes) a Stripe Connect Express account for the caller's workspace and
+// returns a fresh, short-lived hosted onboarding link. Safe to call repeatedly - Account
+// Links expire quickly, and re-running account creation for an existing account id is a
+// no-op on Stripe's side (we just skip straight to a new Account Link).
+async function handleConnectOnboarding(request, response) {
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  const appUrl = process.env.APP_URL || request.headers.origin;
+  const user = await getAuthenticatedUser(readBearerToken(request));
+
+  if (!user) return response.status(401).json({ error: "Sign in to connect Stripe." });
+  if (!stripeSecretKey || !appUrl) return response.status(503).json({ error: "Donations are not configured yet." });
+  const workspaceId = await getManagedWorkspace(readBearerToken(request), user.id);
+  if (!workspaceId) return response.status(403).json({ error: "A workspace owner or editor role is required." });
+
+  try {
+    const existingRows = await supabaseServiceRequest(
+      `/rest/v1/donation_settings?select=stripe_account_id&workspace_id=eq.${encodeURIComponent(workspaceId)}`
+    );
+    let accountId = existingRows?.[0]?.stripe_account_id || null;
+
+    if (!accountId) {
+      const accountForm = new URLSearchParams({
+        type: "express",
+        email: user.email || "",
+        "capabilities[card_payments][requested]": "true",
+        "capabilities[transfers][requested]": "true",
+        "metadata[workspace_id]": workspaceId
+      });
+      const account = await stripeRequest("/accounts", accountForm, stripeSecretKey);
+      accountId = account.id;
+      await supabaseServiceRequest("/rest/v1/donation_settings?on_conflict=workspace_id", {
+        method: "POST",
+        prefer: "resolution=merge-duplicates,return=minimal",
+        body: { workspace_id: workspaceId, stripe_account_id: accountId, updated_at: new Date().toISOString() }
+      });
+    }
+
+    const linkForm = new URLSearchParams({
+      account: accountId,
+      type: "account_onboarding",
+      refresh_url: `${appUrl}/admin?tab=engagement&donations=refresh`,
+      return_url: `${appUrl}/admin?tab=engagement&donations=connected`
+    });
+    const accountLink = await stripeRequest("/account_links", linkForm, stripeSecretKey);
+    return response.status(200).json({ url: accountLink.url });
+  } catch (error) {
+    console.error("Stripe Connect onboarding error", error);
+    return response.status(500).json({ error: "Unable to start Stripe onboarding right now." });
+  }
+}
+
+// Live refresh of a workspace's Connect account status. The account.updated webhook is the
+// primary source of truth (see api/stripe-webhook.js), but an admin returning from Stripe's
+// hosted onboarding shouldn't have to wait for webhook delivery to see an accurate status.
+async function handleConnectStatus(request, response) {
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  const user = await getAuthenticatedUser(readBearerToken(request));
+  if (!user) return response.status(401).json({ error: "Sign in to check Stripe status." });
+  if (!stripeSecretKey) return response.status(503).json({ error: "Donations are not configured yet." });
+  const workspaceId = await getManagedWorkspace(readBearerToken(request), user.id);
+  if (!workspaceId) return response.status(403).json({ error: "A workspace owner or editor role is required." });
+
+  try {
+    const existingRows = await supabaseServiceRequest(
+      `/rest/v1/donation_settings?select=stripe_account_id&workspace_id=eq.${encodeURIComponent(workspaceId)}`
+    );
+    const existing = existingRows?.[0];
+    if (!existing?.stripe_account_id) return response.status(200).json({ connected: false });
+
+    const account = await stripeRequest(`/accounts/${existing.stripe_account_id}`, null, stripeSecretKey, "GET");
+    await supabaseServiceRequest("/rest/v1/donation_settings?on_conflict=workspace_id", {
+      method: "POST",
+      prefer: "resolution=merge-duplicates,return=minimal",
+      body: {
+        workspace_id: workspaceId,
+        stripe_account_id: account.id,
+        stripe_onboarding_complete: Boolean(account.details_submitted),
+        stripe_charges_enabled: Boolean(account.charges_enabled),
+        stripe_payouts_enabled: Boolean(account.payouts_enabled),
+        updated_at: new Date().toISOString()
+      }
+    });
+    return response.status(200).json({
+      connected: true,
+      chargesEnabled: Boolean(account.charges_enabled),
+      payoutsEnabled: Boolean(account.payouts_enabled),
+      detailsSubmitted: Boolean(account.details_submitted)
+    });
+  } catch (error) {
+    console.error("Stripe Connect status refresh error", error);
+    return response.status(500).json({ error: "Unable to check Stripe status right now." });
+  }
+}
+
+// Public, no-auth: a voter donating through a QR code. Creates a Stripe Connect "destination
+// charge" - the platform account is charged, a 10% application fee stays with the platform,
+// and the rest transfers straight to the workspace's connected account.
+async function handleDonationCheckout(request, response) {
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  const appUrl = process.env.APP_URL || request.headers.origin;
+  const campaignToken = String(request.body?.campaignToken || "").trim();
+  const itemId = Number(request.body?.itemId);
+  const amount = Number(request.body?.amount);
+
+  if (!stripeSecretKey || !appUrl) return response.status(503).json({ error: "Donations are not configured yet." });
+  if (!campaignToken || !Number.isFinite(itemId)) return response.status(400).json({ error: "Missing donation target." });
+  if (!Number.isFinite(amount) || amount < DONATION_MIN_AMOUNT || amount > DONATION_MAX_AMOUNT) {
+    return response.status(400).json({ error: `Enter an amount between ${DONATION_MIN_AMOUNT} and ${DONATION_MAX_AMOUNT}.` });
+  }
+
+  try {
+    const targetRows = await supabaseServiceRequest("/rest/v1/rpc/get_donation_checkout_target", {
+      method: "POST",
+      body: { target_token: campaignToken, target_item_id: itemId }
+    });
+    const target = targetRows?.[0];
+    if (!target?.stripe_account_id) {
+      return response.status(404).json({ error: "This donation option is not available right now." });
+    }
+
+    const workspaceRows = await supabaseServiceRequest(
+      `/rest/v1/workspaces?select=name&id=eq.${encodeURIComponent(target.workspace_id)}`
+    );
+    const workspaceName = workspaceRows?.[0]?.name || "this venue";
+    const currency = (target.currency || "EUR").toLowerCase();
+    const amountMinorUnits = Math.round(amount * 100);
+    const applicationFeeMinorUnits = Math.round(amountMinorUnits * DONATION_PLATFORM_FEE_RATE);
+
+    const form = new URLSearchParams({
+      mode: "payment",
+      success_url: `${appUrl}/qr/${encodeURIComponent(campaignToken)}?donation=success`,
+      cancel_url: `${appUrl}/qr/${encodeURIComponent(campaignToken)}?donation=cancelled`,
+      "line_items[0][price_data][currency]": currency,
+      "line_items[0][price_data][product_data][name]": `Donation to ${workspaceName}`,
+      "line_items[0][price_data][unit_amount]": String(amountMinorUnits),
+      "line_items[0][quantity]": "1",
+      "payment_intent_data[application_fee_amount]": String(applicationFeeMinorUnits),
+      "payment_intent_data[transfer_data][destination]": target.stripe_account_id,
+      "metadata[kind]": "donation",
+      "metadata[workspace_id]": target.workspace_id,
+      "metadata[campaign_id]": String(target.campaign_id),
+      "metadata[item_id]": String(itemId),
+      "metadata[application_fee_amount]": String(applicationFeeMinorUnits),
+      "metadata[currency]": currency
+    });
+
+    const checkout = await stripeRequest("/checkout/sessions", form, stripeSecretKey);
+    if (!checkout.url) throw new Error("Stripe did not return a checkout URL.");
+    return response.status(200).json({ url: checkout.url });
+  } catch (error) {
+    console.error("Donation checkout error", error);
+    return response.status(500).json({ error: "Unable to start the donation right now." });
   }
 }

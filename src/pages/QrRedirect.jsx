@@ -155,7 +155,7 @@ export default function QrRedirect() {
                 );
               }
               if (item.item_type === "donation") {
-                return <DonationCard key={item.item_id} item={item} />;
+                return <DonationCard key={item.item_id} item={item} campaignToken={token} />;
               }
               return (
                 <div key={item.item_id} className="qr-portal-menu-item qr-portal-menu-info">
