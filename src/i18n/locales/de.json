@@ -519,6 +519,51 @@
         "subtitle": "Private Nachrichten, die zusammen mit einer Stimme gesendet wurden. Antworten Sie nur, wenn der Wähler eine E-Mail-Adresse angegeben hat.",
         "noMessages": "Noch keine Nachrichten von Wählern.",
         "replyToVoter": "Wähler antworten"
+      },
+      "sentiment": {
+        "title": "Stimmungsanalyse der Antworten (KI)",
+        "subtitle": "Frei formulierte Antworten, die Wähler hinzufügen, werden automatisch klassifiziert, sobald ein OpenAI-Schlüssel konfiguriert ist.",
+        "noAnswers": "Noch keine klassifizierten Antworten.",
+        "positive": "{{percent}} % positiv",
+        "neutral": "{{percent}} % neutral",
+        "negative": "{{percent}} % negativ",
+        "answerCount": "({{count}} Antworten)"
+      },
+      "updates": {
+        "title": "Updates „Wir haben zugehört“",
+        "subtitle": "Veröffentlichen Sie ein öffentliches Update, wenn Sie auf Feedback reagieren (z. B. „Wir haben das langsame WLAN behoben, das Sie erwähnt haben.“). Es erscheint auf der öffentlichen Ergebnisseite der Umfrage.",
+        "placeholder": "Wir haben zugehört und...",
+        "allPolls": "Alle Umfragen",
+        "postButton": "Update veröffentlichen",
+        "noUpdates": "Noch keine Updates veröffentlicht."
+      },
+      "recovery": {
+        "title": "Wiedergewinnungsaufgaben und Wochenberichte",
+        "openAlertsHint": "Offene Warnungen, einschließlich Übereinstimmungen bei niedrigen Scores/Antworten und automatischen Warnungen bei sinkendem Stimmenvolumen (täglich geprüft).",
+        "resolve": "Lösen",
+        "noOpenAlerts": "Keine offenen Warnungen.",
+        "createAlertHint": "Erstellen Sie Warnungen für niedrige numerische Scores oder eine genaue Antwort. Neue passende Stimmen erzeugen Warnungen nur für Verantwortliche.",
+        "lowScore": "Niedriger Score",
+        "exactAnswer": "Genaue Antwort",
+        "scoreAtOrBelow": "Score von höchstens",
+        "answerTrigger": "Antwortauslöser",
+        "addAlertRule": "Warnregel hinzufügen",
+        "scoreAtOrBelowValue": "Score von höchstens {{value}}",
+        "answerMatchValue": "Antwort „{{value}}“",
+        "noRulesYet": "Noch keine Feedback-Warnregeln.",
+        "taskHint": "Verwandeln Sie eine Warnung in eine Wiedergewinnungsaufgabe und verfolgen Sie den Abschluss.",
+        "taskPlaceholder": "Kunden anrufen, Serviceproblem prüfen",
+        "noLinkedAlert": "Keine verknüpfte Warnung",
+        "addTask": "Wiedergewinnungsaufgabe hinzufügen",
+        "statusOpen": "Offen",
+        "statusInProgress": "In Bearbeitung",
+        "statusDone": "Erledigt",
+        "noTasksYet": "Noch keine Wiedergewinnungsaufgaben.",
+        "weeklyReportHint": "Der Vercel-Cronjob am Montag erstellt eine Zusammenfassung Ihres Arbeitsbereichs. Sie wird nur über Resend zugestellt, wenn der Serverschlüssel konfiguriert ist.",
+        "enableWeeklyReport": "Wochenbericht aktivieren",
+        "saveReportSettings": "Berichtseinstellungen speichern",
+        "lockedTitle": "Erhalten Sie eine wöchentliche Zusammenfassung in Ihrem Posteingang",
+        "lockedDescription": "Eine E-Mail am Montag mit Stimmen, offenen Warnungen und Wiedergewinnungsaufgaben – damit Sie nicht eingeloggt sein müssen, um den Überblick zu behalten."
       }
     },
     "accessibilityTags": {

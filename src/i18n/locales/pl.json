@@ -519,6 +519,51 @@
         "subtitle": "Prywatne wiadomości wysłane wraz z głosem. Odpowiadaj tylko wtedy, gdy głosujący podał adres e-mail.",
         "noMessages": "Nie ma jeszcze żadnych wiadomości od głosujących.",
         "replyToVoter": "Odpowiedz głosującemu"
+      },
+      "sentiment": {
+        "title": "Sentyment odpowiedzi (AI)",
+        "subtitle": "Odpowiedzi otwarte dodawane przez głosujących są automatycznie klasyfikowane po skonfigurowaniu klucza OpenAI.",
+        "noAnswers": "Nie ma jeszcze sklasyfikowanych odpowiedzi.",
+        "positive": "{{percent}}% pozytywnych",
+        "neutral": "{{percent}}% neutralnych",
+        "negative": "{{percent}}% negatywnych",
+        "answerCount": "({{count}} odpowiedzi)"
+      },
+      "updates": {
+        "title": "Aktualizacje „Wysłuchaliśmy Was”",
+        "subtitle": "Opublikuj publiczną aktualizację, gdy podejmiesz działanie na podstawie feedbacku (np. „Naprawiliśmy wolne Wi‑Fi, o którym wspomniałeś”). Pojawi się na publicznej stronie wyników ankiety.",
+        "placeholder": "Wysłuchaliśmy Was i...",
+        "allPolls": "Wszystkie ankiety",
+        "postButton": "Opublikuj aktualizację",
+        "noUpdates": "Nie opublikowano jeszcze żadnych aktualizacji."
+      },
+      "recovery": {
+        "title": "Zadania odzyskujące i raporty tygodniowe",
+        "openAlertsHint": "Otwarte alerty, w tym dopasowania niskich ocen/odpowiedzi oraz automatyczne ostrzeżenia o spadku liczby głosów (sprawdzane codziennie).",
+        "resolve": "Rozwiąż",
+        "noOpenAlerts": "Brak otwartych alertów.",
+        "createAlertHint": "Twórz alerty dla niskich ocen liczbowych lub dokładnej odpowiedzi. Nowe pasujące głosy tworzą alerty widoczne tylko dla menedżerów.",
+        "lowScore": "Niska ocena",
+        "exactAnswer": "Dokładna odpowiedź",
+        "scoreAtOrBelow": "Ocena równa lub niższa niż",
+        "answerTrigger": "Wyzwalacz odpowiedzi",
+        "addAlertRule": "Dodaj regułę alertu",
+        "scoreAtOrBelowValue": "ocena równa lub niższa niż {{value}}",
+        "answerMatchValue": "odpowiedź „{{value}}”",
+        "noRulesYet": "Nie ma jeszcze reguł alertów feedbacku.",
+        "taskHint": "Zamień alert w zadanie odzyskujące i śledź jego realizację.",
+        "taskPlaceholder": "Zadzwoń do klienta, sprawdź problem z obsługą",
+        "noLinkedAlert": "Brak powiązanego alertu",
+        "addTask": "Dodaj zadanie odzyskujące",
+        "statusOpen": "Otwarte",
+        "statusInProgress": "W toku",
+        "statusDone": "Ukończone",
+        "noTasksYet": "Nie ma jeszcze zadań odzyskujących.",
+        "weeklyReportHint": "Poniedziałkowy cron Vercela przygotowuje podsumowanie obszaru roboczego. Wysyłka przez Resend działa tylko wtedy, gdy skonfigurowano klucz serwera.",
+        "enableWeeklyReport": "Włącz raport tygodniowy",
+        "saveReportSettings": "Zapisz ustawienia raportu",
+        "lockedTitle": "Otrzymuj cotygodniowe podsumowanie w skrzynce odbiorczej",
+        "lockedDescription": "Poniedziałkowy e-mail z głosami, otwartymi alertami i zadaniami odzyskującymi, dzięki czemu nie musisz się logować, aby być na bieżąco."
       }
     },
     "accessibilityTags": {

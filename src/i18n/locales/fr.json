@@ -519,6 +519,51 @@
         "subtitle": "Messages privés envoyés avec un vote. Répondez uniquement lorsque le votant a fourni une adresse e-mail.",
         "noMessages": "Aucun message de votant pour le moment.",
         "replyToVoter": "Répondre au votant"
+      },
+      "sentiment": {
+        "title": "Sentiment des réponses (IA)",
+        "subtitle": "Les réponses en texte libre ajoutées par les votants sont automatiquement classées une fois qu'une clé OpenAI est configurée.",
+        "noAnswers": "Aucune réponse classée pour le moment.",
+        "positive": "{{percent}} % positives",
+        "neutral": "{{percent}} % neutres",
+        "negative": "{{percent}} % négatives",
+        "answerCount": "({{count}} réponses)"
+      },
+      "updates": {
+        "title": "Mises à jour « Nous vous avons entendus »",
+        "subtitle": "Publiez une mise à jour publique lorsque vous agissez sur un retour (par ex. « Nous avons corrigé le Wi-Fi lent que vous avez mentionné »). Elle s'affiche sur la page publique des résultats du sondage.",
+        "placeholder": "Nous vous avons entendus et...",
+        "allPolls": "Tous les sondages",
+        "postButton": "Publier la mise à jour",
+        "noUpdates": "Aucune mise à jour publiée pour le moment."
+      },
+      "recovery": {
+        "title": "Récupération des retours et rapports hebdomadaires",
+        "openAlertsHint": "Alertes ouvertes, y compris les correspondances de score faible/réponse et les avertissements automatiques de baisse du volume de votes (vérifiés chaque jour).",
+        "resolve": "Résoudre",
+        "noOpenAlerts": "Aucune alerte ouverte.",
+        "createAlertHint": "Créez des alertes pour des scores numériques faibles ou une réponse exacte. Les nouveaux votes correspondants créent des alertes réservées aux responsables.",
+        "lowScore": "Score faible",
+        "exactAnswer": "Réponse exacte",
+        "scoreAtOrBelow": "Score inférieur ou égal à",
+        "answerTrigger": "Déclencheur de réponse",
+        "addAlertRule": "Ajouter une règle d'alerte",
+        "scoreAtOrBelowValue": "score inférieur ou égal à {{value}}",
+        "answerMatchValue": "réponse « {{value}} »",
+        "noRulesYet": "Aucune règle d'alerte de retour pour le moment.",
+        "taskHint": "Transformez une alerte en tâche de récupération et suivez son avancement.",
+        "taskPlaceholder": "Appeler le client, examiner le problème de service",
+        "noLinkedAlert": "Aucune alerte liée",
+        "addTask": "Ajouter une tâche de récupération",
+        "statusOpen": "Ouverte",
+        "statusInProgress": "En cours",
+        "statusDone": "Terminée",
+        "noTasksYet": "Aucune tâche de récupération pour le moment.",
+        "weeklyReportHint": "La tâche cron Vercel du lundi prépare un résumé de l'espace de travail. Il est envoyé via Resend uniquement lorsque la clé serveur est configurée.",
+        "enableWeeklyReport": "Activer le rapport hebdomadaire",
+        "saveReportSettings": "Enregistrer les paramètres du rapport",
+        "lockedTitle": "Recevez un résumé hebdomadaire dans votre boîte de réception",
+        "lockedDescription": "Un e-mail du lundi avec les votes, les alertes ouvertes et les tâches de récupération, pour rester au courant sans avoir à vous connecter."
       }
     },
     "accessibilityTags": {

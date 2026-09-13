@@ -2729,11 +2729,11 @@ export default function Admin() {
       {activeTab === "settings" && (
       <>
       <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">Workspace settings</summary>
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.settings.workspace.title")}</summary>
         <div className="px-4 pb-4">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm text-slate-400">Set the name, logo, colors, and access level used across your workspace.</p>
-          <span className="text-xs uppercase tracking-wide text-gray-300">Role: {workspaceProfile.role}</span>
+          <p className="text-sm text-slate-400">{t("admin.settings.workspace.subtitle")}</p>
+          <span className="text-xs uppercase tracking-wide text-gray-300">{t("admin.settings.workspace.roleLabel", { role: workspaceProfile.role })}</span>
         </div>
 
         <div className="grid md:grid-cols-2 gap-3">
@@ -2742,34 +2742,34 @@ export default function Admin() {
             value={workspaceProfile.companyName}
             onChange={(event) => setWorkspaceProfile((current) => ({ ...current, companyName: event.target.value }))}
             className="border p-2 rounded text-black"
-            placeholder="Company name"
+            placeholder={t("admin.settings.workspace.companyNamePlaceholder")}
           />
           <select
             value={workspaceProfile.role}
             className="border p-2 rounded text-black"
             disabled
           >
-            <option value="owner">Owner</option>
-            <option value="editor">Editor</option>
-            <option value="viewer">Viewer</option>
+            <option value="owner">{t("admin.settings.workspace.roles.owner")}</option>
+            <option value="editor">{t("admin.settings.workspace.roles.editor")}</option>
+            <option value="viewer">{t("admin.settings.workspace.roles.viewer")}</option>
           </select>
           <input
             type="url"
             value={workspaceProfile.logoUrl}
             onChange={(event) => setWorkspaceProfile((current) => ({ ...current, logoUrl: event.target.value }))}
             className="border p-2 rounded text-black md:col-span-2"
-            placeholder="Logo URL"
+            placeholder={t("admin.settings.workspace.logoUrlPlaceholder")}
           />
           <input
             type="url"
             value={workspaceProfile.webhookUrl}
             onChange={(event) => setWorkspaceProfile((current) => ({ ...current, webhookUrl: event.target.value }))}
             className="border p-2 rounded text-black md:col-span-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            placeholder={entitlements.webhooks ? "Webhook URL (optional) - get notified in Slack/Zapier/Sheets on every vote" : "Webhooks are available on the Growth plan"}
+            placeholder={entitlements.webhooks ? t("admin.settings.workspace.webhookUrlPlaceholder") : t("admin.settings.workspace.webhookUrlLocked")}
             disabled={!entitlements.webhooks}
           />
           <label className="block font-semibold md:col-span-2">
-            Auto-delete votes after (days, optional)
+            {t("admin.settings.workspace.autoDeleteLabel")}
             <input
               type="number"
               min="7"
@@ -2777,12 +2777,12 @@ export default function Admin() {
               value={workspaceProfile.voteRetentionDays}
               onChange={(event) => setWorkspaceProfile((current) => ({ ...current, voteRetentionDays: event.target.value }))}
               className="mt-1 w-full border p-2 rounded text-black"
-              placeholder="Leave blank to keep votes forever"
+              placeholder={t("admin.settings.workspace.autoDeletePlaceholder")}
             />
           </label>
           <label className="block font-semibold">
-            Button and link color
-            <span className="mt-1 block text-xs font-normal text-slate-400">Used for actions people can click.</span>
+            {t("admin.settings.workspace.buttonColorLabel")}
+            <span className="mt-1 block text-xs font-normal text-slate-400">{t("admin.settings.workspace.buttonColorHint")}</span>
             <input
               type="color"
               value={workspaceProfile.primaryColor}
@@ -2791,8 +2791,8 @@ export default function Admin() {
             />
           </label>
           <label className="block font-semibold">
-            Page background color
-            <span className="mt-1 block text-xs font-normal text-slate-400">Used behind your public poll pages.</span>
+            {t("admin.settings.workspace.backgroundColorLabel")}
+            <span className="mt-1 block text-xs font-normal text-slate-400">{t("admin.settings.workspace.backgroundColorHint")}</span>
             <input
               type="color"
               value={workspaceProfile.accentColor}
@@ -2804,7 +2804,7 @@ export default function Admin() {
 
         {!entitlements.webhooks && (
           <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-amber-300">
-            Webhooks available on Growth · <Link to="/admin/billing" className="underline">Upgrade</Link>
+            {t("admin.settings.workspace.webhooksUpgradeNote")} · <Link to="/admin/billing" className="underline">{t("admin.overview.upgrade")}</Link>
           </p>
         )}
 
@@ -2816,18 +2816,18 @@ export default function Admin() {
               permission.canManageWorkspace ? "bg-blue-600 text-white" : "bg-gray-600 text-gray-300 cursor-not-allowed"
             }`}
           >
-            Save workspace settings
+            {t("admin.settings.workspace.saveButton")}
           </button>
         </div>
 
         <div className="mt-6 border-t border-slate-700 pt-4">
-          <p className="font-semibold">Google Business Profile</p>
-          <p className="mt-1 text-xs text-slate-400">Connect your real Google Business listing so the dashboard can show your true public rating below. You only need to do this once.</p>
+          <p className="font-semibold">{t("admin.settings.googleBusiness.title")}</p>
+          <p className="mt-1 text-xs text-slate-400">{t("admin.settings.googleBusiness.subtitle")}</p>
           <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm text-slate-300">
-            <li>Click <strong>"Find my business on Google"</strong> below - it opens Google's official lookup tool in a new tab.</li>
-            <li>Type your business name (and city, if you have more than one location) into the search box on that page.</li>
-            <li>Click your business when it appears - a small popup shows a <strong>Place ID</strong> (a code like <code>ChIJN1t_tDeuEmsRUsoyG83frY4</code>).</li>
-            <li>Copy that code and paste it into the box below, then click <strong>Save Google Place ID</strong>.</li>
+            <li>{t("admin.settings.googleBusiness.step1Prefix")} <strong>{t("admin.settings.googleBusiness.step1Cta")}</strong> {t("admin.settings.googleBusiness.step1Suffix")}</li>
+            <li>{t("admin.settings.googleBusiness.step2")}</li>
+            <li>{t("admin.settings.googleBusiness.step3Prefix")} <strong>{t("admin.settings.googleBusiness.step3PlaceId")}</strong> {t("admin.settings.googleBusiness.step3Suffix")} <code>ChIJN1t_tDeuEmsRUsoyG83frY4</code>).</li>
+            <li>{t("admin.settings.googleBusiness.step4Prefix")} <strong>{t("admin.settings.googleBusiness.step4Cta")}</strong>.</li>
           </ol>
           <a
             href="https://developers.google.com/maps/documentation/places/web-service/place-id"
@@ -2835,7 +2835,7 @@ export default function Admin() {
             rel="noreferrer"
             className="mt-3 inline-block rounded bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-950"
           >
-            Find my business on Google ↗
+            {t("admin.settings.googleBusiness.findLink")} ↗
           </a>
           <div className="mt-4 flex flex-col gap-3 sm:flex-row">
             <input
@@ -2843,7 +2843,7 @@ export default function Admin() {
               value={workspaceProfile.googlePlaceId || ""}
               onChange={(event) => setWorkspaceProfile((current) => ({ ...current, googlePlaceId: event.target.value }))}
               className="flex-1 border p-2 rounded text-black"
-              placeholder="Paste your Place ID here, e.g. ChIJ..."
+              placeholder={t("admin.settings.googleBusiness.placeIdPlaceholder")}
             />
             <button
               onClick={saveWorkspaceSettings}
@@ -2852,35 +2852,35 @@ export default function Admin() {
                 permission.canManageWorkspace ? "bg-blue-600 text-white" : "bg-gray-600 text-gray-300 cursor-not-allowed"
               }`}
             >
-              Save Google Place ID
+              {t("admin.settings.googleBusiness.saveButton")}
             </button>
           </div>
         </div>
 
         <div className="mt-6 border-t border-slate-700 pt-4">
-          <p className="font-semibold">Public reputation</p>
+          <p className="font-semibold">{t("admin.settings.reputation.title")}</p>
           {entitlements.reputationMonitoring ? (
           <>
-          <p className="mt-1 text-xs text-slate-400">Your real public rating, pulled in from Google. Connect your business above first.</p>
+          <p className="mt-1 text-xs text-slate-400">{t("admin.settings.reputation.subtitle")}</p>
           {reputationSnapshot ? (
             <p className="mt-3 text-sm">
               <span className="text-2xl font-bold text-amber-300">{reputationSnapshot.rating ?? "-"}</span>
-              <span className="ml-2 text-slate-400">out of 5 - {reputationSnapshot.rating_count ?? 0} Google reviews</span>
-              <span className="ml-2 block text-xs text-slate-500 sm:inline sm:ml-2">as of {new Date(reputationSnapshot.captured_at).toLocaleString()}</span>
+              <span className="ml-2 text-slate-400">{t("admin.settings.reputation.ratingSummary", { count: reputationSnapshot.rating_count ?? 0 })}</span>
+              <span className="ml-2 block text-xs text-slate-500 sm:inline sm:ml-2">{t("admin.settings.reputation.asOf", { date: new Date(reputationSnapshot.captured_at).toLocaleString() })}</span>
             </p>
           ) : (
-            <p className="mt-3 text-sm text-slate-400">No public rating pulled in yet.</p>
+            <p className="mt-3 text-sm text-slate-400">{t("admin.settings.reputation.noRating")}</p>
           )}
           <button onClick={refreshPublicReputation} disabled={reputationLoading || !workspaceProfile.googlePlaceId} className="mt-3 rounded bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-950 disabled:opacity-60">
-            {reputationLoading ? "Refreshing..." : "Refresh public rating"}
+            {reputationLoading ? t("admin.settings.reputation.refreshing") : t("admin.settings.reputation.refreshButton")}
           </button>
           {reputationError && <p className="mt-2 text-sm text-red-300">{reputationError}</p>}
           </>
           ) : (
             <LockedFeature
               feature="reputationMonitoring"
-              title="Track your public rating automatically"
-              description="Pull in your real Google rating so you can watch your reputation trend alongside your feedback data."
+              title={t("admin.settings.reputation.lockedTitle")}
+              description={t("admin.settings.reputation.lockedDescription")}
             />
           )}
         </div>
@@ -2888,23 +2888,23 @@ export default function Admin() {
       </details>
 
       <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">Developer API</summary>
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.settings.api.title")}</summary>
         <div className="px-4 pb-4">
           {entitlements.apiAccess ? (
           <>
           <p className="mb-3 text-sm text-slate-400">Generate a key to pull your workspace summary from <code>/api/v1-summary</code> with an <code>Authorization: Bearer &lt;key&gt;</code> header.</p>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <input value={newApiKeyLabel} onChange={(event) => setNewApiKeyLabel(event.target.value)} className="flex-1 border p-2 rounded text-black" placeholder="Label: BI dashboard, Zapier" />
-            <button onClick={handleCreateApiKey} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">Generate key</button>
+            <input value={newApiKeyLabel} onChange={(event) => setNewApiKeyLabel(event.target.value)} className="flex-1 border p-2 rounded text-black" placeholder={t("admin.settings.api.labelPlaceholder")} />
+            <button onClick={handleCreateApiKey} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">{t("admin.settings.api.generateKey")}</button>
           </div>
           <div className="mt-4 space-y-2 text-sm">
             {apiKeys.length === 0 ? (
-              <p className="text-gray-400">No API keys yet.</p>
+              <p className="text-gray-400">{t("admin.settings.api.noKeys")}</p>
             ) : (
               apiKeys.map((key) => (
                 <div key={key.id} className="flex items-center justify-between border-b border-gray-700 py-1">
-                  <span>{key.label || "Untitled key"} · created {new Date(key.created_at).toLocaleDateString()}{key.last_used_at ? ` · last used ${new Date(key.last_used_at).toLocaleDateString()}` : ""}</span>
-                  <button onClick={() => handleDeleteApiKey(key.id)} className="shrink-0 text-xs text-red-300 underline">Delete</button>
+                  <span>{key.label || t("admin.settings.api.untitledKey")} · {t("admin.settings.api.created", { date: new Date(key.created_at).toLocaleDateString() })}{key.last_used_at ? ` · ${t("admin.settings.api.lastUsed", { date: new Date(key.last_used_at).toLocaleDateString() })}` : ""}</span>
+                  <button onClick={() => handleDeleteApiKey(key.id)} className="shrink-0 text-xs text-red-300 underline">{t("admin.engagement.locations.delete")}</button>
                 </div>
               ))
             )}
@@ -2913,15 +2913,15 @@ export default function Admin() {
           ) : (
             <LockedFeature
               feature="apiAccess"
-              title="Pull your data into your own tools"
-              description="Generate a secure API key and read your workspace summary programmatically from any system you already use."
+              title={t("admin.settings.api.lockedTitle")}
+              description={t("admin.settings.api.lockedDescription")}
             />
           )}
         </div>
       </details>
 
       <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">Team access</summary>
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.settings.team.title")}</summary>
         <div className="px-4 pb-4">
         <div className="flex items-center justify-between mb-3">
           <p className="text-sm text-slate-400">Invite colleagues and choose what they can manage. Add an email to send them a real sign-in invite; leave it blank to just note a name.</p>

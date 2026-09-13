@@ -573,6 +573,71 @@
         "lockedTitle": "Get a weekly summary in your inbox",
         "lockedDescription": "A Monday email with votes, open alerts, and recovery tasks - so you don't have to log in to stay on top of things."
       }
+    },
+    "settings": {
+      "workspace": {
+        "title": "Workspace settings",
+        "subtitle": "Set the name, logo, colors, and access level used across your workspace.",
+        "roleLabel": "Role: {{role}}",
+        "companyNamePlaceholder": "Company name",
+        "roles": {
+          "owner": "Owner",
+          "editor": "Editor",
+          "viewer": "Viewer"
+        },
+        "logoUrlPlaceholder": "Logo URL",
+        "webhookUrlPlaceholder": "Webhook URL (optional) - get notified in Slack/Zapier/Sheets on every vote",
+        "webhookUrlLocked": "Webhooks are available on the Growth plan",
+        "autoDeleteLabel": "Auto-delete votes after (days, optional)",
+        "autoDeletePlaceholder": "Leave blank to keep votes forever",
+        "buttonColorLabel": "Button and link color",
+        "buttonColorHint": "Used for actions people can click.",
+        "backgroundColorLabel": "Page background color",
+        "backgroundColorHint": "Used behind your public poll pages.",
+        "webhooksUpgradeNote": "Webhooks available on Growth",
+        "saveButton": "Save workspace settings"
+      },
+      "googleBusiness": {
+        "title": "Google Business Profile",
+        "subtitle": "Connect your real Google Business listing so the dashboard can show your true public rating below. You only need to do this once.",
+        "step1Prefix": "Click",
+        "step1Cta": "\"Find my business on Google\"",
+        "step1Suffix": "below - it opens Google's official lookup tool in a new tab.",
+        "step2": "Type your business name (and city, if you have more than one location) into the search box on that page.",
+        "step3Prefix": "Click your business when it appears - a small popup shows a",
+        "step3PlaceId": "Place ID",
+        "step3Suffix": "(a code like",
+        "step4Prefix": "Copy that code and paste it into the box below, then click",
+        "step4Cta": "Save Google Place ID",
+        "findLink": "Find my business on Google",
+        "placeIdPlaceholder": "Paste your Place ID here, e.g. ChIJ...",
+        "saveButton": "Save Google Place ID"
+      },
+      "reputation": {
+        "title": "Public reputation",
+        "subtitle": "Your real public rating, pulled in from Google. Connect your business above first.",
+        "ratingSummary": "out of 5 - {{count}} Google reviews",
+        "asOf": "as of {{date}}",
+        "noRating": "No public rating pulled in yet.",
+        "refreshing": "Refreshing...",
+        "refreshButton": "Refresh public rating",
+        "lockedTitle": "Track your public rating automatically",
+        "lockedDescription": "Pull in your real Google rating so you can watch your reputation trend alongside your feedback data."
+      },
+      "api": {
+        "title": "Developer API",
+        "labelPlaceholder": "Label: BI dashboard, Zapier",
+        "generateKey": "Generate key",
+        "noKeys": "No API keys yet.",
+        "untitledKey": "Untitled key",
+        "created": "created {{date}}",
+        "lastUsed": "last used {{date}}",
+        "lockedTitle": "Pull your data into your own tools",
+        "lockedDescription": "Generate a secure API key and read your workspace summary programmatically from any system you already use."
+      },
+      "team": {
+        "title": "Team access"
+      }
     }
   }
 }

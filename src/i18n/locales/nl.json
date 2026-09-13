@@ -519,6 +519,51 @@
         "subtitle": "Privéberichten die samen met een stem zijn verstuurd. Reageer alleen als de stemmer een e-mailadres heeft achtergelaten.",
         "noMessages": "Nog geen berichten van stemmers.",
         "replyToVoter": "Reageren naar stemmer"
+      },
+      "sentiment": {
+        "title": "Sentiment van antwoorden (AI)",
+        "subtitle": "Vrije-tekstantwoorden die stemmers toevoegen, worden automatisch geclassificeerd zodra een OpenAI-sleutel is ingesteld.",
+        "noAnswers": "Nog geen geclassificeerde antwoorden.",
+        "positive": "{{percent}}% positief",
+        "neutral": "{{percent}}% neutraal",
+        "negative": "{{percent}}% negatief",
+        "answerCount": "({{count}} antwoorden)"
+      },
+      "updates": {
+        "title": "Updates “We hebben naar je geluisterd”",
+        "subtitle": "Plaats een openbare update wanneer je iets met feedback doet (bijv. “We hebben de trage wifi die je noemde opgelost”). Die verschijnt op de openbare resultatenpagina van de peiling.",
+        "placeholder": "We hebben naar je geluisterd en...",
+        "allPolls": "Alle peilingen",
+        "postButton": "Update plaatsen",
+        "noUpdates": "Nog geen updates geplaatst."
+      },
+      "recovery": {
+        "title": "Herstelacties en wekelijkse rapporten",
+        "openAlertsHint": "Open waarschuwingen, waaronder overeenkomsten voor lage scores/antwoorden en automatische waarschuwingen voor een daling in het stemvolume (dagelijks gecontroleerd).",
+        "resolve": "Oplossen",
+        "noOpenAlerts": "Geen open waarschuwingen.",
+        "createAlertHint": "Maak waarschuwingen voor lage numerieke scores of een exact antwoord. Nieuwe overeenkomende stemmen maken waarschuwingen alleen voor beheerders.",
+        "lowScore": "Lage score",
+        "exactAnswer": "Exact antwoord",
+        "scoreAtOrBelow": "Score van of lager dan",
+        "answerTrigger": "Antwoordtrigger",
+        "addAlertRule": "Waarschuwingsregel toevoegen",
+        "scoreAtOrBelowValue": "score van of lager dan {{value}}",
+        "answerMatchValue": "antwoord “{{value}}”",
+        "noRulesYet": "Nog geen feedbackwaarschuwingsregels.",
+        "taskHint": "Zet een waarschuwing om in een herstelactie en volg de afronding.",
+        "taskPlaceholder": "Bel klant, onderzoek serviceprobleem",
+        "noLinkedAlert": "Geen gekoppelde waarschuwing",
+        "addTask": "Herstelactie toevoegen",
+        "statusOpen": "Open",
+        "statusInProgress": "In uitvoering",
+        "statusDone": "Voltooid",
+        "noTasksYet": "Nog geen herstelacties.",
+        "weeklyReportHint": "De Vercel-cron van maandag maakt een samenvatting van je werkruimte. Die wordt alleen via Resend verzonden wanneer de serversleutel is ingesteld.",
+        "enableWeeklyReport": "Wekelijks rapport inschakelen",
+        "saveReportSettings": "Rapportinstellingen opslaan",
+        "lockedTitle": "Ontvang een wekelijkse samenvatting in je inbox",
+        "lockedDescription": "Een maandagmail met stemmen, open waarschuwingen en herstelacties, zodat je niet hoeft in te loggen om overal bovenop te blijven."
       }
     },
     "accessibilityTags": {

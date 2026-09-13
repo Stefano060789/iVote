@@ -519,6 +519,51 @@
         "subtitle": "随投票一起提交的私信。仅当投票者提供了电子邮箱地址时才回复。",
         "noMessages": "暂无投票者留言。",
         "replyToVoter": "回复投票者"
+      },
+      "sentiment": {
+        "title": "回答情感分析（AI）",
+        "subtitle": "投票者添加的自由文本回答会在配置 OpenAI 密钥后自动分类。",
+        "noAnswers": "尚无已分类的回答。",
+        "positive": "{{percent}}% 正面",
+        "neutral": "{{percent}}% 中性",
+        "negative": "{{percent}}% 负面",
+        "answerCount": "（{{count}} 条回答）"
+      },
+      "updates": {
+        "title": "“我们听到了”更新",
+        "subtitle": "当您根据反馈采取行动时，请发布一条公开更新（例如：“我们已经修复了您提到的 Wi‑Fi 过慢问题”）。它会显示在该投票的公开结果页面上。",
+        "placeholder": "我们听到了，于是...",
+        "allPolls": "所有投票",
+        "postButton": "发布更新",
+        "noUpdates": "尚未发布任何更新。"
+      },
+      "recovery": {
+        "title": "挽回任务与每周报告",
+        "openAlertsHint": "未处理提醒，包括低分/答案匹配以及投票量异常下降的自动警告（每天检查）。",
+        "resolve": "处理",
+        "noOpenAlerts": "暂无未处理提醒。",
+        "createAlertHint": "为较低数值分数或某个精确答案创建提醒。新出现的匹配投票会生成仅管理者可见的提醒。",
+        "lowScore": "低分",
+        "exactAnswer": "精确答案",
+        "scoreAtOrBelow": "分数小于或等于",
+        "answerTrigger": "答案触发条件",
+        "addAlertRule": "添加提醒规则",
+        "scoreAtOrBelowValue": "分数小于或等于 {{value}}",
+        "answerMatchValue": "回答“{{value}}”",
+        "noRulesYet": "尚无反馈提醒规则。",
+        "taskHint": "将提醒转为挽回任务并跟踪完成情况。",
+        "taskPlaceholder": "致电客户，检查服务问题",
+        "noLinkedAlert": "未关联提醒",
+        "addTask": "添加挽回任务",
+        "statusOpen": "未处理",
+        "statusInProgress": "进行中",
+        "statusDone": "已完成",
+        "noTasksYet": "尚无挽回任务。",
+        "weeklyReportHint": "Vercel 的周一 cron 会准备一份工作区摘要。仅当服务器密钥已配置时，才会通过 Resend 发送。",
+        "enableWeeklyReport": "启用每周报告",
+        "saveReportSettings": "保存报告设置",
+        "lockedTitle": "每周摘要直达您的收件箱",
+        "lockedDescription": "每周一都会发送一封邮件，汇总投票、未处理提醒和挽回任务，让您无需登录也能掌握最新情况。"
       }
     },
     "accessibilityTags": {

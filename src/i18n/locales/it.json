@@ -519,6 +519,51 @@
         "subtitle": "Messaggi privati inviati insieme a un voto. Rispondi solo se il votante ha fornito un indirizzo email.",
         "noMessages": "Ancora nessun messaggio dai votanti.",
         "replyToVoter": "Rispondi al votante"
+      },
+      "sentiment": {
+        "title": "Sentiment delle risposte (IA)",
+        "subtitle": "Le risposte in testo libero aggiunte dai votanti vengono classificate automaticamente una volta configurata una chiave OpenAI.",
+        "noAnswers": "Ancora nessuna risposta classificata.",
+        "positive": "{{percent}}% positive",
+        "neutral": "{{percent}}% neutre",
+        "negative": "{{percent}}% negative",
+        "answerCount": "({{count}} risposte)"
+      },
+      "updates": {
+        "title": "Aggiornamenti “Vi abbiamo ascoltato”",
+        "subtitle": "Pubblica un aggiornamento pubblico quando agisci in base al feedback (ad es. “Abbiamo risolto il Wi‑Fi lento che avete segnalato”). Verrà mostrato nella pagina pubblica dei risultati del sondaggio.",
+        "placeholder": "Vi abbiamo ascoltato e...",
+        "allPolls": "Tutti i sondaggi",
+        "postButton": "Pubblica aggiornamento",
+        "noUpdates": "Ancora nessun aggiornamento pubblicato."
+      },
+      "recovery": {
+        "title": "Attività di recupero e report settimanali",
+        "openAlertsHint": "Avvisi aperti, incluse le corrispondenze per punteggi bassi/risposte e gli avvisi automatici di calo del volume di voti (controllati ogni giorno).",
+        "resolve": "Risolvi",
+        "noOpenAlerts": "Nessun avviso aperto.",
+        "createAlertHint": "Crea avvisi per punteggi numerici bassi o per una risposta esatta. I nuovi voti corrispondenti creano avvisi visibili solo ai responsabili.",
+        "lowScore": "Punteggio basso",
+        "exactAnswer": "Risposta esatta",
+        "scoreAtOrBelow": "Punteggio pari o inferiore a",
+        "answerTrigger": "Trigger della risposta",
+        "addAlertRule": "Aggiungi regola di avviso",
+        "scoreAtOrBelowValue": "punteggio pari o inferiore a {{value}}",
+        "answerMatchValue": "risposta “{{value}}”",
+        "noRulesYet": "Ancora nessuna regola di avviso per il feedback.",
+        "taskHint": "Trasforma un avviso in un'attività di recupero e monitora il completamento.",
+        "taskPlaceholder": "Chiama il cliente, verifica il problema di servizio",
+        "noLinkedAlert": "Nessun avviso collegato",
+        "addTask": "Aggiungi attività di recupero",
+        "statusOpen": "Aperta",
+        "statusInProgress": "In corso",
+        "statusDone": "Completata",
+        "noTasksYet": "Ancora nessuna attività di recupero.",
+        "weeklyReportHint": "Il cron di Vercel del lunedì prepara un riepilogo del workspace. Lo invia tramite Resend solo quando la chiave del server è configurata.",
+        "enableWeeklyReport": "Abilita report settimanale",
+        "saveReportSettings": "Salva impostazioni del report",
+        "lockedTitle": "Ricevi un riepilogo settimanale nella tua casella di posta",
+        "lockedDescription": "Un'email del lunedì con voti, avvisi aperti e attività di recupero, così non devi accedere per restare aggiornato."
       }
     },
     "accessibilityTags": {

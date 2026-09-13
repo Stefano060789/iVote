@@ -519,6 +519,51 @@
         "subtitle": "Mensajes privados enviados junto con un voto. Responde solo cuando el votante haya proporcionado una dirección de correo electrónico.",
         "noMessages": "Aún no hay mensajes de votantes.",
         "replyToVoter": "Responder al votante"
+      },
+      "sentiment": {
+        "title": "Sentimiento de las respuestas (IA)",
+        "subtitle": "Las respuestas en texto libre que añaden los votantes se clasifican automáticamente una vez que se configura una clave de OpenAI.",
+        "noAnswers": "Aún no hay respuestas clasificadas.",
+        "positive": "{{percent}}% positivas",
+        "neutral": "{{percent}}% neutras",
+        "negative": "{{percent}}% negativas",
+        "answerCount": "({{count}} respuestas)"
+      },
+      "updates": {
+        "title": "Actualizaciones de “Te escuchamos”",
+        "subtitle": "Publica una actualización pública cuando actúes sobre los comentarios (p. ej., “Hemos solucionado el Wi‑Fi lento que mencionaste”). Se muestra en la página pública de resultados de la encuesta.",
+        "placeholder": "Te escuchamos y...",
+        "allPolls": "Todas las encuestas",
+        "postButton": "Publicar actualización",
+        "noUpdates": "Aún no se han publicado actualizaciones."
+      },
+      "recovery": {
+        "title": "Recuperación del feedback e informes semanales",
+        "openAlertsHint": "Alertas abiertas, incluidas coincidencias de puntuaciones bajas/respuestas y advertencias automáticas de caída del volumen de votos (se revisan a diario).",
+        "resolve": "Resolver",
+        "noOpenAlerts": "No hay alertas abiertas.",
+        "createAlertHint": "Crea alertas para puntuaciones numéricas bajas o una respuesta exacta. Los nuevos votos que coincidan crean alertas solo para responsables.",
+        "lowScore": "Puntuación baja",
+        "exactAnswer": "Respuesta exacta",
+        "scoreAtOrBelow": "Puntuación igual o inferior a",
+        "answerTrigger": "Disparador de respuesta",
+        "addAlertRule": "Añadir regla de alerta",
+        "scoreAtOrBelowValue": "puntuación igual o inferior a {{value}}",
+        "answerMatchValue": "respuesta “{{value}}”",
+        "noRulesYet": "Aún no hay reglas de alerta de feedback.",
+        "taskHint": "Convierte una alerta en una tarea de recuperación y sigue su progreso.",
+        "taskPlaceholder": "Llamar al cliente, revisar problema de servicio",
+        "noLinkedAlert": "Sin alerta vinculada",
+        "addTask": "Añadir tarea de recuperación",
+        "statusOpen": "Abierta",
+        "statusInProgress": "En curso",
+        "statusDone": "Completada",
+        "noTasksYet": "Aún no hay tareas de recuperación.",
+        "weeklyReportHint": "La tarea programada de Vercel de los lunes prepara un resumen del espacio de trabajo. Solo se envía a través de Resend cuando la clave del servidor está configurada.",
+        "enableWeeklyReport": "Activar informe semanal",
+        "saveReportSettings": "Guardar ajustes del informe",
+        "lockedTitle": "Recibe un resumen semanal en tu bandeja de entrada",
+        "lockedDescription": "Un correo de los lunes con votos, alertas abiertas y tareas de recuperación, para que no tengas que iniciar sesión para tenerlo todo bajo control."
       }
     },
     "accessibilityTags": {
