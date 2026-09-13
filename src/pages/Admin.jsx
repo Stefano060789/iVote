@@ -1621,6 +1621,42 @@ export default function Admin() {
   const canClosePolls = permission.canClosePolls;
   const selectedPollId = new URLSearchParams(location.search).get("poll");
 
+  // --- Poll <-> QR code cross-linking: let an admin jump either direction instantly ---
+  function qrCodesForPoll(pollId) {
+    const matches = [];
+    qrCampaigns.forEach((campaign) => {
+      const isPrimary = campaign.poll_id === pollId;
+      const isItem = qrCampaignItems.some(
+        (item) => item.campaign_id === campaign.id && item.item_type === "poll" && item.poll_id === pollId
+      );
+      if (isPrimary || isItem) {
+        matches.push({ kind: "campaign", id: campaign.id, name: campaign.name, token: campaign.token });
+      }
+    });
+    qrLocations.forEach((qrLocation) => {
+      if (qrLocation.current_poll_id === pollId) {
+        matches.push({ kind: "location", id: qrLocation.id, name: qrLocation.name, token: qrLocation.token });
+      }
+    });
+    return matches;
+  }
+
+  function goToPoll(pollId) {
+    setActiveTab("polls");
+    setSearchTerm("");
+    setStatusFilter("all");
+    setLocationFilter("all");
+    navigate(`/admin?tab=polls&poll=${pollId}`);
+  }
+
+  useEffect(() => {
+    if (activeTab !== "polls" || !selectedPollId) return;
+    const card = document.getElementById(`poll-card-${selectedPollId}`);
+    card?.scrollIntoView({ behavior: "smooth", block: "center" });
+    // Only re-run when the highlighted poll or tab changes, not on every poll list update.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, selectedPollId]);
+
   const filteredPolls = polls.filter((poll) => {
     const pollMeta = readPollMeta(poll.id);
     const locationName = poll.location_name ?? pollMeta.location_name ?? "";
@@ -1862,51 +1898,6 @@ export default function Admin() {
         )}
       </div>
 
-      <div className="mb-6 border rounded bg-gray-900 p-4">
-        <h2 className="text-xl font-bold">Scan a QR code</h2>
-        <p className="mt-1 mb-3 text-sm text-slate-400">Scan a printed QR code to see which poll it uses right now, and switch it to another poll instantly.</p>
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <button onClick={() => { setScannerOpen(true); setScanMessage(""); }} className="bg-teal-500 text-slate-950 px-4 py-2 rounded font-semibold">
-            Open camera scanner
-          </button>
-          <input
-            value={scanLookupValue}
-            onChange={(event) => setScanLookupValue(event.target.value)}
-            placeholder="Or paste the QR link here"
-            className="flex-1 border p-2 rounded text-black"
-          />
-          <button onClick={() => lookUpScannedQr(scanLookupValue)} className="bg-slate-700 text-white px-4 py-2 rounded font-semibold">
-            Look up
-          </button>
-        </div>
-        {scanMessage && <p className="mt-3 text-sm text-amber-300">{scanMessage}</p>}
-        {scanResult && (
-          <div className="mt-4 rounded border border-teal-700 bg-slate-950 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-teal-300">{scanResult.campaign.name}</p>
-            <p className="mt-1 text-sm text-slate-400">
-              {scanResult.campaign.placement_label || "Unlabeled placement"}{scanResult.campaign.variant_label ? ` · ${scanResult.campaign.variant_label}` : ""}
-            </p>
-            <p className="mt-3 font-semibold">{scanResult.currentPoll?.question || "No poll assigned yet"}</p>
-            <label className="mt-4 block text-sm font-semibold">Redirect this QR code to another poll</label>
-            <select
-              value={scanResult.campaign.poll_id ? String(scanResult.campaign.poll_id) : ""}
-              onChange={(event) => changeScannedPoll(event.target.value)}
-              className="mt-2 w-full rounded border p-2 text-black"
-            >
-              <option value="">Choose a poll</option>
-              {scanResult.polls.map((poll) => (
-                <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>
-              ))}
-            </select>
-            <Link to={`/create?campaign=${scanResult.campaign.id}`} className="mt-3 block rounded bg-teal-400 px-4 py-2 text-center font-semibold text-slate-950">
-              Create a new poll for this QR code
-            </Link>
-          </div>
-        )}
-      </div>
-
-      {scannerOpen && <QrScanner onDecode={handleScanDecode} onClose={() => setScannerOpen(false)} />}
-
       <details className="mb-2 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-lg font-bold">What's new in Godwit</summary>
         <div className="px-4 pb-4 space-y-2 text-sm text-slate-300">
@@ -2085,6 +2076,53 @@ export default function Admin() {
       )}
 
       {activeTab === "engagement" && (
+      <div className="mb-6 border rounded bg-gray-900 p-4">
+        <h2 className="text-xl font-bold">Scan a QR code</h2>
+        <p className="mt-1 mb-3 text-sm text-slate-400">Already holding a printed QR code? Scan it to see which poll it uses right now, and switch it to another poll instantly.</p>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <button onClick={() => { setScannerOpen(true); setScanMessage(""); }} className="bg-teal-500 text-slate-950 px-4 py-2 rounded font-semibold">
+            Open camera scanner
+          </button>
+          <input
+            value={scanLookupValue}
+            onChange={(event) => setScanLookupValue(event.target.value)}
+            placeholder="Or paste the QR link here"
+            className="flex-1 border p-2 rounded text-black"
+          />
+          <button onClick={() => lookUpScannedQr(scanLookupValue)} className="bg-slate-700 text-white px-4 py-2 rounded font-semibold">
+            Look up
+          </button>
+        </div>
+        {scanMessage && <p className="mt-3 text-sm text-amber-300">{scanMessage}</p>}
+        {scanResult && (
+          <div className="mt-4 rounded border border-teal-700 bg-slate-950 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-teal-300">{scanResult.campaign.name}</p>
+            <p className="mt-1 text-sm text-slate-400">
+              {scanResult.campaign.placement_label || "Unlabeled placement"}{scanResult.campaign.variant_label ? ` · ${scanResult.campaign.variant_label}` : ""}
+            </p>
+            <p className="mt-3 font-semibold">{scanResult.currentPoll?.question || "No poll assigned yet"}</p>
+            <label className="mt-4 block text-sm font-semibold">Redirect this QR code to another poll</label>
+            <select
+              value={scanResult.campaign.poll_id ? String(scanResult.campaign.poll_id) : ""}
+              onChange={(event) => changeScannedPoll(event.target.value)}
+              className="mt-2 w-full rounded border p-2 text-black"
+            >
+              <option value="">Choose a poll</option>
+              {scanResult.polls.map((poll) => (
+                <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>
+              ))}
+            </select>
+            <Link to={`/create?campaign=${scanResult.campaign.id}`} className="mt-3 block rounded bg-teal-400 px-4 py-2 text-center font-semibold text-slate-950">
+              Create a new poll for this QR code
+            </Link>
+          </div>
+        )}
+      </div>
+      )}
+
+      {scannerOpen && <QrScanner onDecode={handleScanDecode} onClose={() => setScannerOpen(false)} />}
+
+      {activeTab === "engagement" && (
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">Donations</summary>
         <div className="px-4 pb-4 space-y-3">
@@ -2222,7 +2260,9 @@ export default function Admin() {
                   <p className="font-semibold">{location.name}</p>
                   <p className="text-xs text-gray-400">Token: {location.token}</p>
                   <p className="text-xs text-gray-500">
-                    {location.current_poll_id ? `Assigned to poll #${location.current_poll_id}` : "Not assigned"}
+                    {location.current_poll_id ? (
+                      <>Assigned to <button type="button" onClick={() => goToPoll(location.current_poll_id)} className="font-semibold text-teal-300 underline">poll #{location.current_poll_id}</button></>
+                    ) : "Not assigned"}
                   </p>
                 </div>
                 <button onClick={() => handleDeleteLocation(location.id)} className="bg-red-600 text-white px-3 py-2 rounded font-semibold">
@@ -2297,7 +2337,12 @@ export default function Admin() {
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <p className="font-semibold">{campaign.name}</p>
-                      <p className="text-xs text-gray-400">Poll #{campaign.poll_id} · {campaign.placement_label || "Unlabeled placement"}{campaign.variant_label ? ` · ${campaign.variant_label}` : ""} · {campaign.is_active ? "Active" : "Paused"}{campaign.rotation_id ? " · Rotating" : ""}</p>
+                      <p className="text-xs text-gray-400">
+                        {campaign.poll_id ? (
+                          <button type="button" onClick={() => goToPoll(campaign.poll_id)} className="font-semibold text-teal-300 underline">Poll #{campaign.poll_id}</button>
+                        ) : "No default poll"}
+                        {" · "}{campaign.placement_label || "Unlabeled placement"}{campaign.variant_label ? ` · ${campaign.variant_label}` : ""} · {campaign.is_active ? "Active" : "Paused"}{campaign.rotation_id ? " · Rotating" : ""}
+                      </p>
                       <p className="truncate text-xs text-blue-300">{url}</p>
                     </div>
                     <button onClick={() => navigator.clipboard.writeText(url)} className="shrink-0 bg-slate-700 text-white px-3 py-2 rounded font-semibold">Copy link</button>
@@ -2348,7 +2393,7 @@ export default function Admin() {
                             <div key={item.id} className="flex items-center justify-between gap-2 rounded border border-slate-700 p-2 text-sm">
                               <div className="min-w-0">
                                 {item.item_type === "poll" ? (
-                                  <p className="truncate">📊 Poll #{item.poll_id} - {polls.find((poll) => poll.id === item.poll_id)?.question || "Unknown poll"}</p>
+                                  <p className="truncate">📊 <button type="button" onClick={() => goToPoll(item.poll_id)} className="font-semibold text-teal-300 underline">Poll #{item.poll_id}</button> - {polls.find((poll) => poll.id === item.poll_id)?.question || "Unknown poll"}</p>
                                 ) : item.item_type === "donation" ? (
                                   <p className="truncate">💛 Donation{item.title ? ` - ${item.title}` : " (default)"}</p>
                                 ) : (
@@ -2955,6 +3000,7 @@ export default function Admin() {
           return (
           <div
             key={poll.id}
+            id={`poll-card-${poll.id}`}
             className={`border rounded-lg bg-slate-900 p-5 shadow-sm ${
               String(poll.id) === selectedPollId ? "border-teal-400 ring-1 ring-teal-400" : "border-slate-700"
             }`}
@@ -2996,6 +3042,32 @@ export default function Admin() {
             <p className="text-gray-600 text-sm mb-3">
               Created: {new Date(poll.created_at).toLocaleString()}
             </p>
+
+            <div className="mb-3 rounded border border-slate-700 bg-slate-950/60 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Linked QR codes</p>
+              {(() => {
+                const linkedQrCodes = qrCodesForPoll(poll.id);
+                return linkedQrCodes.length === 0 ? (
+                  <p className="mt-1 text-sm text-slate-400">
+                    Not linked to any QR code yet. <button type="button" onClick={() => setActiveTab("engagement")} className="font-semibold text-teal-300 underline">Set one up in the QR codes tab</button>.
+                  </p>
+                ) : (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {linkedQrCodes.map((qrCode) => (
+                      <button
+                        key={`${qrCode.kind}-${qrCode.id}`}
+                        type="button"
+                        onClick={() => setActiveTab("engagement")}
+                        className="rounded-full border border-teal-700 bg-teal-950/40 px-3 py-1 text-xs font-semibold text-teal-300"
+                        title={`Token: ${qrCode.token}`}
+                      >
+                        {qrCode.kind === "location" ? "📍" : "🔗"} {qrCode.name}
+                      </button>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
 
             <div className="mt-4 flex gap-2 flex-wrap">
               <Link to={`/results/${poll.id}`} className="rounded bg-slate-100 px-3 py-2 font-semibold text-slate-950">
@@ -3101,6 +3173,11 @@ export default function Admin() {
                     {poll.stable_short_url || poll.short_url}
                   </p>
                 )}
+                <p className="mt-3 text-center text-xs text-slate-500">
+                  This is a quick, untracked QR code for this poll only. For a reusable, trackable QR code - or one that
+                  bundles this poll with an info card or donation ask - create it in the{" "}
+                  <button type="button" onClick={() => setActiveTab("engagement")} className="font-semibold text-teal-300 underline">QR codes tab</button> instead.
+                </p>
                 <div className="mt-4 grid md:grid-cols-2 gap-3 items-end">
                   <div>
                     <label className="block text-sm font-semibold mb-2">Print format</label>
