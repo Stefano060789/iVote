@@ -149,10 +149,15 @@ handful of venues.
   text instead of `alt=""`. Not a full WCAG audit - color contrast and keyboard-navigation
   order weren't reviewed, so revisit if that becomes a real requirement (e.g. a museum client
   asks for a conformance statement).
-- [ ] **Improve multi-language moderation coverage.** `restrictedContent.js` is an
-  English-only keyword list (word-boundary + accent-insensitive matching). A determined
-  user can still bypass it in another language - a real classification API (similar to the
-  existing sentiment classification endpoint) would cover this properly.
+- [x] **Multi-language moderation coverage.** `restrictedContent.js` now covers all 10
+  languages the app ships translations for (was English-only), with a Unicode-aware
+  matcher (the old plain `\b` boundary silently never matched anything in Arabic/Chinese -
+  a real bug fixed along the way). `api/classify-sentiment.js` also runs a real AI
+  classification pass (any language) on voter-submitted custom answers after insertion and
+  auto-hides anything flagged, logging an audit entry in `content_reports`
+  (`reason="policy_violation"`) visible on the Moderation page. Admin-authored poll
+  questions/answers still only get the synchronous keyword check, not the AI backstop -
+  the highest real-world risk is anonymous public voters, not the workspace's own admin.
 - [ ] **Use the `api/system-status.js` endpoint before onboarding each pilot venue.** Call
   it with the `CRON_SECRET` bearer token to confirm which optional integrations (Stripe,
   Resend email, Google Places, Sentry) are actually configured, so you don't promise a
