@@ -66,7 +66,15 @@ export default async function handler(request, response) {
     const payload = await openAiResponse.json();
     if (!openAiResponse.ok) {
       console.error("OpenAI image generation failed", payload);
-      return response.status(openAiResponse.status).json({ error: "Image generation failed. Please try again." });
+      const reason = payload.error?.message || "";
+      // Surface the real reason instead of a generic message - the most common cause by far
+      // is that gpt-image-1 requires the OpenAI organization to complete verification
+      // (platform.openai.com/settings/organization/general), which is a one-time manual step
+      // separate from just having a valid API key.
+      const friendlyReason = /organization.*verif/i.test(reason)
+        ? "Your OpenAI organization needs to complete verification before it can use gpt-image-1. Go to platform.openai.com, open Settings -> Organization, and complete verification, then try again."
+        : reason || "Image generation failed. Please try again.";
+      return response.status(openAiResponse.status).json({ error: friendlyReason });
     }
 
     const image = payload.data?.[0];
