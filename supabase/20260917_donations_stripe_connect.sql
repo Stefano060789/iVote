@@ -30,6 +30,9 @@ alter table public.donation_settings
   add column if not exists stripe_payouts_enabled boolean not null default false;
 
 alter table public.donation_settings
+  drop constraint if exists donation_settings_enabled_requires_stripe;
+
+alter table public.donation_settings
   add constraint donation_settings_enabled_requires_stripe check (
     not is_enabled or (stripe_account_id is not null and stripe_charges_enabled)
   );
