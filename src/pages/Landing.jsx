@@ -15,7 +15,8 @@ const outcomeKeys = [
   { titleKey: "outcomes.conversionTitle", detailKey: "outcomes.conversionDetail" },
   { titleKey: "outcomes.growthTitle", detailKey: "outcomes.growthDetail" },
   { titleKey: "outcomes.publicTitle", detailKey: "outcomes.publicDetail" },
-  { titleKey: "outcomes.connectionTitle", detailKey: "outcomes.connectionDetail" }
+  { titleKey: "outcomes.connectionTitle", detailKey: "outcomes.connectionDetail" },
+  { titleKey: "outcomes.donationsTitle", detailKey: "outcomes.donationsDetail" }
 ];
 
 const flockKeys = [

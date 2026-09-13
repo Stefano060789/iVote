@@ -44,7 +44,9 @@
       "publicTitle": "Plus d'avis publics",
       "publicDetail": "Envoyez les réponses sélectionnées vers Google, Tripadvisor ou une autre plateforme d'avis avec un bon ou un code de réduction optionnel.",
       "connectionTitle": "Relation client",
-      "connectionDetail": "Récompensez immédiatement les inscriptions par email et vérifiez les avis externes avant de libérer le second avantage."
+      "connectionDetail": "Récompensez immédiatement les inscriptions par email et vérifiez les avis externes avant de libérer le second avantage.",
+      "donationsTitle": "Dons integres",
+      "donationsDetail": "Le meme code QR peut aussi collecter des pourboires ou des dons pour votre etablissement, traites en toute securite via Stripe."
     },
     "flockEyebrow": "Un produit, toute une volée",
     "flockTitle": "Chaque partie de Godwit a son propre caractère.",
@@ -67,7 +69,7 @@
       "ternDetail": "Un scan, une question, une réponse honnête - des sondages assez légers pour un comptoir ou une entrée animée.",
       "waxwingName": "Waxwing",
       "waxwingRole": "Le plumage premium",
-      "waxwingDetail": "Tirages au sort, suivi des récompenses et emails de relance automatisés pour les espaces de travail prêts à croître plus vite.",
+      "waxwingDetail": "Tirages au sort, suivi des recompenses, dons et emails de relance automatises pour les espaces de travail prets a croitre plus vite.",
       "owlName": "Owl",
       "owlRole": "Veille sur le nid",
       "owlDetail": "Garde un œil sur votre marque, l'accès de votre équipe et votre forfait - discrètement, jusqu'à ce qu'il faille votre attention."

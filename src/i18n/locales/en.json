@@ -44,7 +44,9 @@
       "publicTitle": "More public feedback",
       "publicDetail": "Send selected responses to Google, Tripadvisor, or another review platform with an optional voucher or discount code.",
       "connectionTitle": "Customer connection",
-      "connectionDetail": "Reward email opt-ins immediately and verify external review claims before releasing the second benefit."
+      "connectionDetail": "Reward email opt-ins immediately and verify external review claims before releasing the second benefit.",
+      "donationsTitle": "Built-in donations",
+      "donationsDetail": "The same QR code can also collect tips or donations for your venue, processed securely through Stripe."
     },
     "flockEyebrow": "One product, a whole flock",
     "flockTitle": "Every part of Godwit has its own character.",
@@ -67,7 +69,7 @@
       "ternDetail": "One scan, one question, one honest answer — surveys light enough for a busy counter or doorway.",
       "waxwingName": "Waxwing",
       "waxwingRole": "The premium plumage",
-      "waxwingDetail": "Prize draws, redemption tracking, and automated nurture emails for workspaces ready to grow faster.",
+      "waxwingDetail": "Prize draws, redemption tracking, donations, and automated nurture emails for workspaces ready to grow faster.",
       "owlName": "Owl",
       "owlRole": "Watches over the nest",
       "owlDetail": "Keeps an eye on your brand, your team's access, and your plan, quietly, until something needs your attention."

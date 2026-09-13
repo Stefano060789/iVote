@@ -44,7 +44,9 @@
       "publicTitle": "Meer openbare feedback",
       "publicDetail": "Stuur geselecteerde reacties naar Google, Tripadvisor of een ander beoordelingsplatform met een optionele voucher of kortingscode.",
       "connectionTitle": "Klantrelatie",
-      "connectionDetail": "Beloon e-mailaanmeldingen direct en verifieer externe recensies voordat het tweede voordeel wordt vrijgegeven."
+      "connectionDetail": "Beloon e-mailaanmeldingen direct en verifieer externe recensies voordat het tweede voordeel wordt vrijgegeven.",
+      "donationsTitle": "Ingebouwde donaties",
+      "donationsDetail": "Dezelfde QR-code kan ook fooien of donaties voor je zaak verzamelen, veilig verwerkt via Stripe."
     },
     "flockEyebrow": "Eén product, een hele zwerm",
     "flockTitle": "Elk onderdeel van Godwit heeft zijn eigen karakter.",
@@ -67,7 +69,7 @@
       "ternDetail": "Eén scan, één vraag, één eerlijk antwoord - polls licht genoeg voor een drukke balie of ingang.",
       "waxwingName": "Waxwing",
       "waxwingRole": "Het premium verenkleed",
-      "waxwingDetail": "Prijstrekkingen, beloningstracking en geautomatiseerde nurture-e-mails voor workspaces die sneller willen groeien.",
+      "waxwingDetail": "Prijstrekkingen, beloningstracking, donaties en geautomatiseerde nurture-e-mails voor workspaces die sneller willen groeien.",
       "owlName": "Owl",
       "owlRole": "Waakt over het nest",
       "owlDetail": "Houdt je merk, teamtoegang en abonnement in de gaten - stil, totdat er iets aandacht nodig heeft."
