@@ -19,10 +19,8 @@ address them.
   fully clean; Starter has a currently-inert dashboard-level "Trials" pairing (only takes
   effect via a Payment Link, and the account has none). Watch for it if a Payment Link is
   ever created for that price.
-- [x] Ran the pending migrations: `supabase/20260917_donations_stripe_connect.sql` and
-  `supabase/20260918_qr_item_images.sql`.
-- [ ] **Run `supabase/20260919_ai_content_moderation.sql`** (widens `content_reports.reason`
-  to allow `'policy_violation'`, needed for the new AI auto-moderation audit trail).
+- [x] Ran the pending migrations: `supabase/20260917_donations_stripe_connect.sql`,
+  `supabase/20260918_qr_item_images.sql`, and `supabase/20260919_ai_content_moderation.sql`.
 
 ## Robin's persona guide
 
