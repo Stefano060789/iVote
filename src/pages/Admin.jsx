@@ -25,6 +25,7 @@ import { loadLatestReputationSnapshot, refreshReputationSnapshot } from "../lib/
 import { loadPollRotations, createPollRotation, deletePollRotation } from "../lib/pollRotations";
 import { loadApiKeys, createApiKey, deleteApiKey } from "../lib/apiKeys";
 import { getEntitlements, planLabel } from "../lib/entitlements";
+import { FLOCK, flockMemberForTab } from "../lib/flock";
 import {
   getCurrentUserRole,
   getPermissionSet,
@@ -129,6 +130,7 @@ export default function Admin() {
   const [totalVotesCount, setTotalVotesCount] = useState(0);
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
   const [qrShared, setQrShared] = useState(false);
+  const [flockGuideOpen, setFlockGuideOpen] = useState(true);
   const [weeklyInsight, setWeeklyInsight] = useState(null);
   const [voteTrend, setVoteTrend] = useState(null);
   const [workspaceUpdates, setWorkspaceUpdates] = useState([]);
@@ -263,6 +265,7 @@ export default function Admin() {
 
         setOnboardingDismissed(localStorage.getItem(`ivote_onboarding_dismissed_${profile.id}`) === "true");
         setQrShared(localStorage.getItem(`ivote_qr_shared_${profile.id}`) === "true");
+        setFlockGuideOpen(localStorage.getItem(`ivote_flock_guide_open_${profile.id}`) !== "false");
 
         const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
         const fourteenDaysAgo = new Date(Date.now() - 14 * 86400000).toISOString();
@@ -1239,6 +1242,12 @@ export default function Admin() {
     setOnboardingDismissed(true);
   }
 
+  function toggleFlockGuide() {
+    const next = !flockGuideOpen;
+    setFlockGuideOpen(next);
+    if (workspaceUserId) localStorage.setItem(`ivote_flock_guide_open_${workspaceUserId}`, String(next));
+  }
+
   async function postWorkspaceUpdate() {
     if (!newUpdateMessage.trim()) return alert("Write the update message first.");
     const { data, error } = await supabase.from("workspace_updates").insert({
@@ -1567,7 +1576,16 @@ export default function Admin() {
           </button>
         ))}
       </div>
-      <p className="mb-6 text-center text-sm text-slate-400">{adminTabDescriptions[activeTab]}</p>
+      <p className="mb-1 text-center text-sm text-slate-400">{adminTabDescriptions[activeTab]}</p>
+      {flockMemberForTab(activeTab) && (
+        <p className="mb-6 flex items-center justify-center gap-2 text-xs text-slate-500">
+          <span aria-hidden="true">{flockMemberForTab(activeTab).icon}</span>
+          <span>
+            <strong className="text-slate-400">{flockMemberForTab(activeTab).name}</strong> is on duty here
+            {" — "}{flockMemberForTab(activeTab).role.toLowerCase()}.
+          </span>
+        </p>
+      )}
 
       {activeTab === "overview" && (
       <>
@@ -1608,6 +1626,32 @@ export default function Admin() {
           </div>
         </div>
       )}
+
+      <div className="mb-6 rounded border border-slate-700 bg-slate-900 p-4">
+        <button type="button" onClick={toggleFlockGuide} className="flex w-full items-center justify-between gap-3 text-left">
+          <span>
+            <span className="text-lg font-bold">Meet your flock</span>
+            <span className="ml-2 text-xs text-slate-400">Seven specialists, each covering one part of Godwit</span>
+          </span>
+          <span className="text-slate-400" aria-hidden="true">{flockGuideOpen ? "\u25b2" : "\u25bc"}</span>
+        </button>
+        {flockGuideOpen && (
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {FLOCK.map((bird) => (
+              <button
+                key={bird.key}
+                type="button"
+                onClick={() => (bird.tab ? setActiveTab(bird.tab) : navigate(bird.route))}
+                className="rounded border border-slate-700 bg-gray-900 p-3 text-left transition hover:border-teal-500"
+              >
+                <span className="text-xl" aria-hidden="true">{bird.icon}</span>
+                <p className="mt-1 font-bold">{bird.name} <span className="font-normal text-slate-400">&middot; {bird.role}</span></p>
+                <p className="mt-1 text-xs text-slate-400">{bird.detail}</p>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       {weeklyInsight && (
         <div className="mb-6 rounded border border-indigo-700 bg-slate-900 p-4">
