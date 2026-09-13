@@ -81,22 +81,30 @@ address them.
 ## Internationalization
 
 - [x] i18n infrastructure (`i18next` + `react-i18next`), 10 languages wired up (English,
-  Chinese, Spanish, French, Arabic, Portuguese, German, Italian, Dutch, Polish), language
-  switcher in `NavBar.jsx` with `localStorage` persistence.
-- [ ] **Only wired into `NavBar.jsx` and `Landing.jsx`** (the two most public-facing
-  surfaces). To extend, follow the same `useTranslation()` + `t("key")` pattern and add the
-  new keys to *all ten* `src/i18n/locales/*.json` files, not just `en.json`.
-- [ ] **Most of the app is still hardcoded English** - `Admin.jsx`, `CreatePoll.jsx`,
-  `EditPoll.jsx`, `Vote.jsx` (the actual voter-facing poll page - arguably the highest-value
-  page to localize next, since real guests scanning a QR code may not read English),
-  `ThankYou.jsx`, `Legal.jsx`, `Billing.jsx`, etc. Note `Vote.jsx` already has a separate,
-  unrelated feature that translates poll *content* via Google Translate - don't confuse the
-  two.
+  Chinese, Spanish, French, Arabic, Portuguese, German, Italian, Dutch, Polish). The
+  `LanguageSwitcher` lives in `NavBar.jsx`, which renders on every route (outside `<Routes>`
+  in `main.jsx`), so it's already available everywhere - the gap was translated *content*,
+  not the switcher's visibility.
+- [x] `Vote.jsx` (the actual voter-facing poll page - the highest-value page to localize,
+  since real guests scanning a QR code may not read English) and `ThankYou.jsx` are now fully
+  wired with `useTranslation()` + `t("vote.*")`/`t("thankYou.*")` keys, translated in all ten
+  locale files. Note `Vote.jsx` still has a separate, unrelated feature that translates poll
+  *content* (the question/answers themselves) via Google Translate - that's independent of
+  the UI-chrome translation added here.
+- [ ] **Still hardcoded English**: `Admin.jsx`, `CreatePoll.jsx`, `EditPoll.jsx`, `Legal.jsx`,
+  `Billing.jsx`, etc. Lower priority than Vote/ThankYou since these are used by the workspace
+  owner/admin, not the general public - but follow the same pattern (`useTranslation()` +
+  `t("key")`, new keys added to *all ten* `src/i18n/locales/*.json` files) to extend further.
 
 ## QR codes with multiple linked items
 
 - [x] One QR code can show several polls and/or info cards at once (`qr_campaign_items`
   table, `supabase/20260915_qr_campaign_items.sql`). Not plan-gated.
+- [x] Dashboard reorganized so this isn't buried: the "QR codes" tab (renamed from
+  "Engagement & growth") now leads with an explainer banner and the Donations setup (a
+  prerequisite), moved ahead of "QR campaigns", and the campaign item picker's copy calls out
+  polls + info cards + donations explicitly. Lead nurture/win-back emails moved to the
+  "Customer connection" tab, where they conceptually belong.
 
 ## Email validation
 

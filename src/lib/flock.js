@@ -39,7 +39,7 @@ export const FLOCK = [
     key: "waxwing",
     name: "Waxwing",
     role: "The premium plumage",
-    detail: "Runs QR campaigns, rotations, prize draws, and the extras that keep guests coming back.",
+    detail: "Builds each QR code as a menu: one or more polls, an info card, and a donation ask, plus rotations and prize draws.",
     icon: "\u2728",
     tab: "engagement"
   },

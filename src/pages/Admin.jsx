@@ -1636,24 +1636,25 @@ export default function Admin() {
   const adminTabs = [
     { key: "overview", label: "Overview" },
     { key: "polls", label: "Polls" },
+    { key: "engagement", label: "QR codes" },
     { key: "connection", label: "Customer connection" },
-    { key: "engagement", label: "Engagement & growth" },
     { key: "feedback", label: "Feedback" },
     { key: "settings", label: "Settings" }
   ];
 
   const adminTabDescriptions = {
     overview: "A snapshot of your workspace: quick actions, this week's activity, and key numbers.",
-    polls: "Search, share, and manage every poll you've created.",
+    polls: "Search, share, and manage every question you've created.",
+    engagement: "A QR code is more than one poll: bundle polls, info cards, and a donation ask under one code.",
     connection: "Turn a QR scan into an ongoing customer relationship.",
-    engagement: "QR locations, campaigns, rotations, rewards, and prize draws.",
     feedback: "Voter messages, review claims, sentiment, and recovery tasks.",
     settings: "Brand, team access, developer API, and recent activity."
   };
 
   const quickActions = [
     { key: "create", icon: "\u2795", label: "Create a poll", description: "Start a new QR feedback poll for a table, counter, or event.", onSelect: () => navigate("/create") },
-    { key: "polls", icon: flockMemberForTab("polls")?.icon || "\ud83d\udcca", label: "Manage your polls", description: "Share QR codes, print posters, and see how each poll performs.", onSelect: () => setActiveTab("polls") },
+    { key: "polls", icon: flockMemberForTab("polls")?.icon || "\ud83d\udcca", label: "Manage your polls", description: "Search, filter, and see how each poll performs.", onSelect: () => setActiveTab("polls") },
+    { key: "engagement", icon: flockMemberForTab("engagement")?.icon || "\u2728", label: "Build a QR code", description: "Combine polls, info cards, and donations under one printed code.", onSelect: () => setActiveTab("engagement") },
     { key: "connection", icon: flockMemberForTab("connection")?.icon || "\ud83e\udd1d", label: "Customer connection", description: "Collect emails, invite honest reviews, and manage rewards.", onSelect: () => setActiveTab("connection") },
     { key: "analytics", icon: "\ud83d\udcca", label: "View analytics", description: "See trends across every poll and location.", onSelect: () => navigate("/admin/analytics") },
     { key: "feedback", icon: flockMemberForTab("feedback")?.icon || "\ud83d\udcac", label: "Review feedback", description: "Read voter messages and approve pending review claims.", onSelect: () => setActiveTab("feedback") },
@@ -1936,8 +1937,8 @@ export default function Admin() {
           <article className="rounded border border-slate-700 bg-gray-900 p-4">
             <span className="text-2xl font-bold text-sky-300">2</span>
             <h3 className="mt-2 text-lg font-bold">Collect permission</h3>
-            <p className="mt-2 text-sm text-slate-400">Voters can voluntarily share their email after voting. Use the nurture email settings to send event news, offers, or a follow-up message.</p>
-            <button onClick={() => setActiveTab("engagement")} className="mt-4 rounded bg-sky-500 px-3 py-2 text-sm font-semibold text-slate-950">Open email settings</button>
+            <p className="mt-2 text-sm text-slate-400">Voters can voluntarily share their email after voting. Use the email settings below to send event news, offers, or a follow-up message.</p>
+            <a href="#nurture-settings" className="mt-4 inline-block rounded bg-sky-500 px-3 py-2 text-sm font-semibold text-slate-950">Jump to email settings</a>
           </article>
           <article className="rounded border border-slate-700 bg-gray-900 p-4">
             <span className="text-2xl font-bold text-amber-300">3</span>
@@ -1955,6 +1956,62 @@ export default function Admin() {
             <p><strong className="text-white">Share honestly:</strong> Every voter, whatever they answered, receives your review links and can submit a verification claim.</p>
           </div>
           <p className="mt-4 text-xs text-slate-500">Do not require or script a positive review. Benefits should be offered transparently and review requests should invite honest feedback.</p>
+        </div>
+
+        <div id="nurture-settings" className="grid gap-4 md:grid-cols-2">
+          <details className="rounded border border-slate-700 bg-gray-900" open>
+            <summary className="cursor-pointer p-4 text-lg font-bold">Lead nurture emails</summary>
+            <div className="px-4 pb-4 space-y-3">
+              {entitlements.automatedNurture ? (
+              <>
+              <p className="text-sm text-slate-400">Automatically email voters who opted in for follow-up (or a prize draw) right after they vote.</p>
+              <label className="flex items-center gap-2">
+                <input type="checkbox" checked={nurtureSettings.is_enabled} onChange={(event) => setNurtureSettings((current) => ({ ...current, is_enabled: event.target.checked }))} />
+                <span>Send a nurture email automatically</span>
+              </label>
+              <input value={nurtureSettings.subject || ""} onChange={(event) => setNurtureSettings((current) => ({ ...current, subject: event.target.value }))} className="w-full border p-2 rounded text-black" placeholder="Email subject: Thanks for your feedback!" />
+              <textarea value={nurtureSettings.message || ""} onChange={(event) => setNurtureSettings((current) => ({ ...current, message: event.target.value }))} rows="4" className="w-full border p-2 rounded text-black" placeholder="Email message body" />
+              <button onClick={saveNurtureSettings} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save nurture email settings</button>
+              <p className="text-xs text-slate-500">Delivery requires the RESEND_API_KEY and REPORT_FROM_EMAIL server settings, same as weekly reports.</p>
+              </>
+              ) : (
+                <LockedFeature
+                  feature="automatedNurture"
+                  title="Follow up with leads automatically"
+                  description="You're collecting emails already - turn them into repeat visits with an automatic thank-you email, no manual work required."
+                />
+              )}
+            </div>
+          </details>
+
+          <details className="rounded border border-slate-700 bg-gray-900" open>
+            <summary className="cursor-pointer p-4 text-lg font-bold">Win-back emails</summary>
+            <div className="px-4 pb-4 space-y-3">
+              {entitlements.automatedNurture ? (
+              <>
+              <p className="text-sm text-slate-400">Automatically email a voter who left their email and consented, but hasn't voted again after the number of days below. This only reaches people who opted in - voting itself always stays anonymous.</p>
+              <label className="flex items-center gap-2">
+                <input type="checkbox" checked={winbackSettings.is_enabled} onChange={(event) => setWinbackSettings((current) => ({ ...current, is_enabled: event.target.checked }))} />
+                <span>Send a win-back email automatically</span>
+              </label>
+              <label className="block font-semibold">
+                Days since their last visit
+                <input type="number" min="7" max="365" value={winbackSettings.days_since_last_visit} onChange={(event) => setWinbackSettings((current) => ({ ...current, days_since_last_visit: event.target.value }))} className="mt-1 w-full border p-2 rounded text-black" />
+              </label>
+              <input value={winbackSettings.subject || ""} onChange={(event) => setWinbackSettings((current) => ({ ...current, subject: event.target.value }))} className="w-full border p-2 rounded text-black" placeholder="Email subject: We miss you!" />
+              <textarea value={winbackSettings.message || ""} onChange={(event) => setWinbackSettings((current) => ({ ...current, message: event.target.value }))} rows="4" className="w-full border p-2 rounded text-black" placeholder="Email message body" />
+              <button onClick={saveWinbackEmailSettings} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save win-back email settings</button>
+              <p className="text-xs text-slate-500">Delivery requires the RESEND_API_KEY and REPORT_FROM_EMAIL server settings, same as weekly reports.</p>
+              </>
+              ) : (
+                <LockedFeature
+                  feature="automatedNurture"
+                  title="Win back customers who've gone quiet"
+                  description="Automatically re-engage voters who haven't come back in a while, without manually tracking who's overdue."
+                />
+              )}
+            </div>
+          </details>
         </div>
       </section>
       )}
@@ -2013,6 +2070,100 @@ export default function Admin() {
         </details>
       )}
       </>
+      )}
+
+      {activeTab === "engagement" && (
+      <div className="mb-6 rounded border border-amber-700 bg-slate-900 p-5">
+        <p className="text-sm font-semibold uppercase tracking-wide text-amber-300">What a QR code can hold</p>
+        <h2 className="mt-2 text-2xl font-bold">One printed code, three kinds of content.</h2>
+        <p className="mt-2 max-w-2xl text-sm text-slate-300">
+          A QR code isn't just a shortcut to one poll. Scan it and a voter can see <strong className="text-white">one or more polls</strong>,
+          an <strong className="text-white">info card</strong> (menu, hours, bio, exhibit notes...), and a <strong className="text-white">donation ask</strong> —
+          all in the same code. Set up donations first below, then build the code itself under "QR campaigns".
+        </p>
+      </div>
+      )}
+
+      {activeTab === "engagement" && (
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">Donations</summary>
+        <div className="px-4 pb-4 space-y-3">
+          <p className="text-sm text-slate-400">
+            Let voters support your venue with a card or wallet payment from the QR menu. Connect a Stripe account
+            once here, then add a "Donation" item to any QR code below. Stripe processes the payment: 90% transfers
+            straight to your account and Godwit keeps a 10% platform fee.
+          </p>
+
+          <div className="rounded border border-slate-700 bg-slate-950 p-4">
+            {donationSettings.stripe_charges_enabled ? (
+              <p className="text-sm font-semibold text-green-400">✓ Stripe is connected and ready to accept donations.</p>
+            ) : donationSettings.stripe_account_id ? (
+              <p className="text-sm font-semibold text-amber-300">Stripe account started, but onboarding isn't finished yet.</p>
+            ) : (
+              <p className="text-sm text-slate-400">No Stripe account connected yet.</p>
+            )}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button onClick={connectStripeHandler} disabled={stripeConnectBusy} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
+                {donationSettings.stripe_account_id ? "Continue Stripe setup" : "Connect with Stripe"}
+              </button>
+              {donationSettings.stripe_account_id && (
+                <button onClick={refreshStripeStatusHandler} disabled={stripeConnectBusy} className="bg-slate-700 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
+                  Refresh status
+                </button>
+              )}
+            </div>
+            {stripeConnectError && <p className="mt-2 text-xs font-semibold text-red-400">{stripeConnectError}</p>}
+          </div>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={donationSettings.is_enabled}
+              disabled={!donationSettings.stripe_charges_enabled}
+              onChange={(event) => setDonationSettings((current) => ({ ...current, is_enabled: event.target.checked }))}
+            />
+            <span>Accept donations{!donationSettings.stripe_charges_enabled && " (connect Stripe first)"}</span>
+          </label>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            <label className="block font-semibold">
+              Currency
+              <input
+                value={donationSettings.currency || "EUR"}
+                onChange={(event) => setDonationSettings((current) => ({ ...current, currency: event.target.value }))}
+                maxLength={3}
+                className="mt-1 w-full border p-2 rounded text-black uppercase"
+                placeholder="EUR"
+              />
+            </label>
+            <label className="block font-semibold">
+              Suggested amount (optional)
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={donationSettings.suggested_amount || ""}
+                onChange={(event) => setDonationSettings((current) => ({ ...current, suggested_amount: event.target.value }))}
+                className="mt-1 w-full border p-2 rounded text-black"
+                placeholder="5.00"
+              />
+            </label>
+          </div>
+          <textarea
+            value={donationSettings.message || ""}
+            onChange={(event) => setDonationSettings((current) => ({ ...current, message: event.target.value }))}
+            maxLength={300}
+            rows="2"
+            className="w-full border p-2 rounded text-black"
+            placeholder="Optional thank-you message shown with the donation option"
+          />
+          <button onClick={saveDonationSettingsHandler} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save donation settings</button>
+          <p className="text-xs text-slate-500">
+            Stripe is the payment processor - Godwit never sees or stores card details. Of each donation, 10% is a
+            platform fee retained by Godwit and 90% transfers to your connected Stripe account.
+          </p>
+        </div>
+      </details>
       )}
 
       {activeTab === "engagement" && (
@@ -2106,7 +2257,7 @@ export default function Admin() {
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">QR campaigns</summary>
         <div className="px-4 pb-4">
-          <p className="mb-3 text-sm text-slate-400">Create a durable QR code per placement to measure scans, responses, and opted-in follow-up leads.</p>
+          <p className="mb-3 text-sm text-slate-400">Create a durable QR code per placement to measure scans, responses, and opted-in follow-up leads. Each one starts with a default poll below, but open "Items on this QR code" on any campaign to add more polls, an info card, or a donation ask.</p>
           <p className="mb-3 text-xs text-slate-500">Tip: open a printed QR code while signed in to see its name and poll, and change them directly.</p>
           <div className="grid md:grid-cols-3 gap-3 mb-3">
             <input value={newCampaignName} onChange={(event) => setNewCampaignName(event.target.value)} className="border p-2 rounded text-black" placeholder="Lobby poster, receipt, table tent" />
@@ -2178,8 +2329,8 @@ export default function Admin() {
                     </summary>
                     <div className="space-y-3 p-3">
                       <p className="text-xs text-slate-400">
-                        Add one or more polls and info cards here to turn this QR code into a menu: scanning it will show
-                        everything listed below at once, instead of going straight to a single poll.
+                        Add one or more polls, info cards, and a donation ask here to turn this QR code into a menu: scanning it
+                        will show everything listed below at once, instead of going straight to a single poll.
                       </p>
                       {campaign.poll_id && !itemsForCampaign(campaign.id).some((item) => item.item_type === "poll" && item.poll_id === campaign.poll_id) && (
                         <button
@@ -2426,146 +2577,6 @@ export default function Admin() {
               })
             )}
           </div>
-        </div>
-      </details>
-      )}
-
-      {activeTab === "engagement" && (
-      <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">Lead nurture emails</summary>
-        <div className="px-4 pb-4 space-y-3">
-          {entitlements.automatedNurture ? (
-          <>
-          <p className="text-sm text-slate-400">Automatically email voters who opted in for follow-up (or a prize draw) right after they vote.</p>
-          <label className="flex items-center gap-2">
-            <input type="checkbox" checked={nurtureSettings.is_enabled} onChange={(event) => setNurtureSettings((current) => ({ ...current, is_enabled: event.target.checked }))} />
-            <span>Send a nurture email automatically</span>
-          </label>
-          <input value={nurtureSettings.subject || ""} onChange={(event) => setNurtureSettings((current) => ({ ...current, subject: event.target.value }))} className="w-full border p-2 rounded text-black" placeholder="Email subject: Thanks for your feedback!" />
-          <textarea value={nurtureSettings.message || ""} onChange={(event) => setNurtureSettings((current) => ({ ...current, message: event.target.value }))} rows="4" className="w-full border p-2 rounded text-black" placeholder="Email message body" />
-          <button onClick={saveNurtureSettings} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save nurture email settings</button>
-          <p className="text-xs text-slate-500">Delivery requires the RESEND_API_KEY and REPORT_FROM_EMAIL server settings, same as weekly reports.</p>
-          </>
-          ) : (
-            <LockedFeature
-              feature="automatedNurture"
-              title="Follow up with leads automatically"
-              description="You're collecting emails already - turn them into repeat visits with an automatic thank-you email, no manual work required."
-            />
-          )}
-        </div>
-      </details>
-      )}
-
-      {activeTab === "engagement" && (
-      <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">Donations</summary>
-        <div className="px-4 pb-4 space-y-3">
-          <p className="text-sm text-slate-400">
-            Let voters support your venue with a card or wallet payment from the QR menu. Connect a Stripe account
-            once here, then add a "Donation" item to any QR code below. Stripe processes the payment: 90% transfers
-            straight to your account and Godwit keeps a 10% platform fee.
-          </p>
-
-          <div className="rounded border border-slate-700 bg-slate-950 p-4">
-            {donationSettings.stripe_charges_enabled ? (
-              <p className="text-sm font-semibold text-green-400">✓ Stripe is connected and ready to accept donations.</p>
-            ) : donationSettings.stripe_account_id ? (
-              <p className="text-sm font-semibold text-amber-300">Stripe account started, but onboarding isn't finished yet.</p>
-            ) : (
-              <p className="text-sm text-slate-400">No Stripe account connected yet.</p>
-            )}
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button onClick={connectStripeHandler} disabled={stripeConnectBusy} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
-                {donationSettings.stripe_account_id ? "Continue Stripe setup" : "Connect with Stripe"}
-              </button>
-              {donationSettings.stripe_account_id && (
-                <button onClick={refreshStripeStatusHandler} disabled={stripeConnectBusy} className="bg-slate-700 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
-                  Refresh status
-                </button>
-              )}
-            </div>
-            {stripeConnectError && <p className="mt-2 text-xs font-semibold text-red-400">{stripeConnectError}</p>}
-          </div>
-
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={donationSettings.is_enabled}
-              disabled={!donationSettings.stripe_charges_enabled}
-              onChange={(event) => setDonationSettings((current) => ({ ...current, is_enabled: event.target.checked }))}
-            />
-            <span>Accept donations{!donationSettings.stripe_charges_enabled && " (connect Stripe first)"}</span>
-          </label>
-
-          <div className="grid gap-3 md:grid-cols-2">
-            <label className="block font-semibold">
-              Currency
-              <input
-                value={donationSettings.currency || "EUR"}
-                onChange={(event) => setDonationSettings((current) => ({ ...current, currency: event.target.value }))}
-                maxLength={3}
-                className="mt-1 w-full border p-2 rounded text-black uppercase"
-                placeholder="EUR"
-              />
-            </label>
-            <label className="block font-semibold">
-              Suggested amount (optional)
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={donationSettings.suggested_amount || ""}
-                onChange={(event) => setDonationSettings((current) => ({ ...current, suggested_amount: event.target.value }))}
-                className="mt-1 w-full border p-2 rounded text-black"
-                placeholder="5.00"
-              />
-            </label>
-          </div>
-          <textarea
-            value={donationSettings.message || ""}
-            onChange={(event) => setDonationSettings((current) => ({ ...current, message: event.target.value }))}
-            maxLength={300}
-            rows="2"
-            className="w-full border p-2 rounded text-black"
-            placeholder="Optional thank-you message shown with the donation option"
-          />
-          <button onClick={saveDonationSettingsHandler} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save donation settings</button>
-          <p className="text-xs text-slate-500">
-            Stripe is the payment processor - Godwit never sees or stores card details. Of each donation, 10% is a
-            platform fee retained by Godwit and 90% transfers to your connected Stripe account.
-          </p>
-        </div>
-      </details>
-      )}
-
-      {activeTab === "engagement" && (
-      <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">Win-back emails</summary>
-        <div className="px-4 pb-4 space-y-3">
-          {entitlements.automatedNurture ? (
-          <>
-          <p className="text-sm text-slate-400">Automatically email a voter who left their email and consented, but hasn't voted again after the number of days below. This only reaches people who opted in - voting itself always stays anonymous.</p>
-          <label className="flex items-center gap-2">
-            <input type="checkbox" checked={winbackSettings.is_enabled} onChange={(event) => setWinbackSettings((current) => ({ ...current, is_enabled: event.target.checked }))} />
-            <span>Send a win-back email automatically</span>
-          </label>
-          <label className="block font-semibold">
-            Days since their last visit
-            <input type="number" min="7" max="365" value={winbackSettings.days_since_last_visit} onChange={(event) => setWinbackSettings((current) => ({ ...current, days_since_last_visit: event.target.value }))} className="mt-1 w-full border p-2 rounded text-black" />
-          </label>
-          <input value={winbackSettings.subject || ""} onChange={(event) => setWinbackSettings((current) => ({ ...current, subject: event.target.value }))} className="w-full border p-2 rounded text-black" placeholder="Email subject: We miss you!" />
-          <textarea value={winbackSettings.message || ""} onChange={(event) => setWinbackSettings((current) => ({ ...current, message: event.target.value }))} rows="4" className="w-full border p-2 rounded text-black" placeholder="Email message body" />
-          <button onClick={saveWinbackEmailSettings} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save win-back email settings</button>
-          <p className="text-xs text-slate-500">Delivery requires the RESEND_API_KEY and REPORT_FROM_EMAIL server settings, same as weekly reports.</p>
-          </>
-          ) : (
-            <LockedFeature
-              feature="automatedNurture"
-              title="Win back customers who've gone quiet"
-              description="Automatically re-engage voters who haven't come back in a while, without manually tracking who's overdue."
-            />
-          )}
         </div>
       </details>
       )}

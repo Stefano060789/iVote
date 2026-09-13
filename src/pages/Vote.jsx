@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Layout from "../components/Layout";
 import { supabase } from "../lib/supabase";
 import { isRestrictedTopic } from "../lib/restrictedContent";
@@ -28,6 +29,7 @@ const TRANSLATION_ENABLED = import.meta.env.VITE_ENABLE_TRANSLATION !== "false";
 const TRANSLATION_TIMEOUT_MS = 5000;
 
 export default function Vote() {
+  const { t } = useTranslation();
   const { pollId } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -114,11 +116,11 @@ export default function Vote() {
     setFollowUpEmailError("");
     setMessageReplyEmailError("");
     if (followUpConsent && followUpEmail.trim() && !isValidEmail(followUpEmail)) {
-      setFollowUpEmailError("Enter a valid email address, e.g. name@example.com.");
+      setFollowUpEmailError(t("vote.emailInvalid"));
       return;
     }
     if (messageReplyEmail.trim() && !isValidEmail(messageReplyEmail)) {
-      setMessageReplyEmailError("Enter a valid email address, e.g. name@example.com.");
+      setMessageReplyEmailError(t("vote.emailInvalid"));
       return;
     }
 
@@ -240,7 +242,7 @@ export default function Vote() {
     if (!trimmed) return;
 
     if (isRestrictedTopic(trimmed)) {
-      alert("This answer contains political, religious, or sexual content.");
+      alert(t("vote.restrictedAnswerAlert"));
       return;
     }
 
@@ -255,7 +257,7 @@ export default function Vote() {
 
     if (error) {
       console.error(error);
-      alert("Error saving answer");
+      alert(t("vote.saveAnswerError"));
       return;
     }
 
@@ -273,7 +275,7 @@ export default function Vote() {
   }
 
   async function reportAnswer(answer) {
-    const reason = window.prompt("Why are you reporting this answer? Use: offensive, personal_data, spam, or other.", "offensive");
+    const reason = window.prompt(t("vote.reportPromptMessage"), t("vote.reportPromptDefault"));
     if (!reason) return;
     setReportingAnswer(answer);
     const { data: reportResult, error } = await supabase.rpc("report_public_user_answer", {
@@ -282,7 +284,7 @@ export default function Vote() {
       report_reason: reason.trim().toLowerCase()
     }).single();
     setReportingAnswer("");
-    setReportMessage(error ? error.message : "Thank you. The organizer will review this answer.");
+    setReportMessage(error ? error.message : t("vote.reportThanks"));
 
     if (!error && reportResult?.workspace_id && reportResult?.id) {
       dispatchWorkspaceWebhook(reportResult.workspace_id, "content_reported", reportResult.id);
@@ -309,15 +311,15 @@ export default function Vote() {
       );
     } catch (fetchError) {
       if (fetchError.name === "AbortError") {
-        throw new Error("Translation timed out. Showing the original text instead.");
+        throw new Error(t("vote.translationTimedOut"));
       }
-      throw new Error("Translation is unavailable right now. Showing the original text instead.");
+      throw new Error(t("vote.translationUnavailable"));
     } finally {
       clearTimeout(timeout);
     }
 
     if (!response.ok) {
-      throw new Error("Translation is unavailable right now. Showing the original text instead.");
+      throw new Error(t("vote.translationUnavailable"));
     }
 
     const data = await response.json();
@@ -326,7 +328,7 @@ export default function Vote() {
       : "";
 
     if (!translated) {
-      throw new Error("Translation is unavailable right now. Showing the original text instead.");
+      throw new Error(t("vote.translationUnavailable"));
     }
 
     return translated;
@@ -383,7 +385,7 @@ export default function Vote() {
       } catch (error) {
         if (cancelled) return;
         console.error(error);
-        setTranslationError(error.message || "Unable to translate poll content.");
+        setTranslationError(error.message || t("vote.translationErrorFallback"));
       } finally {
         if (!cancelled) setTranslationLoading(false);
       }
@@ -396,25 +398,25 @@ export default function Vote() {
     };
   }, [allAnswers, poll, translationLanguage]);
 
-  if (loading) return <Layout><p className="text-center p-6">Loading poll...</p></Layout>;
+  if (loading) return <Layout><p className="text-center p-6">{t("vote.loading")}</p></Layout>;
 
   if (duplicate || alreadyVoted) {
     return (
       <Layout>
         <div className="text-center p-6">
-          <h2 className="text-2xl font-bold mb-4">You already voted</h2>
+          <h2 className="text-2xl font-bold mb-4">{t("vote.alreadyVotedTitle")}</h2>
           <p className="text-gray-600 mb-6">
-            Thank you! Your vote has already been recorded.
+            {t("vote.alreadyVotedBody")}
           </p>
         </div>
       </Layout>
     );
   }
 
-  if (!poll) return <Layout><p className="text-center p-6">Poll not found.</p></Layout>;
+  if (!poll) return <Layout><p className="text-center p-6">{t("vote.notFound")}</p></Layout>;
 
   if (!Array.isArray(poll.answers)) {
-    return <Layout><p className="text-center p-6">Error: Poll answers are invalid.</p></Layout>;
+    return <Layout><p className="text-center p-6">{t("vote.invalidAnswers")}</p></Layout>;
   }
 
   const startsAt = poll.starts_at ?? pollMeta.starts_at;
@@ -426,9 +428,9 @@ export default function Vote() {
     return (
       <Layout>
         <div className="text-center p-6">
-          <h2 className="text-2xl font-bold mb-4">This poll is not open yet</h2>
+          <h2 className="text-2xl font-bold mb-4">{t("vote.notStartedTitle")}</h2>
           <p className="text-gray-600 mb-6">
-            Voting opens at {new Date(startsAt).toLocaleString()}.
+            {t("vote.notStartedBody", { time: new Date(startsAt).toLocaleString() })}
           </p>
         </div>
       </Layout>
@@ -439,9 +441,9 @@ export default function Vote() {
     return (
       <Layout>
         <div className="text-center p-6">
-          <h2 className="text-2xl font-bold mb-4">This poll has expired</h2>
+          <h2 className="text-2xl font-bold mb-4">{t("vote.expiredTitle")}</h2>
           <p className="text-gray-600 mb-6">
-            Voting is no longer possible.
+            {t("vote.expiredBody")}
           </p>
         </div>
       </Layout>
@@ -452,18 +454,18 @@ export default function Vote() {
     return (
       <Layout>
         <div className="text-center p-6">
-          <h2 className="text-2xl font-bold mb-4">Thank you for voting!</h2>
-          <p className="text-gray-600 mb-6">Your vote has been recorded.</p>
+          <h2 className="text-2xl font-bold mb-4">{t("vote.submittedTitle")}</h2>
+          <p className="text-gray-600 mb-6">{t("vote.submittedBody")}</p>
 
           <a
             href={`/results/${pollId}`}
             className="inline-block bg-blue-600 text-white px-4 py-2 rounded font-semibold"
           >
-            View Results
+            {t("vote.viewResults")}
           </a>
 
           <div className="mt-4">
-            <a href="/admin" className="text-blue-600 underline">Back to workspace</a>
+            <a href="/admin" className="text-blue-600 underline">{t("vote.backToWorkspace")}</a>
           </div>
         </div>
       </Layout>
@@ -489,13 +491,13 @@ export default function Vote() {
         )}
         <div className="flex items-center justify-between gap-3 mb-6">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Your vote</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{t("vote.yourVote")}</p>
             <p className="text-sm text-slate-300">
-              {poll.multiple_choice ? "Choose one or more answers" : "Choose one answer"}
+              {poll.multiple_choice ? t("vote.chooseMultiple") : t("vote.chooseOne")}
             </p>
           </div>
           <label className="text-right text-xs text-slate-300">
-            Language
+            {t("vote.language")}
           {TRANSLATION_ENABLED ? (
           <select
             value={translationLanguage}
@@ -509,10 +511,10 @@ export default function Vote() {
             ))}
           </select>
           ) : (
-            <span className="mt-1 block text-slate-500">Original only</span>
+            <span className="mt-1 block text-slate-500">{t("vote.originalOnly")}</span>
           )}
           </label>
-          {translationLoading && <p className="text-xs text-gray-400 mt-2">Translating poll content...</p>}
+          {translationLoading && <p className="text-xs text-gray-400 mt-2">{t("vote.translating")}</p>}
           {translationError && <p className="text-xs text-amber-300 mt-2">{translationError}</p>}
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">{questionForDisplay}</h1>
@@ -535,7 +537,7 @@ export default function Vote() {
               />
               <span className="font-medium">{translationLanguage === "original" ? answer : translatedAnswers[answer] || answer}</span>
             </label>
-            {isUserAnswer && <button type="button" onClick={() => reportAnswer(answer)} disabled={reportingAnswer === answer} className="shrink-0 text-xs text-slate-300 underline disabled:opacity-60" aria-label={`Report user answer: ${answer}`}>{reportingAnswer === answer ? "Reporting..." : "Report"}</button>}
+            {isUserAnswer && <button type="button" onClick={() => reportAnswer(answer)} disabled={reportingAnswer === answer} className="shrink-0 text-xs text-slate-300 underline disabled:opacity-60" aria-label={t("vote.reportAriaLabel", { answer })}>{reportingAnswer === answer ? t("vote.reporting") : t("vote.report")}</button>}
             </div>;
           })}
         </div>
@@ -549,7 +551,7 @@ export default function Vote() {
                 className="px-3 py-2 rounded text-white"
                 style={{ backgroundColor: branding.primaryColor }}
               >
-                Add your own answer
+                {t("vote.addOwnAnswer")}
               </button>
             )}
 
@@ -560,7 +562,7 @@ export default function Vote() {
                   value={newAnswer}
                   onChange={(e) => setNewAnswer(e.target.value)}
                   className="border p-2 rounded w-full text-black"
-                  placeholder="Type your answer..."
+                  placeholder={t("vote.typeYourAnswer")}
                 />
 
                 <button
@@ -568,7 +570,7 @@ export default function Vote() {
                   className="text-white px-3 py-2 rounded mt-2"
                   style={{ backgroundColor: branding.primaryColor }}
                 >
-                  Submit answer
+                  {t("vote.submitAnswer")}
                 </button>
               </div>
             )}
@@ -592,19 +594,19 @@ export default function Vote() {
           className="text-white p-3 rounded mt-6 w-full font-semibold disabled:opacity-60"
           style={{ backgroundColor: branding.primaryColor }}
         >
-          {selectedAnswers.length === 0 ? "Select an answer to vote" : `Submit vote${selectedAnswers.length > 1 ? ` (${selectedAnswers.length})` : ""}`}
+          {selectedAnswers.length === 0 ? t("vote.selectAnswerToVote") : `${t("vote.submitVote")}${selectedAnswers.length > 1 ? ` (${selectedAnswers.length})` : ""}`}
         </button>
 
         <div className="mt-5 border-t border-slate-600 pt-4">
-          <p className="text-sm font-semibold">{poll.raffle_enabled ? "Enter our prize draw (optional)" : "Keep in touch (optional)"}</p>
+          <p className="text-sm font-semibold">{poll.raffle_enabled ? t("vote.prizeDrawTitle") : t("vote.keepInTouchTitle")}</p>
           <p className="mt-1 text-xs text-slate-300">
             {poll.raffle_enabled
-              ? `Share your email for a chance to win: ${poll.raffle_prize || "a prize"}.`
-              : "Share your email only if you want follow-up from the poll organizer."}
+              ? t("vote.prizeDrawShare", { prize: poll.raffle_prize || t("vote.prizeDrawDefaultPrize") })
+              : t("vote.keepInTouchShare")}
           </p>
           {poll.raffle_enabled && (
             <p className="mt-2 text-xs text-slate-400">
-              No purchase necessary. Open only to entrants who are 18+ and legally eligible to receive this prize where they live. One entry per person. The organizer selects a winner at random from all entries and contacts the email provided. Void where prohibited.
+              {t("vote.prizeDrawDisclaimer")}
             </p>
           )}
           <input
@@ -613,13 +615,13 @@ export default function Vote() {
             onChange={(event) => { setFollowUpEmail(event.target.value); setFollowUpEmailError(""); }}
             onBlur={() => {
               if (followUpConsent && followUpEmail.trim() && !isValidEmail(followUpEmail)) {
-                setFollowUpEmailError("Enter a valid email address, e.g. name@example.com.");
+                setFollowUpEmailError(t("vote.emailInvalid"));
               }
             }}
             disabled={!followUpConsent}
             aria-invalid={Boolean(followUpEmailError)}
             className={`mt-3 w-full border rounded p-2 text-black disabled:bg-slate-200 ${followUpEmailError ? "border-red-500" : ""}`}
-            placeholder="you@example.com"
+            placeholder={t("vote.emailPlaceholder")}
           />
           {followUpEmailError && <p className="mt-1 text-xs text-red-400">{followUpEmailError}</p>}
           <label className="mt-3 flex items-start gap-2 text-xs text-slate-200">
@@ -629,20 +631,20 @@ export default function Vote() {
               onChange={(event) => setFollowUpConsent(event.target.checked)}
               className="mt-0.5"
             />
-            <span>{poll.raffle_enabled ? "I'm 18+ and eligible to receive this prize under local law. Enter me in the prize draw and let the organizer contact me if I win." : "I agree that the organizer may contact me about this poll."}</span>
+            <span>{poll.raffle_enabled ? t("vote.prizeDrawConsent") : t("vote.followUpConsent")}</span>
           </label>
         </div>
 
         <details className="mt-4 border-t border-slate-600 pt-4">
-          <summary className="cursor-pointer text-sm font-semibold">Send a private message to the organizer</summary>
-          <p className="mt-2 text-xs text-slate-300">Optional. Your message is visible only to the team running this poll.</p>
+          <summary className="cursor-pointer text-sm font-semibold">{t("vote.messageToOrganizer")}</summary>
+          <p className="mt-2 text-xs text-slate-300">{t("vote.messageOptionalNote")}</p>
           <textarea
             value={organizerMessage}
             onChange={(event) => setOrganizerMessage(event.target.value)}
             maxLength={2000}
             rows="3"
             className="mt-3 w-full rounded border p-2 text-black"
-            placeholder="Write your message"
+            placeholder={t("vote.messagePlaceholder")}
           />
           <input
             type="email"
@@ -650,12 +652,12 @@ export default function Vote() {
             onChange={(event) => { setMessageReplyEmail(event.target.value); setMessageReplyEmailError(""); }}
             onBlur={() => {
               if (messageReplyEmail.trim() && !isValidEmail(messageReplyEmail)) {
-                setMessageReplyEmailError("Enter a valid email address, e.g. name@example.com.");
+                setMessageReplyEmailError(t("vote.emailInvalid"));
               }
             }}
             aria-invalid={Boolean(messageReplyEmailError)}
             className={`mt-2 w-full rounded border p-2 text-black ${messageReplyEmailError ? "border-red-500" : ""}`}
-            placeholder="Your email for a reply (optional)"
+            placeholder={t("vote.messageReplyEmailPlaceholder")}
           />
           {messageReplyEmailError && <p className="mt-1 text-xs text-red-400">{messageReplyEmailError}</p>}
         </details>
