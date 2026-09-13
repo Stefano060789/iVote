@@ -94,10 +94,17 @@ address them.
   locale files. Note `Vote.jsx` still has a separate, unrelated feature that translates poll
   *content* (the question/answers themselves) via Google Translate - that's independent of
   the UI-chrome translation added here.
-- [ ] **Still hardcoded English**: `Admin.jsx`, `CreatePoll.jsx`, `EditPoll.jsx`, `Legal.jsx`,
-  `Billing.jsx`, etc. Lower priority than Vote/ThankYou since these are used by the workspace
-  owner/admin, not the general public - but follow the same pattern (`useTranslation()` +
-  `t("key")`, new keys added to *all ten* `src/i18n/locales/*.json` files) to extend further.
+- [ ] **Still hardcoded English**: `Admin.jsx`, `CreatePoll.jsx`, `EditPoll.jsx`, etc. Lower priority than
+  Vote/ThankYou since these are used by the workspace owner/admin, not the general public - but follow the
+  same pattern (`useTranslation()` + `t("key")`, new keys added to *all ten* `src/i18n/locales/*.json` files)
+  to extend further. `Admin.jsx` alone is 3000+ lines, so budget this as its own dedicated pass.
+- [x] `Billing.jsx` fully localized (plan names/descriptions, comparison table, trial/checkout messages, CTAs)
+  in all 10 languages - `billing.*` namespace, key parity verified across every locale file.
+- [x] `Legal.jsx` (Privacy notice / Terms of service) deliberately kept **English-only**, with a short notice
+  added to the page explaining the English text is the sole official/governing version. Auto-translating legal
+  text carries real liability risk (a mistranslated clause on refunds, data-processor terms, etc. could be read
+  as legally binding in that language) - many companies handle it exactly this way rather than translating ToS
+  literally.
 
 ## QR codes with multiple linked items
 
