@@ -1483,6 +1483,24 @@ export default function Admin() {
               text-transform: uppercase;
               color: #334155;
             }
+            .godwit-footer {
+              margin-top: 22px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 6px;
+              font-size: 10px;
+              font-weight: 600;
+              letter-spacing: 0.05em;
+              text-transform: uppercase;
+              color: #475569;
+            }
+            .godwit-footer img {
+              display: block;
+              width: 16px;
+              height: 16px;
+              border-radius: 50%;
+            }
           </style>
         </head>
         <body>
@@ -1496,6 +1514,10 @@ export default function Admin() {
             </div>
             <div class="subtitle">Scan to vote</div>
             <div class="title">${pollTitle}</div>
+            <div class="godwit-footer">
+              <img src="${window.location.origin}/favicon.svg" alt="" />
+              <span>Made with Godwit &middot; ${window.location.host}</span>
+            </div>
           </div>
         </body>
       </html>
@@ -2901,6 +2923,10 @@ export default function Admin() {
                     />
                   </div>
                   <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-700">Scan to vote</p>
+                  <div className="mt-3 flex items-center justify-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600">
+                    <img src="/favicon.svg" alt="" aria-hidden="true" className="h-4 w-4 rounded-full" />
+                    <span>Made with Godwit &middot; {window.location.host}</span>
+                  </div>
                 </div>
                 {(poll.stable_short_url || poll.short_url) && (
                   <p

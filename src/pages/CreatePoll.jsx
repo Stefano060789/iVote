@@ -562,6 +562,10 @@ export default function CreatePoll() {
                   className="mx-auto mb-4 border p-2 bg-white"
                 />
                 <p className="text-sm text-gray-600">Scan this QR code to vote.</p>
+                <p className="mt-2 flex items-center justify-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+                  <img src="/favicon.svg" alt="" aria-hidden="true" className="h-4 w-4 rounded-full" />
+                  <span>Made with Godwit &middot; {window.location.host}</span>
+                </p>
               </>
             )}
 
