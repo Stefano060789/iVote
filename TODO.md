@@ -7,11 +7,10 @@ address them.
 
 ## Open action items (needs you, not code)
 
-- [ ] **Add `STRIPE_CONNECT_WEBHOOK_SECRET` to Vercel's environment variables.** Test mode
-  value already generated in Stripe; still needs setting in Vercel (then redeploy), and the
-  same two-destination setup needs repeating for live mode once you go live - live/test
-  webhook destinations and secrets are separate. See `LAUNCH_SETUP.md`'s "Stripe Connect
-  setup" section for the full walkthrough. This is now the only open item in this section.
+- [x] `STRIPE_CONNECT_WEBHOOK_SECRET` added to Vercel's Production environment variables
+  (test mode value) and redeployed. **Still to do when going live**: repeat the whole
+  two-destination webhook setup for live mode - live/test destinations and secrets are
+  separate in Stripe. See `LAUNCH_SETUP.md`'s "Stripe Connect setup" section.
 - [x] Stripe Connect enabled (test mode, "You collect payments and pay recipients"
   marketplace/destination-charge model) and a second webhook destination created for
   Connected-account events (`account.updated`), since a destination's event scope is fixed
