@@ -1623,11 +1623,11 @@ export default function Admin() {
             <div class="qr-box">
               <img src="${img.src}" alt="QR code" />
             </div>
-            <div class="subtitle">Scan to vote</div>
+            <div class="subtitle">${t("admin.polls.card.scanToVote")}</div>
             <div class="title">${pollTitle}</div>
             <div class="godwit-footer">
               <img src="${window.location.origin}/favicon.svg" alt="" />
-              <span>Made with Godwit &middot; ${window.location.host}</span>
+              <span>${t("admin.polls.card.madeWithGodwit", { host: window.location.host })}</span>
             </div>
           </div>
         </body>
