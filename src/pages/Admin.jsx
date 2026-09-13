@@ -145,7 +145,7 @@ export default function Admin() {
   const [totalVotesCount, setTotalVotesCount] = useState(0);
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
   const [qrShared, setQrShared] = useState(false);
-  const [flockGuideOpen, setFlockGuideOpen] = useState(true);
+  const [flockGuideOpen, setFlockGuideOpen] = useState(false);
   const [personaKey, setPersonaKey] = useState(null);
   const [weeklyInsight, setWeeklyInsight] = useState(null);
   const [voteTrend, setVoteTrend] = useState(null);
@@ -281,7 +281,7 @@ export default function Admin() {
 
         setOnboardingDismissed(localStorage.getItem(`ivote_onboarding_dismissed_${profile.id}`) === "true");
         setQrShared(localStorage.getItem(`ivote_qr_shared_${profile.id}`) === "true");
-        setFlockGuideOpen(localStorage.getItem(`ivote_flock_guide_open_${profile.id}`) !== "false");
+        setFlockGuideOpen(localStorage.getItem(`ivote_flock_guide_open_${profile.id}`) === "true");
         setPersonaKey(localStorage.getItem(`ivote_persona_${profile.id}`) || null);
 
         const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
@@ -1710,26 +1710,52 @@ export default function Admin() {
         ))}
       </div>
 
-      {!onboardingDismissed && (
-        <div className="mb-6 rounded border border-teal-700 bg-slate-900 p-4">
-          <div className="flex items-start justify-between gap-3">
-            <h2 className="text-lg font-bold">Get started</h2>
-            <button onClick={dismissOnboarding} className="text-xs text-slate-400 underline">Dismiss</button>
+      <div className="mb-6 grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="border rounded p-3 bg-gray-900">
+          <p className="text-gray-400 text-sm">Total polls</p>
+          <p className="text-2xl font-bold">{analytics.total}</p>
+        </div>
+        <div className="border rounded p-3 bg-gray-900">
+          <p className="text-gray-400 text-sm">Active</p>
+          <p className="text-2xl font-bold text-green-400">{analytics.active}</p>
+        </div>
+        <div className="border rounded p-3 bg-gray-900">
+          <p className="text-gray-400 text-sm">Closed</p>
+          <p className="text-2xl font-bold text-red-400">{analytics.closed}</p>
+        </div>
+        <div className="border rounded p-3 bg-gray-900">
+          <p className="text-gray-400 text-sm">Scheduled</p>
+          <p className="text-2xl font-bold text-yellow-400">{analytics.scheduled}</p>
+        </div>
+        <div className="border rounded p-3 bg-gray-900">
+          <p className="text-gray-400 text-sm">Locations</p>
+          <p className="text-2xl font-bold text-blue-400">{analytics.withLocation}</p>
+        </div>
+        {voteTrend && voteTrend.lastWeek > 0 && (
+          <div className="border rounded p-3 bg-gray-900">
+            <p className="text-gray-400 text-sm">Votes this week</p>
+            <p className={`text-2xl font-bold ${voteTrend.thisWeek >= voteTrend.lastWeek ? "text-emerald-400" : "text-red-400"}`}>
+              {voteTrend.thisWeek} {voteTrend.thisWeek >= voteTrend.lastWeek ? "\u25b2" : "\u25bc"} {Math.abs(Math.round(((voteTrend.thisWeek - voteTrend.lastWeek) / voteTrend.lastWeek) * 100))}%
+            </p>
           </div>
-          <p className="mt-1 text-xs text-slate-400">
-            New here? <Link to="/essentials" className="underline">Read the 3-step simple guide</Link> - everything else on this page is optional.
+        )}
+      </div>
+
+      {weeklyInsight && (
+        <div className="mb-6 rounded border border-indigo-700 bg-slate-900 p-4">
+          <p className="text-sm font-semibold text-indigo-300">This week's insight</p>
+          <p className="mt-1 text-sm text-slate-200">
+            Your top mentioned answer was <span className="font-semibold">"{weeklyInsight.answer}"</span>, mentioned {weeklyInsight.count} time{weeklyInsight.count === 1 ? "" : "s"} out of {weeklyInsight.totalVotes} votes in the last 7 days.
           </p>
-          <div className="mt-3 space-y-3 text-sm">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className={polls.length > 0 ? "text-emerald-300" : "text-slate-300"}>{polls.length > 0 ? "\u2713" : "\u25cb"} Create your first poll</p>
-              {polls.length === 0 && <Link to="/create" className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">Create a poll</Link>}
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className={qrShared ? "text-emerald-300" : "text-slate-300"}>{qrShared ? "\u2713" : "\u25cb"} Print or share your QR code</p>
-              {!qrShared && polls.length > 0 && <button onClick={() => setActiveTab("polls")} className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">Go to your polls</button>}
-            </div>
-            <p className={totalVotesCount > 0 ? "text-emerald-300" : "text-slate-300"}>{totalVotesCount > 0 ? "\u2713" : "\u25cb"} Get your first vote</p>
-          </div>
+        </div>
+      )}
+
+      {templateBenchmark && templateBenchmark.industryScore !== null && templateBenchmark.sampleSize >= 3 && (
+        <div className="mb-6 rounded border border-emerald-700 bg-slate-900 p-4">
+          <p className="text-sm font-semibold text-emerald-300">Benchmark</p>
+          <p className="mt-1 text-sm text-slate-200">
+            Your average score on "{templateBenchmark.templateKey}" polls is <span className="font-semibold">{templateBenchmark.ownScore}%</span>, vs an industry average of <span className="font-semibold">{templateBenchmark.industryScore}%</span> across {templateBenchmark.sampleSize} other venues using the same template.
+          </p>
         </div>
       )}
 
@@ -1738,9 +1764,33 @@ export default function Admin() {
           <span className="text-xl" aria-hidden="true">{flockMemberForTab("overview")?.icon || "\ud83d\udc26"}</span>
           <span className="text-lg font-bold">Robin's guide</span>
         </div>
+
+        {!onboardingDismissed && (
+          <div className="mt-3 rounded border border-slate-700 bg-slate-950 p-3">
+            <div className="flex items-start justify-between gap-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Your first steps</p>
+              <button onClick={dismissOnboarding} className="text-xs text-slate-400 underline">Dismiss</button>
+            </div>
+            <p className="mt-1 text-xs text-slate-400">
+              New here? <Link to="/essentials" className="underline">Read the 3-step simple guide</Link> - everything else on this page is optional.
+            </p>
+            <div className="mt-3 space-y-2 text-sm">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className={polls.length > 0 ? "text-emerald-300" : "text-slate-300"}>{polls.length > 0 ? "\u2713" : "\u25cb"} Create your first poll</p>
+                {polls.length === 0 && <Link to="/create" className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">Create a poll</Link>}
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className={qrShared ? "text-emerald-300" : "text-slate-300"}>{qrShared ? "\u2713" : "\u25cb"} Print or share your QR code</p>
+                {!qrShared && polls.length > 0 && <button onClick={() => setActiveTab("polls")} className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">Go to your polls</button>}
+              </div>
+              <p className={totalVotesCount > 0 ? "text-emerald-300" : "text-slate-300"}>{totalVotesCount > 0 ? "\u2713" : "\u25cb"} Get your first vote</p>
+            </div>
+          </div>
+        )}
+
         {!personaKey ? (
           <>
-            <p className="mt-1 text-sm text-slate-400">What are you using Godwit for? Robin will line up the features that matter most for you.</p>
+            <p className="mt-3 text-sm text-slate-400">What are you using Godwit for? Robin will line up the features that matter most for you.</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
               {PERSONAS.map((persona) => (
                 <button
@@ -1762,7 +1812,7 @@ export default function Admin() {
             if (!persona) return null;
             return (
               <>
-                <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                   <p className="text-sm text-slate-400">
                     <span aria-hidden="true">{persona.icon}</span> Guide for <strong className="text-slate-200">{persona.label.toLowerCase()}</strong>
                   </p>
@@ -1811,15 +1861,6 @@ export default function Admin() {
         )}
       </div>
 
-      {weeklyInsight && (
-        <div className="mb-6 rounded border border-indigo-700 bg-slate-900 p-4">
-          <p className="text-sm font-semibold text-indigo-300">This week's insight</p>
-          <p className="mt-1 text-sm text-slate-200">
-            Your top mentioned answer was <span className="font-semibold">"{weeklyInsight.answer}"</span>, mentioned {weeklyInsight.count} time{weeklyInsight.count === 1 ? "" : "s"} out of {weeklyInsight.totalVotes} votes in the last 7 days.
-          </p>
-        </div>
-      )}
-
       <div className="mb-6 border rounded bg-gray-900 p-4">
         <h2 className="text-xl font-bold">Scan a QR code</h2>
         <p className="mt-1 mb-3 text-sm text-slate-400">Scan a printed QR code to see which poll it uses right now, and switch it to another poll instantly.</p>
@@ -1864,46 +1905,6 @@ export default function Admin() {
       </div>
 
       {scannerOpen && <QrScanner onDecode={handleScanDecode} onClose={() => setScannerOpen(false)} />}
-
-      <div className="mb-6 grid grid-cols-2 md:grid-cols-5 gap-3">
-        <div className="border rounded p-3 bg-gray-900">
-          <p className="text-gray-400 text-sm">Total polls</p>
-          <p className="text-2xl font-bold">{analytics.total}</p>
-        </div>
-        <div className="border rounded p-3 bg-gray-900">
-          <p className="text-gray-400 text-sm">Active</p>
-          <p className="text-2xl font-bold text-green-400">{analytics.active}</p>
-        </div>
-        <div className="border rounded p-3 bg-gray-900">
-          <p className="text-gray-400 text-sm">Closed</p>
-          <p className="text-2xl font-bold text-red-400">{analytics.closed}</p>
-        </div>
-        <div className="border rounded p-3 bg-gray-900">
-          <p className="text-gray-400 text-sm">Scheduled</p>
-          <p className="text-2xl font-bold text-yellow-400">{analytics.scheduled}</p>
-        </div>
-        <div className="border rounded p-3 bg-gray-900">
-          <p className="text-gray-400 text-sm">Locations</p>
-          <p className="text-2xl font-bold text-blue-400">{analytics.withLocation}</p>
-        </div>
-        {voteTrend && voteTrend.lastWeek > 0 && (
-          <div className="border rounded p-3 bg-gray-900">
-            <p className="text-gray-400 text-sm">Votes this week</p>
-            <p className={`text-2xl font-bold ${voteTrend.thisWeek >= voteTrend.lastWeek ? "text-emerald-400" : "text-red-400"}`}>
-              {voteTrend.thisWeek} {voteTrend.thisWeek >= voteTrend.lastWeek ? "\u25b2" : "\u25bc"} {Math.abs(Math.round(((voteTrend.thisWeek - voteTrend.lastWeek) / voteTrend.lastWeek) * 100))}%
-            </p>
-          </div>
-        )}
-      </div>
-
-      {templateBenchmark && templateBenchmark.industryScore !== null && templateBenchmark.sampleSize >= 3 && (
-        <div className="mb-6 rounded border border-emerald-700 bg-slate-900 p-4">
-          <p className="text-sm font-semibold text-emerald-300">Benchmark</p>
-          <p className="mt-1 text-sm text-slate-200">
-            Your average score on "{templateBenchmark.templateKey}" polls is <span className="font-semibold">{templateBenchmark.ownScore}%</span>, vs an industry average of <span className="font-semibold">{templateBenchmark.industryScore}%</span> across {templateBenchmark.sampleSize} other venues using the same template.
-          </p>
-        </div>
-      )}
 
       <details className="mb-2 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-lg font-bold">What's new in Godwit</summary>
