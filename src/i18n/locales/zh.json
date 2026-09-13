@@ -271,6 +271,93 @@
         "item4Title": "仪表盘内二维码扫描与批量生成二维码",
         "item4Body": "用摄像头扫描已打印的二维码即可管理它，或一次性批量生成多个二维码。"
       }
+    },
+    "polls": {
+      "title": "您的投票",
+      "subtitle": "搜索并筛选您需要管理的投票。",
+      "searchPlaceholder": "搜索问题或位置",
+      "filters": {
+        "allStatuses": "所有状态",
+        "active": "进行中",
+        "scheduled": "已计划",
+        "expired": "已过期",
+        "closed": "已关闭",
+        "allLocations": "所有位置"
+      },
+      "locationsOverview": {
+        "title": "位置概览",
+        "subtitle": "按二维码位置名称汇总的投票数，方便连锁店和多地点场所比较表现。",
+        "poll": "投票",
+        "polls": "投票",
+        "votes": "票"
+      },
+      "noMatches": "未找到匹配的投票。",
+      "card": {
+        "pollNumber": "投票 #{{id}}",
+        "newlyCreated": "刚创建",
+        "closed": "已关闭",
+        "location": "位置：{{name}}",
+        "brand": "品牌：{{name}}",
+        "template": "模板：{{name}}",
+        "starts": "开始：{{date}}",
+        "ends": "结束：{{date}}",
+        "created": "创建于：{{date}}",
+        "linkedQrCodes": "已关联的二维码",
+        "notLinked": "尚未关联任何二维码。",
+        "setOneUp": "在二维码标签页中设置一个",
+        "tokenTitle": "令牌：{{token}}",
+        "viewResults": "查看结果",
+        "hideQr": "隐藏 QR",
+        "openQrTools": "打开 QR 工具",
+        "openVotePage": "打开投票页面",
+        "moreActions": "更多操作",
+        "editPoll": "编辑投票",
+        "copyVotingLink": "复制投票链接",
+        "duplicatePoll": "复制投票",
+        "assignExistingQr": "分配现有 QR",
+        "exportCsv": "导出 CSV 响应",
+        "copyWidgetEmbed": "复制反馈小组件嵌入代码",
+        "copyTrustBadgeEmbed": "复制信任徽章嵌入代码",
+        "reopenPoll": "重新开启投票",
+        "closePoll": "关闭投票",
+        "deletePoll": "删除投票",
+        "reuseQrFrom": "复用投票 #{{id}} 的 QR",
+        "assignQr": "分配 QR",
+        "cancel": "取消",
+        "scanToVote": "扫码投票",
+        "madeWithGodwit": "由 Godwit 制作 · {{host}}",
+        "untrackedQrNote": "这是一个仅用于此投票的快速未跟踪二维码。若要使用可复用、可跟踪的二维码，或将此投票与信息卡或捐赠请求打包到同一个二维码中，请改为在",
+        "instead": "标签页中创建。",
+        "printFormat": "打印格式",
+        "formats": {
+          "letter": "Letter",
+          "a4": "A4",
+          "a5": "A5",
+          "a6": "A6",
+          "a3": "A3",
+          "postcard": "明信片",
+          "beerHolder": "圆形啤酒杯垫",
+          "ticket": "票券"
+        },
+        "visualStyle": "视觉风格",
+        "styles": {
+          "brand": "品牌配色",
+          "celebration": "庆典",
+          "fresh": "清新有活力",
+          "premium": "高级极简"
+        },
+        "tryAnotherStyle": "尝试另一种海报风格",
+        "previewNote": "预览会立即变化，并会用于打印。",
+        "aiPosterTitle": "创建 AI 海报背景",
+        "aiPosterHint": "描述一下视觉方向。您的工作区标志会单独叠加，以保持清晰，同时确保二维码仍可扫描。",
+        "aiPosterPlaceholder": "适合活动投票的现代蓝色城市灯光",
+        "creatingImage": "正在创建图片...",
+        "generateImage": "生成图片",
+        "aiBackgroundReady": "AI 背景已准备好，可用于预览和打印。",
+        "removeImage": "移除图片",
+        "downloadQr": "下载 QR",
+        "printQr": "打印 QR"
+      }
     }
   }
 }

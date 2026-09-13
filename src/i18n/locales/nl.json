@@ -271,6 +271,93 @@
         "item4Title": "QR-scanner in het dashboard en QR-codes in bulk genereren",
         "item4Body": "scan een gedrukte code met je camera om deze te beheren, of genereer meteen meerdere QR-codes."
       }
+    },
+    "polls": {
+      "title": "Je peilingen",
+      "subtitle": "Zoek en filter de peilingen die je moet beheren.",
+      "searchPlaceholder": "Zoek op vraag of locatie",
+      "filters": {
+        "allStatuses": "Alle statussen",
+        "active": "Actief",
+        "scheduled": "Gepland",
+        "expired": "Verlopen",
+        "closed": "Gesloten",
+        "allLocations": "Alle locaties"
+      },
+      "locationsOverview": {
+        "title": "Locatieoverzicht",
+        "subtitle": "Verzamelde stemmen per QR-locatienaam, handig voor ketens en locaties met meerdere vestigingen om prestaties te vergelijken.",
+        "poll": "peiling",
+        "polls": "peilingen",
+        "votes": "stemmen"
+      },
+      "noMatches": "Geen overeenkomende peilingen gevonden.",
+      "card": {
+        "pollNumber": "Peiling #{{id}}",
+        "newlyCreated": "Net aangemaakt",
+        "closed": "Gesloten",
+        "location": "Locatie: {{name}}",
+        "brand": "Merk: {{name}}",
+        "template": "Sjabloon: {{name}}",
+        "starts": "Start: {{date}}",
+        "ends": "Einde: {{date}}",
+        "created": "Aangemaakt: {{date}}",
+        "linkedQrCodes": "Gekoppelde QR-codes",
+        "notLinked": "Nog niet gekoppeld aan een QR-code.",
+        "setOneUp": "Stel er een in op het tabblad QR-codes",
+        "tokenTitle": "Token: {{token}}",
+        "viewResults": "Bekijk resultaten",
+        "hideQr": "QR verbergen",
+        "openQrTools": "QR-hulpmiddelen openen",
+        "openVotePage": "Stempagina openen",
+        "moreActions": "Meer acties",
+        "editPoll": "Peiling bewerken",
+        "copyVotingLink": "Stemlink kopiëren",
+        "duplicatePoll": "Peiling dupliceren",
+        "assignExistingQr": "Bestaande QR toewijzen",
+        "exportCsv": "Reacties exporteren als CSV",
+        "copyWidgetEmbed": "Insluitcode van feedbackwidget kopiëren",
+        "copyTrustBadgeEmbed": "Insluitcode van vertrouwensbadge kopiëren",
+        "reopenPoll": "Peiling heropenen",
+        "closePoll": "Peiling sluiten",
+        "deletePoll": "Peiling verwijderen",
+        "reuseQrFrom": "QR van peiling #{{id}} hergebruiken",
+        "assignQr": "QR toewijzen",
+        "cancel": "Annuleren",
+        "scanToVote": "Scan om te stemmen",
+        "madeWithGodwit": "Gemaakt met Godwit · {{host}}",
+        "untrackedQrNote": "Dit is een snelle, niet-gevolgde QR-code alleen voor deze peiling. Voor een herbruikbare, volgbare QR-code, of eentje die deze peiling bundelt met een informatiekaart of donatieverzoek, maak die aan op het tabblad",
+        "instead": "in plaats daarvan.",
+        "printFormat": "Afdrukformaat",
+        "formats": {
+          "letter": "Letter",
+          "a4": "A4",
+          "a5": "A5",
+          "a6": "A6",
+          "a3": "A3",
+          "postcard": "Ansichtkaart",
+          "beerHolder": "Ronde bieronderzetter",
+          "ticket": "Ticket"
+        },
+        "visualStyle": "Visuele stijl",
+        "styles": {
+          "brand": "Merkkleuren",
+          "celebration": "Feestelijk",
+          "fresh": "Fris en energiek",
+          "premium": "Premium en minimalistisch"
+        },
+        "tryAnotherStyle": "Probeer een andere posterstijl",
+        "previewNote": "De voorbeeldweergave verandert direct en wordt gebruikt bij het afdrukken.",
+        "aiPosterTitle": "Maak een AI-posterachtergrond",
+        "aiPosterHint": "Beschrijf de visuele richting. Het logo van je werkruimte wordt apart over de afbeelding gelegd, zodat het scherp blijft en je QR-code scanbaar blijft.",
+        "aiPosterPlaceholder": "Moderne blauwe stadslichten voor een evenementenpeiling",
+        "creatingImage": "Afbeelding wordt gemaakt...",
+        "generateImage": "Afbeelding genereren",
+        "aiBackgroundReady": "AI-achtergrond klaar voor voorbeeld en afdrukken.",
+        "removeImage": "Afbeelding verwijderen",
+        "downloadQr": "QR downloaden",
+        "printQr": "QR afdrukken"
+      }
     }
   }
 }

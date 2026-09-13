@@ -271,6 +271,93 @@
         "item4Title": "Escáner de QR en el panel y generación masiva de códigos QR",
         "item4Body": "escanea un código impreso con tu cámara para gestionarlo, o genera muchos códigos QR a la vez."
       }
+    },
+    "polls": {
+      "title": "Tus encuestas",
+      "subtitle": "Busca y filtra las encuestas que necesitas gestionar.",
+      "searchPlaceholder": "Buscar pregunta o ubicación",
+      "filters": {
+        "allStatuses": "Todos los estados",
+        "active": "Activas",
+        "scheduled": "Programadas",
+        "expired": "Caducadas",
+        "closed": "Cerradas",
+        "allLocations": "Todas las ubicaciones"
+      },
+      "locationsOverview": {
+        "title": "Resumen de ubicaciones",
+        "subtitle": "Votos recopilados por nombre de ubicación QR, útil para cadenas y locales con varias ubicaciones para comparar el rendimiento.",
+        "poll": "encuesta",
+        "polls": "encuestas",
+        "votes": "votos"
+      },
+      "noMatches": "No se encontraron encuestas que coincidan.",
+      "card": {
+        "pollNumber": "Encuesta #{{id}}",
+        "newlyCreated": "Recién creada",
+        "closed": "Cerrada",
+        "location": "Ubicación: {{name}}",
+        "brand": "Marca: {{name}}",
+        "template": "Plantilla: {{name}}",
+        "starts": "Empieza: {{date}}",
+        "ends": "Termina: {{date}}",
+        "created": "Creada: {{date}}",
+        "linkedQrCodes": "Códigos QR vinculados",
+        "notLinked": "Aún no está vinculada a ningún código QR.",
+        "setOneUp": "Configúralo en la pestaña de códigos QR",
+        "tokenTitle": "Token: {{token}}",
+        "viewResults": "Ver resultados",
+        "hideQr": "Ocultar QR",
+        "openQrTools": "Abrir herramientas QR",
+        "openVotePage": "Abrir página de votación",
+        "moreActions": "Más acciones",
+        "editPoll": "Editar encuesta",
+        "copyVotingLink": "Copiar enlace de votación",
+        "duplicatePoll": "Duplicar encuesta",
+        "assignExistingQr": "Asignar QR existente",
+        "exportCsv": "Exportar respuestas en CSV",
+        "copyWidgetEmbed": "Copiar código de inserción del widget de feedback",
+        "copyTrustBadgeEmbed": "Copiar código de inserción de la insignia de confianza",
+        "reopenPoll": "Reabrir encuesta",
+        "closePoll": "Cerrar encuesta",
+        "deletePoll": "Eliminar encuesta",
+        "reuseQrFrom": "Reutilizar QR de la encuesta #{{id}}",
+        "assignQr": "Asignar QR",
+        "cancel": "Cancelar",
+        "scanToVote": "Escanea para votar",
+        "madeWithGodwit": "Hecho con Godwit · {{host}}",
+        "untrackedQrNote": "Este es un código QR rápido y no rastreado solo para esta encuesta. Para un código QR reutilizable y rastreable, o uno que combine esta encuesta con una tarjeta informativa o una solicitud de donación, créalo en la pestaña",
+        "instead": "en su lugar.",
+        "printFormat": "Formato de impresión",
+        "formats": {
+          "letter": "Carta",
+          "a4": "A4",
+          "a5": "A5",
+          "a6": "A6",
+          "a3": "A3",
+          "postcard": "Postal",
+          "beerHolder": "Posavasos redondo",
+          "ticket": "Ticket"
+        },
+        "visualStyle": "Estilo visual",
+        "styles": {
+          "brand": "Colores de marca",
+          "celebration": "Celebración",
+          "fresh": "Fresco y enérgico",
+          "premium": "Premium y minimalista"
+        },
+        "tryAnotherStyle": "Probar otro estilo de póster",
+        "previewNote": "La vista previa cambia al instante y se usa al imprimir.",
+        "aiPosterTitle": "Crear un fondo de póster con IA",
+        "aiPosterHint": "Describe la dirección visual. El logotipo de tu espacio de trabajo se superpone por separado para que se mantenga nítido y tu código QR siga siendo escaneable.",
+        "aiPosterPlaceholder": "Luces azules modernas de ciudad para una encuesta de evento",
+        "creatingImage": "Creando imagen...",
+        "generateImage": "Generar imagen",
+        "aiBackgroundReady": "El fondo con IA está listo para la vista previa y la impresión.",
+        "removeImage": "Quitar imagen",
+        "downloadQr": "Descargar QR",
+        "printQr": "Imprimir QR"
+      }
     }
   }
 }

@@ -271,6 +271,93 @@
         "item4Title": "QR-Scanner im Dashboard und QR-Massengenerierung",
         "item4Body": "scannen Sie einen gedruckten Code mit Ihrer Kamera, um ihn zu verwalten, oder erstellen Sie viele QR-Codes auf einmal."
       }
+    },
+    "polls": {
+      "title": "Ihre Umfragen",
+      "subtitle": "Durchsuchen und filtern Sie die Umfragen, die Sie verwalten möchten.",
+      "searchPlaceholder": "Frage oder Standort suchen",
+      "filters": {
+        "allStatuses": "Alle Status",
+        "active": "Aktiv",
+        "scheduled": "Geplant",
+        "expired": "Abgelaufen",
+        "closed": "Geschlossen",
+        "allLocations": "Alle Standorte"
+      },
+      "locationsOverview": {
+        "title": "Standortübersicht",
+        "subtitle": "Nach QR-Standortnamen gesammelte Stimmen, nützlich für Ketten und Standorte mit mehreren Niederlassungen, um die Leistung zu vergleichen.",
+        "poll": "Umfrage",
+        "polls": "Umfragen",
+        "votes": "Stimmen"
+      },
+      "noMatches": "Keine passenden Umfragen gefunden.",
+      "card": {
+        "pollNumber": "Umfrage #{{id}}",
+        "newlyCreated": "Neu erstellt",
+        "closed": "Geschlossen",
+        "location": "Standort: {{name}}",
+        "brand": "Marke: {{name}}",
+        "template": "Vorlage: {{name}}",
+        "starts": "Beginnt: {{date}}",
+        "ends": "Endet: {{date}}",
+        "created": "Erstellt: {{date}}",
+        "linkedQrCodes": "Verknüpfte QR-Codes",
+        "notLinked": "Noch mit keinem QR-Code verknüpft.",
+        "setOneUp": "Richten Sie einen im Tab QR-Codes ein",
+        "tokenTitle": "Token: {{token}}",
+        "viewResults": "Ergebnisse ansehen",
+        "hideQr": "QR ausblenden",
+        "openQrTools": "QR-Tools öffnen",
+        "openVotePage": "Abstimmungsseite öffnen",
+        "moreActions": "Weitere Aktionen",
+        "editPoll": "Umfrage bearbeiten",
+        "copyVotingLink": "Abstimmungslink kopieren",
+        "duplicatePoll": "Umfrage duplizieren",
+        "assignExistingQr": "Vorhandenen QR zuweisen",
+        "exportCsv": "Antworten als CSV exportieren",
+        "copyWidgetEmbed": "Einbettungscode für Feedback-Widget kopieren",
+        "copyTrustBadgeEmbed": "Einbettungscode für Vertrauens-Badge kopieren",
+        "reopenPoll": "Umfrage wieder öffnen",
+        "closePoll": "Umfrage schließen",
+        "deletePoll": "Umfrage löschen",
+        "reuseQrFrom": "QR von Umfrage #{{id}} wiederverwenden",
+        "assignQr": "QR zuweisen",
+        "cancel": "Abbrechen",
+        "scanToVote": "Zum Abstimmen scannen",
+        "madeWithGodwit": "Erstellt mit Godwit · {{host}}",
+        "untrackedQrNote": "Dies ist ein schneller, nicht nachverfolgter QR-Code nur für diese Umfrage. Für einen wiederverwendbaren, nachverfolgbaren QR-Code – oder einen, der diese Umfrage mit einer Infokarte oder einer Spendenanfrage bündelt – richten Sie ihn im Tab",
+        "instead": "statt hier ein.",
+        "printFormat": "Druckformat",
+        "formats": {
+          "letter": "Letter",
+          "a4": "A4",
+          "a5": "A5",
+          "a6": "A6",
+          "a3": "A3",
+          "postcard": "Postkarte",
+          "beerHolder": "Runder Bierdeckel",
+          "ticket": "Ticket"
+        },
+        "visualStyle": "Visueller Stil",
+        "styles": {
+          "brand": "Markenfarben",
+          "celebration": "Feierlich",
+          "fresh": "Frisch und energiegeladen",
+          "premium": "Premium und minimalistisch"
+        },
+        "tryAnotherStyle": "Anderen Posterstil ausprobieren",
+        "previewNote": "Die Vorschau ändert sich sofort und wird beim Drucken verwendet.",
+        "aiPosterTitle": "KI-Hintergrund für Poster erstellen",
+        "aiPosterHint": "Beschreiben Sie die visuelle Richtung. Ihr Workspace-Logo wird separat überlagert, damit es scharf bleibt und Ihr QR-Code weiterhin scanbar ist.",
+        "aiPosterPlaceholder": "Moderne blaue Stadtlichter für eine Veranstaltungsumfrage",
+        "creatingImage": "Bild wird erstellt...",
+        "generateImage": "Bild generieren",
+        "aiBackgroundReady": "KI-Hintergrund ist für Vorschau und Druck bereit.",
+        "removeImage": "Bild entfernen",
+        "downloadQr": "QR herunterladen",
+        "printQr": "QR drucken"
+      }
     }
   }
 }

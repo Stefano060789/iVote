@@ -271,6 +271,93 @@
         "item4Title": "ماسح QR داخل لوحة التحكم وتوليد رموز QR بالجملة",
         "item4Body": "امسح رمزًا مطبوعًا بكاميرتك لإدارته، أو أنشئ العديد من رموز QR دفعة واحدة."
       }
+    },
+    "polls": {
+      "title": "استطلاعاتك",
+      "subtitle": "ابحث وصفِّ الاستطلاعات التي تحتاج إلى إدارتها.",
+      "searchPlaceholder": "ابحث عن سؤال أو موقع",
+      "filters": {
+        "allStatuses": "كل الحالات",
+        "active": "نشطة",
+        "scheduled": "مجدولة",
+        "expired": "منتهية",
+        "closed": "مغلقة",
+        "allLocations": "كل المواقع"
+      },
+      "locationsOverview": {
+        "title": "نظرة عامة على المواقع",
+        "subtitle": "الأصوات المجمعة حسب اسم موقع QR، وهو مفيد للسلاسل والأماكن متعددة المواقع لمقارنة الأداء.",
+        "poll": "استطلاع",
+        "polls": "استطلاعات",
+        "votes": "أصوات"
+      },
+      "noMatches": "لم يتم العثور على استطلاعات مطابقة.",
+      "card": {
+        "pollNumber": "استطلاع #{{id}}",
+        "newlyCreated": "أُنشئ حديثًا",
+        "closed": "مغلق",
+        "location": "الموقع: {{name}}",
+        "brand": "العلامة التجارية: {{name}}",
+        "template": "القالب: {{name}}",
+        "starts": "يبدأ: {{date}}",
+        "ends": "ينتهي: {{date}}",
+        "created": "أُنشئ: {{date}}",
+        "linkedQrCodes": "رموز QR المرتبطة",
+        "notLinked": "لم يتم ربطه بأي رمز QR بعد.",
+        "setOneUp": "أعِد واحدًا في تبويب رموز QR",
+        "tokenTitle": "الرمز: {{token}}",
+        "viewResults": "عرض النتائج",
+        "hideQr": "إخفاء QR",
+        "openQrTools": "فتح أدوات QR",
+        "openVotePage": "فتح صفحة التصويت",
+        "moreActions": "إجراءات أخرى",
+        "editPoll": "تعديل الاستطلاع",
+        "copyVotingLink": "نسخ رابط التصويت",
+        "duplicatePoll": "نسخ الاستطلاع",
+        "assignExistingQr": "تعيين QR موجود",
+        "exportCsv": "تصدير الردود بصيغة CSV",
+        "copyWidgetEmbed": "نسخ كود تضمين أداة الملاحظات",
+        "copyTrustBadgeEmbed": "نسخ كود تضمين شارة الثقة",
+        "reopenPoll": "إعادة فتح الاستطلاع",
+        "closePoll": "إغلاق الاستطلاع",
+        "deletePoll": "حذف الاستطلاع",
+        "reuseQrFrom": "إعادة استخدام QR من الاستطلاع #{{id}}",
+        "assignQr": "تعيين QR",
+        "cancel": "إلغاء",
+        "scanToVote": "امسح للتصويت",
+        "madeWithGodwit": "صُنع باستخدام Godwit · {{host}}",
+        "untrackedQrNote": "هذا رمز QR سريع وغير متتبع لهذا الاستطلاع فقط. إذا كنت تريد رمز QR قابلًا لإعادة الاستخدام والتتبع، أو رمزًا يجمع هذا الاستطلاع مع بطاقة معلومات أو طلب تبرع، فأنشئه في تبويب",
+        "instead": "بدلًا من ذلك.",
+        "printFormat": "تنسيق الطباعة",
+        "formats": {
+          "letter": "Letter",
+          "a4": "A4",
+          "a5": "A5",
+          "a6": "A6",
+          "a3": "A3",
+          "postcard": "بطاقة بريدية",
+          "beerHolder": "حامل أكواب دائري",
+          "ticket": "تذكرة"
+        },
+        "visualStyle": "النمط البصري",
+        "styles": {
+          "brand": "ألوان العلامة التجارية",
+          "celebration": "احتفالي",
+          "fresh": "منعش وحيوي",
+          "premium": "فاخر وبسيط"
+        },
+        "tryAnotherStyle": "جرّب نمط ملصق آخر",
+        "previewNote": "تتغير المعاينة فورًا وتُستخدم عند الطباعة.",
+        "aiPosterTitle": "أنشئ خلفية ملصق بالذكاء الاصطناعي",
+        "aiPosterHint": "صِف التوجه البصري. يتم وضع شعار مساحة العمل الخاصة بك بشكل منفصل ليبقى حادًا ويظل رمز QR قابلاً للمسح.",
+        "aiPosterPlaceholder": "أضواء مدينة زرقاء عصرية لاستطلاع فعالية",
+        "creatingImage": "جارٍ إنشاء الصورة...",
+        "generateImage": "إنشاء الصورة",
+        "aiBackgroundReady": "خلفية الذكاء الاصطناعي جاهزة للمعاينة والطباعة.",
+        "removeImage": "إزالة الصورة",
+        "downloadQr": "تنزيل QR",
+        "printQr": "طباعة QR"
+      }
     }
   }
 }

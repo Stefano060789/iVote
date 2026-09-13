@@ -1945,92 +1945,92 @@ export default function Admin() {
       {activeTab === "connection" && (
       <section className="space-y-6">
         <div className="rounded border border-teal-700 bg-slate-900 p-5">
-          <p className="text-sm font-semibold uppercase tracking-wide text-teal-300">Your customer connection workflow</p>
-          <h2 className="mt-2 text-2xl font-bold">Turn one QR scan into an ongoing relationship.</h2>
-          <p className="mt-2 max-w-2xl text-sm text-slate-300">Use this page as your checklist. Ask for an email only with clear consent, invite selected voters to leave honest public feedback, and release benefits according to your configured rules.</p>
+          <p className="text-sm font-semibold uppercase tracking-wide text-teal-300">{t("admin.connection.eyebrow")}</p>
+          <h2 className="mt-2 text-2xl font-bold">{t("admin.connection.title")}</h2>
+          <p className="mt-2 max-w-2xl text-sm text-slate-300">{t("admin.connection.subtitle")}</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
           <article className="rounded border border-slate-700 bg-gray-900 p-4">
             <span className="text-2xl font-bold text-teal-300">1</span>
-            <h3 className="mt-2 text-lg font-bold">Configure the offer</h3>
-            <p className="mt-2 text-sm text-slate-400">Add Google, Tripadvisor, or another honest review destination when creating a poll, and set the benefit voters unlock for voting. Every voter sees the same review link regardless of their answer - gating it by sentiment would break Google/Tripadvisor's rules.</p>
-            <Link to="/create" className="mt-4 inline-block rounded bg-teal-500 px-3 py-2 text-sm font-semibold text-slate-950">Create a configured poll</Link>
+            <h3 className="mt-2 text-lg font-bold">{t("admin.connection.step1.title")}</h3>
+            <p className="mt-2 text-sm text-slate-400">{t("admin.connection.step1.body")}</p>
+            <Link to="/create" className="mt-4 inline-block rounded bg-teal-500 px-3 py-2 text-sm font-semibold text-slate-950">{t("admin.connection.step1.cta")}</Link>
           </article>
           <article className="rounded border border-slate-700 bg-gray-900 p-4">
             <span className="text-2xl font-bold text-sky-300">2</span>
-            <h3 className="mt-2 text-lg font-bold">Collect permission</h3>
-            <p className="mt-2 text-sm text-slate-400">Voters can voluntarily share their email after voting. Use the email settings below to send event news, offers, or a follow-up message.</p>
-            <a href="#nurture-settings" className="mt-4 inline-block rounded bg-sky-500 px-3 py-2 text-sm font-semibold text-slate-950">Jump to email settings</a>
+            <h3 className="mt-2 text-lg font-bold">{t("admin.connection.step2.title")}</h3>
+            <p className="mt-2 text-sm text-slate-400">{t("admin.connection.step2.body")}</p>
+            <a href="#nurture-settings" className="mt-4 inline-block rounded bg-sky-500 px-3 py-2 text-sm font-semibold text-slate-950">{t("admin.connection.step2.cta")}</a>
           </article>
           <article className="rounded border border-slate-700 bg-gray-900 p-4">
             <span className="text-2xl font-bold text-amber-300">3</span>
-            <h3 className="mt-2 text-lg font-bold">Verify and reward</h3>
-            <p className="mt-2 text-sm text-slate-400">Check pending claims in the review queue. Approve the benefit only after confirming the voter left honest feedback on the selected platform.</p>
-            <button onClick={() => setActiveTab("feedback")} className="mt-4 rounded bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950">Open review claims</button>
+            <h3 className="mt-2 text-lg font-bold">{t("admin.connection.step3.title")}</h3>
+            <p className="mt-2 text-sm text-slate-400">{t("admin.connection.step3.body")}</p>
+            <button onClick={() => setActiveTab("feedback")} className="mt-4 rounded bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950">{t("admin.connection.step3.cta")}</button>
           </article>
         </div>
 
         <div className="rounded border border-slate-700 bg-gray-900 p-5">
-          <h2 className="text-xl font-bold">What the customer sees</h2>
+          <h2 className="text-xl font-bold">{t("admin.connection.whatCustomerSees.title")}</h2>
           <div className="mt-3 grid gap-3 text-sm text-slate-300 md:grid-cols-3">
-            <p><strong className="text-white">Vote:</strong> They scan the QR code and answer without creating an account.</p>
-            <p><strong className="text-white">Stay connected:</strong> They choose whether to share an email for follow-up and benefits.</p>
-            <p><strong className="text-white">Share honestly:</strong> Every voter, whatever they answered, receives your review links and can submit a verification claim.</p>
+            <p><strong className="text-white">{t("admin.connection.whatCustomerSees.voteLabel")}</strong> {t("admin.connection.whatCustomerSees.voteBody")}</p>
+            <p><strong className="text-white">{t("admin.connection.whatCustomerSees.stayConnectedLabel")}</strong> {t("admin.connection.whatCustomerSees.stayConnectedBody")}</p>
+            <p><strong className="text-white">{t("admin.connection.whatCustomerSees.shareHonestlyLabel")}</strong> {t("admin.connection.whatCustomerSees.shareHonestlyBody")}</p>
           </div>
-          <p className="mt-4 text-xs text-slate-500">Do not require or script a positive review. Benefits should be offered transparently and review requests should invite honest feedback.</p>
+          <p className="mt-4 text-xs text-slate-500">{t("admin.connection.whatCustomerSees.disclaimer")}</p>
         </div>
 
         <div id="nurture-settings" className="grid gap-4 md:grid-cols-2">
           <details className="rounded border border-slate-700 bg-gray-900" open>
-            <summary className="cursor-pointer p-4 text-lg font-bold">Lead nurture emails</summary>
+            <summary className="cursor-pointer p-4 text-lg font-bold">{t("admin.connection.leadNurture.title")}</summary>
             <div className="px-4 pb-4 space-y-3">
               {entitlements.automatedNurture ? (
               <>
-              <p className="text-sm text-slate-400">Automatically email voters who opted in for follow-up (or a prize draw) right after they vote.</p>
+              <p className="text-sm text-slate-400">{t("admin.connection.leadNurture.description")}</p>
               <label className="flex items-center gap-2">
                 <input type="checkbox" checked={nurtureSettings.is_enabled} onChange={(event) => setNurtureSettings((current) => ({ ...current, is_enabled: event.target.checked }))} />
-                <span>Send a nurture email automatically</span>
+                <span>{t("admin.connection.leadNurture.enableLabel")}</span>
               </label>
-              <input value={nurtureSettings.subject || ""} onChange={(event) => setNurtureSettings((current) => ({ ...current, subject: event.target.value }))} className="w-full border p-2 rounded text-black" placeholder="Email subject: Thanks for your feedback!" />
-              <textarea value={nurtureSettings.message || ""} onChange={(event) => setNurtureSettings((current) => ({ ...current, message: event.target.value }))} rows="4" className="w-full border p-2 rounded text-black" placeholder="Email message body" />
-              <button onClick={saveNurtureSettings} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save nurture email settings</button>
-              <p className="text-xs text-slate-500">Delivery requires the RESEND_API_KEY and REPORT_FROM_EMAIL server settings, same as weekly reports.</p>
+              <input value={nurtureSettings.subject || ""} onChange={(event) => setNurtureSettings((current) => ({ ...current, subject: event.target.value }))} className="w-full border p-2 rounded text-black" placeholder={t("admin.connection.leadNurture.subjectPlaceholder")} />
+              <textarea value={nurtureSettings.message || ""} onChange={(event) => setNurtureSettings((current) => ({ ...current, message: event.target.value }))} rows="4" className="w-full border p-2 rounded text-black" placeholder={t("admin.connection.messageBodyPlaceholder")} />
+              <button onClick={saveNurtureSettings} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">{t("admin.connection.leadNurture.saveButton")}</button>
+              <p className="text-xs text-slate-500">{t("admin.connection.emailDeliveryNote")}</p>
               </>
               ) : (
                 <LockedFeature
                   feature="automatedNurture"
-                  title="Follow up with leads automatically"
-                  description="You're collecting emails already - turn them into repeat visits with an automatic thank-you email, no manual work required."
+                  title={t("admin.connection.leadNurture.lockedTitle")}
+                  description={t("admin.connection.leadNurture.lockedDescription")}
                 />
               )}
             </div>
           </details>
 
           <details className="rounded border border-slate-700 bg-gray-900" open>
-            <summary className="cursor-pointer p-4 text-lg font-bold">Win-back emails</summary>
+            <summary className="cursor-pointer p-4 text-lg font-bold">{t("admin.connection.winback.title")}</summary>
             <div className="px-4 pb-4 space-y-3">
               {entitlements.automatedNurture ? (
               <>
-              <p className="text-sm text-slate-400">Automatically email a voter who left their email and consented, but hasn't voted again after the number of days below. This only reaches people who opted in - voting itself always stays anonymous.</p>
+              <p className="text-sm text-slate-400">{t("admin.connection.winback.description")}</p>
               <label className="flex items-center gap-2">
                 <input type="checkbox" checked={winbackSettings.is_enabled} onChange={(event) => setWinbackSettings((current) => ({ ...current, is_enabled: event.target.checked }))} />
-                <span>Send a win-back email automatically</span>
+                <span>{t("admin.connection.winback.enableLabel")}</span>
               </label>
               <label className="block font-semibold">
-                Days since their last visit
+                {t("admin.connection.winback.daysSinceLabel")}
                 <input type="number" min="7" max="365" value={winbackSettings.days_since_last_visit} onChange={(event) => setWinbackSettings((current) => ({ ...current, days_since_last_visit: event.target.value }))} className="mt-1 w-full border p-2 rounded text-black" />
               </label>
-              <input value={winbackSettings.subject || ""} onChange={(event) => setWinbackSettings((current) => ({ ...current, subject: event.target.value }))} className="w-full border p-2 rounded text-black" placeholder="Email subject: We miss you!" />
-              <textarea value={winbackSettings.message || ""} onChange={(event) => setWinbackSettings((current) => ({ ...current, message: event.target.value }))} rows="4" className="w-full border p-2 rounded text-black" placeholder="Email message body" />
-              <button onClick={saveWinbackEmailSettings} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save win-back email settings</button>
-              <p className="text-xs text-slate-500">Delivery requires the RESEND_API_KEY and REPORT_FROM_EMAIL server settings, same as weekly reports.</p>
+              <input value={winbackSettings.subject || ""} onChange={(event) => setWinbackSettings((current) => ({ ...current, subject: event.target.value }))} className="w-full border p-2 rounded text-black" placeholder={t("admin.connection.winback.subjectPlaceholder")} />
+              <textarea value={winbackSettings.message || ""} onChange={(event) => setWinbackSettings((current) => ({ ...current, message: event.target.value }))} rows="4" className="w-full border p-2 rounded text-black" placeholder={t("admin.connection.messageBodyPlaceholder")} />
+              <button onClick={saveWinbackEmailSettings} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">{t("admin.connection.winback.saveButton")}</button>
+              <p className="text-xs text-slate-500">{t("admin.connection.emailDeliveryNote")}</p>
               </>
               ) : (
                 <LockedFeature
                   feature="automatedNurture"
-                  title="Win back customers who've gone quiet"
-                  description="Automatically re-engage voters who haven't come back in a while, without manually tracking who's overdue."
+                  title={t("admin.connection.winback.lockedTitle")}
+                  description={t("admin.connection.winback.lockedDescription")}
                 />
               )}
             </div>
@@ -2042,14 +2042,14 @@ export default function Admin() {
       {activeTab === "polls" && (
       <>
       <div className="mb-6">
-        <h2 className="text-xl font-bold">Your polls</h2>
-        <p className="mt-1 mb-3 text-sm text-slate-400">Search and filter the polls you need to manage.</p>
+        <h2 className="text-xl font-bold">{t("admin.polls.title")}</h2>
+        <p className="mt-1 mb-3 text-sm text-slate-400">{t("admin.polls.subtitle")}</p>
         <div className="flex flex-col md:flex-row gap-3">
         <input
           type="text"
           value={searchTerm}
           onChange={(event) => setSearchTerm(event.target.value)}
-          placeholder="Search question or location"
+          placeholder={t("admin.polls.searchPlaceholder")}
           className="w-full md:w-2/3 border p-2 rounded text-black"
         />
         <select
@@ -2057,18 +2057,18 @@ export default function Admin() {
           onChange={(event) => setStatusFilter(event.target.value)}
           className="w-full md:w-1/3 border p-2 rounded text-black"
         >
-          <option value="all">All statuses</option>
-          <option value="active">Active</option>
-          <option value="scheduled">Scheduled</option>
-          <option value="expired">Expired</option>
-          <option value="closed">Closed</option>
+          <option value="all">{t("admin.polls.filters.allStatuses")}</option>
+          <option value="active">{t("admin.polls.filters.active")}</option>
+          <option value="scheduled">{t("admin.polls.filters.scheduled")}</option>
+          <option value="expired">{t("admin.polls.filters.expired")}</option>
+          <option value="closed">{t("admin.polls.filters.closed")}</option>
         </select>
         <select
           value={locationFilter}
           onChange={(event) => setLocationFilter(event.target.value)}
           className="w-full md:w-1/3 border p-2 rounded text-black"
         >
-          <option value="all">All locations</option>
+          <option value="all">{t("admin.polls.filters.allLocations")}</option>
           {Array.from(new Set((polls || []).map((poll) => readPollMeta(poll.id).location_name ?? poll.location_name ?? "").filter(Boolean))).map((location) => (
             <option key={location} value={location}>{location}</option>
           ))}
@@ -2078,14 +2078,14 @@ export default function Admin() {
 
       {locationStats.length > 0 && (
         <details className="mb-6 border rounded bg-gray-900">
-          <summary className="cursor-pointer p-4 text-lg font-bold">Locations overview</summary>
+          <summary className="cursor-pointer p-4 text-lg font-bold">{t("admin.polls.locationsOverview.title")}</summary>
           <div className="px-4 pb-4">
-            <p className="mb-3 text-sm text-slate-400">Votes collected per QR location name, useful for chains and multi-location venues to compare performance.</p>
+            <p className="mb-3 text-sm text-slate-400">{t("admin.polls.locationsOverview.subtitle")}</p>
             <div className="space-y-2 text-sm">
               {locationStats.map((location) => (
                 <div key={location.name} className="flex items-center justify-between border-b border-gray-700 py-1">
-                  <span>{location.name} ({location.polls} poll{location.polls === 1 ? "" : "s"})</span>
-                  <span className="font-semibold text-teal-300">{location.votes} votes</span>
+                  <span>{location.name} ({location.polls} {location.polls === 1 ? t("admin.polls.locationsOverview.poll") : t("admin.polls.locationsOverview.polls")})</span>
+                  <span className="font-semibold text-teal-300">{location.votes} {t("admin.polls.locationsOverview.votes")}</span>
                 </div>
               ))}
             </div>
@@ -2097,32 +2097,30 @@ export default function Admin() {
 
       {activeTab === "engagement" && (
       <div className="mb-6 rounded border border-amber-700 bg-slate-900 p-5">
-        <p className="text-sm font-semibold uppercase tracking-wide text-amber-300">What a QR code can hold</p>
-        <h2 className="mt-2 text-2xl font-bold">One printed code, three kinds of content.</h2>
+        <p className="text-sm font-semibold uppercase tracking-wide text-amber-300">{t("admin.engagement.intro.eyebrow")}</p>
+        <h2 className="mt-2 text-2xl font-bold">{t("admin.engagement.intro.title")}</h2>
         <p className="mt-2 max-w-2xl text-sm text-slate-300">
-          A QR code isn't just a shortcut to one poll. Scan it and a voter can see <strong className="text-white">one or more polls</strong>,
-          an <strong className="text-white">info card</strong> (menu, hours, bio, exhibit notes...), and a <strong className="text-white">donation ask</strong> —
-          all in the same code. Set up donations first below, then build the code itself under "QR campaigns".
+          {t("admin.engagement.intro.body")}
         </p>
       </div>
       )}
 
       {activeTab === "engagement" && (
       <div className="mb-6 border rounded bg-gray-900 p-4">
-        <h2 className="text-xl font-bold">Scan a QR code</h2>
-        <p className="mt-1 mb-3 text-sm text-slate-400">Already holding a printed QR code? Scan it to see which poll it uses right now, and switch it to another poll instantly.</p>
+        <h2 className="text-xl font-bold">{t("admin.engagement.scanner.title")}</h2>
+        <p className="mt-1 mb-3 text-sm text-slate-400">{t("admin.engagement.scanner.subtitle")}</p>
         <div className="flex flex-col gap-3 sm:flex-row">
           <button onClick={() => { setScannerOpen(true); setScanMessage(""); }} className="bg-teal-500 text-slate-950 px-4 py-2 rounded font-semibold">
-            Open camera scanner
+            {t("admin.engagement.scanner.openCamera")}
           </button>
           <input
             value={scanLookupValue}
             onChange={(event) => setScanLookupValue(event.target.value)}
-            placeholder="Or paste the QR link here"
+            placeholder={t("admin.engagement.scanner.pastePlaceholder")}
             className="flex-1 border p-2 rounded text-black"
           />
           <button onClick={() => lookUpScannedQr(scanLookupValue)} className="bg-slate-700 text-white px-4 py-2 rounded font-semibold">
-            Look up
+            {t("admin.engagement.scanner.lookUp")}
           </button>
         </div>
         {scanMessage && <p className="mt-3 text-sm text-amber-300">{scanMessage}</p>}
@@ -2130,22 +2128,22 @@ export default function Admin() {
           <div className="mt-4 rounded border border-teal-700 bg-slate-950 p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-teal-300">{scanResult.campaign.name}</p>
             <p className="mt-1 text-sm text-slate-400">
-              {scanResult.campaign.placement_label || "Unlabeled placement"}{scanResult.campaign.variant_label ? ` · ${scanResult.campaign.variant_label}` : ""}
+              {scanResult.campaign.placement_label || t("admin.engagement.scanner.unlabeledPlacement")}{scanResult.campaign.variant_label ? ` · ${scanResult.campaign.variant_label}` : ""}
             </p>
-            <p className="mt-3 font-semibold">{scanResult.currentPoll?.question || "No poll assigned yet"}</p>
-            <label className="mt-4 block text-sm font-semibold">Redirect this QR code to another poll</label>
+            <p className="mt-3 font-semibold">{scanResult.currentPoll?.question || t("admin.engagement.scanner.noPollAssigned")}</p>
+            <label className="mt-4 block text-sm font-semibold">{t("admin.engagement.scanner.redirectLabel")}</label>
             <select
               value={scanResult.campaign.poll_id ? String(scanResult.campaign.poll_id) : ""}
               onChange={(event) => changeScannedPoll(event.target.value)}
               className="mt-2 w-full rounded border p-2 text-black"
             >
-              <option value="">Choose a poll</option>
+              <option value="">{t("admin.engagement.scanner.choosePoll")}</option>
               {scanResult.polls.map((poll) => (
                 <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>
               ))}
             </select>
             <Link to={`/create?campaign=${scanResult.campaign.id}`} className="mt-3 block rounded bg-teal-400 px-4 py-2 text-center font-semibold text-slate-950">
-              Create a new poll for this QR code
+              {t("admin.engagement.scanner.createNewPoll")}
             </Link>
           </div>
         )}
@@ -2156,29 +2154,27 @@ export default function Admin() {
 
       {activeTab === "engagement" && (
       <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">Donations</summary>
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.donations.title")}</summary>
         <div className="px-4 pb-4 space-y-3">
           <p className="text-sm text-slate-400">
-            Let voters support your venue with a card or wallet payment from the QR menu. Connect a Stripe account
-            once here, then add a "Donation" item to any QR code below. Stripe processes the payment: 90% transfers
-            straight to your account and Godwit keeps a 10% platform fee.
+            {t("admin.engagement.donations.description")}
           </p>
 
           <div className="rounded border border-slate-700 bg-slate-950 p-4">
             {donationSettings.stripe_charges_enabled ? (
-              <p className="text-sm font-semibold text-green-400">✓ Stripe is connected and ready to accept donations.</p>
+              <p className="text-sm font-semibold text-green-400">✓ {t("admin.engagement.donations.stripeConnected")}</p>
             ) : donationSettings.stripe_account_id ? (
-              <p className="text-sm font-semibold text-amber-300">Stripe account started, but onboarding isn't finished yet.</p>
+              <p className="text-sm font-semibold text-amber-300">{t("admin.engagement.donations.stripeStarted")}</p>
             ) : (
-              <p className="text-sm text-slate-400">No Stripe account connected yet.</p>
+              <p className="text-sm text-slate-400">{t("admin.engagement.donations.stripeNotConnected")}</p>
             )}
             <div className="mt-3 flex flex-wrap gap-2">
               <button onClick={connectStripeHandler} disabled={stripeConnectBusy} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
-                {donationSettings.stripe_account_id ? "Continue Stripe setup" : "Connect with Stripe"}
+                {donationSettings.stripe_account_id ? t("admin.engagement.donations.continueSetup") : t("admin.engagement.donations.connectStripe")}
               </button>
               {donationSettings.stripe_account_id && (
                 <button onClick={refreshStripeStatusHandler} disabled={stripeConnectBusy} className="bg-slate-700 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
-                  Refresh status
+                  {t("admin.engagement.donations.refreshStatus")}
                 </button>
               )}
             </div>
@@ -2192,12 +2188,12 @@ export default function Admin() {
               disabled={!donationSettings.stripe_charges_enabled}
               onChange={(event) => setDonationSettings((current) => ({ ...current, is_enabled: event.target.checked }))}
             />
-            <span>Accept donations{!donationSettings.stripe_charges_enabled && " (connect Stripe first)"}</span>
+            <span>{t("admin.engagement.donations.acceptDonations")}{!donationSettings.stripe_charges_enabled && ` ${t("admin.engagement.donations.connectFirst")}`}</span>
           </label>
 
           <div className="grid gap-3 md:grid-cols-2">
             <label className="block font-semibold">
-              Currency
+              {t("admin.engagement.donations.currency")}
               <input
                 value={donationSettings.currency || "EUR"}
                 onChange={(event) => setDonationSettings((current) => ({ ...current, currency: event.target.value }))}
@@ -2207,7 +2203,7 @@ export default function Admin() {
               />
             </label>
             <label className="block font-semibold">
-              Suggested amount (optional)
+              {t("admin.engagement.donations.suggestedAmount")}
               <input
                 type="number"
                 min="0"
@@ -2225,12 +2221,11 @@ export default function Admin() {
             maxLength={300}
             rows="2"
             className="w-full border p-2 rounded text-black"
-            placeholder="Optional thank-you message shown with the donation option"
+            placeholder={t("admin.engagement.donations.messagePlaceholder")}
           />
-          <button onClick={saveDonationSettingsHandler} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save donation settings</button>
+          <button onClick={saveDonationSettingsHandler} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">{t("admin.engagement.donations.saveButton")}</button>
           <p className="text-xs text-slate-500">
-            Stripe is the payment processor - Godwit never sees or stores card details. Of each donation, 10% is a
-            platform fee retained by Godwit and 90% transfers to your connected Stripe account.
+            {t("admin.engagement.donations.feeNote")}
           </p>
         </div>
       </details>
@@ -3039,7 +3034,7 @@ export default function Admin() {
 
       {activeTab === "polls" && (
       <>
-      {filteredPolls.length === 0 && <p className="text-center text-gray-600">No matching polls found.</p>}
+      {filteredPolls.length === 0 && <p className="text-center text-gray-600">{t("admin.polls.noMatches")}</p>}
 
       <div className="space-y-4">
         {filteredPolls.map((poll) => {
@@ -3061,49 +3056,49 @@ export default function Admin() {
           >
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Poll #{poll.id}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{t("admin.polls.card.pollNumber", { id: poll.id })}</p>
                 <h2 className="text-xl font-semibold">{poll.question}</h2>
               </div>
               {String(poll.id) === selectedPollId && (
-                <span className="w-fit rounded bg-teal-400/15 px-2 py-1 text-xs font-semibold text-teal-300">Newly created</span>
+                <span className="w-fit rounded bg-teal-400/15 px-2 py-1 text-xs font-semibold text-teal-300">{t("admin.polls.card.newlyCreated")}</span>
               )}
             </div>
 
             {isClosed && (
               <span className="inline-block bg-red-600 text-white px-2 py-1 rounded text-sm mb-3">
-                Closed
+                {t("admin.polls.card.closed")}
               </span>
             )}
 
             {locationName && (
-              <p className="text-gray-300 text-sm mb-1">Location: {locationName}</p>
+              <p className="text-gray-300 text-sm mb-1">{t("admin.polls.card.location", { name: locationName })}</p>
             )}
 
             {(brandName || templateKey) && (
               <p className="text-gray-300 text-sm mb-1">
-                {brandName ? `Brand: ${brandName}` : ""} {brandName && templateKey ? "•" : ""} {templateKey ? `Template: ${templateKey}` : ""}
+                {brandName ? t("admin.polls.card.brand", { name: brandName }) : ""} {brandName && templateKey ? "•" : ""} {templateKey ? t("admin.polls.card.template", { name: templateKey }) : ""}
               </p>
             )}
 
             {startsAt && (
-              <p className="text-gray-300 text-sm mb-1">Starts: {new Date(startsAt).toLocaleString()}</p>
+              <p className="text-gray-300 text-sm mb-1">{t("admin.polls.card.starts", { date: new Date(startsAt).toLocaleString() })}</p>
             )}
 
             {endsAt && (
-              <p className="text-gray-300 text-sm mb-1">Ends: {new Date(endsAt).toLocaleString()}</p>
+              <p className="text-gray-300 text-sm mb-1">{t("admin.polls.card.ends", { date: new Date(endsAt).toLocaleString() })}</p>
             )}
 
             <p className="text-gray-600 text-sm mb-3">
-              Created: {new Date(poll.created_at).toLocaleString()}
+              {t("admin.polls.card.created", { date: new Date(poll.created_at).toLocaleString() })}
             </p>
 
             <div className="mb-3 rounded border border-slate-700 bg-slate-950/60 p-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Linked QR codes</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{t("admin.polls.card.linkedQrCodes")}</p>
               {(() => {
                 const linkedQrCodes = qrCodesForPoll(poll.id);
                 return linkedQrCodes.length === 0 ? (
                   <p className="mt-1 text-sm text-slate-400">
-                    Not linked to any QR code yet. <button type="button" onClick={() => setActiveTab("engagement")} className="font-semibold text-teal-300 underline">Set one up in the QR codes tab</button>.
+                    {t("admin.polls.card.notLinked")} <button type="button" onClick={() => setActiveTab("engagement")} className="font-semibold text-teal-300 underline">{t("admin.polls.card.setOneUp")}</button>.
                   </p>
                 ) : (
                   <div className="mt-2 flex flex-wrap gap-2">
@@ -3113,7 +3108,7 @@ export default function Admin() {
                         type="button"
                         onClick={() => setActiveTab("engagement")}
                         className="rounded-full border border-teal-700 bg-teal-950/40 px-3 py-1 text-xs font-semibold text-teal-300"
-                        title={`Token: ${qrCode.token}`}
+                        title={t("admin.polls.card.tokenTitle", { token: qrCode.token })}
                       >
                         {qrCode.kind === "location" ? "📍" : "🔗"} {qrCode.name}
                       </button>
@@ -3125,36 +3120,36 @@ export default function Admin() {
 
             <div className="mt-4 flex gap-2 flex-wrap">
               <Link to={`/results/${poll.id}`} className="rounded bg-slate-100 px-3 py-2 font-semibold text-slate-950">
-                View Results
+                {t("admin.polls.card.viewResults")}
               </Link>
 
               <button onClick={() => { setShowQR(showQR === poll.id ? null : poll.id); if (workspaceUserId) { localStorage.setItem(`ivote_qr_shared_${workspaceUserId}`, "true"); setQrShared(true); } }} className="rounded border border-slate-500 px-3 py-2 font-semibold text-slate-100">
-                {showQR === poll.id ? "Hide QR" : "Open QR tools"}
+                {showQR === poll.id ? t("admin.polls.card.hideQr") : t("admin.polls.card.openQrTools")}
               </button>
 
               <Link to={`/vote/${poll.id}`} className="rounded border border-slate-600 px-3 py-2 font-semibold text-slate-200">
-                Open vote page
+                {t("admin.polls.card.openVotePage")}
               </Link>
 
               <details className="relative">
-                <summary className="cursor-pointer rounded border border-slate-600 px-3 py-2 font-semibold text-slate-300">More actions</summary>
+                <summary className="cursor-pointer rounded border border-slate-600 px-3 py-2 font-semibold text-slate-300">{t("admin.polls.card.moreActions")}</summary>
                 <div className="absolute right-0 z-10 mt-2 grid min-w-56 gap-1 rounded border border-slate-700 bg-slate-950 p-2 shadow-xl">
-                  <Link to={`/edit/${poll.id}`} className={`rounded px-3 py-2 text-left ${canEditPolls ? "hover:bg-slate-800" : "pointer-events-none text-slate-500"}`}>Edit poll</Link>
-                  <button onClick={() => copyShareLink(poll)} className="rounded px-3 py-2 text-left hover:bg-slate-800">Copy voting link</button>
-                  <button onClick={() => duplicatePoll(poll)} disabled={!canDuplicatePolls} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">Duplicate poll</button>
-                  <button onClick={() => reuseQR(poll)} disabled={!canReuseQr} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">Assign existing QR</button>
-                  <button onClick={() => exportPollCsv(poll)} disabled={!canExportResults} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">Export responses CSV</button>
-                  <button onClick={() => copyEmbedWidgetSnippet(poll)} className="rounded px-3 py-2 text-left hover:bg-slate-800">Copy feedback widget embed code</button>
-                  <button onClick={() => copyTrustBadgeSnippet(poll)} className="rounded px-3 py-2 text-left hover:bg-slate-800">Copy trust badge embed code</button>
-                  <button onClick={() => closePoll(poll)} disabled={!canClosePolls} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">{isClosed ? "Reopen poll" : "Close poll"}</button>
-                  <button onClick={() => deletePoll(poll.id)} disabled={!canDeletePolls} className="rounded px-3 py-2 text-left text-red-300 hover:bg-red-950 disabled:text-slate-500">Delete poll</button>
+                  <Link to={`/edit/${poll.id}`} className={`rounded px-3 py-2 text-left ${canEditPolls ? "hover:bg-slate-800" : "pointer-events-none text-slate-500"}`}>{t("admin.polls.card.editPoll")}</Link>
+                  <button onClick={() => copyShareLink(poll)} className="rounded px-3 py-2 text-left hover:bg-slate-800">{t("admin.polls.card.copyVotingLink")}</button>
+                  <button onClick={() => duplicatePoll(poll)} disabled={!canDuplicatePolls} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">{t("admin.polls.card.duplicatePoll")}</button>
+                  <button onClick={() => reuseQR(poll)} disabled={!canReuseQr} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">{t("admin.polls.card.assignExistingQr")}</button>
+                  <button onClick={() => exportPollCsv(poll)} disabled={!canExportResults} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">{t("admin.polls.card.exportCsv")}</button>
+                  <button onClick={() => copyEmbedWidgetSnippet(poll)} className="rounded px-3 py-2 text-left hover:bg-slate-800">{t("admin.polls.card.copyWidgetEmbed")}</button>
+                  <button onClick={() => copyTrustBadgeSnippet(poll)} className="rounded px-3 py-2 text-left hover:bg-slate-800">{t("admin.polls.card.copyTrustBadgeEmbed")}</button>
+                  <button onClick={() => closePoll(poll)} disabled={!canClosePolls} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">{isClosed ? t("admin.polls.card.reopenPoll") : t("admin.polls.card.closePoll")}</button>
+                  <button onClick={() => deletePoll(poll.id)} disabled={!canDeletePolls} className="rounded px-3 py-2 text-left text-red-300 hover:bg-red-950 disabled:text-slate-500">{t("admin.polls.card.deletePoll")}</button>
                 </div>
               </details>
             </div>
 
             {reuseQrPoll && String(reuseQrPoll.id) === String(poll.id) && (
               <div className="mt-4 border border-purple-400 rounded p-3 bg-gray-900">
-                <p className="mb-2 font-semibold">Reuse QR from Poll #{reuseQrPoll.id}</p>
+                <p className="mb-2 font-semibold">{t("admin.polls.card.reuseQrFrom", { id: reuseQrPoll.id })}</p>
                 <div className="flex flex-col sm:flex-row gap-3 items-center">
                   <select
                     value={reuseQrTargetId}
@@ -3170,7 +3165,7 @@ export default function Admin() {
                       ))}
                   </select>
                   <button onClick={confirmReuseQR} className="bg-purple-600 text-white px-3 py-2 rounded font-semibold">
-                    Assign QR
+                    {t("admin.polls.card.assignQr")}
                   </button>
                   <button
                     onClick={() => {
@@ -3179,7 +3174,7 @@ export default function Admin() {
                     }}
                     className="bg-gray-700 text-white px-3 py-2 rounded font-semibold"
                   >
-                    Cancel
+                    {t("admin.polls.card.cancel")}
                   </button>
                 </div>
               </div>
@@ -3213,10 +3208,10 @@ export default function Admin() {
                       className="h-40 w-40"
                     />
                   </div>
-                  <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-700">Scan to vote</p>
+                  <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-700">{t("admin.polls.card.scanToVote")}</p>
                   <div className="mt-3 flex items-center justify-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600">
                     <img src="/favicon.svg" alt="" aria-hidden="true" className="h-4 w-4 rounded-full" />
-                    <span>Made with Godwit &middot; {window.location.host}</span>
+                    <span>{t("admin.polls.card.madeWithGodwit", { host: window.location.host })}</span>
                   </div>
                 </div>
                 {(poll.stable_short_url || poll.short_url) && (
@@ -3228,39 +3223,38 @@ export default function Admin() {
                   </p>
                 )}
                 <p className="mt-3 text-center text-xs text-slate-500">
-                  This is a quick, untracked QR code for this poll only. For a reusable, trackable QR code - or one that
-                  bundles this poll with an info card or donation ask - create it in the{" "}
-                  <button type="button" onClick={() => setActiveTab("engagement")} className="font-semibold text-teal-300 underline">QR codes tab</button> instead.
+                  {t("admin.polls.card.untrackedQrNote")}{" "}
+                  <button type="button" onClick={() => setActiveTab("engagement")} className="font-semibold text-teal-300 underline">{t("admin.nav.engagement")}</button> {t("admin.polls.card.instead")}
                 </p>
                 <div className="mt-4 grid md:grid-cols-2 gap-3 items-end">
                   <div>
-                    <label className="block text-sm font-semibold mb-2">Print format</label>
+                    <label className="block text-sm font-semibold mb-2">{t("admin.polls.card.printFormat")}</label>
                     <select
                       value={qrPrintFormat}
                       onChange={(event) => setQrPrintFormat(event.target.value)}
                       className="border p-2 rounded text-black w-full"
                     >
-                      <option value="letter">Letter</option>
-                      <option value="a4">A4</option>
-                      <option value="a5">A5</option>
-                      <option value="a6">A6</option>
-                      <option value="a3">A3</option>
-                      <option value="postcard">Postcard</option>
-                      <option value="beerHolder">Round beer holder</option>
-                      <option value="ticket">Ticket</option>
+                      <option value="letter">{t("admin.polls.card.formats.letter")}</option>
+                      <option value="a4">{t("admin.polls.card.formats.a4")}</option>
+                      <option value="a5">{t("admin.polls.card.formats.a5")}</option>
+                      <option value="a6">{t("admin.polls.card.formats.a6")}</option>
+                      <option value="a3">{t("admin.polls.card.formats.a3")}</option>
+                      <option value="postcard">{t("admin.polls.card.formats.postcard")}</option>
+                      <option value="beerHolder">{t("admin.polls.card.formats.beerHolder")}</option>
+                      <option value="ticket">{t("admin.polls.card.formats.ticket")}</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold mb-2">Visual style</label>
+                    <label className="block text-sm font-semibold mb-2">{t("admin.polls.card.visualStyle")}</label>
                     <select
                       value={qrStylePreset}
                       onChange={(event) => setQrStylePreset(event.target.value)}
                       className="border p-2 rounded text-black w-full"
                     >
-                      <option value="brand">Brand colors</option>
-                      <option value="celebration">Celebration</option>
-                      <option value="fresh">Fresh and energetic</option>
-                      <option value="premium">Premium and minimal</option>
+                      <option value="brand">{t("admin.polls.card.styles.brand")}</option>
+                      <option value="celebration">{t("admin.polls.card.styles.celebration")}</option>
+                      <option value="fresh">{t("admin.polls.card.styles.fresh")}</option>
+                      <option value="premium">{t("admin.polls.card.styles.premium")}</option>
                     </select>
                   </div>
                   <div>
@@ -3268,14 +3262,14 @@ export default function Admin() {
                       onClick={() => setQrStyleSeed((prev) => prev + 1)}
                       className="bg-fuchsia-600 text-white px-4 py-2 rounded font-semibold w-full"
                     >
-                      Try another poster style
+                      {t("admin.polls.card.tryAnotherStyle")}
                     </button>
-                    <p className="mt-2 text-xs text-slate-400">The preview changes immediately and is used when you print.</p>
+                    <p className="mt-2 text-xs text-slate-400">{t("admin.polls.card.previewNote")}</p>
                   </div>
                 </div>
                 <div className="mt-4 border border-slate-700 rounded p-4">
-                  <label className="block text-sm font-semibold mb-2">Create an AI poster background</label>
-                  <p className="mb-3 text-xs text-slate-400">Describe the visual direction. Your workspace logo is overlaid separately so it stays sharp and your QR code remains scannable.</p>
+                  <label className="block text-sm font-semibold mb-2">{t("admin.polls.card.aiPosterTitle")}</label>
+                  <p className="mb-3 text-xs text-slate-400">{t("admin.polls.card.aiPosterHint")}</p>
                   <div className="flex flex-col sm:flex-row gap-3">
                     <input
                       type="text"
@@ -3283,20 +3277,20 @@ export default function Admin() {
                       onChange={(event) => setAiImagePrompt(event.target.value)}
                       maxLength={280}
                       className="min-w-0 flex-1 border p-2 rounded text-black"
-                      placeholder="Modern blue city lights for an event poll"
+                      placeholder={t("admin.polls.card.aiPosterPlaceholder")}
                     />
                     <button
                       onClick={() => generatePosterImage(poll)}
                       disabled={imageGenerationStatus === "generating"}
                       className="bg-violet-600 text-white px-4 py-2 rounded font-semibold disabled:opacity-60"
                     >
-                      {imageGenerationStatus === "generating" ? "Creating image..." : "Generate image"}
+                      {imageGenerationStatus === "generating" ? t("admin.polls.card.creatingImage") : t("admin.polls.card.generateImage")}
                     </button>
                   </div>
                   {imageGenerationError && <p className="mt-2 text-sm text-red-400">{imageGenerationError}</p>}
                   {imageGenerationStatus === "ready" && (
                     <div className="mt-3 flex items-center justify-between gap-3 text-sm text-emerald-300">
-                      <span>AI background ready for preview and printing.</span>
+                      <span>{t("admin.polls.card.aiBackgroundReady")}</span>
                       <button
                         onClick={() => {
                           setGeneratedPosterImage("");
@@ -3304,18 +3298,18 @@ export default function Admin() {
                         }}
                         className="text-slate-300 underline"
                       >
-                        Remove image
+                        {t("admin.polls.card.removeImage")}
                       </button>
                     </div>
                   )}
                 </div>
                 <div className="flex gap-3 mt-4 justify-center flex-wrap">
                   <button onClick={() => downloadQR(poll.id)} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">
-                    Download QR
+                    {t("admin.polls.card.downloadQr")}
                   </button>
 
                   <button onClick={() => printQR(poll)} className="bg-green-600 text-white px-4 py-2 rounded font-semibold">
-                    Print QR
+                    {t("admin.polls.card.printQr")}
                   </button>
                 </div>
               </div>

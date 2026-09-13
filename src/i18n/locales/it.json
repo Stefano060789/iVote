@@ -271,6 +271,93 @@
         "item4Title": "Scanner QR integrato nel pannello e generazione massiva di codici QR",
         "item4Body": "scansiona un codice stampato con la fotocamera per gestirlo, oppure genera molti codici QR in una sola volta."
       }
+    },
+    "polls": {
+      "title": "I tuoi sondaggi",
+      "subtitle": "Cerca e filtra i sondaggi che devi gestire.",
+      "searchPlaceholder": "Cerca domanda o sede",
+      "filters": {
+        "allStatuses": "Tutti gli stati",
+        "active": "Attivi",
+        "scheduled": "Programmati",
+        "expired": "Scaduti",
+        "closed": "Chiusi",
+        "allLocations": "Tutte le sedi"
+      },
+      "locationsOverview": {
+        "title": "Panoramica delle sedi",
+        "subtitle": "Voti raccolti per nome della posizione QR, utile per catene e locali con più sedi per confrontare le prestazioni.",
+        "poll": "sondaggio",
+        "polls": "sondaggi",
+        "votes": "voti"
+      },
+      "noMatches": "Nessun sondaggio corrispondente trovato.",
+      "card": {
+        "pollNumber": "Sondaggio #{{id}}",
+        "newlyCreated": "Appena creato",
+        "closed": "Chiuso",
+        "location": "Sede: {{name}}",
+        "brand": "Marchio: {{name}}",
+        "template": "Modello: {{name}}",
+        "starts": "Inizia: {{date}}",
+        "ends": "Termina: {{date}}",
+        "created": "Creato: {{date}}",
+        "linkedQrCodes": "Codici QR collegati",
+        "notLinked": "Non è ancora collegato a nessun codice QR.",
+        "setOneUp": "Configurane uno nella scheda Codici QR",
+        "tokenTitle": "Token: {{token}}",
+        "viewResults": "Vedi risultati",
+        "hideQr": "Nascondi QR",
+        "openQrTools": "Apri strumenti QR",
+        "openVotePage": "Apri pagina di voto",
+        "moreActions": "Altre azioni",
+        "editPoll": "Modifica sondaggio",
+        "copyVotingLink": "Copia link di voto",
+        "duplicatePoll": "Duplica sondaggio",
+        "assignExistingQr": "Assegna QR esistente",
+        "exportCsv": "Esporta risposte in CSV",
+        "copyWidgetEmbed": "Copia codice di incorporamento del widget di feedback",
+        "copyTrustBadgeEmbed": "Copia codice di incorporamento del badge di fiducia",
+        "reopenPoll": "Riapri sondaggio",
+        "closePoll": "Chiudi sondaggio",
+        "deletePoll": "Elimina sondaggio",
+        "reuseQrFrom": "Riutilizza il QR del sondaggio #{{id}}",
+        "assignQr": "Assegna QR",
+        "cancel": "Annulla",
+        "scanToVote": "Scansiona per votare",
+        "madeWithGodwit": "Creato con Godwit · {{host}}",
+        "untrackedQrNote": "Questo è un codice QR rapido e non tracciato solo per questo sondaggio. Per un codice QR riutilizzabile e tracciabile, o per uno che abbini questo sondaggio a una scheda informativa o a una richiesta di donazione, crealo nella scheda",
+        "instead": "invece.",
+        "printFormat": "Formato di stampa",
+        "formats": {
+          "letter": "Lettera",
+          "a4": "A4",
+          "a5": "A5",
+          "a6": "A6",
+          "a3": "A3",
+          "postcard": "Cartolina",
+          "beerHolder": "Sottobicchiere rotondo",
+          "ticket": "Biglietto"
+        },
+        "visualStyle": "Stile visivo",
+        "styles": {
+          "brand": "Colori del brand",
+          "celebration": "Celebrazione",
+          "fresh": "Fresco ed energico",
+          "premium": "Premium e minimal"
+        },
+        "tryAnotherStyle": "Prova un altro stile di poster",
+        "previewNote": "L'anteprima cambia subito e viene usata durante la stampa.",
+        "aiPosterTitle": "Crea uno sfondo per poster con IA",
+        "aiPosterHint": "Descrivi la direzione visiva. Il logo del tuo workspace viene sovrapposto separatamente così resta nitido e il tuo codice QR rimane scansionabile.",
+        "aiPosterPlaceholder": "Moderne luci blu cittadine per un sondaggio su un evento",
+        "creatingImage": "Creazione immagine...",
+        "generateImage": "Genera immagine",
+        "aiBackgroundReady": "Sfondo IA pronto per anteprima e stampa.",
+        "removeImage": "Rimuovi immagine",
+        "downloadQr": "Scarica QR",
+        "printQr": "Stampa QR"
+      }
     }
   }
 }

@@ -271,6 +271,180 @@
         "item4Title": "In-dashboard QR scanner and bulk QR generation",
         "item4Body": "scan a printed code with your camera to manage it, or generate many QR codes at once."
       }
+    },
+    "polls": {
+      "title": "Your polls",
+      "subtitle": "Search and filter the polls you need to manage.",
+      "searchPlaceholder": "Search question or location",
+      "filters": {
+        "allStatuses": "All statuses",
+        "active": "Active",
+        "scheduled": "Scheduled",
+        "expired": "Expired",
+        "closed": "Closed",
+        "allLocations": "All locations"
+      },
+      "locationsOverview": {
+        "title": "Locations overview",
+        "subtitle": "Votes collected per QR location name, useful for chains and multi-location venues to compare performance.",
+        "poll": "poll",
+        "polls": "polls",
+        "votes": "votes"
+      },
+      "noMatches": "No matching polls found.",
+      "card": {
+        "pollNumber": "Poll #{{id}}",
+        "newlyCreated": "Newly created",
+        "closed": "Closed",
+        "location": "Location: {{name}}",
+        "brand": "Brand: {{name}}",
+        "template": "Template: {{name}}",
+        "starts": "Starts: {{date}}",
+        "ends": "Ends: {{date}}",
+        "created": "Created: {{date}}",
+        "linkedQrCodes": "Linked QR codes",
+        "notLinked": "Not linked to any QR code yet.",
+        "setOneUp": "Set one up in the QR codes tab",
+        "tokenTitle": "Token: {{token}}",
+        "viewResults": "View Results",
+        "hideQr": "Hide QR",
+        "openQrTools": "Open QR tools",
+        "openVotePage": "Open vote page",
+        "moreActions": "More actions",
+        "editPoll": "Edit poll",
+        "copyVotingLink": "Copy voting link",
+        "duplicatePoll": "Duplicate poll",
+        "assignExistingQr": "Assign existing QR",
+        "exportCsv": "Export responses CSV",
+        "copyWidgetEmbed": "Copy feedback widget embed code",
+        "copyTrustBadgeEmbed": "Copy trust badge embed code",
+        "reopenPoll": "Reopen poll",
+        "closePoll": "Close poll",
+        "deletePoll": "Delete poll",
+        "reuseQrFrom": "Reuse QR from Poll #{{id}}",
+        "assignQr": "Assign QR",
+        "cancel": "Cancel",
+        "scanToVote": "Scan to vote",
+        "madeWithGodwit": "Made with Godwit · {{host}}",
+        "untrackedQrNote": "This is a quick, untracked QR code for this poll only. For a reusable, trackable QR code - or one that bundles this poll with an info card or donation ask - create it in the",
+        "instead": "instead.",
+        "printFormat": "Print format",
+        "formats": {
+          "letter": "Letter",
+          "a4": "A4",
+          "a5": "A5",
+          "a6": "A6",
+          "a3": "A3",
+          "postcard": "Postcard",
+          "beerHolder": "Round beer holder",
+          "ticket": "Ticket"
+        },
+        "visualStyle": "Visual style",
+        "styles": {
+          "brand": "Brand colors",
+          "celebration": "Celebration",
+          "fresh": "Fresh and energetic",
+          "premium": "Premium and minimal"
+        },
+        "tryAnotherStyle": "Try another poster style",
+        "previewNote": "The preview changes immediately and is used when you print.",
+        "aiPosterTitle": "Create an AI poster background",
+        "aiPosterHint": "Describe the visual direction. Your workspace logo is overlaid separately so it stays sharp and your QR code remains scannable.",
+        "aiPosterPlaceholder": "Modern blue city lights for an event poll",
+        "creatingImage": "Creating image...",
+        "generateImage": "Generate image",
+        "aiBackgroundReady": "AI background ready for preview and printing.",
+        "removeImage": "Remove image",
+        "downloadQr": "Download QR",
+        "printQr": "Print QR"
+      }
+    },
+    "connection": {
+      "eyebrow": "Your customer connection workflow",
+      "title": "Turn one QR scan into an ongoing relationship.",
+      "subtitle": "Use this page as your checklist. Ask for an email only with clear consent, invite selected voters to leave honest public feedback, and release benefits according to your configured rules.",
+      "step1": {
+        "title": "Configure the offer",
+        "body": "Add Google, Tripadvisor, or another honest review destination when creating a poll, and set the benefit voters unlock for voting. Every voter sees the same review link regardless of their answer - gating it by sentiment would break Google/Tripadvisor's rules.",
+        "cta": "Create a configured poll"
+      },
+      "step2": {
+        "title": "Collect permission",
+        "body": "Voters can voluntarily share their email after voting. Use the email settings below to send event news, offers, or a follow-up message.",
+        "cta": "Jump to email settings"
+      },
+      "step3": {
+        "title": "Verify and reward",
+        "body": "Check pending claims in the review queue. Approve the benefit only after confirming the voter left honest feedback on the selected platform.",
+        "cta": "Open review claims"
+      },
+      "whatCustomerSees": {
+        "title": "What the customer sees",
+        "voteLabel": "Vote:",
+        "voteBody": "They scan the QR code and answer without creating an account.",
+        "stayConnectedLabel": "Stay connected:",
+        "stayConnectedBody": "They choose whether to share an email for follow-up and benefits.",
+        "shareHonestlyLabel": "Share honestly:",
+        "shareHonestlyBody": "Every voter, whatever they answered, receives your review links and can submit a verification claim.",
+        "disclaimer": "Do not require or script a positive review. Benefits should be offered transparently and review requests should invite honest feedback."
+      },
+      "messageBodyPlaceholder": "Email message body",
+      "emailDeliveryNote": "Delivery requires the RESEND_API_KEY and REPORT_FROM_EMAIL server settings, same as weekly reports.",
+      "leadNurture": {
+        "title": "Lead nurture emails",
+        "description": "Automatically email voters who opted in for follow-up (or a prize draw) right after they vote.",
+        "enableLabel": "Send a nurture email automatically",
+        "subjectPlaceholder": "Email subject: Thanks for your feedback!",
+        "saveButton": "Save nurture email settings",
+        "lockedTitle": "Follow up with leads automatically",
+        "lockedDescription": "You're collecting emails already - turn them into repeat visits with an automatic thank-you email, no manual work required."
+      },
+      "winback": {
+        "title": "Win-back emails",
+        "description": "Automatically email a voter who left their email and consented, but hasn't voted again after the number of days below. This only reaches people who opted in - voting itself always stays anonymous.",
+        "enableLabel": "Send a win-back email automatically",
+        "daysSinceLabel": "Days since their last visit",
+        "subjectPlaceholder": "Email subject: We miss you!",
+        "saveButton": "Save win-back email settings",
+        "lockedTitle": "Win back customers who've gone quiet",
+        "lockedDescription": "Automatically re-engage voters who haven't come back in a while, without manually tracking who's overdue."
+      }
+    },
+    "engagement": {
+      "intro": {
+        "eyebrow": "What a QR code can hold",
+        "title": "One printed code, three kinds of content.",
+        "body": "A QR code isn't just a shortcut to one poll. Scan it and a voter can see one or more polls, an info card (menu, hours, bio, exhibit notes...), and a donation ask — all in the same code. Set up donations first below, then build the code itself under \"QR campaigns\"."
+      },
+      "scanner": {
+        "title": "Scan a QR code",
+        "subtitle": "Already holding a printed QR code? Scan it to see which poll it uses right now, and switch it to another poll instantly.",
+        "openCamera": "Open camera scanner",
+        "pastePlaceholder": "Or paste the QR link here",
+        "lookUp": "Look up",
+        "unlabeledPlacement": "Unlabeled placement",
+        "noPollAssigned": "No poll assigned yet",
+        "redirectLabel": "Redirect this QR code to another poll",
+        "choosePoll": "Choose a poll",
+        "createNewPoll": "Create a new poll for this QR code"
+      },
+      "donations": {
+        "title": "Donations",
+        "description": "Let voters support your venue with a card or wallet payment from the QR menu. Connect a Stripe account once here, then add a \"Donation\" item to any QR code below. Stripe processes the payment: 90% transfers straight to your account and Godwit keeps a 10% platform fee.",
+        "stripeConnected": "Stripe is connected and ready to accept donations.",
+        "stripeStarted": "Stripe account started, but onboarding isn't finished yet.",
+        "stripeNotConnected": "No Stripe account connected yet.",
+        "continueSetup": "Continue Stripe setup",
+        "connectStripe": "Connect with Stripe",
+        "refreshStatus": "Refresh status",
+        "acceptDonations": "Accept donations",
+        "connectFirst": "(connect Stripe first)",
+        "currency": "Currency",
+        "suggestedAmount": "Suggested amount (optional)",
+        "messagePlaceholder": "Optional thank-you message shown with the donation option",
+        "saveButton": "Save donation settings",
+        "feeNote": "Stripe is the payment processor - Godwit never sees or stores card details. Of each donation, 10% is a platform fee retained by Godwit and 90% transfers to your connected Stripe account."
+      }
     }
   }
 }

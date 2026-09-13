@@ -271,6 +271,93 @@
         "item4Title": "Skaner QR w panelu i masowe generowanie kodów QR",
         "item4Body": "zeskanuj wydrukowany kod aparatem, aby nim zarządzać, lub wygeneruj wiele kodów QR naraz."
       }
+    },
+    "polls": {
+      "title": "Twoje ankiety",
+      "subtitle": "Wyszukuj i filtruj ankiety, którymi chcesz zarządzać.",
+      "searchPlaceholder": "Szukaj pytania lub lokalizacji",
+      "filters": {
+        "allStatuses": "Wszystkie statusy",
+        "active": "Aktywne",
+        "scheduled": "Zaplanowane",
+        "expired": "Wygasłe",
+        "closed": "Zamknięte",
+        "allLocations": "Wszystkie lokalizacje"
+      },
+      "locationsOverview": {
+        "title": "Przegląd lokalizacji",
+        "subtitle": "Głosy zebrane według nazwy lokalizacji QR, przydatne dla sieci i lokali z wieloma lokalizacjami do porównywania wyników.",
+        "poll": "ankieta",
+        "polls": "ankiety",
+        "votes": "głosy"
+      },
+      "noMatches": "Nie znaleziono pasujących ankiet.",
+      "card": {
+        "pollNumber": "Ankieta #{{id}}",
+        "newlyCreated": "Nowo utworzona",
+        "closed": "Zamknięta",
+        "location": "Lokalizacja: {{name}}",
+        "brand": "Marka: {{name}}",
+        "template": "Szablon: {{name}}",
+        "starts": "Start: {{date}}",
+        "ends": "Koniec: {{date}}",
+        "created": "Utworzono: {{date}}",
+        "linkedQrCodes": "Powiązane kody QR",
+        "notLinked": "Nie jest jeszcze powiązana z żadnym kodem QR.",
+        "setOneUp": "Skonfiguruj go na karcie Kody QR",
+        "tokenTitle": "Token: {{token}}",
+        "viewResults": "Zobacz wyniki",
+        "hideQr": "Ukryj QR",
+        "openQrTools": "Otwórz narzędzia QR",
+        "openVotePage": "Otwórz stronę głosowania",
+        "moreActions": "Więcej działań",
+        "editPoll": "Edytuj ankietę",
+        "copyVotingLink": "Kopiuj link do głosowania",
+        "duplicatePoll": "Duplikuj ankietę",
+        "assignExistingQr": "Przypisz istniejący QR",
+        "exportCsv": "Eksportuj odpowiedzi do CSV",
+        "copyWidgetEmbed": "Kopiuj kod osadzenia widżetu opinii",
+        "copyTrustBadgeEmbed": "Kopiuj kod osadzenia odznaki zaufania",
+        "reopenPoll": "Otwórz ankietę ponownie",
+        "closePoll": "Zamknij ankietę",
+        "deletePoll": "Usuń ankietę",
+        "reuseQrFrom": "Użyj ponownie QR z ankiety #{{id}}",
+        "assignQr": "Przypisz QR",
+        "cancel": "Anuluj",
+        "scanToVote": "Zeskanuj, aby zagłosować",
+        "madeWithGodwit": "Stworzone w Godwit · {{host}}",
+        "untrackedQrNote": "To szybki, nieśledzony kod QR tylko dla tej ankiety. Jeśli chcesz mieć kod QR wielokrotnego użytku i z możliwością śledzenia — albo taki, który łączy tę ankietę z kartą informacyjną lub prośbą o darowiznę — utwórz go na karcie",
+        "instead": "zamiast tego.",
+        "printFormat": "Format druku",
+        "formats": {
+          "letter": "Letter",
+          "a4": "A4",
+          "a5": "A5",
+          "a6": "A6",
+          "a3": "A3",
+          "postcard": "Pocztówka",
+          "beerHolder": "Okrągła podstawka pod piwo",
+          "ticket": "Bilet"
+        },
+        "visualStyle": "Styl wizualny",
+        "styles": {
+          "brand": "Kolory marki",
+          "celebration": "Celebracja",
+          "fresh": "Świeży i energiczny",
+          "premium": "Premium i minimalistyczny"
+        },
+        "tryAnotherStyle": "Wypróbuj inny styl plakatu",
+        "previewNote": "Podgląd zmienia się natychmiast i jest używany podczas drukowania.",
+        "aiPosterTitle": "Utwórz tło plakatu za pomocą AI",
+        "aiPosterHint": "Opisz kierunek wizualny. Logo Twojego obszaru roboczego jest nakładane osobno, aby pozostało ostre, a kod QR nadal dało się zeskanować.",
+        "aiPosterPlaceholder": "Nowoczesne niebieskie światła miasta dla ankiety wydarzenia",
+        "creatingImage": "Tworzenie obrazu...",
+        "generateImage": "Generuj obraz",
+        "aiBackgroundReady": "Tło AI jest gotowe do podglądu i drukowania.",
+        "removeImage": "Usuń obraz",
+        "downloadQr": "Pobierz QR",
+        "printQr": "Drukuj QR"
+      }
     }
   }
 }
