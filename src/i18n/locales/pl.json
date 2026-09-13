@@ -148,5 +148,49 @@
     "footerTagline": "Godwit pomaga lokalom zamieniać proste skany kodów QR w przydatne opinie.",
     "learnAbout": "Poznaj Godwit",
     "defaultReviewPlatform": "Platforma z opiniami"
+  },
+  "billing": {
+    "title": "Plany i płatności",
+    "subtitle": "Wybierz plan dopasowany do Twojego programu zbierania opinii.",
+    "trialBanner": "Jesteś nowy? Każdy płatny plan zawiera 30-dniowy bezpłatny okres próbny — brak opłat do jego zakończenia.",
+    "currentPlanNotice": "Twój obszar roboczy jest obecnie w planie {{plan}}.",
+    "trialStarted": "Twój 30-dniowy okres próbny się rozpoczął. Nie zostaniesz obciążony opłatą do jego zakończenia i możesz anulować w dowolnym momencie wcześniej.",
+    "checkoutSuccess": "Płatność zakończona. Twoja subskrypcja zostanie potwierdzona przez Stripe.",
+    "checkoutCancelled": "Płatność została anulowana. Nie wprowadzono żadnych zmian.",
+    "mostPopular": "Najpopularniejszy",
+    "perMonth": "/ miesiąc",
+    "freeTrialBadge": "30-dniowy okres próbny",
+    "currentPlanButton": "Obecny plan",
+    "includedByDefault": "Domyślnie zawarte",
+    "openingCheckout": "Otwieranie płatności...",
+    "startFreeTrial": "Rozpocznij bezpłatny okres próbny",
+    "chooseThisPlan": "Wybierz {{name}}",
+    "trialFooterNote": "Brak opłat przez 30 dni. Możesz anulować w dowolnym momencie przed końcem okresu próbnego.",
+    "compareTitle": "Porównaj plany",
+    "compareSubtitle": "Wszystko, co obsługuje każdy plan, obok siebie.",
+    "featureHeader": "Funkcja",
+    "currentTag": "(obecny)",
+    "paymentsNote": "Płatności są bezpiecznie obsługiwane przez Stripe. Ceny i limity to propozycje startowe i mogą zostać zmienione w Stripe oraz na tej stronie.",
+    "plans": {
+      "free": { "name": "Darmowy", "description": "Wypróbuj cykl zbierania opinii w jednym lokalu." },
+      "starter": { "name": "Starter", "description": "Prowadź zbieranie opinii profesjonalnie, z własną marką i eksportami." },
+      "growth": { "name": "Growth", "description": "Zamień opinie w stałych klientów dzięki automatyzacji i integracjom." }
+    },
+    "rows": {
+      "pollLimit": "Limit ankiet",
+      "campaignLimit": "Śledzone kampanie QR",
+      "seatLimit": "Miejsca w zespole",
+      "csvExport": "Eksport CSV",
+      "auditLog": "Dziennik aktywności / audytu",
+      "weeklyReport": "Cotygodniowe raporty e-mail",
+      "rewardMessage": "Nagrody po głosowaniu",
+      "leadCapture": "Pozyskiwanie kontaktów (ręczne)",
+      "redemptionTracking": "Śledzenie odbioru nagród",
+      "prizeDraws": "Losowania nagród / loterie",
+      "automatedNurture": "Automatyczne e-maile follow-up i odzyskujące klientów",
+      "reputationMonitoring": "Publiczne monitorowanie reputacji",
+      "webhooks": "Webhooki",
+      "apiAccess": "Dostęp do API dla programistów"
+    }
   }
 }

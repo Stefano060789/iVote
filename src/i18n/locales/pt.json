@@ -148,5 +148,49 @@
     "footerTagline": "O Godwit ajuda estabelecimentos a transformar simples leituras de QR em feedback útil.",
     "learnAbout": "Conheça o Godwit",
     "defaultReviewPlatform": "Plataforma de avaliação"
+  },
+  "billing": {
+    "title": "Planos e faturamento",
+    "subtitle": "Escolha o plano que combina com o seu programa de feedback.",
+    "trialBanner": "Novo por aqui? Todo plano pago inclui um teste gratuito de 30 dias — sem cobrança até o fim do período.",
+    "currentPlanNotice": "Seu espaço de trabalho está atualmente no plano {{plan}}.",
+    "trialStarted": "Seu teste gratuito de 30 dias começou. Você não será cobrado até o fim do período e pode cancelar a qualquer momento antes disso.",
+    "checkoutSuccess": "Pagamento concluído. Sua assinatura será confirmada pela Stripe.",
+    "checkoutCancelled": "O pagamento foi cancelado. Nenhuma alteração foi feita.",
+    "mostPopular": "Mais popular",
+    "perMonth": "/ mês",
+    "freeTrialBadge": "Teste gratuito de 30 dias",
+    "currentPlanButton": "Plano atual",
+    "includedByDefault": "Incluído por padrão",
+    "openingCheckout": "Abrindo o pagamento...",
+    "startFreeTrial": "Iniciar teste gratuito",
+    "chooseThisPlan": "Escolher {{name}}",
+    "trialFooterNote": "Sem cobrança por 30 dias. Cancele a qualquer momento antes do fim do teste.",
+    "compareTitle": "Comparar planos",
+    "compareSubtitle": "Tudo o que cada plano oferece, lado a lado.",
+    "featureHeader": "Recurso",
+    "currentTag": "(atual)",
+    "paymentsNote": "Os pagamentos são processados com segurança pela Stripe. Preços e limites são propostas de lançamento e podem ser alterados na Stripe e nesta página.",
+    "plans": {
+      "free": { "name": "Gratuito", "description": "Experimente o ciclo de feedback em um único local." },
+      "starter": { "name": "Starter", "description": "Administre o feedback profissionalmente, com sua própria marca e exportações." },
+      "growth": { "name": "Growth", "description": "Transforme feedback em clientes recorrentes com automação e integrações." }
+    },
+    "rows": {
+      "pollLimit": "Limite de enquetes",
+      "campaignLimit": "Campanhas de QR rastreadas",
+      "seatLimit": "Vagas da equipe",
+      "csvExport": "Exportação em CSV",
+      "auditLog": "Registro de atividade / auditoria",
+      "weeklyReport": "Relatórios semanais por e-mail",
+      "rewardMessage": "Recompensas pós-voto",
+      "leadCapture": "Captura de contatos (manual)",
+      "redemptionTracking": "Rastreamento de resgate de recompensas",
+      "prizeDraws": "Sorteios / rifas",
+      "automatedNurture": "E-mails automáticos de acompanhamento e reconquista",
+      "reputationMonitoring": "Monitoramento público de reputação",
+      "webhooks": "Webhooks",
+      "apiAccess": "Acesso à API para desenvolvedores"
+    }
   }
 }

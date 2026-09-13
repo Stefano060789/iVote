@@ -148,5 +148,49 @@
     "footerTagline": "Godwit 帮助商家将简单的二维码扫描转化为有用的反馈。",
     "learnAbout": "了解 Godwit",
     "defaultReviewPlatform": "评价平台"
+  },
+  "billing": {
+    "title": "套餐与账单",
+    "subtitle": "选择适合您反馈计划的套餐。",
+    "trialBanner": "第一次使用？所有付费套餐均包含 30 天免费试用——试用期结束前不会产生任何费用。",
+    "currentPlanNotice": "您的工作区目前使用的是{{plan}}套餐。",
+    "trialStarted": "您的 30 天免费试用已开始。在试用期结束前不会向您收费，您也可以随时在到期前取消。",
+    "checkoutSuccess": "结账已完成。您的订阅将由 Stripe 确认。",
+    "checkoutCancelled": "结账已取消。未做任何更改。",
+    "mostPopular": "最受欢迎",
+    "perMonth": "/ 月",
+    "freeTrialBadge": "30 天免费试用",
+    "currentPlanButton": "当前套餐",
+    "includedByDefault": "默认包含",
+    "openingCheckout": "正在打开结账页面...",
+    "startFreeTrial": "开始免费试用",
+    "chooseThisPlan": "选择{{name}}",
+    "trialFooterNote": "30 天内不收费。可在试用期结束前随时取消。",
+    "compareTitle": "比较套餐",
+    "compareSubtitle": "各套餐支持的功能一览无余，方便对比。",
+    "featureHeader": "功能",
+    "currentTag": "（当前）",
+    "paymentsNote": "支付由 Stripe 安全处理。价格和限额为上线初期方案，可能会在 Stripe 和本页面上进行调整。",
+    "plans": {
+      "free": { "name": "免费版", "description": "在单个场所试用反馈闭环。" },
+      "starter": { "name": "入门版", "description": "以专业方式运营反馈流程，拥有自己的品牌标识和数据导出。" },
+      "growth": { "name": "成长版", "description": "通过自动化和集成，将反馈转化为回头客业务。" }
+    },
+    "rows": {
+      "pollLimit": "投票数量上限",
+      "campaignLimit": "可跟踪的二维码活动",
+      "seatLimit": "团队席位数",
+      "csvExport": "CSV 导出",
+      "auditLog": "活动/审计日志",
+      "weeklyReport": "每周邮件报告",
+      "rewardMessage": "投票后奖励",
+      "leadCapture": "潜在客户采集（手动）",
+      "redemptionTracking": "奖励兑换跟踪",
+      "prizeDraws": "抽奖活动",
+      "automatedNurture": "自动跟进与挽回邮件",
+      "reputationMonitoring": "公开口碑监测",
+      "webhooks": "Webhook",
+      "apiAccess": "开发者 API 访问"
+    }
   }
 }

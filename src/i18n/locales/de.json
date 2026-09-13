@@ -148,5 +148,49 @@
     "footerTagline": "Godwit hilft Standorten dabei, einfache QR-Scans in nützliches Feedback zu verwandeln.",
     "learnAbout": "Mehr über Godwit erfahren",
     "defaultReviewPlatform": "Bewertungsplattform"
+  },
+  "billing": {
+    "title": "Tarife und Abrechnung",
+    "subtitle": "Wählen Sie den Tarif, der zu Ihrem Feedback-Programm passt.",
+    "trialBanner": "Neu hier? Jeder kostenpflichtige Tarif enthält eine 30-tägige kostenlose Testphase – keine Kosten, bis diese endet.",
+    "currentPlanNotice": "Ihr Arbeitsbereich befindet sich derzeit im Tarif {{plan}}.",
+    "trialStarted": "Ihre 30-tägige kostenlose Testphase hat begonnen. Es fallen keine Kosten an, bis diese endet, und Sie können jederzeit vorher kündigen.",
+    "checkoutSuccess": "Kauf abgeschlossen. Ihr Abonnement wird von Stripe bestätigt.",
+    "checkoutCancelled": "Der Kauf wurde abgebrochen. Es wurden keine Änderungen vorgenommen.",
+    "mostPopular": "Am beliebtesten",
+    "perMonth": "/ Monat",
+    "freeTrialBadge": "30 Tage kostenlos testen",
+    "currentPlanButton": "Aktueller Tarif",
+    "includedByDefault": "Standardmäßig enthalten",
+    "openingCheckout": "Checkout wird geöffnet...",
+    "startFreeTrial": "Kostenlose Testphase starten",
+    "chooseThisPlan": "{{name}} wählen",
+    "trialFooterNote": "30 Tage kostenlos. Jederzeit vor Ablauf der Testphase kündbar.",
+    "compareTitle": "Tarife vergleichen",
+    "compareSubtitle": "Alles, was jeder Tarif bietet, im direkten Vergleich.",
+    "featureHeader": "Funktion",
+    "currentTag": "(aktuell)",
+    "paymentsNote": "Zahlungen werden sicher über Stripe abgewickelt. Preise und Limits sind Startvorschläge und können in Stripe und auf dieser Seite geändert werden.",
+    "plans": {
+      "free": { "name": "Kostenlos", "description": "Testen Sie den Feedback-Kreislauf an einem einzelnen Standort." },
+      "starter": { "name": "Starter", "description": "Führen Sie Feedback professionell durch, mit eigenem Branding und Exporten." },
+      "growth": { "name": "Growth", "description": "Verwandeln Sie Feedback mit Automatisierung und Integrationen in Stammkundschaft." }
+    },
+    "rows": {
+      "pollLimit": "Umfragen-Limit",
+      "campaignLimit": "Nachverfolgte QR-Kampagnen",
+      "seatLimit": "Team-Plätze",
+      "csvExport": "CSV-Export",
+      "auditLog": "Aktivitäts-/Prüfprotokoll",
+      "weeklyReport": "Wöchentliche E-Mail-Berichte",
+      "rewardMessage": "Belohnungen nach der Abstimmung",
+      "leadCapture": "Kontakterfassung (manuell)",
+      "redemptionTracking": "Verfolgung eingelöster Belohnungen",
+      "prizeDraws": "Preisausschreiben / Verlosungen",
+      "automatedNurture": "Automatisierte Follow-up- und Rückgewinnungs-E-Mails",
+      "reputationMonitoring": "Öffentliches Reputations-Monitoring",
+      "webhooks": "Webhooks",
+      "apiAccess": "Entwickler-API-Zugriff"
+    }
   }
 }

@@ -148,5 +148,49 @@
     "footerTagline": "Godwit helpt locaties eenvoudige QR-scans om te zetten in bruikbare feedback.",
     "learnAbout": "Meer over Godwit",
     "defaultReviewPlatform": "Beoordelingsplatform"
+  },
+  "billing": {
+    "title": "Abonnementen en facturering",
+    "subtitle": "Kies het abonnement dat bij jouw feedbackprogramma past.",
+    "trialBanner": "Nieuw hier? Elk betaald abonnement bevat een gratis proefperiode van 30 dagen — geen kosten totdat deze afloopt.",
+    "currentPlanNotice": "Jouw werkruimte zit momenteel in het {{plan}}-abonnement.",
+    "trialStarted": "Je gratis proefperiode van 30 dagen is begonnen. Je wordt niet in rekening gebracht totdat deze afloopt, en je kunt op elk moment daarvoor annuleren.",
+    "checkoutSuccess": "Afrekenen voltooid. Je abonnement wordt bevestigd door Stripe.",
+    "checkoutCancelled": "Het afrekenen is geannuleerd. Er zijn geen wijzigingen aangebracht.",
+    "mostPopular": "Meest populair",
+    "perMonth": "/ maand",
+    "freeTrialBadge": "30 dagen gratis proberen",
+    "currentPlanButton": "Huidig abonnement",
+    "includedByDefault": "Standaard inbegrepen",
+    "openingCheckout": "Afrekenen wordt geopend...",
+    "startFreeTrial": "Start gratis proefperiode",
+    "chooseThisPlan": "Kies {{name}}",
+    "trialFooterNote": "Geen kosten gedurende 30 dagen. Annuleer op elk moment vóór het einde van de proefperiode.",
+    "compareTitle": "Vergelijk abonnementen",
+    "compareSubtitle": "Alles wat elk abonnement ondersteunt, naast elkaar.",
+    "featureHeader": "Functie",
+    "currentTag": "(huidig)",
+    "paymentsNote": "Betalingen worden veilig afgehandeld door Stripe. Prijzen en limieten zijn lanceringsvoorstellen en kunnen worden gewijzigd in Stripe en op deze pagina.",
+    "plans": {
+      "free": { "name": "Gratis", "description": "Probeer de feedbackcyclus bij één locatie uit." },
+      "starter": { "name": "Starter", "description": "Voer feedback professioneel uit, met je eigen branding en exports." },
+      "growth": { "name": "Growth", "description": "Zet feedback om in terugkerende klanten met automatisering en integraties." }
+    },
+    "rows": {
+      "pollLimit": "Pollimiet",
+      "campaignLimit": "Gevolgde QR-campagnes",
+      "seatLimit": "Teamplekken",
+      "csvExport": "CSV-export",
+      "auditLog": "Activiteiten-/auditlogboek",
+      "weeklyReport": "Wekelijkse e-mailrapporten",
+      "rewardMessage": "Beloningen na stemmen",
+      "leadCapture": "Leadregistratie (handmatig)",
+      "redemptionTracking": "Bijhouden van ingewisselde beloningen",
+      "prizeDraws": "Prijstrekkingen / loterijen",
+      "automatedNurture": "Geautomatiseerde follow-up- en terugwin-e-mails",
+      "reputationMonitoring": "Openbare reputatiemonitoring",
+      "webhooks": "Webhooks",
+      "apiAccess": "Toegang tot developer-API"
+    }
   }
 }

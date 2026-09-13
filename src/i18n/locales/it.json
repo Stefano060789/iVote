@@ -148,5 +148,49 @@
     "footerTagline": "Godwit aiuta i locali a trasformare semplici scansioni QR in feedback utili.",
     "learnAbout": "Scopri Godwit",
     "defaultReviewPlatform": "Piattaforma di recensioni"
+  },
+  "billing": {
+    "title": "Piani e fatturazione",
+    "subtitle": "Scegli il piano più adatto al tuo programma di feedback.",
+    "trialBanner": "Sei nuovo? Ogni piano a pagamento include una prova gratuita di 30 giorni, senza addebiti fino alla fine.",
+    "currentPlanNotice": "Il tuo spazio di lavoro è attualmente sul piano {{plan}}.",
+    "trialStarted": "La tua prova gratuita di 30 giorni è iniziata. Non ti verrà addebitato nulla fino alla fine e puoi annullare in qualsiasi momento prima di allora.",
+    "checkoutSuccess": "Pagamento completato. Il tuo abbonamento sarà confermato da Stripe.",
+    "checkoutCancelled": "Il pagamento è stato annullato. Nessuna modifica è stata effettuata.",
+    "mostPopular": "Più popolare",
+    "perMonth": "/ mese",
+    "freeTrialBadge": "Prova gratuita di 30 giorni",
+    "currentPlanButton": "Piano attuale",
+    "includedByDefault": "Incluso di default",
+    "openingCheckout": "Apertura del pagamento...",
+    "startFreeTrial": "Avvia la prova gratuita",
+    "chooseThisPlan": "Scegli {{name}}",
+    "trialFooterNote": "Nessun addebito per 30 giorni. Annulla in qualsiasi momento prima della fine della prova.",
+    "compareTitle": "Confronta i piani",
+    "compareSubtitle": "Tutto ciò che ogni piano supporta, messo a confronto.",
+    "featureHeader": "Funzionalità",
+    "currentTag": "(attuale)",
+    "paymentsNote": "I pagamenti sono gestiti in modo sicuro da Stripe. Prezzi e limiti sono proposte di lancio e possono essere modificati su Stripe e in questa pagina.",
+    "plans": {
+      "free": { "name": "Gratis", "description": "Prova il ciclo di feedback in un solo locale." },
+      "starter": { "name": "Starter", "description": "Gestisci il feedback in modo professionale, con il tuo brand ed esportazioni." },
+      "growth": { "name": "Growth", "description": "Trasforma il feedback in clientela abituale con automazioni e integrazioni." }
+    },
+    "rows": {
+      "pollLimit": "Limite di sondaggi",
+      "campaignLimit": "Campagne QR tracciate",
+      "seatLimit": "Posti del team",
+      "csvExport": "Esportazione CSV",
+      "auditLog": "Registro attività / audit",
+      "weeklyReport": "Report settimanali via email",
+      "rewardMessage": "Premi dopo il voto",
+      "leadCapture": "Raccolta contatti (manuale)",
+      "redemptionTracking": "Tracciamento riscatto premi",
+      "prizeDraws": "Estrazioni a premi / lotterie",
+      "automatedNurture": "Email automatiche di follow-up e recupero clienti",
+      "reputationMonitoring": "Monitoraggio pubblico della reputazione",
+      "webhooks": "Webhook",
+      "apiAccess": "Accesso API per sviluppatori"
+    }
   }
 }

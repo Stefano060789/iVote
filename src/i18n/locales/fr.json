@@ -148,5 +148,49 @@
     "footerTagline": "Godwit aide les établissements à transformer de simples scans QR en retours utiles.",
     "learnAbout": "En savoir plus sur Godwit",
     "defaultReviewPlatform": "Plateforme d'avis"
+  },
+  "billing": {
+    "title": "Offres et facturation",
+    "subtitle": "Choisissez l'offre adaptée à votre programme de retours clients.",
+    "trialBanner": "Nouveau ici ? Chaque offre payante inclut un essai gratuit de 30 jours - aucun prélèvement avant la fin de l'essai.",
+    "currentPlanNotice": "Votre espace de travail est actuellement sur l'offre {{plan}}.",
+    "trialStarted": "Votre essai gratuit de 30 jours a commencé. Vous ne serez pas prélevé avant la fin de l'essai, et vous pouvez annuler à tout moment avant cette date.",
+    "checkoutSuccess": "Paiement terminé. Votre abonnement sera confirmé par Stripe.",
+    "checkoutCancelled": "Le paiement a été annulé. Aucune modification n'a été effectuée.",
+    "mostPopular": "Le plus populaire",
+    "perMonth": "/ mois",
+    "freeTrialBadge": "Essai gratuit de 30 jours",
+    "currentPlanButton": "Offre actuelle",
+    "includedByDefault": "Inclus par défaut",
+    "openingCheckout": "Ouverture du paiement...",
+    "startFreeTrial": "Démarrer l'essai gratuit",
+    "chooseThisPlan": "Choisir {{name}}",
+    "trialFooterNote": "Aucun prélèvement pendant 30 jours. Annulez à tout moment avant la fin de l'essai.",
+    "compareTitle": "Comparer les offres",
+    "compareSubtitle": "Tout ce que chaque offre inclut, côte à côte.",
+    "featureHeader": "Fonctionnalité",
+    "currentTag": "(actuelle)",
+    "paymentsNote": "Les paiements sont gérés en toute sécurité par Stripe. Les tarifs et limites sont des propositions de lancement et peuvent être modifiés dans Stripe et sur cette page.",
+    "plans": {
+      "free": { "name": "Gratuit", "description": "Essayez le cycle de retours clients sur un seul établissement." },
+      "starter": { "name": "Starter", "description": "Gérez les retours clients professionnellement, avec votre propre image de marque et des exports." },
+      "growth": { "name": "Growth", "description": "Transformez les retours clients en clientèle fidèle grâce à l'automatisation et aux intégrations." }
+    },
+    "rows": {
+      "pollLimit": "Limite de sondages",
+      "campaignLimit": "Campagnes QR suivies",
+      "seatLimit": "Places d'équipe",
+      "csvExport": "Export CSV",
+      "auditLog": "Journal d'activité / d'audit",
+      "weeklyReport": "Rapports hebdomadaires par e-mail",
+      "rewardMessage": "Récompenses après vote",
+      "leadCapture": "Capture de contacts (manuelle)",
+      "redemptionTracking": "Suivi des récompenses échangées",
+      "prizeDraws": "Tirages au sort / loteries",
+      "automatedNurture": "E-mails de suivi et de relance automatisés",
+      "reputationMonitoring": "Suivi public de la réputation",
+      "webhooks": "Webhooks",
+      "apiAccess": "Accès API développeur"
+    }
   }
 }

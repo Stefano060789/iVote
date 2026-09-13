@@ -148,5 +148,49 @@
     "footerTagline": "Godwit ayuda a los negocios a convertir simples escaneos QR en comentarios útiles.",
     "learnAbout": "Conoce Godwit",
     "defaultReviewPlatform": "Plataforma de reseñas"
+  },
+  "billing": {
+    "title": "Planes y facturación",
+    "subtitle": "Elige el plan que mejor se adapte a tu programa de opiniones.",
+    "trialBanner": "¿Eres nuevo? Todos los planes de pago incluyen una prueba gratuita de 30 días, sin cargo hasta que termine.",
+    "currentPlanNotice": "Tu espacio de trabajo está actualmente en el plan {{plan}}.",
+    "trialStarted": "Tu prueba gratuita de 30 días ha comenzado. No se te cobrará hasta que termine y puedes cancelar en cualquier momento antes de esa fecha.",
+    "checkoutSuccess": "Pago completado. Stripe confirmará tu suscripción.",
+    "checkoutCancelled": "El pago fue cancelado. No se realizó ningún cambio.",
+    "mostPopular": "Más popular",
+    "perMonth": "/ mes",
+    "freeTrialBadge": "Prueba gratuita de 30 días",
+    "currentPlanButton": "Plan actual",
+    "includedByDefault": "Incluido por defecto",
+    "openingCheckout": "Abriendo el pago...",
+    "startFreeTrial": "Iniciar prueba gratuita",
+    "chooseThisPlan": "Elegir {{name}}",
+    "trialFooterNote": "Sin cargo durante 30 días. Cancela en cualquier momento antes de que termine la prueba.",
+    "compareTitle": "Comparar planes",
+    "compareSubtitle": "Todo lo que incluye cada plan, uno junto al otro.",
+    "featureHeader": "Función",
+    "currentTag": "(actual)",
+    "paymentsNote": "Los pagos son gestionados de forma segura por Stripe. Los precios y límites son propuestas de lanzamiento y pueden cambiar en Stripe y en esta página.",
+    "plans": {
+      "free": { "name": "Gratis", "description": "Prueba el ciclo de opiniones en un único local." },
+      "starter": { "name": "Starter", "description": "Gestiona las opiniones de forma profesional, con tu propia marca y exportaciones." },
+      "growth": { "name": "Growth", "description": "Convierte las opiniones en negocio recurrente con automatización e integraciones." }
+    },
+    "rows": {
+      "pollLimit": "Límite de encuestas",
+      "campaignLimit": "Campañas QR con seguimiento",
+      "seatLimit": "Puestos del equipo",
+      "csvExport": "Exportación CSV",
+      "auditLog": "Registro de actividad / auditoría",
+      "weeklyReport": "Informes semanales por correo",
+      "rewardMessage": "Recompensas tras votar",
+      "leadCapture": "Captación de contactos (manual)",
+      "redemptionTracking": "Seguimiento de canjes de recompensas",
+      "prizeDraws": "Sorteos / rifas",
+      "automatedNurture": "Correos automáticos de seguimiento y recuperación",
+      "reputationMonitoring": "Monitoreo público de reputación",
+      "webhooks": "Webhooks",
+      "apiAccess": "Acceso a la API para desarrolladores"
+    }
   }
 }

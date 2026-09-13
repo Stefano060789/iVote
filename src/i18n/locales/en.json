@@ -148,5 +148,49 @@
     "footerTagline": "Godwit helps venues turn simple QR scans into useful feedback.",
     "learnAbout": "Learn about Godwit",
     "defaultReviewPlatform": "Review platform"
+  },
+  "billing": {
+    "title": "Plans and billing",
+    "subtitle": "Choose the plan that matches your feedback program.",
+    "trialBanner": "New here? Every paid plan includes a 30-day free trial — no charge until it ends.",
+    "currentPlanNotice": "Your workspace is currently on the {{plan}} plan.",
+    "trialStarted": "Your 30-day free trial has started. You won't be charged until it ends, and you can cancel anytime before then.",
+    "checkoutSuccess": "Checkout completed. Your subscription will be confirmed by Stripe.",
+    "checkoutCancelled": "Checkout was cancelled. No changes were made.",
+    "mostPopular": "Most popular",
+    "perMonth": "/ month",
+    "freeTrialBadge": "30-day free trial",
+    "currentPlanButton": "Current plan",
+    "includedByDefault": "Included by default",
+    "openingCheckout": "Opening checkout...",
+    "startFreeTrial": "Start free trial",
+    "chooseThisPlan": "Choose {{name}}",
+    "trialFooterNote": "No charge for 30 days. Cancel anytime before the trial ends.",
+    "compareTitle": "Compare plans",
+    "compareSubtitle": "Everything each plan supports, side by side.",
+    "featureHeader": "Feature",
+    "currentTag": "(current)",
+    "paymentsNote": "Payments are securely handled by Stripe. Prices and limits are launch proposals and can be changed in Stripe and this page.",
+    "plans": {
+      "free": { "name": "Free", "description": "Try the feedback loop at a single venue." },
+      "starter": { "name": "Starter", "description": "Run feedback professionally, with your own branding and exports." },
+      "growth": { "name": "Growth", "description": "Turn feedback into repeat business with automation and integrations." }
+    },
+    "rows": {
+      "pollLimit": "Poll limit",
+      "campaignLimit": "Tracked QR campaigns",
+      "seatLimit": "Team seats",
+      "csvExport": "CSV export",
+      "auditLog": "Activity / audit log",
+      "weeklyReport": "Weekly email reports",
+      "rewardMessage": "Post-vote rewards",
+      "leadCapture": "Lead capture (manual)",
+      "redemptionTracking": "Reward redemption tracking",
+      "prizeDraws": "Prize draws / raffles",
+      "automatedNurture": "Automated follow-up & win-back emails",
+      "reputationMonitoring": "Public reputation monitoring",
+      "webhooks": "Webhooks",
+      "apiAccess": "Developer API access"
+    }
   }
 }
