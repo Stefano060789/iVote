@@ -540,7 +540,39 @@
         "enableDonationsNote": "Configure e ative as doações no painel Doações abaixo para adicionar uma opção de doação a este código QR."
       },
       "rotations": {
-        "title": "Rotações de enquetes"
+        "title": "Rotações de enquetes",
+        "subtitle": "Crie uma lista ordenada de enquetes que alternam automaticamente conforme uma programação, para que um código QR impresso continue atualizado sem nenhuma ação do administrador.",
+        "namePlaceholder": "Nome da rotação: Pergunta do dia",
+        "changeDaily": "Alternar diariamente",
+        "changeWeekly": "Alternar semanalmente",
+        "choosePollToAdd": "Escolha uma enquete para adicionar",
+        "add": "Adicionar",
+        "createButton": "Criar rotação",
+        "noRotations": "Ainda não há rotações de enquetes.",
+        "rotationSummary": "{{name}} · {{frequency}} · {{count}} enquetes",
+        "assignHint": "Atribua uma rotação a uma campanha de QR acima usando \"Ou alternar\"."
+      },
+      "redemptions": {
+        "title": "Resgates de recompensas",
+        "subtitle": "Quando um cliente mostrar o código de recompensa, insira-o aqui para marcá-lo como resgatado e acompanhar a frequência de uso.",
+        "codePlaceholder": "Insira o código de recompensa",
+        "markRedeemed": "Marcar como resgatado",
+        "noCodes": "Nenhuma enquete tem um código de recompensa ainda. Adicione um em \"Após o voto\" ao criar ou editar uma enquete.",
+        "codeLabel": "código {{code}}",
+        "redeemedCount": "{{count}} resgatados",
+        "lockedTitle": "Veja com que frequência as recompensas são realmente resgatadas",
+        "lockedDescription": "Acompanhe a contagem de resgates por enquete para provar que suas recompensas trazem os clientes de volta."
+      },
+      "prizeDraws": {
+        "title": "Sorteios",
+        "subtitle": "Ative um sorteio ao criar ou editar uma enquete. Os participantes são votantes que optaram por participar com seu e-mail. Escolha um vencedor aqui quando estiver pronto.",
+        "noDraws": "Nenhuma enquete tem um sorteio ativado ainda.",
+        "prizeLabel": "prêmio: {{prize}}",
+        "notSet": "Não definido",
+        "pickWinner": "Escolher um vencedor",
+        "winner": "Vencedor: {{email}} ({{date}})",
+        "lockedTitle": "Realize sorteios para aumentar a taxa de resposta",
+        "lockedDescription": "Deixe os votantes participarem de um sorteio com o e-mail e depois escolha um vencedor aleatoriamente aqui mesmo."
       }
     },
     "feedback": {

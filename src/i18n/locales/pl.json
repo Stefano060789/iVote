@@ -540,7 +540,39 @@
         "enableDonationsNote": "Skonfiguruj i włącz darowizny w panelu Darowizny poniżej, aby dodać opcję darowizny do tego kodu QR."
       },
       "rotations": {
-        "title": "Rotacje ankiet"
+        "title": "Rotacje ankiet",
+        "subtitle": "Utwórz uporządkowaną listę ankiet, które automatycznie zmieniają się według harmonogramu, aby wydrukowany kod QR pozostawał aktualny bez żadnej akcji administratora.",
+        "namePlaceholder": "Nazwa rotacji: Pytanie dnia",
+        "changeDaily": "Zmieniaj codziennie",
+        "changeWeekly": "Zmieniaj co tydzień",
+        "choosePollToAdd": "Wybierz ankietę do dodania",
+        "add": "Dodaj",
+        "createButton": "Utwórz rotację",
+        "noRotations": "Nie ma jeszcze żadnych rotacji ankiet.",
+        "rotationSummary": "{{name}} · {{frequency}} · {{count}} ankiet",
+        "assignHint": "Przypisz rotację do kampanii QR powyżej, używając opcji \"Lub rotuj\"."
+      },
+      "redemptions": {
+        "title": "Odbiory nagród",
+        "subtitle": "Gdy klient pokaże swój kod nagrody, wprowadź go tutaj, aby oznaczyć go jako odebrany i śledzić częstotliwość użycia.",
+        "codePlaceholder": "Wprowadź kod nagrody",
+        "markRedeemed": "Oznacz jako odebrane",
+        "noCodes": "Żadna ankieta nie ma jeszcze kodu nagrody. Dodaj go w sekcji \"Po głosowaniu\" podczas tworzenia lub edytowania ankiety.",
+        "codeLabel": "kod {{code}}",
+        "redeemedCount": "odebrano: {{count}}",
+        "lockedTitle": "Sprawdź, jak często nagrody są faktycznie odbierane",
+        "lockedDescription": "Śledź liczbę odbiorów na ankietę, aby udowodnić, że Twoje nagrody sprawiają, że klienci wracają."
+      },
+      "prizeDraws": {
+        "title": "Losowania nagród",
+        "subtitle": "Włącz losowanie nagród podczas tworzenia lub edytowania ankiety. Uczestnikami są głosujący, którzy zapisali się swoim adresem e-mail. Wybierz tutaj zwycięzcę, gdy będziesz gotowy.",
+        "noDraws": "Żadna ankieta nie ma jeszcze włączonego losowania nagród.",
+        "prizeLabel": "nagroda: {{prize}}",
+        "notSet": "Nie ustawiono",
+        "pickWinner": "Wybierz zwycięzcę",
+        "winner": "Zwycięzca: {{email}} ({{date}})",
+        "lockedTitle": "Organizuj losowania nagród, aby zwiększyć liczbę odpowiedzi",
+        "lockedDescription": "Pozwól głosującym wziąć udział w losowaniu za pomocą adresu e-mail, a następnie wybierz zwycięzcę losowo bezpośrednio tutaj."
       }
     },
     "feedback": {

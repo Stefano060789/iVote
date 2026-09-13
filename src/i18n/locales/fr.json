@@ -540,7 +540,39 @@
         "enableDonationsNote": "Configurez et activez les dons dans le panneau Dons ci-dessous pour ajouter une option de don à ce code QR."
       },
       "rotations": {
-        "title": "Rotations de sondages"
+        "title": "Rotations de sondages",
+        "subtitle": "Créez une liste ordonnée de sondages qui s'alternent automatiquement selon un calendrier, afin qu'un code QR imprimé reste à jour sans aucune action de l'administrateur.",
+        "namePlaceholder": "Nom de la rotation : Question du jour",
+        "changeDaily": "Changer quotidiennement",
+        "changeWeekly": "Changer chaque semaine",
+        "choosePollToAdd": "Choisir un sondage à ajouter",
+        "add": "Ajouter",
+        "createButton": "Créer la rotation",
+        "noRotations": "Aucune rotation de sondages pour le moment.",
+        "rotationSummary": "{{name}} · {{frequency}} · {{count}} sondages",
+        "assignHint": "Attribuez une rotation à une campagne QR ci-dessus en utilisant « Ou faire tourner »."
+      },
+      "redemptions": {
+        "title": "Échanges de récompenses",
+        "subtitle": "Lorsqu'un client présente son code de récompense, saisissez-le ici pour le marquer comme échangé et suivre sa fréquence d'utilisation.",
+        "codePlaceholder": "Saisissez le code de récompense",
+        "markRedeemed": "Marquer comme échangé",
+        "noCodes": "Aucun sondage n'a encore de code de récompense. Ajoutez-en un sous « Après le vote » lors de la création ou de la modification d'un sondage.",
+        "codeLabel": "code {{code}}",
+        "redeemedCount": "{{count}} échangés",
+        "lockedTitle": "Découvrez à quelle fréquence les récompenses sont réellement échangées",
+        "lockedDescription": "Suivez le nombre d'échanges par sondage pour prouver que vos récompenses font revenir les clients."
+      },
+      "prizeDraws": {
+        "title": "Tirages au sort",
+        "subtitle": "Activez un tirage au sort lors de la création ou de la modification d'un sondage. Les participants sont des votants inscrits avec leur e-mail. Choisissez un gagnant ici quand vous êtes prêt.",
+        "noDraws": "Aucun sondage n'a encore de tirage au sort activé.",
+        "prizeLabel": "lot : {{prize}}",
+        "notSet": "Non défini",
+        "pickWinner": "Choisir un gagnant",
+        "winner": "Gagnant : {{email}} ({{date}})",
+        "lockedTitle": "Organisez des tirages au sort pour augmenter le taux de réponse",
+        "lockedDescription": "Laissez les votants participer à une tombola avec leur e-mail, puis choisissez un gagnant au hasard directement ici."
       }
     },
     "feedback": {

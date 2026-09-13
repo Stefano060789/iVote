@@ -540,7 +540,39 @@
         "enableDonationsNote": "Configura y activa las donaciones en el panel de Donaciones de abajo para añadir una opción de donación a este código QR."
       },
       "rotations": {
-        "title": "Rotaciones de encuestas"
+        "title": "Rotaciones de encuestas",
+        "subtitle": "Crea una lista ordenada de encuestas que se alternan automáticamente según un horario, para que un código QR impreso se mantenga actualizado sin ninguna acción del administrador.",
+        "namePlaceholder": "Nombre de la rotación: Pregunta diaria",
+        "changeDaily": "Cambiar diariamente",
+        "changeWeekly": "Cambiar semanalmente",
+        "choosePollToAdd": "Elige una encuesta para añadir",
+        "add": "Añadir",
+        "createButton": "Crear rotación",
+        "noRotations": "Aún no hay rotaciones de encuestas.",
+        "rotationSummary": "{{name}} · {{frequency}} · {{count}} encuestas",
+        "assignHint": "Asigna una rotación a una campaña QR arriba usando \"O rota\"."
+      },
+      "redemptions": {
+        "title": "Canjes de recompensas",
+        "subtitle": "Cuando un cliente muestre su código de recompensa, introdúcelo aquí para marcarlo como canjeado y hacer seguimiento de su uso.",
+        "codePlaceholder": "Introduce el código de recompensa",
+        "markRedeemed": "Marcar como canjeado",
+        "noCodes": "Ninguna encuesta tiene aún un código de recompensa. Añade uno en \"Después de votar\" al crear o editar una encuesta.",
+        "codeLabel": "código {{code}}",
+        "redeemedCount": "{{count}} canjeados",
+        "lockedTitle": "Consulta con qué frecuencia se canjean realmente las recompensas",
+        "lockedDescription": "Haz seguimiento del número de canjes por encuesta para demostrar que tus recompensas hacen volver a los clientes."
+      },
+      "prizeDraws": {
+        "title": "Sorteos",
+        "subtitle": "Activa un sorteo al crear o editar una encuesta. Los participantes son votantes que se han suscrito con su correo. Elige un ganador aquí cuando estés listo.",
+        "noDraws": "Ninguna encuesta tiene un sorteo activado todavía.",
+        "prizeLabel": "premio: {{prize}}",
+        "notSet": "No establecido",
+        "pickWinner": "Elegir un ganador",
+        "winner": "Ganador: {{email}} ({{date}})",
+        "lockedTitle": "Organiza sorteos para aumentar la tasa de respuesta",
+        "lockedDescription": "Deja que los votantes participen en una rifa con su correo electrónico, y luego elige un ganador al azar desde aquí mismo."
       }
     },
     "feedback": {

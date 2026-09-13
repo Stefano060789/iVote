@@ -540,7 +540,39 @@
         "enableDonationsNote": "请先在下方的“捐赠”面板中设置并启用捐赠，才能为此二维码添加捐赠选项。"
       },
       "rotations": {
-        "title": "投票轮换"
+        "title": "投票轮换",
+        "subtitle": "创建一份按顺序排列的投票列表，让它们按计划自动轮换，这样打印的二维码无需任何管理员操作即可保持内容常新。",
+        "namePlaceholder": "轮换名称：每日问题",
+        "changeDaily": "每天更换",
+        "changeWeekly": "每周更换",
+        "choosePollToAdd": "选择要添加的投票",
+        "add": "添加",
+        "createButton": "创建轮换",
+        "noRotations": "暂无投票轮换。",
+        "rotationSummary": "{{name}} · {{frequency}} · {{count}} 个投票",
+        "assignHint": "在上方使用“或轮换”将轮换分配给二维码活动。"
+      },
+      "redemptions": {
+        "title": "奖励兑换",
+        "subtitle": "当顾客出示奖励代码时，在此输入以将其标记为已兑换，并跟踪使用频率。",
+        "codePlaceholder": "输入奖励代码",
+        "markRedeemed": "标记为已兑换",
+        "noCodes": "目前还没有投票设置奖励代码。请在创建或编辑投票时于“投票后”下添加一个。",
+        "codeLabel": "代码 {{code}}",
+        "redeemedCount": "已兑换 {{count}} 次",
+        "lockedTitle": "查看奖励的实际兑换频率",
+        "lockedDescription": "跟踪每个投票的兑换次数，以证明您的奖励确实带来了回头客。"
+      },
+      "prizeDraws": {
+        "title": "抽奖活动",
+        "subtitle": "在创建或编辑投票时启用抽奖活动。参与者是选择留下邮箱的投票者。准备好后可在此选出获奖者。",
+        "noDraws": "目前还没有投票启用抽奖活动。",
+        "prizeLabel": "奖品：{{prize}}",
+        "notSet": "未设置",
+        "pickWinner": "选出获奖者",
+        "winner": "获奖者：{{email}}（{{date}}）",
+        "lockedTitle": "开展抽奖活动以提升回复率",
+        "lockedDescription": "让投票者用邮箱参与抽奖，然后直接在这里随机选出获奖者。"
       }
     },
     "feedback": {

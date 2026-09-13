@@ -540,7 +540,39 @@
         "enableDonationsNote": "Richten Sie im Spenden-Bereich unten Spenden ein und aktivieren Sie sie, um diesem QR-Code eine Spendenoption hinzuzufügen."
       },
       "rotations": {
-        "title": "Umfrage-Rotationen"
+        "title": "Umfrage-Rotationen",
+        "subtitle": "Erstellen Sie eine geordnete Liste von Umfragen, die automatisch nach einem Zeitplan wechseln, damit ein gedruckter QR-Code ohne jegliches Zutun aktuell bleibt.",
+        "namePlaceholder": "Name der Rotation: Tagesfrage",
+        "changeDaily": "Täglich wechseln",
+        "changeWeekly": "Wöchentlich wechseln",
+        "choosePollToAdd": "Eine Umfrage zum Hinzufügen auswählen",
+        "add": "Hinzufügen",
+        "createButton": "Rotation erstellen",
+        "noRotations": "Noch keine Umfrage-Rotationen.",
+        "rotationSummary": "{{name}} · {{frequency}} · {{count}} Umfragen",
+        "assignHint": "Weisen Sie oben einer QR-Kampagne über „Oder rotieren\" eine Rotation zu."
+      },
+      "redemptions": {
+        "title": "Belohnungseinlösungen",
+        "subtitle": "Wenn ein Kunde seinen Belohnungscode zeigt, geben Sie ihn hier ein, um ihn als eingelöst zu markieren und die Nutzungshäufigkeit zu verfolgen.",
+        "codePlaceholder": "Belohnungscode eingeben",
+        "markRedeemed": "Als eingelöst markieren",
+        "noCodes": "Noch keine Umfrage hat einen Belohnungscode. Fügen Sie beim Erstellen oder Bearbeiten einer Umfrage einen unter „Nach der Abstimmung\" hinzu.",
+        "codeLabel": "Code {{code}}",
+        "redeemedCount": "{{count}} eingelöst",
+        "lockedTitle": "Sehen Sie, wie oft Belohnungen tatsächlich eingelöst werden",
+        "lockedDescription": "Verfolgen Sie die Einlösungszahlen pro Umfrage, um zu belegen, dass Ihre Belohnungen Kunden zurückbringen."
+      },
+      "prizeDraws": {
+        "title": "Preisausschreiben",
+        "subtitle": "Aktivieren Sie ein Preisausschreiben beim Erstellen oder Bearbeiten einer Umfrage. Teilnehmer sind Wähler, die sich mit ihrer E-Mail-Adresse angemeldet haben. Wählen Sie hier einen Gewinner, sobald Sie bereit sind.",
+        "noDraws": "Noch keine Umfrage hat ein aktiviertes Preisausschreiben.",
+        "prizeLabel": "Preis: {{prize}}",
+        "notSet": "Nicht festgelegt",
+        "pickWinner": "Gewinner auswählen",
+        "winner": "Gewinner: {{email}} ({{date}})",
+        "lockedTitle": "Führen Sie Preisausschreiben durch, um die Antwortrate zu steigern",
+        "lockedDescription": "Lassen Sie Wähler mit ihrer E-Mail-Adresse an einer Verlosung teilnehmen und wählen Sie dann direkt hier zufällig einen Gewinner aus."
       }
     },
     "feedback": {

@@ -540,7 +540,39 @@
         "enableDonationsNote": "Stel donaties in en schakel ze in via het Donaties-paneel hieronder om een donatieoptie aan deze QR-code toe te voegen."
       },
       "rotations": {
-        "title": "Peilingrotaties"
+        "title": "Peilingrotaties",
+        "subtitle": "Maak een geordende lijst van peilingen die automatisch wisselen volgens een schema, zodat een gedrukte QR-code actueel blijft zonder enige actie van de beheerder.",
+        "namePlaceholder": "Naam van de rotatie: Dagvraag",
+        "changeDaily": "Dagelijks wisselen",
+        "changeWeekly": "Wekelijks wisselen",
+        "choosePollToAdd": "Kies een peiling om toe te voegen",
+        "add": "Toevoegen",
+        "createButton": "Rotatie maken",
+        "noRotations": "Nog geen peilingrotaties.",
+        "rotationSummary": "{{name}} · {{frequency}} · {{count}} peilingen",
+        "assignHint": "Wijs hierboven een rotatie toe aan een QR-campagne met \"Of roteren\"."
+      },
+      "redemptions": {
+        "title": "Beloningsinwisselingen",
+        "subtitle": "Wanneer een klant zijn beloningscode toont, voer deze hier in om hem als ingewisseld te markeren en het gebruik bij te houden.",
+        "codePlaceholder": "Voer de beloningscode in",
+        "markRedeemed": "Markeren als ingewisseld",
+        "noCodes": "Nog geen enkele peiling heeft een beloningscode. Voeg er een toe onder \"Na het stemmen\" bij het aanmaken of bewerken van een peiling.",
+        "codeLabel": "code {{code}}",
+        "redeemedCount": "{{count}} ingewisseld",
+        "lockedTitle": "Bekijk hoe vaak beloningen daadwerkelijk worden ingewisseld",
+        "lockedDescription": "Houd het aantal inwisselingen per peiling bij om te bewijzen dat je beloningen klanten laten terugkomen."
+      },
+      "prizeDraws": {
+        "title": "Prijstrekkingen",
+        "subtitle": "Schakel een prijstrekking in bij het aanmaken of bewerken van een peiling. Deelnemers zijn stemmers die zich hebben aangemeld met hun e-mailadres. Kies hier een winnaar wanneer je er klaar voor bent.",
+        "noDraws": "Nog geen enkele peiling heeft een actieve prijstrekking.",
+        "prizeLabel": "prijs: {{prize}}",
+        "notSet": "Niet ingesteld",
+        "pickWinner": "Kies een winnaar",
+        "winner": "Winnaar: {{email}} ({{date}})",
+        "lockedTitle": "Organiseer prijstrekkingen om de respons te verhogen",
+        "lockedDescription": "Laat stemmers meedoen aan een loterij met hun e-mailadres, en kies vervolgens hier direct willekeurig een winnaar."
       }
     },
     "feedback": {

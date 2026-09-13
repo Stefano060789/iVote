@@ -540,7 +540,39 @@
         "enableDonationsNote": "Configura e attiva le donazioni nel pannello Donazioni qui sotto per aggiungere un'opzione di donazione a questo codice QR."
       },
       "rotations": {
-        "title": "Rotazioni dei sondaggi"
+        "title": "Rotazioni dei sondaggi",
+        "subtitle": "Crea un elenco ordinato di sondaggi che si alternano automaticamente secondo una pianificazione, così un codice QR stampato resta aggiornato senza alcuna azione da parte dell'amministratore.",
+        "namePlaceholder": "Nome rotazione: Domanda del giorno",
+        "changeDaily": "Cambia ogni giorno",
+        "changeWeekly": "Cambia ogni settimana",
+        "choosePollToAdd": "Scegli un sondaggio da aggiungere",
+        "add": "Aggiungi",
+        "createButton": "Crea rotazione",
+        "noRotations": "Ancora nessuna rotazione di sondaggi.",
+        "rotationSummary": "{{name}} · {{frequency}} · {{count}} sondaggi",
+        "assignHint": "Assegna una rotazione a una campagna QR qui sopra usando \"Oppure ruota\"."
+      },
+      "redemptions": {
+        "title": "Riscatti dei premi",
+        "subtitle": "Quando un cliente mostra il proprio codice premio, inseriscilo qui per contrassegnarlo come riscattato e tenere traccia della frequenza d'uso.",
+        "codePlaceholder": "Inserisci il codice premio",
+        "markRedeemed": "Contrassegna come riscattato",
+        "noCodes": "Nessun sondaggio ha ancora un codice premio. Aggiungine uno in \"Dopo il voto\" durante la creazione o modifica di un sondaggio.",
+        "codeLabel": "codice {{code}}",
+        "redeemedCount": "{{count}} riscattati",
+        "lockedTitle": "Scopri con quale frequenza vengono davvero riscattati i premi",
+        "lockedDescription": "Tieni traccia del numero di riscatti per sondaggio per dimostrare che i tuoi premi fanno tornare i clienti."
+      },
+      "prizeDraws": {
+        "title": "Estrazioni a premi",
+        "subtitle": "Attiva un'estrazione a premi durante la creazione o modifica di un sondaggio. I partecipanti sono i votanti che hanno aderito con la propria email. Scegli un vincitore qui quando sei pronto.",
+        "noDraws": "Nessun sondaggio ha ancora un'estrazione a premi attiva.",
+        "prizeLabel": "premio: {{prize}}",
+        "notSet": "Non impostato",
+        "pickWinner": "Scegli un vincitore",
+        "winner": "Vincitore: {{email}} ({{date}})",
+        "lockedTitle": "Organizza estrazioni a premi per aumentare il tasso di risposta",
+        "lockedDescription": "Lascia che i votanti partecipino a una lotteria con la propria email, poi scegli un vincitore a caso direttamente da qui."
       }
     },
     "feedback": {
