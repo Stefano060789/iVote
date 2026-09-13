@@ -357,9 +357,18 @@ textarea {
   color: var(--navy-deep);
 }
 
-.app-page,
-.workspace-page {
+.app-page {
   color: var(--ink);
+}
+
+/* Workspace dashboard: recolored to the Godwit navy/gold brand palette (rather than the
+   generic teal/cream theme .app-page keeps for voter-facing pages). Structure and contrast
+   pairs are unchanged from the original light-theme overrides below - only the hues shift. */
+.workspace-page {
+  color: #16233f;
+  background: #f7f8fb;
+  border-radius: 20px;
+  box-shadow: 0 1px 2px rgba(11, 26, 51, 0.05);
 }
 
 .app-page h1,
@@ -373,10 +382,7 @@ textarea {
 
 .app-page input,
 .app-page textarea,
-.app-page select,
-.workspace-page input,
-.workspace-page textarea,
-.workspace-page select {
+.app-page select {
   border-color: var(--line) !important;
   border-radius: 8px !important;
   background: var(--surface) !important;
@@ -384,14 +390,28 @@ textarea {
   box-shadow: 0 1px 2px rgba(23, 43, 43, 0.05);
 }
 
+.workspace-page input,
+.workspace-page textarea,
+.workspace-page select {
+  border-color: rgba(11, 26, 51, 0.18) !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  color: #16233f !important;
+  box-shadow: 0 1px 2px rgba(11, 26, 51, 0.05);
+}
+
 .app-page input:focus,
 .app-page textarea:focus,
-.app-page select:focus,
+.app-page select:focus {
+  outline: 3px solid rgba(15, 118, 110, 0.18);
+  border-color: var(--teal) !important;
+}
+
 .workspace-page input:focus,
 .workspace-page textarea:focus,
 .workspace-page select:focus {
-  outline: 3px solid rgba(15, 118, 110, 0.18);
-  border-color: var(--teal) !important;
+  outline: 3px solid rgba(242, 199, 68, 0.35);
+  border-color: var(--gold-deep) !important;
 }
 
 .app-page input[type="color"],
@@ -408,55 +428,106 @@ textarea {
   border-radius: 8px;
 }
 
-.workspace-page .bg-slate-900,
-.workspace-page .bg-gray-900,
 .app-page .bg-slate-900 {
   background: var(--surface) !important;
 }
 
+.workspace-page .bg-slate-900,
+.workspace-page .bg-gray-900,
+.workspace-page [class*="bg-slate-950"],
+.workspace-page [class*="bg-gray-900"] {
+  background: #fdf6e3 !important;
+  color: #16233f !important;
+}
+
 .workspace-page .bg-gray-800 {
-  background: #e7efec !important;
-  color: var(--ink) !important;
+  background: #e9edf5 !important;
+  color: #16233f !important;
 }
 
 .workspace-page .bg-teal-500,
-.workspace-page .bg-teal-400,
+.workspace-page .bg-teal-400 {
+  background: var(--gold) !important;
+  color: var(--navy-deep) !important;
+}
+
 .app-page .bg-blue-600 {
   background: var(--teal) !important;
   color: #ffffff !important;
 }
 
-.workspace-page .bg-sky-500 {
-  background: #b9e3e7 !important;
-  color: #174b54 !important;
-}
-
-.workspace-page .text-slate-400,
-.workspace-page .text-slate-300,
-.workspace-page .text-slate-200,
-.workspace-page .text-slate-100,
 .app-page .text-slate-400,
 .app-page .text-slate-300,
 .app-page .text-slate-200 {
   color: var(--muted) !important;
 }
 
-.workspace-page .text-teal-300,
-.workspace-page .text-emerald-300,
+.workspace-page .text-slate-400,
+.workspace-page .text-slate-300,
+.workspace-page .text-slate-200,
+.workspace-page .text-slate-100 {
+  color: #5b6577 !important;
+}
+
 .app-page .text-emerald-400 {
   color: var(--teal) !important;
+}
+
+/* Brand accent text (labels, stat highlights, step numbers) reads as warm gold on the new
+   light workspace canvas instead of the marketing site's teal. */
+.workspace-page [class*="text-teal-"] {
+  color: var(--gold-deep) !important;
+}
+
+/* Semantic status colors (error/warning/info/success/link) were originally light Tailwind
+   shades meant for a dark card background; darken them so they stay readable as plain text
+   on the new light workspace background. */
+.workspace-page [class*="text-red-"] {
+  color: #b91c1c !important;
+}
+
+.workspace-page [class*="text-amber-"] {
+  color: var(--gold-deep) !important;
+}
+
+.workspace-page [class*="text-yellow-"] {
+  color: #92620a !important;
+}
+
+.workspace-page [class*="text-blue-"] {
+  color: #1d4ed8 !important;
+}
+
+.workspace-page [class*="text-indigo-"] {
+  color: #4338ca !important;
+}
+
+.workspace-page [class*="text-green-"] {
+  color: #15803d !important;
+}
+
+.workspace-page [class*="text-emerald-"] {
+  color: #047857 !important;
+}
+
+.workspace-page [class*="text-violet-"] {
+  color: #6d28d9 !important;
+}
+
+.workspace-page [class*="text-fuchsia-"] {
+  color: #a21caf !important;
+}
+
+.app-page [class*="border-slate-"] {
+  border-color: var(--line) !important;
 }
 
 .workspace-page [class*="border-teal-"],
 .workspace-page [class*="border-sky-"],
 .workspace-page [class*="border-indigo-"],
-.app-page [class*="border-slate-"] {
-  border-color: var(--line) !important;
-}
-
-.workspace-page [class*="bg-slate-950"],
-.workspace-page [class*="bg-gray-900"] {
-  background: #f7faf8 !important;
+.workspace-page [class*="border-slate-"],
+.workspace-page [class*="border-gray-"] {
+  border-color: rgba(11, 26, 51, 0.14) !important;
 }
 
 .site-nav-links {

@@ -1573,11 +1573,11 @@ export default function Admin() {
 
   const quickActions = [
     { key: "create", icon: "\u2795", label: "Create a poll", description: "Start a new QR feedback poll for a table, counter, or event.", onSelect: () => navigate("/create") },
-    { key: "polls", icon: "\ud83d\udcca", label: "Manage your polls", description: "Share QR codes, print posters, and see how each poll performs.", onSelect: () => setActiveTab("polls") },
-    { key: "connection", icon: "\ud83e\udd1d", label: "Customer connection", description: "Collect emails, invite honest reviews, and manage rewards.", onSelect: () => setActiveTab("connection") },
-    { key: "analytics", icon: "\ud83d\udcc8", label: "View analytics", description: "See trends across every poll and location.", onSelect: () => navigate("/admin/analytics") },
-    { key: "feedback", icon: "\ud83d\udcac", label: "Review feedback", description: "Read voter messages and approve pending review claims.", onSelect: () => setActiveTab("feedback") },
-    { key: "settings", icon: "\u2699\ufe0f", label: "Workspace settings", description: "Manage your brand, team access, and billing.", onSelect: () => setActiveTab("settings") }
+    { key: "polls", icon: flockMemberForTab("polls")?.icon || "\ud83d\udcca", label: "Manage your polls", description: "Share QR codes, print posters, and see how each poll performs.", onSelect: () => setActiveTab("polls") },
+    { key: "connection", icon: flockMemberForTab("connection")?.icon || "\ud83e\udd1d", label: "Customer connection", description: "Collect emails, invite honest reviews, and manage rewards.", onSelect: () => setActiveTab("connection") },
+    { key: "analytics", icon: "\ud83d\udcca", label: "View analytics", description: "See trends across every poll and location.", onSelect: () => navigate("/admin/analytics") },
+    { key: "feedback", icon: flockMemberForTab("feedback")?.icon || "\ud83d\udcac", label: "Review feedback", description: "Read voter messages and approve pending review claims.", onSelect: () => setActiveTab("feedback") },
+    { key: "settings", icon: flockMemberForTab("settings")?.icon || "\u2699\ufe0f", label: "Workspace settings", description: "Manage your brand, team access, and billing.", onSelect: () => setActiveTab("settings") }
   ];
 
   return (
@@ -1588,15 +1588,19 @@ export default function Admin() {
       </div>
 
       <div className="mb-2 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center">
-        {adminTabs.map((tab, index) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`rounded px-4 py-3 text-center font-semibold ${index === adminTabs.length - 1 ? "col-span-2" : ""} ${activeTab === tab.key ? "bg-teal-500 text-slate-950" : "bg-gray-800 text-slate-300"}`}
-          >
-            {tab.label}
-          </button>
-        ))}
+        {adminTabs.map((tab, index) => {
+          const bird = flockMemberForTab(tab.key);
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`rounded px-4 py-3 text-center font-semibold ${index === adminTabs.length - 1 ? "col-span-2" : ""} ${activeTab === tab.key ? "bg-teal-500 text-slate-950" : "bg-gray-800 text-slate-300"}`}
+            >
+              {bird && <span className="mr-1.5" aria-hidden="true">{bird.icon}</span>}
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
       <p className="mb-1 text-center text-sm text-slate-400">{adminTabDescriptions[activeTab]}</p>
       {flockMemberForTab(activeTab) && (
