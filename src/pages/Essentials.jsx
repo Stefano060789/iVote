@@ -1,5 +1,8 @@
 import { Link } from "react-router-dom";
 import Layout from "../components/Layout";
+import { FLOCK } from "../lib/flock";
+
+const ROBIN = FLOCK.find((bird) => bird.key === "robin");
 
 const STEPS = [
   {
@@ -27,12 +30,15 @@ export default function Essentials() {
     <Layout>
       <div className="mx-auto max-w-2xl space-y-8 p-4 sm:p-8">
         <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-wide text-teal-400">Start here</p>
+          <p className="flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-wide text-teal-400">
+            <span aria-hidden="true">{ROBIN.icon}</span> Robin's quick start
+          </p>
           <h1 className="mt-2 text-3xl font-bold">The 3 things that actually matter</h1>
           <p className="mt-3 text-slate-300">
-            Godwit has a lot of extra tools - rewards, prize draws, review links, benchmarks, an API. You don't need
-            any of them to get value from your first poll. Do these three things, then come back here any time you
-            feel lost.
+            <strong className="text-white">Robin</strong> - Godwit's {ROBIN.role.toLowerCase()} - keeps this list short on
+            purpose. Godwit has a lot of extra tools - rewards, prize draws, review links, benchmarks, an API. You
+            don't need any of them to get value from your first poll. Do these three things, then come back here any
+            time you feel lost.
           </p>
         </div>
 
@@ -57,6 +63,17 @@ export default function Essentials() {
           Everything else in your dashboard - rewards, prize draws, campaigns, benchmarks - is there when you're
           ready for it. It's fine to ignore all of it for now.
         </p>
+
+        <div className="rounded-lg border border-slate-700 bg-slate-900 p-5 text-center">
+          <p className="text-sm text-slate-300">
+            <span aria-hidden="true">{ROBIN.icon}</span> Once you're in your dashboard, open the <strong className="text-white">Overview</strong> tab -
+            Robin is waiting there with a tailored checklist based on what you're using Godwit for (an artist, a
+            cafe, a museum, a hotel...).
+          </p>
+          <Link to="/admin" className="mt-3 inline-block rounded border border-teal-500 px-4 py-2 text-sm font-semibold text-teal-300">
+            Meet Robin in your dashboard
+          </Link>
+        </div>
       </div>
     </Layout>
   );
