@@ -142,8 +142,15 @@ handful of venues.
   honeypot + minimum-dwell-time check (already in `Vote.jsx`) is still the only defense against
   scripted vote spam; a proper fix would be a Postgres-side rate limit (e.g. a trigger capping
   votes per IP/poll in a time window) or routing votes through a `/api/*` function instead.
-- [ ] **Run a Supabase backup/restore drill.** Confirm daily backups/PITR are enabled, and
-  actually perform one test restore before the pilot.
+- [ ] **Supabase backup/restore drill - blocked on a plan decision, not configuration.**
+  Checked the actual dashboard: this project's organization ("bonomistefano@outlook.it's
+  Org") is on the **Supabase Free plan**, which Supabase states explicitly **does not include
+  project backups at all** - not "not yet turned on", structurally unavailable. There is
+  currently no way to recover this production database if data is ever lost or corrupted.
+  Fixing this requires upgrading the organization to **Supabase Pro ($25/month base, includes
+  daily backups retained 7 days)** - a real recurring cost, so this needs your decision, not
+  just configuration. Once upgraded, still do an actual test restore before the pilot, not
+  just confirm the toggle is on.
 - [ ] **Wire up monitoring/alert routing - partially done.** Checked Vercel's own notification
   settings: **Deployment Failure** emails are already on by default for the account owner
   (Team Settings -> My Notifications -> Deployments). Real-time runtime error-rate/anomaly
