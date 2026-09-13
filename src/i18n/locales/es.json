@@ -172,9 +172,18 @@
     "currentTag": "(actual)",
     "paymentsNote": "Los pagos son gestionados de forma segura por Stripe. Los precios y límites son propuestas de lanzamiento y pueden cambiar en Stripe y en esta página.",
     "plans": {
-      "free": { "name": "Gratis", "description": "Prueba el ciclo de opiniones en un único local." },
-      "starter": { "name": "Starter", "description": "Gestiona las opiniones de forma profesional, con tu propia marca y exportaciones." },
-      "growth": { "name": "Growth", "description": "Convierte las opiniones en negocio recurrente con automatización e integraciones." }
+      "free": {
+        "name": "Gratis",
+        "description": "Prueba el ciclo de opiniones en un único local."
+      },
+      "starter": {
+        "name": "Starter",
+        "description": "Gestiona las opiniones de forma profesional, con tu propia marca y exportaciones."
+      },
+      "growth": {
+        "name": "Growth",
+        "description": "Convierte las opiniones en negocio recurrente con automatización e integraciones."
+      }
     },
     "rows": {
       "pollLimit": "Límite de encuestas",
@@ -214,13 +223,34 @@
       "settings": "Marca, acceso del equipo, API de desarrollador y actividad reciente."
     },
     "quickActions": {
-      "create": { "label": "Crear una encuesta", "description": "Inicia una nueva encuesta de feedback QR para una mesa, mostrador o evento." },
-      "polls": { "label": "Gestiona tus encuestas", "description": "Busca, filtra y consulta el rendimiento de cada encuesta." },
-      "engagement": { "label": "Crea un código QR", "description": "Combina encuestas, tarjetas informativas y donaciones bajo un solo código impreso." },
-      "connection": { "label": "Conexión con clientes", "description": "Recopila correos, invita a reseñas sinceras y gestiona recompensas." },
-      "analytics": { "label": "Ver estadísticas", "description": "Consulta tendencias en todas las encuestas y ubicaciones." },
-      "feedback": { "label": "Revisar comentarios", "description": "Lee los mensajes de los votantes y aprueba las solicitudes de reseñas pendientes." },
-      "settings": { "label": "Configuración del espacio de trabajo", "description": "Gestiona tu marca, el acceso del equipo y la facturación." }
+      "create": {
+        "label": "Crear una encuesta",
+        "description": "Inicia una nueva encuesta de feedback QR para una mesa, mostrador o evento."
+      },
+      "polls": {
+        "label": "Gestiona tus encuestas",
+        "description": "Busca, filtra y consulta el rendimiento de cada encuesta."
+      },
+      "engagement": {
+        "label": "Crea un código QR",
+        "description": "Combina encuestas, tarjetas informativas y donaciones bajo un solo código impreso."
+      },
+      "connection": {
+        "label": "Conexión con clientes",
+        "description": "Recopila correos, invita a reseñas sinceras y gestiona recompensas."
+      },
+      "analytics": {
+        "label": "Ver estadísticas",
+        "description": "Consulta tendencias en todas las encuestas y ubicaciones."
+      },
+      "feedback": {
+        "label": "Revisar comentarios",
+        "description": "Lee los mensajes de los votantes y aprueba las solicitudes de reseñas pendientes."
+      },
+      "settings": {
+        "label": "Configuración del espacio de trabajo",
+        "description": "Gestiona tu marca, el acceso del equipo y la facturación."
+      }
     },
     "overview": {
       "stats": {
@@ -573,6 +603,87 @@
       "largePrint": "Texto en letra grande disponible",
       "hearingLoop": "Bucle de inducción magnética",
       "serviceAnimalsWelcome": "Animales de servicio bienvenidos"
+    },
+    "settings": {
+      "workspace": {
+        "title": "Configuración del espacio de trabajo",
+        "subtitle": "Define el nombre, el logotipo, los colores y el nivel de acceso que se usan en todo tu espacio de trabajo.",
+        "roleLabel": "Rol: {{role}}",
+        "companyNamePlaceholder": "Nombre de la empresa",
+        "roles": {
+          "owner": "Propietario",
+          "editor": "Editor",
+          "viewer": "Lector"
+        },
+        "logoUrlPlaceholder": "URL del logotipo",
+        "webhookUrlPlaceholder": "URL del webhook (opcional) - recibe avisos en Slack/Zapier/Sheets con cada voto",
+        "webhookUrlLocked": "Los webhooks están disponibles en el plan Growth",
+        "autoDeleteLabel": "Eliminar votos automáticamente después de (días, opcional)",
+        "autoDeletePlaceholder": "Déjalo en blanco para conservar los votos para siempre",
+        "buttonColorLabel": "Color de botones y enlaces",
+        "buttonColorHint": "Se usa para las acciones en las que la gente puede hacer clic.",
+        "backgroundColorLabel": "Color de fondo de la página",
+        "backgroundColorHint": "Se usa detrás de tus páginas públicas de encuestas.",
+        "webhooksUpgradeNote": "Webhooks disponibles en Growth",
+        "saveButton": "Guardar configuración del espacio de trabajo"
+      },
+      "googleBusiness": {
+        "title": "Google Business Profile",
+        "subtitle": "Conecta tu ficha real de Google Business para que el panel pueda mostrar abajo tu valoración pública real. Solo tienes que hacerlo una vez.",
+        "step1Prefix": "Haz clic en",
+        "step1Cta": "\"Buscar mi empresa en Google\"",
+        "step1Suffix": "abajo: se abrirá la herramienta oficial de búsqueda de Google en una pestaña nueva.",
+        "step2": "Escribe el nombre de tu empresa (y la ciudad, si tienes más de una ubicación) en el cuadro de búsqueda de esa página.",
+        "step3Prefix": "Haz clic en tu empresa cuando aparezca: se mostrará una pequeña ventana emergente con un",
+        "step3PlaceId": "Place ID",
+        "step3Suffix": "(un código como",
+        "step4Prefix": "Copia ese código y pégalo en el cuadro de abajo, luego haz clic en",
+        "step4Cta": "Guardar Google Place ID",
+        "findLink": "Buscar mi empresa en Google",
+        "placeIdPlaceholder": "Pega aquí tu Place ID, por ejemplo, ChIJ...",
+        "saveButton": "Guardar Google Place ID"
+      },
+      "reputation": {
+        "title": "Reputación pública",
+        "subtitle": "Tu valoración pública real, traída desde Google. Primero conecta tu empresa arriba.",
+        "ratingSummary": "de 5 - {{count}} reseñas de Google",
+        "asOf": "a fecha de {{date}}",
+        "noRating": "Todavía no se ha obtenido ninguna valoración pública.",
+        "refreshing": "Actualizando...",
+        "refreshButton": "Actualizar valoración pública",
+        "lockedTitle": "Sigue tu valoración pública automáticamente",
+        "lockedDescription": "Trae tu valoración real de Google para poder seguir la evolución de tu reputación junto con tus datos de feedback."
+      },
+      "api": {
+        "title": "API para desarrolladores",
+        "labelPlaceholder": "Etiqueta: panel de BI, Zapier",
+        "generateKey": "Generar clave",
+        "noKeys": "Todavía no hay claves API.",
+        "untitledKey": "Clave sin título",
+        "created": "creada el {{date}}",
+        "lastUsed": "usada por última vez {{date}}",
+        "lockedTitle": "Lleva tus datos a tus propias herramientas",
+        "lockedDescription": "Genera una clave API segura y consulta mediante programación el resumen de tu espacio de trabajo desde cualquier sistema que ya uses."
+      },
+      "team": {
+        "title": "Acceso del equipo",
+        "subtitle": "Invita a compañeros y elige qué pueden gestionar. Añade un correo para enviarles una invitación real de inicio de sesión; déjalo en blanco si solo quieres anotar un nombre.",
+        "seatCount": "{{current}} / {{limit}} plazas",
+        "seatLimitReached": "Se alcanzó el límite de plazas del plan {{plan}}",
+        "upgradeForMoreSeats": "Mejorar plan para más plazas",
+        "namePlaceholder": "Nombre o correo",
+        "sendingInvite": "Enviando invitación...",
+        "sendInvite": "Enviar invitación",
+        "addMember": "Añadir miembro del equipo",
+        "noMembers": "Aún no hay miembros del equipo guardados."
+      },
+      "activity": {
+        "title": "Actividad reciente",
+        "subtitle": "Revisa las últimas acciones administrativas de este espacio de trabajo.",
+        "noActivity": "Todavía no hay actividad.",
+        "lockedTitle": "Consulta quién cambió qué y cuándo",
+        "lockedDescription": "Un historial completo de responsabilidad de las acciones administrativas realizadas en tu espacio de trabajo."
+      }
     }
   }
 }

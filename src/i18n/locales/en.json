@@ -510,7 +510,39 @@
         "enableDonationsNote": "Set up and enable donations in the Donations panel below to add a donation option to this QR code."
       },
       "rotations": {
-        "title": "Poll rotations"
+        "title": "Poll rotations",
+        "subtitle": "Build an ordered list of polls that automatically swap on a schedule, so a printed QR code stays fresh without any admin action.",
+        "namePlaceholder": "Rotation name: Daily question",
+        "changeDaily": "Change daily",
+        "changeWeekly": "Change weekly",
+        "choosePollToAdd": "Choose a poll to add",
+        "add": "Add",
+        "createButton": "Create rotation",
+        "noRotations": "No poll rotations yet.",
+        "rotationSummary": "{{name}} · {{frequency}} · {{count}} polls",
+        "assignHint": "Assign a rotation to a QR campaign above using \"Or rotate\"."
+      },
+      "redemptions": {
+        "title": "Reward redemptions",
+        "subtitle": "When a customer shows their reward code, enter it here to mark it redeemed and track how often it's used.",
+        "codePlaceholder": "Enter the reward code",
+        "markRedeemed": "Mark redeemed",
+        "noCodes": "No polls have a reward code yet. Add one under \"After voting\" when creating or editing a poll.",
+        "codeLabel": "code {{code}}",
+        "redeemedCount": "{{count}} redeemed",
+        "lockedTitle": "See how often rewards are actually redeemed",
+        "lockedDescription": "Track redemption counts per poll to prove your rewards are bringing customers back."
+      },
+      "prizeDraws": {
+        "title": "Prize draws",
+        "subtitle": "Enable a prize draw when creating or editing a poll. Entrants are voters who opted in with their email. Pick a winner here when you're ready.",
+        "noDraws": "No polls have a prize draw enabled yet.",
+        "prizeLabel": "prize: {{prize}}",
+        "notSet": "Not set",
+        "pickWinner": "Pick a winner",
+        "winner": "Winner: {{email}} ({{date}})",
+        "lockedTitle": "Run prize draws to boost response rates",
+        "lockedDescription": "Let voters enter a raffle with their email, then pick a winner at random from right here."
       }
     },
     "accessibilityTags": {
@@ -636,7 +668,23 @@
         "lockedDescription": "Generate a secure API key and read your workspace summary programmatically from any system you already use."
       },
       "team": {
-        "title": "Team access"
+        "title": "Team access",
+        "subtitle": "Invite colleagues and choose what they can manage. Add an email to send them a real sign-in invite; leave it blank to just note a name.",
+        "seatCount": "{{current}} / {{limit}} seats",
+        "seatLimitReached": "Seat limit reached for the {{plan}} plan",
+        "upgradeForMoreSeats": "Upgrade for more seats",
+        "namePlaceholder": "Name or email",
+        "sendingInvite": "Sending invite...",
+        "sendInvite": "Send invite",
+        "addMember": "Add team member",
+        "noMembers": "No team members saved yet."
+      },
+      "activity": {
+        "title": "Recent activity",
+        "subtitle": "Review the latest administrative actions in this workspace.",
+        "noActivity": "No activity yet.",
+        "lockedTitle": "See who changed what, and when",
+        "lockedDescription": "A full accountability trail of administrative actions taken in your workspace."
       }
     }
   }

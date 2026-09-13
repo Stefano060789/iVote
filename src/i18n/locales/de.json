@@ -172,9 +172,18 @@
     "currentTag": "(aktuell)",
     "paymentsNote": "Zahlungen werden sicher über Stripe abgewickelt. Preise und Limits sind Startvorschläge und können in Stripe und auf dieser Seite geändert werden.",
     "plans": {
-      "free": { "name": "Kostenlos", "description": "Testen Sie den Feedback-Kreislauf an einem einzelnen Standort." },
-      "starter": { "name": "Starter", "description": "Führen Sie Feedback professionell durch, mit eigenem Branding und Exporten." },
-      "growth": { "name": "Growth", "description": "Verwandeln Sie Feedback mit Automatisierung und Integrationen in Stammkundschaft." }
+      "free": {
+        "name": "Kostenlos",
+        "description": "Testen Sie den Feedback-Kreislauf an einem einzelnen Standort."
+      },
+      "starter": {
+        "name": "Starter",
+        "description": "Führen Sie Feedback professionell durch, mit eigenem Branding und Exporten."
+      },
+      "growth": {
+        "name": "Growth",
+        "description": "Verwandeln Sie Feedback mit Automatisierung und Integrationen in Stammkundschaft."
+      }
     },
     "rows": {
       "pollLimit": "Umfragen-Limit",
@@ -214,13 +223,34 @@
       "settings": "Marke, Teamzugriff, Entwickler-API und letzte Aktivitäten."
     },
     "quickActions": {
-      "create": { "label": "Umfrage erstellen", "description": "Starten Sie eine neue QR-Feedback-Umfrage für einen Tisch, Tresen oder ein Event." },
-      "polls": { "label": "Umfragen verwalten", "description": "Durchsuchen, filtern und prüfen Sie die Leistung jeder Umfrage." },
-      "engagement": { "label": "QR-Code erstellen", "description": "Kombinieren Sie Umfragen, Infokarten und Spenden unter einem gedruckten Code." },
-      "connection": { "label": "Kundenbindung", "description": "Sammeln Sie E-Mails, laden Sie zu ehrlichen Bewertungen ein und verwalten Sie Belohnungen." },
-      "analytics": { "label": "Statistiken ansehen", "description": "Sehen Sie Trends über alle Umfragen und Standorte hinweg." },
-      "feedback": { "label": "Feedback prüfen", "description": "Lesen Sie Nachrichten von Wählern und genehmigen Sie ausstehende Bewertungsanfragen." },
-      "settings": { "label": "Arbeitsbereich-Einstellungen", "description": "Verwalten Sie Ihre Marke, den Teamzugriff und die Abrechnung." }
+      "create": {
+        "label": "Umfrage erstellen",
+        "description": "Starten Sie eine neue QR-Feedback-Umfrage für einen Tisch, Tresen oder ein Event."
+      },
+      "polls": {
+        "label": "Umfragen verwalten",
+        "description": "Durchsuchen, filtern und prüfen Sie die Leistung jeder Umfrage."
+      },
+      "engagement": {
+        "label": "QR-Code erstellen",
+        "description": "Kombinieren Sie Umfragen, Infokarten und Spenden unter einem gedruckten Code."
+      },
+      "connection": {
+        "label": "Kundenbindung",
+        "description": "Sammeln Sie E-Mails, laden Sie zu ehrlichen Bewertungen ein und verwalten Sie Belohnungen."
+      },
+      "analytics": {
+        "label": "Statistiken ansehen",
+        "description": "Sehen Sie Trends über alle Umfragen und Standorte hinweg."
+      },
+      "feedback": {
+        "label": "Feedback prüfen",
+        "description": "Lesen Sie Nachrichten von Wählern und genehmigen Sie ausstehende Bewertungsanfragen."
+      },
+      "settings": {
+        "label": "Arbeitsbereich-Einstellungen",
+        "description": "Verwalten Sie Ihre Marke, den Teamzugriff und die Abrechnung."
+      }
     },
     "overview": {
       "stats": {
@@ -573,6 +603,87 @@
       "largePrint": "Großdruck verfügbar",
       "hearingLoop": "Induktionsschleife",
       "serviceAnimalsWelcome": "Assistenzhunde willkommen"
+    },
+    "settings": {
+      "workspace": {
+        "title": "Arbeitsbereich-Einstellungen",
+        "subtitle": "Legen Sie den Namen, das Logo, die Farben und die Zugriffsebene fest, die in Ihrem gesamten Arbeitsbereich verwendet werden.",
+        "roleLabel": "Rolle: {{role}}",
+        "companyNamePlaceholder": "Unternehmensname",
+        "roles": {
+          "owner": "Inhaber",
+          "editor": "Bearbeiter",
+          "viewer": "Betrachter"
+        },
+        "logoUrlPlaceholder": "Logo-URL",
+        "webhookUrlPlaceholder": "Webhook-URL (optional) - lassen Sie sich bei jeder Stimme in Slack/Zapier/Sheets benachrichtigen",
+        "webhookUrlLocked": "Webhooks sind im Growth-Tarif verfügbar",
+        "autoDeleteLabel": "Stimmen automatisch löschen nach (Tagen, optional)",
+        "autoDeletePlaceholder": "Leer lassen, um Stimmen dauerhaft zu behalten",
+        "buttonColorLabel": "Farbe für Buttons und Links",
+        "buttonColorHint": "Wird für Aktionen verwendet, auf die Personen klicken können.",
+        "backgroundColorLabel": "Hintergrundfarbe der Seite",
+        "backgroundColorHint": "Wird hinter Ihren öffentlichen Umfrageseiten verwendet.",
+        "webhooksUpgradeNote": "Webhooks im Growth-Tarif verfügbar",
+        "saveButton": "Arbeitsbereich-Einstellungen speichern"
+      },
+      "googleBusiness": {
+        "title": "Google Business Profile",
+        "subtitle": "Verbinden Sie Ihren echten Google-Business-Eintrag, damit das Dashboard unten Ihre tatsächliche öffentliche Bewertung anzeigen kann. Das müssen Sie nur einmal tun.",
+        "step1Prefix": "Klicken Sie auf",
+        "step1Cta": "\"Mein Unternehmen auf Google finden\"",
+        "step1Suffix": "unten - dadurch wird Googles offizielles Suchtool in einem neuen Tab geöffnet.",
+        "step2": "Geben Sie auf dieser Seite den Namen Ihres Unternehmens ein (und die Stadt, wenn Sie mehr als einen Standort haben).",
+        "step3Prefix": "Klicken Sie auf Ihr Unternehmen, sobald es erscheint - ein kleines Popup zeigt die",
+        "step3PlaceId": "Place ID",
+        "step3Suffix": "(einen Code wie",
+        "step4Prefix": "Kopieren Sie diesen Code, fügen Sie ihn in das Feld unten ein und klicken Sie dann auf",
+        "step4Cta": "Google Place ID speichern",
+        "findLink": "Mein Unternehmen auf Google finden",
+        "placeIdPlaceholder": "Fügen Sie hier Ihre Place ID ein, z. B. ChIJ...",
+        "saveButton": "Google Place ID speichern"
+      },
+      "reputation": {
+        "title": "Öffentliche Reputation",
+        "subtitle": "Ihre tatsächliche öffentliche Bewertung, von Google übernommen. Verbinden Sie oben zuerst Ihr Unternehmen.",
+        "ratingSummary": "von 5 - {{count}} Google-Bewertungen",
+        "asOf": "Stand {{date}}",
+        "noRating": "Noch keine öffentliche Bewertung abgerufen.",
+        "refreshing": "Wird aktualisiert...",
+        "refreshButton": "Öffentliche Bewertung aktualisieren",
+        "lockedTitle": "Verfolgen Sie Ihre öffentliche Bewertung automatisch",
+        "lockedDescription": "Übernehmen Sie Ihre echte Google-Bewertung, damit Sie den Trend Ihrer Reputation neben Ihren Feedback-Daten verfolgen können."
+      },
+      "api": {
+        "title": "Entwickler-API",
+        "labelPlaceholder": "Bezeichnung: BI-Dashboard, Zapier",
+        "generateKey": "Schlüssel generieren",
+        "noKeys": "Noch keine API-Schlüssel.",
+        "untitledKey": "Unbenannter Schlüssel",
+        "created": "erstellt am {{date}}",
+        "lastUsed": "zuletzt verwendet {{date}}",
+        "lockedTitle": "Holen Sie Ihre Daten in Ihre eigenen Tools",
+        "lockedDescription": "Generieren Sie einen sicheren API-Schlüssel und lesen Sie die Zusammenfassung Ihres Arbeitsbereichs programmgesteuert aus jedem System, das Sie bereits nutzen."
+      },
+      "team": {
+        "title": "Teamzugriff",
+        "subtitle": "Laden Sie Kollegen ein und wählen Sie aus, was sie verwalten dürfen. Fügen Sie eine E-Mail-Adresse hinzu, um eine echte Anmeldeeinladung zu senden; lassen Sie das Feld leer, wenn Sie nur einen Namen notieren möchten.",
+        "seatCount": "{{current}} / {{limit}} Plätze",
+        "seatLimitReached": "Platzlimit für den Tarif {{plan}} erreicht",
+        "upgradeForMoreSeats": "Upgrade für mehr Plätze",
+        "namePlaceholder": "Name oder E-Mail",
+        "sendingInvite": "Einladung wird gesendet...",
+        "sendInvite": "Einladung senden",
+        "addMember": "Teammitglied hinzufügen",
+        "noMembers": "Noch keine Teammitglieder gespeichert."
+      },
+      "activity": {
+        "title": "Letzte Aktivitäten",
+        "subtitle": "Prüfen Sie die neuesten administrativen Aktionen in diesem Arbeitsbereich.",
+        "noActivity": "Noch keine Aktivitäten.",
+        "lockedTitle": "Sehen Sie, wer was geändert hat – und wann",
+        "lockedDescription": "Ein vollständiger Verantwortlichkeitsverlauf aller administrativen Aktionen in Ihrem Arbeitsbereich."
+      }
     }
   }
 }

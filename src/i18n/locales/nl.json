@@ -172,9 +172,18 @@
     "currentTag": "(huidig)",
     "paymentsNote": "Betalingen worden veilig afgehandeld door Stripe. Prijzen en limieten zijn lanceringsvoorstellen en kunnen worden gewijzigd in Stripe en op deze pagina.",
     "plans": {
-      "free": { "name": "Gratis", "description": "Probeer de feedbackcyclus bij één locatie uit." },
-      "starter": { "name": "Starter", "description": "Voer feedback professioneel uit, met je eigen branding en exports." },
-      "growth": { "name": "Growth", "description": "Zet feedback om in terugkerende klanten met automatisering en integraties." }
+      "free": {
+        "name": "Gratis",
+        "description": "Probeer de feedbackcyclus bij één locatie uit."
+      },
+      "starter": {
+        "name": "Starter",
+        "description": "Voer feedback professioneel uit, met je eigen branding en exports."
+      },
+      "growth": {
+        "name": "Growth",
+        "description": "Zet feedback om in terugkerende klanten met automatisering en integraties."
+      }
     },
     "rows": {
       "pollLimit": "Pollimiet",
@@ -214,13 +223,34 @@
       "settings": "Merk, teamtoegang, developer-API en recente activiteit."
     },
     "quickActions": {
-      "create": { "label": "Maak een peiling", "description": "Start een nieuwe QR-feedbackpeiling voor een tafel, balie of evenement." },
-      "polls": { "label": "Beheer je peilingen", "description": "Zoek, filter en bekijk hoe elke peiling presteert." },
-      "engagement": { "label": "Maak een QR-code", "description": "Combineer peilingen, infokaarten en donaties onder één gedrukte code." },
-      "connection": { "label": "Klantrelatie", "description": "Verzamel e-mails, nodig uit voor eerlijke beoordelingen en beheer beloningen." },
-      "analytics": { "label": "Bekijk statistieken", "description": "Bekijk trends over alle peilingen en locaties." },
-      "feedback": { "label": "Feedback beoordelen", "description": "Lees berichten van stemmers en keur openstaande beoordelingsverzoeken goed." },
-      "settings": { "label": "Werkruimte-instellingen", "description": "Beheer je merk, teamtoegang en facturering." }
+      "create": {
+        "label": "Maak een peiling",
+        "description": "Start een nieuwe QR-feedbackpeiling voor een tafel, balie of evenement."
+      },
+      "polls": {
+        "label": "Beheer je peilingen",
+        "description": "Zoek, filter en bekijk hoe elke peiling presteert."
+      },
+      "engagement": {
+        "label": "Maak een QR-code",
+        "description": "Combineer peilingen, infokaarten en donaties onder één gedrukte code."
+      },
+      "connection": {
+        "label": "Klantrelatie",
+        "description": "Verzamel e-mails, nodig uit voor eerlijke beoordelingen en beheer beloningen."
+      },
+      "analytics": {
+        "label": "Bekijk statistieken",
+        "description": "Bekijk trends over alle peilingen en locaties."
+      },
+      "feedback": {
+        "label": "Feedback beoordelen",
+        "description": "Lees berichten van stemmers en keur openstaande beoordelingsverzoeken goed."
+      },
+      "settings": {
+        "label": "Werkruimte-instellingen",
+        "description": "Beheer je merk, teamtoegang en facturering."
+      }
     },
     "overview": {
       "stats": {
@@ -573,6 +603,87 @@
       "largePrint": "Grootletterdruk beschikbaar",
       "hearingLoop": "Ringleiding",
       "serviceAnimalsWelcome": "Assistentiehonden welkom"
+    },
+    "settings": {
+      "workspace": {
+        "title": "Werkruimte-instellingen",
+        "subtitle": "Stel de naam, het logo, de kleuren en het toegangsniveau in die in je hele werkruimte worden gebruikt.",
+        "roleLabel": "Rol: {{role}}",
+        "companyNamePlaceholder": "Bedrijfsnaam",
+        "roles": {
+          "owner": "Eigenaar",
+          "editor": "Editor",
+          "viewer": "Kijker"
+        },
+        "logoUrlPlaceholder": "Logo-URL",
+        "webhookUrlPlaceholder": "Webhook-URL (optioneel) - ontvang bij elke stem een melding in Slack/Zapier/Sheets",
+        "webhookUrlLocked": "Webhooks zijn beschikbaar in het Growth-abonnement",
+        "autoDeleteLabel": "Verwijder stemmen automatisch na (dagen, optioneel)",
+        "autoDeletePlaceholder": "Laat leeg om stemmen voor altijd te bewaren",
+        "buttonColorLabel": "Kleur van knoppen en links",
+        "buttonColorHint": "Gebruikt voor acties waarop mensen kunnen klikken.",
+        "backgroundColorLabel": "Achtergrondkleur van de pagina",
+        "backgroundColorHint": "Gebruikt achter je openbare peilingpagina's.",
+        "webhooksUpgradeNote": "Webhooks beschikbaar in Growth",
+        "saveButton": "Werkruimte-instellingen opslaan"
+      },
+      "googleBusiness": {
+        "title": "Google Business Profile",
+        "subtitle": "Koppel je echte Google Business-vermelding zodat het dashboard hieronder je echte openbare beoordeling kan tonen. Dit hoef je maar één keer te doen.",
+        "step1Prefix": "Klik op",
+        "step1Cta": "\"Mijn bedrijf op Google vinden\"",
+        "step1Suffix": "hieronder - Google's officiële opzoektool wordt in een nieuw tabblad geopend.",
+        "step2": "Typ de naam van je bedrijf (en de stad, als je meer dan één locatie hebt) in het zoekvak op die pagina.",
+        "step3Prefix": "Klik op je bedrijf zodra het verschijnt - een kleine pop-up toont een",
+        "step3PlaceId": "Place ID",
+        "step3Suffix": "(een code zoals",
+        "step4Prefix": "Kopieer die code en plak hem in het vak hieronder, en klik daarna op",
+        "step4Cta": "Google Place ID opslaan",
+        "findLink": "Mijn bedrijf op Google vinden",
+        "placeIdPlaceholder": "Plak hier je Place ID, bijv. ChIJ...",
+        "saveButton": "Google Place ID opslaan"
+      },
+      "reputation": {
+        "title": "Openbare reputatie",
+        "subtitle": "Je echte openbare beoordeling, opgehaald uit Google. Koppel hierboven eerst je bedrijf.",
+        "ratingSummary": "van 5 - {{count}} Google-beoordelingen",
+        "asOf": "per {{date}}",
+        "noRating": "Nog geen openbare beoordeling opgehaald.",
+        "refreshing": "Vernieuwen...",
+        "refreshButton": "Openbare beoordeling vernieuwen",
+        "lockedTitle": "Volg je openbare beoordeling automatisch",
+        "lockedDescription": "Haal je echte Google-beoordeling op zodat je de trend van je reputatie naast je feedbackgegevens kunt volgen."
+      },
+      "api": {
+        "title": "Developer-API",
+        "labelPlaceholder": "Label: BI-dashboard, Zapier",
+        "generateKey": "Sleutel genereren",
+        "noKeys": "Nog geen API-sleutels.",
+        "untitledKey": "Sleutel zonder titel",
+        "created": "aangemaakt {{date}}",
+        "lastUsed": "laatst gebruikt {{date}}",
+        "lockedTitle": "Haal je gegevens naar je eigen tools",
+        "lockedDescription": "Genereer een veilige API-sleutel en lees de samenvatting van je werkruimte programmatisch uit vanuit elk systeem dat je al gebruikt."
+      },
+      "team": {
+        "title": "Teamtoegang",
+        "subtitle": "Nodig collega's uit en kies wat ze mogen beheren. Voeg een e-mailadres toe om een echte aanmeldingsuitnodiging te sturen; laat het leeg als je alleen een naam wilt noteren.",
+        "seatCount": "{{current}} / {{limit}} plaatsen",
+        "seatLimitReached": "Limiet van plaatsen bereikt voor het {{plan}}-abonnement",
+        "upgradeForMoreSeats": "Upgrade voor meer plaatsen",
+        "namePlaceholder": "Naam of e-mail",
+        "sendingInvite": "Uitnodiging wordt verzonden...",
+        "sendInvite": "Uitnodiging versturen",
+        "addMember": "Teamlid toevoegen",
+        "noMembers": "Nog geen teamleden opgeslagen."
+      },
+      "activity": {
+        "title": "Recente activiteit",
+        "subtitle": "Bekijk de nieuwste beheerdersacties in deze werkruimte.",
+        "noActivity": "Nog geen activiteit.",
+        "lockedTitle": "Zie wie wat heeft gewijzigd, en wanneer",
+        "lockedDescription": "Een volledig verantwoordingsspoor van beheerdersacties die in je werkruimte zijn uitgevoerd."
+      }
     }
   }
 }

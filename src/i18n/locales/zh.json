@@ -172,9 +172,18 @@
     "currentTag": "（当前）",
     "paymentsNote": "支付由 Stripe 安全处理。价格和限额为上线初期方案，可能会在 Stripe 和本页面上进行调整。",
     "plans": {
-      "free": { "name": "免费版", "description": "在单个场所试用反馈闭环。" },
-      "starter": { "name": "入门版", "description": "以专业方式运营反馈流程，拥有自己的品牌标识和数据导出。" },
-      "growth": { "name": "成长版", "description": "通过自动化和集成，将反馈转化为回头客业务。" }
+      "free": {
+        "name": "免费版",
+        "description": "在单个场所试用反馈闭环。"
+      },
+      "starter": {
+        "name": "入门版",
+        "description": "以专业方式运营反馈流程，拥有自己的品牌标识和数据导出。"
+      },
+      "growth": {
+        "name": "成长版",
+        "description": "通过自动化和集成，将反馈转化为回头客业务。"
+      }
     },
     "rows": {
       "pollLimit": "投票数量上限",
@@ -214,13 +223,34 @@
       "settings": "品牌、团队权限、开发者 API 和最近活动。"
     },
     "quickActions": {
-      "create": { "label": "创建投票", "description": "为一张桌子、柜台或活动创建一个新的二维码反馈投票。" },
-      "polls": { "label": "管理您的投票", "description": "搜索、筛选并查看每个投票的表现。" },
-      "engagement": { "label": "创建二维码", "description": "将投票、信息卡片和捐赠整合到一个印刷二维码下。" },
-      "connection": { "label": "客户关系", "description": "收集邮箱、邀请真实评价并管理奖励。" },
-      "analytics": { "label": "查看数据分析", "description": "查看所有投票和地点的趋势。" },
-      "feedback": { "label": "查看反馈", "description": "阅读投票者的留言并批准待处理的评价认领请求。" },
-      "settings": { "label": "工作区设置", "description": "管理您的品牌、团队权限和账单。" }
+      "create": {
+        "label": "创建投票",
+        "description": "为一张桌子、柜台或活动创建一个新的二维码反馈投票。"
+      },
+      "polls": {
+        "label": "管理您的投票",
+        "description": "搜索、筛选并查看每个投票的表现。"
+      },
+      "engagement": {
+        "label": "创建二维码",
+        "description": "将投票、信息卡片和捐赠整合到一个印刷二维码下。"
+      },
+      "connection": {
+        "label": "客户关系",
+        "description": "收集邮箱、邀请真实评价并管理奖励。"
+      },
+      "analytics": {
+        "label": "查看数据分析",
+        "description": "查看所有投票和地点的趋势。"
+      },
+      "feedback": {
+        "label": "查看反馈",
+        "description": "阅读投票者的留言并批准待处理的评价认领请求。"
+      },
+      "settings": {
+        "label": "工作区设置",
+        "description": "管理您的品牌、团队权限和账单。"
+      }
     },
     "overview": {
       "stats": {
@@ -573,6 +603,87 @@
       "largePrint": "提供大字版",
       "hearingLoop": "助听环路",
       "serviceAnimalsWelcome": "欢迎服务犬"
+    },
+    "settings": {
+      "workspace": {
+        "title": "工作区设置",
+        "subtitle": "设置将在整个工作区中使用的名称、Logo、颜色和访问级别。",
+        "roleLabel": "角色：{{role}}",
+        "companyNamePlaceholder": "公司名称",
+        "roles": {
+          "owner": "所有者",
+          "editor": "编辑者",
+          "viewer": "查看者"
+        },
+        "logoUrlPlaceholder": "Logo URL",
+        "webhookUrlPlaceholder": "Webhook URL（可选）- 每次有人投票时，在 Slack/Zapier/Sheets 中收到通知",
+        "webhookUrlLocked": "Webhook 功能在 Growth 套餐中可用",
+        "autoDeleteLabel": "在以下时间后自动删除投票（天，可选）",
+        "autoDeletePlaceholder": "留空即可永久保留投票",
+        "buttonColorLabel": "按钮和链接颜色",
+        "buttonColorHint": "用于用户可以点击的操作。",
+        "backgroundColorLabel": "页面背景颜色",
+        "backgroundColorHint": "用于您的公开投票页面背景。",
+        "webhooksUpgradeNote": "Webhook 功能在 Growth 套餐中可用",
+        "saveButton": "保存工作区设置"
+      },
+      "googleBusiness": {
+        "title": "Google Business Profile",
+        "subtitle": "连接您的真实 Google Business 列表，这样仪表盘就能在下方显示您的真实公开评分。您只需要设置一次。",
+        "step1Prefix": "点击下方的",
+        "step1Cta": "\"在 Google 上查找我的商家\"",
+        "step1Suffix": "— 这会在新标签页中打开 Google 的官方查找工具。",
+        "step2": "在该页面的搜索框中输入您的商家名称（如果您有多个地点，也请输入城市）。",
+        "step3Prefix": "当您的商家出现时点击它 — 一个小弹窗会显示",
+        "step3PlaceId": "Place ID",
+        "step3Suffix": "（类似这样的代码",
+        "step4Prefix": "复制该代码并粘贴到下方输入框中，然后点击",
+        "step4Cta": "保存 Google Place ID",
+        "findLink": "在 Google 上查找我的商家",
+        "placeIdPlaceholder": "在此粘贴您的 Place ID，例如 ChIJ...",
+        "saveButton": "保存 Google Place ID"
+      },
+      "reputation": {
+        "title": "公开声誉",
+        "subtitle": "这是从 Google 拉取的真实公开评分。请先在上方连接您的商家。",
+        "ratingSummary": "（满分 5 分）- {{count}} 条 Google 评价",
+        "asOf": "截至 {{date}}",
+        "noRating": "尚未拉取公开评分。",
+        "refreshing": "正在刷新...",
+        "refreshButton": "刷新公开评分",
+        "lockedTitle": "自动跟踪您的公开评分",
+        "lockedDescription": "拉取您的真实 Google 评分，这样您就可以结合反馈数据一起查看声誉趋势。"
+      },
+      "api": {
+        "title": "开发者 API",
+        "labelPlaceholder": "标签：BI dashboard、Zapier",
+        "generateKey": "生成密钥",
+        "noKeys": "还没有 API 密钥。",
+        "untitledKey": "未命名密钥",
+        "created": "创建于 {{date}}",
+        "lastUsed": "上次使用于 {{date}}",
+        "lockedTitle": "把您的数据接入自己的工具",
+        "lockedDescription": "生成安全的 API 密钥，并从您已在使用的任何系统中以编程方式读取工作区摘要。"
+      },
+      "team": {
+        "title": "团队权限",
+        "subtitle": "邀请同事并选择他们可以管理的内容。添加邮箱即可向他们发送真正的登录邀请；留空则只记录一个姓名。",
+        "seatCount": "{{current}} / {{limit}} 个席位",
+        "seatLimitReached": "{{plan}} 套餐的席位数已达上限",
+        "upgradeForMoreSeats": "升级以获得更多席位",
+        "namePlaceholder": "姓名或邮箱",
+        "sendingInvite": "正在发送邀请...",
+        "sendInvite": "发送邀请",
+        "addMember": "添加团队成员",
+        "noMembers": "还没有保存任何团队成员。"
+      },
+      "activity": {
+        "title": "最近活动",
+        "subtitle": "查看此工作区中最新的管理操作。",
+        "noActivity": "还没有活动。",
+        "lockedTitle": "查看是谁在什么时候改了什么",
+        "lockedDescription": "完整记录在您的工作区中执行的管理操作，便于追责。"
+      }
     }
   }
 }

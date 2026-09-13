@@ -1529,7 +1529,7 @@ export default function Admin() {
     printWindow.document.write(`
       <html>
         <head>
-          <title>Print QR</title>
+          <title>${t("admin.polls.card.printQr")}</title>
           <style>
             @page { size: ${formatConfig.size}; margin: ${formatConfig.margin}; }
             body {
@@ -2529,19 +2529,19 @@ export default function Admin() {
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.rotations.title")}</summary>
         <div className="px-4 pb-4">
-          <p className="mb-3 text-sm text-slate-400">Build an ordered list of polls that automatically swap on a schedule, so a printed QR code stays fresh without any admin action.</p>
+          <p className="mb-3 text-sm text-slate-400">{t("admin.engagement.rotations.subtitle")}</p>
           <div className="grid gap-3 md:grid-cols-3 mb-3">
-            <input value={newRotationName} onChange={(event) => setNewRotationName(event.target.value)} className="border p-2 rounded text-black" placeholder="Rotation name: Daily question" />
+            <input value={newRotationName} onChange={(event) => setNewRotationName(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.rotations.namePlaceholder")} />
             <select value={newRotationFrequency} onChange={(event) => setNewRotationFrequency(event.target.value)} className="border p-2 rounded text-black">
-              <option value="daily">Change daily</option>
-              <option value="weekly">Change weekly</option>
+              <option value="daily">{t("admin.engagement.rotations.changeDaily")}</option>
+              <option value="weekly">{t("admin.engagement.rotations.changeWeekly")}</option>
             </select>
             <div className="flex gap-2">
               <select value={rotationPollToAdd} onChange={(event) => setRotationPollToAdd(event.target.value)} className="flex-1 border p-2 rounded text-black">
-                <option value="">Choose a poll to add</option>
+                <option value="">{t("admin.engagement.rotations.choosePollToAdd")}</option>
                 {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
               </select>
-              <button onClick={addPollToRotationDraft} className="bg-slate-700 text-white px-3 py-2 rounded font-semibold">Add</button>
+              <button onClick={addPollToRotationDraft} className="bg-slate-700 text-white px-3 py-2 rounded font-semibold">{t("admin.engagement.rotations.add")}</button>
             </div>
           </div>
           {newRotationPollIds.length > 0 && (
@@ -2550,49 +2550,49 @@ export default function Admin() {
                 const poll = polls.find((item) => String(item.id) === String(pollId));
                 return (
                   <li key={`${pollId}-${index}`} className="flex items-center justify-between gap-2">
-                    <span>{poll ? `#${poll.id} - ${poll.question}` : `Poll #${pollId}`}</span>
-                    <button onClick={() => removePollFromRotationDraft(index)} className="text-xs text-red-300 underline">Remove</button>
+                    <span>{poll ? `#${poll.id} - ${poll.question}` : t("admin.polls.card.pollNumber", { id: pollId })}</span>
+                    <button onClick={() => removePollFromRotationDraft(index)} className="text-xs text-red-300 underline">{t("admin.engagement.items.remove")}</button>
                   </li>
                 );
               })}
             </ol>
           )}
-          <button onClick={handleCreateRotation} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">Create rotation</button>
+          <button onClick={handleCreateRotation} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">{t("admin.engagement.rotations.createButton")}</button>
           <div className="mt-4 space-y-2 text-sm">
             {pollRotations.length === 0 ? (
-              <p className="text-gray-400">No poll rotations yet.</p>
+              <p className="text-gray-400">{t("admin.engagement.rotations.noRotations")}</p>
             ) : (
               pollRotations.map((rotation) => (
                 <div key={rotation.id} className="flex items-center justify-between border-b border-gray-700 py-2">
-                  <span>{rotation.name} · {rotation.frequency} · {rotation.poll_ids.length} polls</span>
-                  <button onClick={() => handleDeleteRotation(rotation.id)} className="text-xs text-red-300 underline">Delete</button>
+                  <span>{t("admin.engagement.rotations.rotationSummary", { name: rotation.name, frequency: rotation.frequency, count: rotation.poll_ids.length })}</span>
+                  <button onClick={() => handleDeleteRotation(rotation.id)} className="text-xs text-red-300 underline">{t("admin.engagement.locations.delete")}</button>
                 </div>
               ))
             )}
           </div>
-          <p className="mt-3 text-xs text-slate-500">Assign a rotation to a QR campaign above using "Or rotate".</p>
+          <p className="mt-3 text-xs text-slate-500">{t("admin.engagement.rotations.assignHint")}</p>
         </div>
       </details>
 
       <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">Reward redemptions</summary>
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.redemptions.title")}</summary>
         <div className="px-4 pb-4">
           {entitlements.redemptionTracking ? (
           <>
-          <p className="mb-3 text-sm text-slate-400">When a customer shows their reward code, enter it here to mark it redeemed and track how often it's used.</p>
+          <p className="mb-3 text-sm text-slate-400">{t("admin.engagement.redemptions.subtitle")}</p>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <input value={redeemCode} onChange={(event) => setRedeemCode(event.target.value)} className="flex-1 border p-2 rounded text-black" placeholder="Enter the reward code" />
-            <button onClick={handleRedeemCode} className="bg-teal-500 text-slate-950 px-4 py-2 rounded font-semibold">Mark redeemed</button>
+            <input value={redeemCode} onChange={(event) => setRedeemCode(event.target.value)} className="flex-1 border p-2 rounded text-black" placeholder={t("admin.engagement.redemptions.codePlaceholder")} />
+            <button onClick={handleRedeemCode} className="bg-teal-500 text-slate-950 px-4 py-2 rounded font-semibold">{t("admin.engagement.redemptions.markRedeemed")}</button>
           </div>
           {redeemMessage && <p className="mt-3 text-sm text-amber-300">{redeemMessage}</p>}
           <div className="mt-4 space-y-2 text-sm">
             {polls.filter((poll) => poll.reward_code).length === 0 ? (
-              <p className="text-gray-400">No polls have a reward code yet. Add one under "After voting" when creating or editing a poll.</p>
+              <p className="text-gray-400">{t("admin.engagement.redemptions.noCodes")}</p>
             ) : (
               polls.filter((poll) => poll.reward_code).map((poll) => (
                 <div key={poll.id} className="flex items-center justify-between border-b border-gray-700 py-1">
-                  <span>#{poll.id} - {poll.question} · code {poll.reward_code}</span>
-                  <span className="text-teal-300">{poll.reward_redeemed_count || 0} redeemed</span>
+                  <span>#{poll.id} - {poll.question} · {t("admin.engagement.redemptions.codeLabel", { code: poll.reward_code })}</span>
+                  <span className="text-teal-300">{t("admin.engagement.redemptions.redeemedCount", { count: poll.reward_redeemed_count || 0 })}</span>
                 </div>
               ))
             )}
@@ -2601,31 +2601,31 @@ export default function Admin() {
           ) : (
             <LockedFeature
               feature="redemptionTracking"
-              title="See how often rewards are actually redeemed"
-              description="Track redemption counts per poll to prove your rewards are bringing customers back."
+              title={t("admin.engagement.redemptions.lockedTitle")}
+              description={t("admin.engagement.redemptions.lockedDescription")}
             />
           )}
         </div>
       </details>
 
       <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">Prize draws</summary>
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.prizeDraws.title")}</summary>
         <div className="px-4 pb-4">
           {entitlements.prizeDraws ? (
           <>
-          <p className="mb-3 text-sm text-slate-400">Enable a prize draw when creating or editing a poll. Entrants are voters who opted in with their email. Pick a winner here when you're ready.</p>
+          <p className="mb-3 text-sm text-slate-400">{t("admin.engagement.prizeDraws.subtitle")}</p>
           <div className="space-y-2 text-sm">
             {polls.filter((poll) => poll.raffle_enabled).length === 0 ? (
-              <p className="text-gray-400">No polls have a prize draw enabled yet.</p>
+              <p className="text-gray-400">{t("admin.engagement.prizeDraws.noDraws")}</p>
             ) : (
               polls.filter((poll) => poll.raffle_enabled).map((poll) => (
                 <div key={poll.id} className="border-b border-gray-700 py-2">
                   <div className="flex items-center justify-between gap-3">
-                    <span>#{poll.id} - {poll.question} · prize: {poll.raffle_prize || "Not set"}</span>
-                    <button onClick={() => pickRaffleWinner(poll.id)} className="shrink-0 bg-amber-500 text-slate-950 px-3 py-1.5 rounded font-semibold">Pick a winner</button>
+                    <span>#{poll.id} - {poll.question} · {t("admin.engagement.prizeDraws.prizeLabel", { prize: poll.raffle_prize || t("admin.engagement.prizeDraws.notSet") })}</span>
+                    <button onClick={() => pickRaffleWinner(poll.id)} className="shrink-0 bg-amber-500 text-slate-950 px-3 py-1.5 rounded font-semibold">{t("admin.engagement.prizeDraws.pickWinner")}</button>
                   </div>
                   {poll.raffle_winner_email && (
-                    <p className="mt-1 text-xs text-amber-300">Winner: {poll.raffle_winner_email} ({new Date(poll.raffle_winner_picked_at).toLocaleString()})</p>
+                    <p className="mt-1 text-xs text-amber-300">{t("admin.engagement.prizeDraws.winner", { email: poll.raffle_winner_email, date: new Date(poll.raffle_winner_picked_at).toLocaleString() })}</p>
                   )}
                 </div>
               ))
@@ -2635,8 +2635,8 @@ export default function Admin() {
           ) : (
             <LockedFeature
               feature="prizeDraws"
-              title="Run prize draws to boost response rates"
-              description="Let voters enter a raffle with their email, then pick a winner at random from right here."
+              title={t("admin.engagement.prizeDraws.lockedTitle")}
+              description={t("admin.engagement.prizeDraws.lockedDescription")}
             />
           )}
         </div>
@@ -2924,13 +2924,13 @@ export default function Admin() {
         <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.settings.team.title")}</summary>
         <div className="px-4 pb-4">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm text-slate-400">Invite colleagues and choose what they can manage. Add an email to send them a real sign-in invite; leave it blank to just note a name.</p>
-          <span className="text-xs uppercase tracking-wide text-gray-300">{teamMembers.length} / {entitlements.seatLimit} seats</span>
+          <p className="text-sm text-slate-400">{t("admin.settings.team.subtitle")}</p>
+          <span className="text-xs uppercase tracking-wide text-gray-300">{t("admin.settings.team.seatCount", { current: teamMembers.length, limit: entitlements.seatLimit })}</span>
         </div>
 
         {teamMembers.length >= entitlements.seatLimit && (
           <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-amber-300">
-            Seat limit reached for the {planLabel(workspaceProfile.plan)} plan · <Link to="/admin/billing" className="underline">Upgrade for more seats</Link>
+            {t("admin.settings.team.seatLimitReached", { plan: planLabel(workspaceProfile.plan) })} · <Link to="/admin/billing" className="underline">{t("admin.settings.team.upgradeForMoreSeats")}</Link>
           </p>
         )}
 
@@ -2940,7 +2940,7 @@ export default function Admin() {
             value={newMemberName}
             onChange={(event) => setNewMemberName(event.target.value)}
             className="border p-2 rounded text-black"
-            placeholder="Name or email"
+            placeholder={t("admin.settings.team.namePlaceholder")}
             disabled={teamMembers.length >= entitlements.seatLimit}
           />
           <input
@@ -2957,9 +2957,9 @@ export default function Admin() {
             className="border p-2 rounded text-black"
             disabled={teamMembers.length >= entitlements.seatLimit}
           >
-            <option value="owner">Owner</option>
-            <option value="editor">Editor</option>
-            <option value="viewer">Viewer</option>
+            <option value="owner">{t("admin.settings.workspace.roles.owner")}</option>
+            <option value="editor">{t("admin.settings.workspace.roles.editor")}</option>
+            <option value="viewer">{t("admin.settings.workspace.roles.viewer")}</option>
           </select>
         </div>
 
@@ -2970,12 +2970,12 @@ export default function Admin() {
             permission.canManageWorkspace && teamMembers.length < entitlements.seatLimit ? "bg-indigo-600 text-white" : "bg-gray-600 text-gray-300 cursor-not-allowed"
           }`}
         >
-          {invitingMember ? "Sending invite..." : newMemberEmail.trim() ? "Send invite" : "Add team member"}
+          {invitingMember ? t("admin.settings.team.sendingInvite") : newMemberEmail.trim() ? t("admin.settings.team.sendInvite") : t("admin.settings.team.addMember")}
         </button>
 
         <div className="space-y-2">
           {teamMembers.length === 0 ? (
-            <p className="text-gray-400">No team members saved yet.</p>
+            <p className="text-gray-400">{t("admin.settings.team.noMembers")}</p>
           ) : (
             teamMembers.map((member) => (
               <div key={member.id} className="flex items-center justify-between border border-gray-700 rounded p-3">
@@ -2991,7 +2991,7 @@ export default function Admin() {
                     permission.canManageWorkspace ? "bg-red-600 text-white" : "bg-gray-700 text-gray-400 cursor-not-allowed"
                   }`}
                 >
-                  Remove
+                  {t("admin.engagement.items.remove")}
                 </button>
               </div>
             ))
@@ -3001,14 +3001,14 @@ export default function Admin() {
       </details>
 
       <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">Recent activity</summary>
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.settings.activity.title")}</summary>
         <div className="px-4 pb-4">
         {entitlements.auditLog ? (
         <>
-        <p className="mb-3 text-sm text-slate-400">Review the latest administrative actions in this workspace.</p>
+        <p className="mb-3 text-sm text-slate-400">{t("admin.settings.activity.subtitle")}</p>
         <div className="space-y-2 text-sm">
           {auditEntries.length === 0 ? (
-            <p className="text-gray-400">No activity yet.</p>
+            <p className="text-gray-400">{t("admin.settings.activity.noActivity")}</p>
           ) : (
             auditEntries.map((entry) => (
               <div key={entry.id} className="border-b border-gray-700 pb-2 last:border-b-0 last:pb-0">
@@ -3022,8 +3022,8 @@ export default function Admin() {
         ) : (
           <LockedFeature
             feature="auditLog"
-            title="See who changed what, and when"
-            description="A full accountability trail of administrative actions taken in your workspace."
+            title={t("admin.settings.activity.lockedTitle")}
+            description={t("admin.settings.activity.lockedDescription")}
           />
         )}
         </div>

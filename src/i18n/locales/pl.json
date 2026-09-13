@@ -172,9 +172,18 @@
     "currentTag": "(obecny)",
     "paymentsNote": "Płatności są bezpiecznie obsługiwane przez Stripe. Ceny i limity to propozycje startowe i mogą zostać zmienione w Stripe oraz na tej stronie.",
     "plans": {
-      "free": { "name": "Darmowy", "description": "Wypróbuj cykl zbierania opinii w jednym lokalu." },
-      "starter": { "name": "Starter", "description": "Prowadź zbieranie opinii profesjonalnie, z własną marką i eksportami." },
-      "growth": { "name": "Growth", "description": "Zamień opinie w stałych klientów dzięki automatyzacji i integracjom." }
+      "free": {
+        "name": "Darmowy",
+        "description": "Wypróbuj cykl zbierania opinii w jednym lokalu."
+      },
+      "starter": {
+        "name": "Starter",
+        "description": "Prowadź zbieranie opinii profesjonalnie, z własną marką i eksportami."
+      },
+      "growth": {
+        "name": "Growth",
+        "description": "Zamień opinie w stałych klientów dzięki automatyzacji i integracjom."
+      }
     },
     "rows": {
       "pollLimit": "Limit ankiet",
@@ -214,13 +223,34 @@
       "settings": "Marka, dostęp zespołu, API dla programistów i ostatnia aktywność."
     },
     "quickActions": {
-      "create": { "label": "Utwórz ankietę", "description": "Rozpocznij nową ankietę opinii QR dla stolika, lady lub wydarzenia." },
-      "polls": { "label": "Zarządzaj ankietami", "description": "Wyszukuj, filtruj i sprawdzaj wyniki każdej ankiety." },
-      "engagement": { "label": "Utwórz kod QR", "description": "Połącz ankiety, karty informacyjne i darowizny pod jednym drukowanym kodem." },
-      "connection": { "label": "Relacje z klientami", "description": "Zbieraj e-maile, zapraszaj do szczerych recenzji i zarządzaj nagrodami." },
-      "analytics": { "label": "Zobacz statystyki", "description": "Sprawdź trendy we wszystkich ankietach i lokalizacjach." },
-      "feedback": { "label": "Przejrzyj opinie", "description": "Czytaj wiadomości od głosujących i zatwierdzaj oczekujące prośby o recenzje." },
-      "settings": { "label": "Ustawienia obszaru roboczego", "description": "Zarządzaj marką, dostępem zespołu i rozliczeniami." }
+      "create": {
+        "label": "Utwórz ankietę",
+        "description": "Rozpocznij nową ankietę opinii QR dla stolika, lady lub wydarzenia."
+      },
+      "polls": {
+        "label": "Zarządzaj ankietami",
+        "description": "Wyszukuj, filtruj i sprawdzaj wyniki każdej ankiety."
+      },
+      "engagement": {
+        "label": "Utwórz kod QR",
+        "description": "Połącz ankiety, karty informacyjne i darowizny pod jednym drukowanym kodem."
+      },
+      "connection": {
+        "label": "Relacje z klientami",
+        "description": "Zbieraj e-maile, zapraszaj do szczerych recenzji i zarządzaj nagrodami."
+      },
+      "analytics": {
+        "label": "Zobacz statystyki",
+        "description": "Sprawdź trendy we wszystkich ankietach i lokalizacjach."
+      },
+      "feedback": {
+        "label": "Przejrzyj opinie",
+        "description": "Czytaj wiadomości od głosujących i zatwierdzaj oczekujące prośby o recenzje."
+      },
+      "settings": {
+        "label": "Ustawienia obszaru roboczego",
+        "description": "Zarządzaj marką, dostępem zespołu i rozliczeniami."
+      }
     },
     "overview": {
       "stats": {
@@ -573,6 +603,87 @@
       "largePrint": "Dostępny druk powiększony",
       "hearingLoop": "Pętla indukcyjna",
       "serviceAnimalsWelcome": "Zwierzęta asystujące mile widziane"
+    },
+    "settings": {
+      "workspace": {
+        "title": "Ustawienia obszaru roboczego",
+        "subtitle": "Ustaw nazwę, logo, kolory i poziom dostępu używane w całym obszarze roboczym.",
+        "roleLabel": "Rola: {{role}}",
+        "companyNamePlaceholder": "Nazwa firmy",
+        "roles": {
+          "owner": "Właściciel",
+          "editor": "Edytor",
+          "viewer": "Obserwator"
+        },
+        "logoUrlPlaceholder": "URL logo",
+        "webhookUrlPlaceholder": "URL webhooka (opcjonalnie) - otrzymuj powiadomienia w Slack/Zapier/Sheets przy każdym głosie",
+        "webhookUrlLocked": "Webhooki są dostępne w planie Growth",
+        "autoDeleteLabel": "Automatycznie usuwaj głosy po (dniach, opcjonalnie)",
+        "autoDeletePlaceholder": "Pozostaw puste, aby zachować głosy na zawsze",
+        "buttonColorLabel": "Kolor przycisków i linków",
+        "buttonColorHint": "Używany dla działań, w które użytkownicy mogą kliknąć.",
+        "backgroundColorLabel": "Kolor tła strony",
+        "backgroundColorHint": "Używany za publicznymi stronami ankiet.",
+        "webhooksUpgradeNote": "Webhooki dostępne w Growth",
+        "saveButton": "Zapisz ustawienia obszaru roboczego"
+      },
+      "googleBusiness": {
+        "title": "Google Business Profile",
+        "subtitle": "Połącz swoją prawdziwą wizytówkę Google Business, aby panel mógł poniżej pokazywać Twoją prawdziwą publiczną ocenę. Wystarczy zrobić to tylko raz.",
+        "step1Prefix": "Kliknij",
+        "step1Cta": "\"Znajdź moją firmę w Google\"",
+        "step1Suffix": "poniżej - w nowej karcie otworzy się oficjalne narzędzie wyszukiwania Google.",
+        "step2": "Wpisz nazwę swojej firmy (oraz miasto, jeśli masz więcej niż jedną lokalizację) w polu wyszukiwania na tej stronie.",
+        "step3Prefix": "Kliknij swoją firmę, gdy się pojawi - małe okienko pokaże",
+        "step3PlaceId": "Place ID",
+        "step3Suffix": "(kod taki jak",
+        "step4Prefix": "Skopiuj ten kod i wklej go do pola poniżej, a potem kliknij",
+        "step4Cta": "Zapisz Google Place ID",
+        "findLink": "Znajdź moją firmę w Google",
+        "placeIdPlaceholder": "Wklej tutaj swój Place ID, np. ChIJ...",
+        "saveButton": "Zapisz Google Place ID"
+      },
+      "reputation": {
+        "title": "Publiczna reputacja",
+        "subtitle": "Twoja prawdziwa publiczna ocena, pobrana z Google. Najpierw połącz swoją firmę powyżej.",
+        "ratingSummary": "na 5 - {{count}} opinii Google",
+        "asOf": "stan na {{date}}",
+        "noRating": "Nie pobrano jeszcze publicznej oceny.",
+        "refreshing": "Odświeżanie...",
+        "refreshButton": "Odśwież publiczną ocenę",
+        "lockedTitle": "Śledź swoją publiczną ocenę automatycznie",
+        "lockedDescription": "Pobierz swoją prawdziwą ocenę z Google, aby śledzić trend reputacji obok danych z opinii."
+      },
+      "api": {
+        "title": "API dla programistów",
+        "labelPlaceholder": "Etykieta: pulpit BI, Zapier",
+        "generateKey": "Wygeneruj klucz",
+        "noKeys": "Nie ma jeszcze kluczy API.",
+        "untitledKey": "Klucz bez tytułu",
+        "created": "utworzono {{date}}",
+        "lastUsed": "ostatnio użyto {{date}}",
+        "lockedTitle": "Pobierz swoje dane do własnych narzędzi",
+        "lockedDescription": "Wygeneruj bezpieczny klucz API i odczytuj programowo podsumowanie swojego obszaru roboczego z dowolnego systemu, którego już używasz."
+      },
+      "team": {
+        "title": "Dostęp zespołu",
+        "subtitle": "Zaproś współpracowników i wybierz, czym mogą zarządzać. Dodaj adres e-mail, aby wysłać im prawdziwe zaproszenie do logowania; pozostaw pole puste, jeśli chcesz tylko zapisać imię.",
+        "seatCount": "{{current}} / {{limit}} miejsc",
+        "seatLimitReached": "Osiągnięto limit miejsc dla planu {{plan}}",
+        "upgradeForMoreSeats": "Ulepsz plan, aby mieć więcej miejsc",
+        "namePlaceholder": "Imię lub e-mail",
+        "sendingInvite": "Wysyłanie zaproszenia...",
+        "sendInvite": "Wyślij zaproszenie",
+        "addMember": "Dodaj członka zespołu",
+        "noMembers": "Nie zapisano jeszcze żadnych członków zespołu."
+      },
+      "activity": {
+        "title": "Ostatnia aktywność",
+        "subtitle": "Przejrzyj najnowsze działania administracyjne w tym obszarze roboczym.",
+        "noActivity": "Brak aktywności.",
+        "lockedTitle": "Zobacz, kto co zmienił i kiedy",
+        "lockedDescription": "Pełna ścieżka odpowiedzialności za działania administracyjne wykonane w Twoim obszarze roboczym."
+      }
     }
   }
 }

@@ -172,9 +172,18 @@
     "currentTag": "(actuelle)",
     "paymentsNote": "Les paiements sont gérés en toute sécurité par Stripe. Les tarifs et limites sont des propositions de lancement et peuvent être modifiés dans Stripe et sur cette page.",
     "plans": {
-      "free": { "name": "Gratuit", "description": "Essayez le cycle de retours clients sur un seul établissement." },
-      "starter": { "name": "Starter", "description": "Gérez les retours clients professionnellement, avec votre propre image de marque et des exports." },
-      "growth": { "name": "Growth", "description": "Transformez les retours clients en clientèle fidèle grâce à l'automatisation et aux intégrations." }
+      "free": {
+        "name": "Gratuit",
+        "description": "Essayez le cycle de retours clients sur un seul établissement."
+      },
+      "starter": {
+        "name": "Starter",
+        "description": "Gérez les retours clients professionnellement, avec votre propre image de marque et des exports."
+      },
+      "growth": {
+        "name": "Growth",
+        "description": "Transformez les retours clients en clientèle fidèle grâce à l'automatisation et aux intégrations."
+      }
     },
     "rows": {
       "pollLimit": "Limite de sondages",
@@ -214,13 +223,34 @@
       "settings": "Marque, accès de l'équipe, API développeur et activité récente."
     },
     "quickActions": {
-      "create": { "label": "Créer un sondage", "description": "Lancez un nouveau sondage de retour QR pour une table, un comptoir ou un événement." },
-      "polls": { "label": "Gérer vos sondages", "description": "Recherchez, filtrez et consultez les performances de chaque sondage." },
-      "engagement": { "label": "Créer un code QR", "description": "Combinez sondages, fiches d'information et dons sous un seul code imprimé." },
-      "connection": { "label": "Relation client", "description": "Collectez des e-mails, invitez à des avis sincères et gérez les récompenses." },
-      "analytics": { "label": "Voir les statistiques", "description": "Consultez les tendances de tous les sondages et emplacements." },
-      "feedback": { "label": "Consulter les retours", "description": "Lisez les messages des votants et validez les demandes d'avis en attente." },
-      "settings": { "label": "Paramètres de l'espace de travail", "description": "Gérez votre marque, l'accès de l'équipe et la facturation." }
+      "create": {
+        "label": "Créer un sondage",
+        "description": "Lancez un nouveau sondage de retour QR pour une table, un comptoir ou un événement."
+      },
+      "polls": {
+        "label": "Gérer vos sondages",
+        "description": "Recherchez, filtrez et consultez les performances de chaque sondage."
+      },
+      "engagement": {
+        "label": "Créer un code QR",
+        "description": "Combinez sondages, fiches d'information et dons sous un seul code imprimé."
+      },
+      "connection": {
+        "label": "Relation client",
+        "description": "Collectez des e-mails, invitez à des avis sincères et gérez les récompenses."
+      },
+      "analytics": {
+        "label": "Voir les statistiques",
+        "description": "Consultez les tendances de tous les sondages et emplacements."
+      },
+      "feedback": {
+        "label": "Consulter les retours",
+        "description": "Lisez les messages des votants et validez les demandes d'avis en attente."
+      },
+      "settings": {
+        "label": "Paramètres de l'espace de travail",
+        "description": "Gérez votre marque, l'accès de l'équipe et la facturation."
+      }
     },
     "overview": {
       "stats": {
@@ -573,6 +603,87 @@
       "largePrint": "Gros caractères disponibles",
       "hearingLoop": "Boucle magnétique",
       "serviceAnimalsWelcome": "Animaux d'assistance bienvenus"
+    },
+    "settings": {
+      "workspace": {
+        "title": "Paramètres de l'espace de travail",
+        "subtitle": "Définissez le nom, le logo, les couleurs et le niveau d'accès utilisés dans tout votre espace de travail.",
+        "roleLabel": "Rôle : {{role}}",
+        "companyNamePlaceholder": "Nom de l'entreprise",
+        "roles": {
+          "owner": "Propriétaire",
+          "editor": "Éditeur",
+          "viewer": "Lecteur"
+        },
+        "logoUrlPlaceholder": "URL du logo",
+        "webhookUrlPlaceholder": "URL du webhook (facultatif) - recevez une notification dans Slack/Zapier/Sheets à chaque vote",
+        "webhookUrlLocked": "Les webhooks sont disponibles avec l'offre Growth",
+        "autoDeleteLabel": "Supprimer automatiquement les votes après (jours, facultatif)",
+        "autoDeletePlaceholder": "Laissez vide pour conserver les votes indéfiniment",
+        "buttonColorLabel": "Couleur des boutons et des liens",
+        "buttonColorHint": "Utilisée pour les actions sur lesquelles les utilisateurs peuvent cliquer.",
+        "backgroundColorLabel": "Couleur d'arrière-plan de la page",
+        "backgroundColorHint": "Utilisée derrière vos pages de sondage publiques.",
+        "webhooksUpgradeNote": "Webhooks disponibles avec Growth",
+        "saveButton": "Enregistrer les paramètres de l'espace de travail"
+      },
+      "googleBusiness": {
+        "title": "Google Business Profile",
+        "subtitle": "Connectez votre véritable fiche Google Business pour que le tableau de bord puisse afficher ci-dessous votre vraie note publique. Vous n'avez besoin de le faire qu'une seule fois.",
+        "step1Prefix": "Cliquez sur",
+        "step1Cta": "\"Trouver mon établissement sur Google\"",
+        "step1Suffix": "ci-dessous : l'outil officiel de recherche de Google s'ouvrira dans un nouvel onglet.",
+        "step2": "Saisissez le nom de votre établissement (et la ville, si vous avez plusieurs emplacements) dans la barre de recherche de cette page.",
+        "step3Prefix": "Cliquez sur votre établissement lorsqu'il apparaît : une petite fenêtre contextuelle affiche un",
+        "step3PlaceId": "Place ID",
+        "step3Suffix": "(un code du type",
+        "step4Prefix": "Copiez ce code et collez-le dans le champ ci-dessous, puis cliquez sur",
+        "step4Cta": "Enregistrer le Google Place ID",
+        "findLink": "Trouver mon établissement sur Google",
+        "placeIdPlaceholder": "Collez votre Place ID ici, par ex. ChIJ...",
+        "saveButton": "Enregistrer le Google Place ID"
+      },
+      "reputation": {
+        "title": "Réputation publique",
+        "subtitle": "Votre vraie note publique, récupérée depuis Google. Connectez d'abord votre établissement ci-dessus.",
+        "ratingSummary": "sur 5 - {{count}} avis Google",
+        "asOf": "au {{date}}",
+        "noRating": "Aucune note publique récupérée pour le moment.",
+        "refreshing": "Actualisation...",
+        "refreshButton": "Actualiser la note publique",
+        "lockedTitle": "Suivez automatiquement votre note publique",
+        "lockedDescription": "Récupérez votre vraie note Google pour suivre l'évolution de votre réputation en parallèle de vos données de retours."
+      },
+      "api": {
+        "title": "API développeur",
+        "labelPlaceholder": "Libellé : tableau de bord BI, Zapier",
+        "generateKey": "Générer une clé",
+        "noKeys": "Pas encore de clés API.",
+        "untitledKey": "Clé sans titre",
+        "created": "créée le {{date}}",
+        "lastUsed": "dernière utilisation {{date}}",
+        "lockedTitle": "Récupérez vos données dans vos propres outils",
+        "lockedDescription": "Générez une clé API sécurisée et lisez le résumé de votre espace de travail par programmation depuis n'importe quel système que vous utilisez déjà."
+      },
+      "team": {
+        "title": "Accès de l'équipe",
+        "subtitle": "Invitez des collègues et choisissez ce qu'ils peuvent gérer. Ajoutez une adresse e-mail pour leur envoyer une vraie invitation de connexion ; laissez le champ vide pour simplement noter un nom.",
+        "seatCount": "{{current}} / {{limit}} places",
+        "seatLimitReached": "Limite de places atteinte pour l'offre {{plan}}",
+        "upgradeForMoreSeats": "Passer à une offre avec plus de places",
+        "namePlaceholder": "Nom ou e-mail",
+        "sendingInvite": "Envoi de l'invitation...",
+        "sendInvite": "Envoyer l'invitation",
+        "addMember": "Ajouter un membre de l'équipe",
+        "noMembers": "Aucun membre de l'équipe enregistré pour le moment."
+      },
+      "activity": {
+        "title": "Activité récente",
+        "subtitle": "Consultez les dernières actions administratives de cet espace de travail.",
+        "noActivity": "Aucune activité pour le moment.",
+        "lockedTitle": "Voyez qui a changé quoi, et quand",
+        "lockedDescription": "Une piste d'audit complète des actions administratives effectuées dans votre espace de travail."
+      }
     }
   }
 }
