@@ -18,9 +18,9 @@
     "eyebrow": "Feedback via QR per spazi reali",
     "title": "Trasforma ogni luogo fisico in un canale di feedback misurabile.",
     "lede": "Godwit aiuta le attività a trasformare una semplice scansione QR in feedback, dati sulle campagne e follow-up basato sul consenso.",
-    "workspaceDashboard": "Dashboard del workspace",
-    "createWorkspace": "Crea un workspace",
-    "workspaceLogin": "Accesso al workspace",
+    "workspaceDashboard": "Dashboard",
+    "createWorkspace": "Inizia con Godwit",
+    "workspaceLogin": "Accedi a Godwit",
     "note": "Pensato per locali, eventi, ospitalità, retail e team che lavorano di persona.",
     "howItWorksEyebrow": "Un ciclo semplice",
     "howItWorksTitle": "Dal codice QR a una decisione migliore.",
@@ -75,6 +75,6 @@
     "finalEyebrow": "Pronto a misurare l'ambiente?",
     "finalTitle": "Lancia la tua prima campagna di feedback via QR.",
     "finalCopy": "Configura il tuo workspace, crea una campagna di feedback via QR e trasforma le risposte dei clienti nella tua prossima decisione.",
-    "openDashboard": "Apri la dashboard del workspace"
+    "openDashboard": "Apri la dashboard"
   }
 }

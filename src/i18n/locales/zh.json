@@ -18,9 +18,9 @@
     "eyebrow": "面向真实场所的二维码反馈",
     "title": "将每个实体场所变成可衡量的反馈渠道。",
     "lede": "Godwit 帮助场所把一次简单的二维码扫描转化为反馈、活动洞察以及基于同意的后续联系。",
-    "workspaceDashboard": "工作空间控制台",
-    "createWorkspace": "创建工作空间",
-    "workspaceLogin": "工作空间登录",
+    "workspaceDashboard": "控制台",
+    "createWorkspace": "开始使用 Godwit",
+    "workspaceLogin": "登录 Godwit",
     "note": "专为场所、活动、酒店、零售及线下团队打造。",
     "howItWorksEyebrow": "简单的循环",
     "howItWorksTitle": "从二维码到更好的决策。",
@@ -75,6 +75,6 @@
     "finalEyebrow": "准备好衡量现场氛围了吗?",
     "finalTitle": "启动你的第一场二维码反馈活动。",
     "finalCopy": "设置你的工作空间,创建一场二维码反馈活动,把顾客的回复变成你的下一个决策依据。",
-    "openDashboard": "打开工作空间控制台"
+    "openDashboard": "打开控制台"
   }
 }

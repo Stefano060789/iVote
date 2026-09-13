@@ -18,9 +18,9 @@
     "eyebrow": "QR-feedback voor fysieke locaties",
     "title": "Maak van elke fysieke locatie een meetbaar feedbackkanaal.",
     "lede": "Godwit helpt locaties om van een eenvoudige QR-scan feedback, campagne-inzichten en opt-in follow-up te maken.",
-    "workspaceDashboard": "Workspace-dashboard",
-    "createWorkspace": "Workspace aanmaken",
-    "workspaceLogin": "Workspace-login",
+    "workspaceDashboard": "Dashboard",
+    "createWorkspace": "Aan de slag met Godwit",
+    "workspaceLogin": "Inloggen bij Godwit",
     "note": "Gemaakt voor locaties, evenementen, horeca, retail en teams op locatie.",
     "howItWorksEyebrow": "Een eenvoudige cyclus",
     "howItWorksTitle": "Van een QR-code naar een betere beslissing.",
@@ -75,6 +75,6 @@
     "finalEyebrow": "Klaar om de ruimte te meten?",
     "finalTitle": "Lanceer je eerste QR-feedbackcampagne.",
     "finalCopy": "Stel je workspace in, maak een QR-feedbackcampagne en zet klantreacties om in je volgende beslissing.",
-    "openDashboard": "Workspace-dashboard openen"
+    "openDashboard": "Dashboard openen"
   }
 }

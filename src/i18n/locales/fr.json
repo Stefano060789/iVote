@@ -18,9 +18,9 @@
     "eyebrow": "Retours QR pour des lieux réels",
     "title": "Transformez chaque lieu physique en un canal de retour mesurable.",
     "lede": "Godwit aide les établissements à transformer un simple scan QR en retours, en informations sur les campagnes et en suivi basé sur le consentement.",
-    "workspaceDashboard": "Tableau de bord de l'espace de travail",
-    "createWorkspace": "Créer un espace de travail",
-    "workspaceLogin": "Connexion à l'espace de travail",
+    "workspaceDashboard": "Tableau de bord",
+    "createWorkspace": "Commencer avec Godwit",
+    "workspaceLogin": "Se connecter à Godwit",
     "note": "Conçu pour les établissements, événements, l'hôtellerie, le commerce de détail et les équipes de terrain.",
     "howItWorksEyebrow": "Une boucle simple",
     "howItWorksTitle": "D'un code QR à une meilleure décision.",
@@ -75,6 +75,6 @@
     "finalEyebrow": "Prêt à mesurer la salle ?",
     "finalTitle": "Lancez votre première campagne de retours QR.",
     "finalCopy": "Configurez votre espace de travail, créez une campagne de retours QR et transformez les réponses des clients en votre prochaine décision.",
-    "openDashboard": "Ouvrir le tableau de bord de l'espace de travail"
+    "openDashboard": "Ouvrir le tableau de bord"
   }
 }

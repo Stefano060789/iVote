@@ -25,6 +25,7 @@ import { loadPollRotations, createPollRotation, deletePollRotation } from "../li
 import { loadApiKeys, createApiKey, deleteApiKey } from "../lib/apiKeys";
 import { getEntitlements, planLabel } from "../lib/entitlements";
 import { FLOCK, flockMemberForTab } from "../lib/flock";
+import { PERSONAS, findPersona } from "../lib/personas";
 import {
   getCurrentUserRole,
   getPermissionSet,
@@ -94,6 +95,7 @@ export default function Admin() {
   const [itemBody, setItemBody] = useState("");
   const [itemLinkUrl, setItemLinkUrl] = useState("");
   const [itemLinkLabel, setItemLinkLabel] = useState("");
+  const [itemImageUrl, setItemImageUrl] = useState("");
   const [newCampaignName, setNewCampaignName] = useState("");
   const [newCampaignPollId, setNewCampaignPollId] = useState("");
   const [newCampaignPlacement, setNewCampaignPlacement] = useState("");
@@ -144,6 +146,7 @@ export default function Admin() {
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
   const [qrShared, setQrShared] = useState(false);
   const [flockGuideOpen, setFlockGuideOpen] = useState(true);
+  const [personaKey, setPersonaKey] = useState(null);
   const [weeklyInsight, setWeeklyInsight] = useState(null);
   const [voteTrend, setVoteTrend] = useState(null);
   const [workspaceUpdates, setWorkspaceUpdates] = useState([]);
@@ -279,6 +282,7 @@ export default function Admin() {
         setOnboardingDismissed(localStorage.getItem(`ivote_onboarding_dismissed_${profile.id}`) === "true");
         setQrShared(localStorage.getItem(`ivote_qr_shared_${profile.id}`) === "true");
         setFlockGuideOpen(localStorage.getItem(`ivote_flock_guide_open_${profile.id}`) !== "false");
+        setPersonaKey(localStorage.getItem(`ivote_persona_${profile.id}`) || null);
 
         const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
         const fourteenDaysAgo = new Date(Date.now() - 14 * 86400000).toISOString();
@@ -547,12 +551,13 @@ export default function Admin() {
       return;
     }
     try {
-      const item = await addQrCampaignInfoItem(campaignId, { title: itemTitle, body: itemBody, linkUrl: itemLinkUrl, linkLabel: itemLinkLabel });
+      const item = await addQrCampaignInfoItem(campaignId, { title: itemTitle, body: itemBody, linkUrl: itemLinkUrl, linkLabel: itemLinkLabel, imageUrl: itemImageUrl });
       setQrCampaignItems((current) => [...current, item]);
       setItemTitle("");
       setItemBody("");
       setItemLinkUrl("");
       setItemLinkLabel("");
+      setItemImageUrl("");
     } catch (error) {
       alert(error.message);
     }
@@ -1308,6 +1313,21 @@ export default function Admin() {
     if (workspaceUserId) localStorage.setItem(`ivote_flock_guide_open_${workspaceUserId}`, String(next));
   }
 
+  function choosePersona(key) {
+    setPersonaKey(key);
+    if (workspaceUserId) localStorage.setItem(`ivote_persona_${workspaceUserId}`, key);
+  }
+
+  function changePersona() {
+    setPersonaKey(null);
+    if (workspaceUserId) localStorage.removeItem(`ivote_persona_${workspaceUserId}`);
+  }
+
+  function goToPersonaStep(step) {
+    if (step.route) navigate(step.route);
+    else if (step.tab) setActiveTab(step.tab);
+  }
+
   async function postWorkspaceUpdate() {
     if (!newUpdateMessage.trim()) return alert("Write the update message first.");
     const { data, error } = await supabase.from("workspace_updates").insert({
@@ -1643,7 +1663,7 @@ export default function Admin() {
   return (
     <div className="workspace-page max-w-3xl mx-auto p-6">
       <div className="mb-6 text-center">
-        <h1 className="text-3xl font-bold">Workspace dashboard</h1>
+        <h1 className="text-3xl font-bold">Dashboard</h1>
         <p className="mt-2 text-sm text-slate-400">Everything you need to run QR feedback, guided in one place.</p>
       </div>
 
@@ -1712,6 +1732,58 @@ export default function Admin() {
           </div>
         </div>
       )}
+
+      <div className="mb-6 rounded border border-teal-700 bg-slate-900 p-4">
+        <div className="flex items-center gap-2">
+          <span className="text-xl" aria-hidden="true">{flockMemberForTab("overview")?.icon || "\ud83d\udc26"}</span>
+          <span className="text-lg font-bold">Robin's guide</span>
+        </div>
+        {!personaKey ? (
+          <>
+            <p className="mt-1 text-sm text-slate-400">What are you using Godwit for? Robin will line up the features that matter most for you.</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              {PERSONAS.map((persona) => (
+                <button
+                  key={persona.key}
+                  type="button"
+                  onClick={() => choosePersona(persona.key)}
+                  className="rounded border border-slate-700 bg-gray-900 p-3 text-left transition hover:border-teal-500"
+                >
+                  <span className="text-xl" aria-hidden="true">{persona.icon}</span>
+                  <p className="mt-1 font-bold">{persona.label}</p>
+                  <p className="mt-1 text-xs text-slate-400">{persona.pitch}</p>
+                </button>
+              ))}
+            </div>
+          </>
+        ) : (
+          (() => {
+            const persona = findPersona(personaKey);
+            if (!persona) return null;
+            return (
+              <>
+                <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm text-slate-400">
+                    <span aria-hidden="true">{persona.icon}</span> Guide for <strong className="text-slate-200">{persona.label.toLowerCase()}</strong>
+                  </p>
+                  <button onClick={changePersona} className="text-xs text-slate-400 underline">Choose a different path</button>
+                </div>
+                <div className="mt-3 space-y-2">
+                  {persona.steps.map((step, index) => (
+                    <div key={step.title} className="flex flex-wrap items-center justify-between gap-2 rounded border border-slate-700 bg-gray-900 p-3">
+                      <div className="min-w-0">
+                        <p className="font-semibold">{index + 1}. {step.title}</p>
+                        <p className="mt-1 text-xs text-slate-400">{step.detail}</p>
+                      </div>
+                      <button onClick={() => goToPersonaStep(step)} className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">Go</button>
+                    </div>
+                  ))}
+                </div>
+              </>
+            );
+          })()
+        )}
+      </div>
 
       <div className="mb-6 rounded border border-slate-700 bg-slate-900 p-4">
         <button type="button" onClick={toggleFlockGuide} className="flex w-full items-center justify-between gap-3 text-left">
@@ -1857,7 +1929,7 @@ export default function Admin() {
           <article className="rounded border border-slate-700 bg-gray-900 p-4">
             <span className="text-2xl font-bold text-teal-300">1</span>
             <h3 className="mt-2 text-lg font-bold">Configure the offer</h3>
-            <p className="mt-2 text-sm text-slate-400">Choose the poll answers that should trigger a review request. Add Google, Tripadvisor, or another honest review destination and set the benefit.</p>
+            <p className="mt-2 text-sm text-slate-400">Add Google, Tripadvisor, or another honest review destination when creating a poll, and set the benefit voters unlock for voting. Every voter sees the same review link regardless of their answer - gating it by sentiment would break Google/Tripadvisor's rules.</p>
             <Link to="/create" className="mt-4 inline-block rounded bg-teal-500 px-3 py-2 text-sm font-semibold text-slate-950">Create a configured poll</Link>
           </article>
           <article className="rounded border border-slate-700 bg-gray-900 p-4">
@@ -1879,7 +1951,7 @@ export default function Admin() {
           <div className="mt-3 grid gap-3 text-sm text-slate-300 md:grid-cols-3">
             <p><strong className="text-white">Vote:</strong> They scan the QR code and answer without creating an account.</p>
             <p><strong className="text-white">Stay connected:</strong> They choose whether to share an email for follow-up and benefits.</p>
-            <p><strong className="text-white">Share honestly:</strong> Eligible answers receive your review links and can submit a verification claim.</p>
+            <p><strong className="text-white">Share honestly:</strong> Every voter, whatever they answered, receives your review links and can submit a verification claim.</p>
           </div>
           <p className="mt-4 text-xs text-slate-500">Do not require or script a positive review. Benefits should be offered transparently and review requests should invite honest feedback.</p>
         </div>
@@ -2181,6 +2253,12 @@ export default function Admin() {
                           maxLength={60}
                           className="border p-2 rounded text-black"
                           placeholder="Link button label (optional)"
+                        />
+                        <input
+                          value={itemFormCampaignId === campaign.id ? itemImageUrl : ""}
+                          onChange={(event) => { setItemFormCampaignId(campaign.id); setItemImageUrl(event.target.value); }}
+                          className="border p-2 rounded text-black md:col-span-2"
+                          placeholder="Optional image URL (a portfolio photo, exhibit image, product shot...)"
                         />
                         <button type="button" onClick={() => handleAddInfoItem(campaign.id)} className="bg-violet-600 text-white px-3 py-2 rounded font-semibold">Add info card</button>
                       </div>

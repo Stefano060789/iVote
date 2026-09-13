@@ -18,9 +18,9 @@
     "eyebrow": "QR-Feedback für reale Orte",
     "title": "Verwandeln Sie jeden physischen Standort in einen messbaren Feedback-Kanal.",
     "lede": "Godwit hilft Standorten, aus einem einfachen QR-Scan Feedback, Kampagneneinblicke und Follow-up mit Einwilligung zu machen.",
-    "workspaceDashboard": "Workspace-Dashboard",
-    "createWorkspace": "Workspace erstellen",
-    "workspaceLogin": "Workspace-Anmeldung",
+    "workspaceDashboard": "Dashboard",
+    "createWorkspace": "Mit Godwit starten",
+    "workspaceLogin": "Bei Godwit anmelden",
     "note": "Entwickelt für Standorte, Veranstaltungen, Gastronomie, Einzelhandel und persönliche Teams.",
     "howItWorksEyebrow": "Ein einfacher Kreislauf",
     "howItWorksTitle": "Vom QR-Code zur besseren Entscheidung.",
@@ -75,6 +75,6 @@
     "finalEyebrow": "Bereit, den Raum zu messen?",
     "finalTitle": "Starten Sie Ihre erste QR-Feedback-Kampagne.",
     "finalCopy": "Richten Sie Ihren Workspace ein, erstellen Sie eine QR-Feedback-Kampagne und verwandeln Sie Kundenantworten in Ihre nächste Entscheidung.",
-    "openDashboard": "Workspace-Dashboard öffnen"
+    "openDashboard": "Dashboard öffnen"
   }
 }

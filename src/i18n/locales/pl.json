@@ -18,9 +18,9 @@
     "eyebrow": "Feedback QR dla realnych miejsc",
     "title": "Zamień każde fizyczne miejsce w mierzalny kanał opinii.",
     "lede": "Godwit pomaga lokalom zamienić prosty skan kodu QR w opinie, dane o kampaniach i kontakt oparty na zgodzie.",
-    "workspaceDashboard": "Panel przestrzeni roboczej",
-    "createWorkspace": "Utwórz przestrzeń roboczą",
-    "workspaceLogin": "Logowanie do przestrzeni roboczej",
+    "workspaceDashboard": "Panel",
+    "createWorkspace": "Zacznij z Godwit",
+    "workspaceLogin": "Zaloguj się do Godwit",
     "note": "Stworzone dla lokali, wydarzeń, hotelarstwa, handlu detalicznego i zespołów pracujących na miejscu.",
     "howItWorksEyebrow": "Prosty cykl",
     "howItWorksTitle": "Od kodu QR do lepszej decyzji.",
@@ -75,6 +75,6 @@
     "finalEyebrow": "Gotowy zmierzyć nastroje w swoim lokalu?",
     "finalTitle": "Uruchom swoją pierwszą kampanię opinii QR.",
     "finalCopy": "Skonfiguruj przestrzeń roboczą, utwórz kampanię opinii QR i zamień odpowiedzi klientów w swoją następną decyzję.",
-    "openDashboard": "Otwórz panel przestrzeni roboczej"
+    "openDashboard": "Otwórz panel"
   }
 }

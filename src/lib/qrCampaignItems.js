@@ -20,7 +20,7 @@ export async function addQrCampaignPollItem(campaignId, pollId) {
   return data;
 }
 
-export async function addQrCampaignInfoItem(campaignId, { title, body, linkUrl, linkLabel }) {
+export async function addQrCampaignInfoItem(campaignId, { title, body, linkUrl, linkLabel, imageUrl }) {
   const { data, error } = await supabase
     .from("qr_campaign_items")
     .insert({
@@ -29,7 +29,8 @@ export async function addQrCampaignInfoItem(campaignId, { title, body, linkUrl, 
       title: String(title || "").trim(),
       body: String(body || "").trim() || null,
       link_url: String(linkUrl || "").trim() || null,
-      link_label: String(linkLabel || "").trim() || null
+      link_label: String(linkLabel || "").trim() || null,
+      image_url: String(imageUrl || "").trim() || null
     })
     .select()
     .single();

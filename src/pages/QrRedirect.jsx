@@ -124,7 +124,7 @@ export default function QrRedirect() {
           Create a new poll for this QR code
         </Link>
 
-        <Link to="/admin" className="mt-6 block text-center text-sm text-slate-300 underline">Back to workspace dashboard</Link>
+        <Link to="/admin" className="mt-6 block text-center text-sm text-slate-300 underline">Back to dashboard</Link>
       </main>
     );
   }
@@ -159,6 +159,9 @@ export default function QrRedirect() {
               }
               return (
                 <div key={item.item_id} className="qr-portal-menu-item qr-portal-menu-info">
+                  {item.image_url && (
+                    <img src={item.image_url} alt="" className="qr-portal-menu-item-image" />
+                  )}
                   <span className="qr-portal-menu-item-title">{item.title}</span>
                   {item.body && <p className="qr-portal-menu-item-body">{item.body}</p>}
                   {item.link_url && (

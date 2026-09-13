@@ -3,6 +3,33 @@
 Things that are known gaps but intentionally deferred, not forgotten. Check this file
 periodically and clear items as you address them.
 
+## Robin's persona guide
+
+- [x] **Robin now guides new admins by use case, not just generically.** Added
+  `src/lib/personas.js` (three personas: artist/creator, cafe/restaurant/small shop,
+  museum/city/large venue - each with an ordered list of 5 recommended next steps built
+  entirely from existing features) and a "Robin's guide" panel on the Admin Overview tab
+  (persona picker, then a tailored checklist with one-click "Go" buttons to the right tab or
+  route). Persisted per workspace in localStorage (`ivote_persona_<workspaceId>`), same
+  pattern as the onboarding checklist and flock-guide collapse state.
+- [x] **Gap found and fixed while building this: info QR-menu items had no image field.**
+  Both the artist persona (portfolio/album art) and the museum persona (exhibit photos)
+  wanted to show a picture, not just text and a link. Added `image_url` to
+  `qr_campaign_items` (`supabase/20260918_qr_item_images.sql`), wired through
+  `qrCampaignItems.js`, the Admin "add info card" form, and the voter-facing render in
+  `QrRedirect.jsx`. Still a plain URL field (paste a link to an already-hosted image) -
+  matches the existing pattern used for the workspace logo; there is no file-upload
+  infrastructure anywhere in this project.
+- [ ] **Ideas surfaced but not built** (lower priority, revisit if a real user asks):
+  - A dedicated "gallery"/portfolio item type (multiple images in one card) for artists with
+    a lot of work to show, rather than one image per info card.
+  - Accessibility tagging (wheelchair access, audio description available, etc.) for museum/
+    city info cards - currently just free-text body copy, which works but isn't structured.
+  - Surfacing entitlement limits (e.g. Free plan's `campaignLimit: 0`) directly inside Robin's
+    guide before a step, rather than relying on the destination tab's own upgrade prompt to
+    explain it after the click - would be a nicer experience for personas (like a hobbyist
+    artist) more likely to be on the Free plan.
+
 ## QR code donations (now via Stripe Connect, with a 10% platform fee)
 
 - [x] **Donations were rebuilt from a free IBAN/SEPA-QR display into a real payment flow.**

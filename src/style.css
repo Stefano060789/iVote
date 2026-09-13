@@ -152,6 +152,15 @@ textarea {
   cursor: default;
 }
 
+.qr-portal-menu-item-image {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
 .qr-portal-menu-item-title {
   display: block;
   font-weight: 800;
@@ -354,7 +363,7 @@ textarea {
   color: var(--ink);
 }
 
-/* Workspace dashboard: recolored to the Godwit navy/gold brand palette (rather than the
+/* Dashboard: recolored to the Godwit navy/gold brand palette (rather than the
    generic teal/cream theme .app-page keeps for voter-facing pages). Structure and contrast
    pairs are unchanged from the original light-theme overrides below - only the hues shift. */
 .workspace-page {

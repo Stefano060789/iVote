@@ -11,6 +11,7 @@ Run these files in the Supabase SQL Editor, in this exact order, against the pro
 5. `supabase/20260908_feedback_reports_qr_experiments.sql` if feedback reports and weekly reports are enabled
 6. `supabase/20260909_feedback_benefits.sql` for answer-triggered email and external-review benefits
 7. `supabase/20260916_donations.sql` then `supabase/20260917_donations_stripe_connect.sql` for QR-code donations. Run both, in order - the second migration alters what the first creates. The finished feature accepts card/wallet donations through Stripe Connect (10% Godwit platform fee, 90% to the workspace), not a bank transfer.
+8. `supabase/20260918_qr_item_images.sql` for an optional image on "info" QR-menu items (portfolio photos, exhibit images, etc.)
 
 The final migration is additive. It creates workspace subscription records, secure plan-limit RPCs, privacy request records, and user-answer content reports. Do not run ad hoc deletes for account deletion requests; review `privacy_requests` and follow the documented retention process approved by counsel.
 
