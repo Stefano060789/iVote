@@ -527,6 +527,51 @@
         "subtitle": "Private messages submitted with a vote. Reply only when the voter provided an email address.",
         "noMessages": "No voter messages yet.",
         "replyToVoter": "Reply to voter"
+      },
+      "sentiment": {
+        "title": "Answer sentiment (AI)",
+        "subtitle": "Free-text answers voters add are automatically classified once an OpenAI key is configured.",
+        "noAnswers": "No classified answers yet.",
+        "positive": "{{percent}}% positive",
+        "neutral": "{{percent}}% neutral",
+        "negative": "{{percent}}% negative",
+        "answerCount": "({{count}} answers)"
+      },
+      "updates": {
+        "title": "\"We heard you\" updates",
+        "subtitle": "Post a public update when you act on feedback (e.g., \"We fixed the slow Wi-Fi you mentioned\"). It shows on the poll's public results page.",
+        "placeholder": "We heard you and...",
+        "allPolls": "All polls",
+        "postButton": "Post update",
+        "noUpdates": "No updates posted yet."
+      },
+      "recovery": {
+        "title": "Feedback recovery and weekly reports",
+        "openAlertsHint": "Open alerts, including low-score/answer matches and automatic vote-volume drop warnings (checked daily).",
+        "resolve": "Resolve",
+        "noOpenAlerts": "No open alerts.",
+        "createAlertHint": "Create alerts for low numeric scores or an exact answer. New matching votes create manager-only alerts.",
+        "lowScore": "Low score",
+        "exactAnswer": "Exact answer",
+        "scoreAtOrBelow": "Score at or below",
+        "answerTrigger": "Answer trigger",
+        "addAlertRule": "Add alert rule",
+        "scoreAtOrBelowValue": "score at or below {{value}}",
+        "answerMatchValue": "answer \u201c{{value}}\u201d",
+        "noRulesYet": "No feedback alert rules yet.",
+        "taskHint": "Turn an alert into a recovery task and track completion.",
+        "taskPlaceholder": "Call customer, review service issue",
+        "noLinkedAlert": "No linked alert",
+        "addTask": "Add recovery task",
+        "statusOpen": "Open",
+        "statusInProgress": "In progress",
+        "statusDone": "Done",
+        "noTasksYet": "No recovery tasks yet.",
+        "weeklyReportHint": "The Monday Vercel cron prepares a workspace summary. It delivers through Resend only when the server key is configured.",
+        "enableWeeklyReport": "Enable weekly report",
+        "saveReportSettings": "Save report settings",
+        "lockedTitle": "Get a weekly summary in your inbox",
+        "lockedDescription": "A Monday email with votes, open alerts, and recovery tasks - so you don't have to log in to stay on top of things."
       }
     }
   }

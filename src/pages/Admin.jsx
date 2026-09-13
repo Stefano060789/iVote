@@ -2646,12 +2646,12 @@ export default function Admin() {
 
       {activeTab === "feedback" && (
       <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">Answer sentiment (AI)</summary>
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.feedback.sentiment.title")}</summary>
         <div className="px-4 pb-4">
-          <p className="mb-3 text-sm text-slate-400">Free-text answers voters add are automatically classified once an OpenAI key is configured.</p>
+          <p className="mb-3 text-sm text-slate-400">{t("admin.feedback.sentiment.subtitle")}</p>
           <div className="space-y-2 text-sm">
             {Object.keys(sentimentSummary).length === 0 ? (
-              <p className="text-gray-400">No classified answers yet.</p>
+              <p className="text-gray-400">{t("admin.feedback.sentiment.noAnswers")}</p>
             ) : (
               Object.entries(sentimentSummary).map(([pollId, counts]) => {
                 const total = counts.positive + counts.neutral + counts.negative;
@@ -2659,12 +2659,12 @@ export default function Admin() {
                 return (
                   <div key={pollId} className="border-b border-gray-700 py-2">
                     <span>#{pollId}{poll ? ` - ${poll.question}` : ""}: </span>
-                    <span className="text-emerald-300">{Math.round((counts.positive / total) * 100)}% positive</span>
+                    <span className="text-emerald-300">{t("admin.feedback.sentiment.positive", { percent: Math.round((counts.positive / total) * 100) })}</span>
                     {" · "}
-                    <span className="text-slate-300">{Math.round((counts.neutral / total) * 100)}% neutral</span>
+                    <span className="text-slate-300">{t("admin.feedback.sentiment.neutral", { percent: Math.round((counts.neutral / total) * 100) })}</span>
                     {" · "}
-                    <span className="text-red-300">{Math.round((counts.negative / total) * 100)}% negative</span>
-                    <span className="text-gray-500"> ({total} answers)</span>
+                    <span className="text-red-300">{t("admin.feedback.sentiment.negative", { percent: Math.round((counts.negative / total) * 100) })}</span>
+                    <span className="text-gray-500"> {t("admin.feedback.sentiment.answerCount", { count: total })}</span>
                   </div>
                 );
               })
@@ -2677,28 +2677,28 @@ export default function Admin() {
       {activeTab === "feedback" && (
       <>
       <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">"We heard you" updates</summary>
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.feedback.updates.title")}</summary>
         <div className="px-4 pb-4">
-          <p className="mb-3 text-sm text-slate-400">Post a public update when you act on feedback (e.g., "We fixed the slow Wi-Fi you mentioned"). It shows on the poll's public results page.</p>
+          <p className="mb-3 text-sm text-slate-400">{t("admin.feedback.updates.subtitle")}</p>
           <div className="grid gap-3 md:grid-cols-3 mb-3">
-            <textarea value={newUpdateMessage} onChange={(event) => setNewUpdateMessage(event.target.value)} rows="2" maxLength={500} className="md:col-span-2 border p-2 rounded text-black" placeholder="We heard you and..." />
+            <textarea value={newUpdateMessage} onChange={(event) => setNewUpdateMessage(event.target.value)} rows="2" maxLength={500} className="md:col-span-2 border p-2 rounded text-black" placeholder={t("admin.feedback.updates.placeholder")} />
             <select value={newUpdatePollId} onChange={(event) => setNewUpdatePollId(event.target.value)} className="border p-2 rounded text-black">
-              <option value="">All polls</option>
+              <option value="">{t("admin.feedback.updates.allPolls")}</option>
               {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
             </select>
           </div>
-          <button onClick={postWorkspaceUpdate} className="bg-teal-500 text-slate-950 px-4 py-2 rounded font-semibold">Post update</button>
+          <button onClick={postWorkspaceUpdate} className="bg-teal-500 text-slate-950 px-4 py-2 rounded font-semibold">{t("admin.feedback.updates.postButton")}</button>
           <div className="mt-4 space-y-2 text-sm">
             {workspaceUpdates.length === 0 ? (
-              <p className="text-gray-400">No updates posted yet.</p>
+              <p className="text-gray-400">{t("admin.feedback.updates.noUpdates")}</p>
             ) : (
               workspaceUpdates.map((update) => (
                 <div key={update.id} className="flex items-start justify-between gap-3 border-b border-gray-700 py-2">
                   <div>
                     <p>{update.message}</p>
-                    <p className="text-xs text-gray-500">{update.poll_id ? `Poll #${update.poll_id}` : "All polls"} · {new Date(update.created_at).toLocaleString()}</p>
+                    <p className="text-xs text-gray-500">{update.poll_id ? t("admin.polls.card.pollNumber", { id: update.poll_id }) : t("admin.feedback.updates.allPolls")} · {new Date(update.created_at).toLocaleString()}</p>
                   </div>
-                  <button onClick={() => deleteWorkspaceUpdate(update.id)} className="shrink-0 text-xs text-red-300 underline">Delete</button>
+                  <button onClick={() => deleteWorkspaceUpdate(update.id)} className="shrink-0 text-xs text-red-300 underline">{t("admin.engagement.locations.delete")}</button>
                 </div>
               ))
             )}
@@ -2707,18 +2707,18 @@ export default function Admin() {
       </details>
 
       <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">Feedback recovery and weekly reports</summary>
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.feedback.recovery.title")}</summary>
         <div className="px-4 pb-4 space-y-5">
-          <div><p className="mb-2 text-sm text-slate-400">Open alerts, including low-score/answer matches and automatic vote-volume drop warnings (checked daily).</p><div className="text-sm">{feedbackAlerts.filter((alert) => alert.status !== "resolved").length ? feedbackAlerts.filter((alert) => alert.status !== "resolved").map((alert) => <div key={alert.id} className="flex items-center justify-between gap-2 border-b border-gray-700 py-1"><span>Poll #{alert.poll_id}: {alert.answer}</span><button onClick={async () => { const { error } = await supabase.from("feedback_alerts").update({ status: "resolved" }).eq("id", alert.id); if (!error) setFeedbackAlerts((current) => current.map((item) => item.id === alert.id ? { ...item, status: "resolved" } : item)); }} className="shrink-0 text-xs text-emerald-300 underline">Resolve</button></div>) : <p className="text-gray-400">No open alerts.</p>}</div></div>
-          <div><p className="mb-2 text-sm text-slate-400">Create alerts for low numeric scores or an exact answer. New matching votes create manager-only alerts.</p><div className="grid md:grid-cols-4 gap-3"><select value={newRulePollId} onChange={(event) => setNewRulePollId(event.target.value)} className="border p-2 rounded text-black"><option value="">Choose a poll</option>{polls.map((poll) => <option key={poll.id} value={poll.id}>#{poll.id} - {poll.question}</option>)}</select><select value={newRuleType} onChange={(event) => setNewRuleType(event.target.value)} className="border p-2 rounded text-black"><option value="low_score">Low score</option><option value="answer_match">Exact answer</option></select>{newRuleType === "low_score" ? <input type="number" min="0" max="10" value={newRuleThreshold} onChange={(event) => setNewRuleThreshold(event.target.value)} className="border p-2 rounded text-black" placeholder="Score at or below" /> : <input value={newRuleAnswer} onChange={(event) => setNewRuleAnswer(event.target.value)} className="border p-2 rounded text-black" placeholder="Answer trigger" />}<button onClick={createAlertRule} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">Add alert rule</button></div><div className="mt-3 text-sm">{alertRules.length ? alertRules.map((rule) => <p key={rule.id} className="border-b border-gray-700 py-1">Poll #{rule.poll_id}: {rule.trigger_type === "low_score" ? `score at or below ${rule.score_threshold}` : `answer “${rule.answer_match}”`}</p>) : <p className="text-gray-400">No feedback alert rules yet.</p>}</div></div>
-          <div><p className="mb-2 text-sm text-slate-400">Turn an alert into a recovery task and track completion.</p><div className="grid md:grid-cols-3 gap-3"><input value={newTaskTitle} onChange={(event) => setNewTaskTitle(event.target.value)} className="border p-2 rounded text-black" placeholder="Call customer, review service issue" /><select value={newTaskAlertId} onChange={(event) => setNewTaskAlertId(event.target.value)} className="border p-2 rounded text-black"><option value="">No linked alert</option>{feedbackAlerts.filter((alert) => alert.status !== "resolved").map((alert) => <option key={alert.id} value={alert.id}>#{alert.id} Poll #{alert.poll_id}: {alert.answer}</option>)}</select><button onClick={createRecoveryTask} className="bg-emerald-600 text-white px-4 py-2 rounded font-semibold">Add recovery task</button></div><div className="mt-3 text-sm">{recoveryTasks.length ? recoveryTasks.map((task) => <div key={task.id} className="flex justify-between border-b border-gray-700 py-1"><span>{task.title}</span><select value={task.status} onChange={async (event) => { const status = event.target.value; const { error } = await supabase.from("feedback_recovery_tasks").update({ status, completed_at: status === "done" ? new Date().toISOString() : null }).eq("id", task.id); if (!error) setRecoveryTasks((current) => current.map((item) => item.id === task.id ? { ...item, status } : item)); }} className="text-black"><option value="open">Open</option><option value="in_progress">In progress</option><option value="done">Done</option></select></div>) : <p className="text-gray-400">No recovery tasks yet.</p>}</div></div>
+          <div><p className="mb-2 text-sm text-slate-400">{t("admin.feedback.recovery.openAlertsHint")}</p><div className="text-sm">{feedbackAlerts.filter((alert) => alert.status !== "resolved").length ? feedbackAlerts.filter((alert) => alert.status !== "resolved").map((alert) => <div key={alert.id} className="flex items-center justify-between gap-2 border-b border-gray-700 py-1"><span>{t("admin.polls.card.pollNumber", { id: alert.poll_id })}: {alert.answer}</span><button onClick={async () => { const { error } = await supabase.from("feedback_alerts").update({ status: "resolved" }).eq("id", alert.id); if (!error) setFeedbackAlerts((current) => current.map((item) => item.id === alert.id ? { ...item, status: "resolved" } : item)); }} className="shrink-0 text-xs text-emerald-300 underline">{t("admin.feedback.recovery.resolve")}</button></div>) : <p className="text-gray-400">{t("admin.feedback.recovery.noOpenAlerts")}</p>}</div></div>
+          <div><p className="mb-2 text-sm text-slate-400">{t("admin.feedback.recovery.createAlertHint")}</p><div className="grid md:grid-cols-4 gap-3"><select value={newRulePollId} onChange={(event) => setNewRulePollId(event.target.value)} className="border p-2 rounded text-black"><option value="">{t("admin.engagement.scanner.choosePoll")}</option>{polls.map((poll) => <option key={poll.id} value={poll.id}>#{poll.id} - {poll.question}</option>)}</select><select value={newRuleType} onChange={(event) => setNewRuleType(event.target.value)} className="border p-2 rounded text-black"><option value="low_score">{t("admin.feedback.recovery.lowScore")}</option><option value="answer_match">{t("admin.feedback.recovery.exactAnswer")}</option></select>{newRuleType === "low_score" ? <input type="number" min="0" max="10" value={newRuleThreshold} onChange={(event) => setNewRuleThreshold(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.feedback.recovery.scoreAtOrBelow")} /> : <input value={newRuleAnswer} onChange={(event) => setNewRuleAnswer(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.feedback.recovery.answerTrigger")} />}<button onClick={createAlertRule} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">{t("admin.feedback.recovery.addAlertRule")}</button></div><div className="mt-3 text-sm">{alertRules.length ? alertRules.map((rule) => <p key={rule.id} className="border-b border-gray-700 py-1">{t("admin.polls.card.pollNumber", { id: rule.poll_id })}: {rule.trigger_type === "low_score" ? t("admin.feedback.recovery.scoreAtOrBelowValue", { value: rule.score_threshold }) : t("admin.feedback.recovery.answerMatchValue", { value: rule.answer_match })}</p>) : <p className="text-gray-400">{t("admin.feedback.recovery.noRulesYet")}</p>}</div></div>
+          <div><p className="mb-2 text-sm text-slate-400">{t("admin.feedback.recovery.taskHint")}</p><div className="grid md:grid-cols-3 gap-3"><input value={newTaskTitle} onChange={(event) => setNewTaskTitle(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.feedback.recovery.taskPlaceholder")} /><select value={newTaskAlertId} onChange={(event) => setNewTaskAlertId(event.target.value)} className="border p-2 rounded text-black"><option value="">{t("admin.feedback.recovery.noLinkedAlert")}</option>{feedbackAlerts.filter((alert) => alert.status !== "resolved").map((alert) => <option key={alert.id} value={alert.id}>#{alert.id} {t("admin.polls.card.pollNumber", { id: alert.poll_id })}: {alert.answer}</option>)}</select><button onClick={createRecoveryTask} className="bg-emerald-600 text-white px-4 py-2 rounded font-semibold">{t("admin.feedback.recovery.addTask")}</button></div><div className="mt-3 text-sm">{recoveryTasks.length ? recoveryTasks.map((task) => <div key={task.id} className="flex justify-between border-b border-gray-700 py-1"><span>{task.title}</span><select value={task.status} onChange={async (event) => { const status = event.target.value; const { error } = await supabase.from("feedback_recovery_tasks").update({ status, completed_at: status === "done" ? new Date().toISOString() : null }).eq("id", task.id); if (!error) setRecoveryTasks((current) => current.map((item) => item.id === task.id ? { ...item, status } : item)); }} className="text-black"><option value="open">{t("admin.feedback.recovery.statusOpen")}</option><option value="in_progress">{t("admin.feedback.recovery.statusInProgress")}</option><option value="done">{t("admin.feedback.recovery.statusDone")}</option></select></div>) : <p className="text-gray-400">{t("admin.feedback.recovery.noTasksYet")}</p>}</div></div>
           {entitlements.weeklyReport ? (
-          <div><p className="mb-2 text-sm text-slate-400">The Monday Vercel cron prepares a workspace summary. It delivers through Resend only when the server key is configured.</p><div className="grid md:grid-cols-3 gap-3 items-center"><input type="email" value={reportSettings.recipient_email} onChange={(event) => setReportSettings((current) => ({ ...current, recipient_email: event.target.value }))} className="border p-2 rounded text-black" placeholder="manager@example.com" /><label className="flex gap-2 items-center"><input type="checkbox" checked={reportSettings.is_enabled} onChange={(event) => setReportSettings((current) => ({ ...current, is_enabled: event.target.checked }))} /> Enable weekly report</label><button onClick={saveReportSettings} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save report settings</button></div></div>
+          <div><p className="mb-2 text-sm text-slate-400">{t("admin.feedback.recovery.weeklyReportHint")}</p><div className="grid md:grid-cols-3 gap-3 items-center"><input type="email" value={reportSettings.recipient_email} onChange={(event) => setReportSettings((current) => ({ ...current, recipient_email: event.target.value }))} className="border p-2 rounded text-black" placeholder="manager@example.com" /><label className="flex gap-2 items-center"><input type="checkbox" checked={reportSettings.is_enabled} onChange={(event) => setReportSettings((current) => ({ ...current, is_enabled: event.target.checked }))} /> {t("admin.feedback.recovery.enableWeeklyReport")}</label><button onClick={saveReportSettings} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">{t("admin.feedback.recovery.saveReportSettings")}</button></div></div>
           ) : (
             <LockedFeature
               feature="weeklyReport"
-              title="Get a weekly summary in your inbox"
-              description="A Monday email with votes, open alerts, and recovery tasks - so you don't have to log in to stay on top of things."
+              title={t("admin.feedback.recovery.lockedTitle")}
+              description={t("admin.feedback.recovery.lockedDescription")}
             />
           )}
         </div>
