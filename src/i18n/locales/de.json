@@ -117,6 +117,7 @@
     "prizeDrawDefaultPrize": "einen Preis",
     "prizeDrawDisclaimer": "Kein Kauf erforderlich. Teilnahme nur für Personen ab 18 Jahren, die den Preis an ihrem Wohnort rechtmäßig erhalten dürfen. Eine Teilnahme pro Person. Der Veranstalter wählt zufällig einen Gewinner aus allen Teilnahmen aus und kontaktiert die angegebene E-Mail-Adresse. Nichtig, wo gesetzlich verboten.",
     "emailPlaceholder": "sie@beispiel.de",
+    "emailLabel": "E-Mail-Adresse",
     "emailInvalid": "Geben Sie eine gültige E-Mail-Adresse ein, z. B. name@beispiel.de.",
     "prizeDrawConsent": "Ich bin 18 Jahre oder älter und nach lokalem Recht berechtigt, diesen Preis zu erhalten. Melden Sie mich zur Verlosung an und lassen Sie den Veranstalter mich kontaktieren, falls ich gewinne.",
     "followUpConsent": "Ich bin damit einverstanden, dass der Veranstalter mich bezüglich dieser Umfrage kontaktieren darf.",

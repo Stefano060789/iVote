@@ -117,6 +117,7 @@
     "prizeDrawDefaultPrize": "un premio",
     "prizeDrawDisclaimer": "Nessun acquisto necessario. Aperto solo a partecipanti maggiorenni e legalmente idonei a ricevere questo premio nel proprio paese. Una partecipazione per persona. L'organizzatore sceglie un vincitore a caso tra tutte le partecipazioni e contatta l'email fornita. Non valido dove proibito.",
     "emailPlaceholder": "tunome@esempio.com",
+    "emailLabel": "Indirizzo email",
     "emailInvalid": "Inserisci un indirizzo email valido, es. nome@esempio.com.",
     "prizeDrawConsent": "Ho almeno 18 anni e sono legalmente idoneo a ricevere questo premio secondo la legge locale. Iscrivimi all'estrazione e lascia che l'organizzatore mi contatti se vinco.",
     "followUpConsent": "Accetto che l'organizzatore possa contattarmi riguardo a questo sondaggio.",

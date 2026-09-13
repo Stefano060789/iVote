@@ -117,6 +117,7 @@
     "prizeDrawDefaultPrize": "一份奖品",
     "prizeDrawDisclaimer": "无需购买。仅限年满18周岁且根据当地法律有资格领取此奖品的参与者。每人限参加一次。组织者将从所有参与者中随机抽取一名获奖者，并通过所提供的邮箱联系。法律禁止地区不适用。",
     "emailPlaceholder": "you@example.com",
+    "emailLabel": "电子邮箱地址",
     "emailInvalid": "请输入有效的电子邮箱地址，例如 name@example.com。",
     "prizeDrawConsent": "我已年满18周岁，并根据当地法律有资格领取此奖品。请让我参加抽奖，如果我中奖，请允许组织者与我联系。",
     "followUpConsent": "我同意组织者可以就此投票与我联系。",

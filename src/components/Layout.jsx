@@ -2,9 +2,9 @@ import CookieConsent from "./CookieConsent";
 
 export default function Layout({ children }) {
   return (
-    <div className="app-page max-w-3xl mx-auto px-4 py-6">
+    <main className="app-page max-w-3xl mx-auto px-4 py-6">
       {children}
       <CookieConsent />
-    </div>
+    </main>
   );
 }

@@ -40,7 +40,7 @@ export default function ProductFeedback() {
   if (!user) return null;
   return (
     <Layout>
-      <main className="mx-auto max-w-xl p-2 sm:p-6">
+      <div className="mx-auto max-w-xl p-2 sm:p-6">
         <h1 className="text-3xl font-bold">Share product feedback</h1>
         <p className="mt-2 text-slate-300">Tell us what worked, what was confusing, or what would make Godwit more useful for your venue.</p>
         <form onSubmit={submitFeedback} className="mt-6 space-y-4">
@@ -56,7 +56,7 @@ export default function ProductFeedback() {
           <button type="submit" className="rounded bg-teal-400 px-4 py-3 font-semibold text-slate-950">Send feedback</button>
           {status && <output className="block text-sm text-slate-300">{status}</output>}
         </form>
-      </main>
+      </div>
     </Layout>
   );
 }

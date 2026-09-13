@@ -32,7 +32,7 @@ export default function ThankYou() {
     : poll?.review_url ? [{ name: t("thankYou.defaultReviewPlatform"), url: poll.review_url }] : [];
 
   return (
-    <div className="mx-auto max-w-lg p-10 text-center text-white">
+    <main className="mx-auto max-w-lg p-10 text-center text-white">
       <h1 className="text-3xl font-bold mb-4">{t("thankYou.title")}</h1>
       <p>{t("thankYou.subtitle")}</p>
 
@@ -93,6 +93,6 @@ export default function ThankYou() {
         <p className="text-sm text-slate-300">{t("thankYou.footerTagline")}</p>
         <Link to="/" className="mt-3 inline-block text-sm font-semibold text-teal-300 underline">{t("thankYou.learnAbout")}</Link>
       </div>
-    </div>
+    </main>
   );
 }

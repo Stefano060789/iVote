@@ -117,6 +117,7 @@
     "prizeDrawDefaultPrize": "a prize",
     "prizeDrawDisclaimer": "No purchase necessary. Open only to entrants who are 18+ and legally eligible to receive this prize where they live. One entry per person. The organizer selects a winner at random from all entries and contacts the email provided. Void where prohibited.",
     "emailPlaceholder": "you@example.com",
+    "emailLabel": "Email address",
     "emailInvalid": "Enter a valid email address, e.g. name@example.com.",
     "prizeDrawConsent": "I'm 18+ and eligible to receive this prize under local law. Enter me in the prize draw and let the organizer contact me if I win.",
     "followUpConsent": "I agree that the organizer may contact me about this poll.",

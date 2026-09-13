@@ -117,6 +117,7 @@
     "prizeDrawDefaultPrize": "nagrodę",
     "prizeDrawDisclaimer": "Zakup nie jest wymagany. Udział mogą wziąć wyłącznie osoby, które ukończyły 18 lat i są prawnie uprawnione do otrzymania tej nagrody w miejscu zamieszkania. Jedno zgłoszenie na osobę. Organizator losowo wybiera zwycięzcę spośród wszystkich zgłoszeń i kontaktuje się na podany adres e-mail. Nieważne tam, gdzie zabrania tego prawo.",
     "emailPlaceholder": "ty@przyklad.com",
+    "emailLabel": "Adres e-mail",
     "emailInvalid": "Podaj prawidłowy adres e-mail, np. imie@przyklad.com.",
     "prizeDrawConsent": "Mam ukończone 18 lat i zgodnie z lokalnym prawem jestem uprawniony(-a) do otrzymania tej nagrody. Zapisz mnie do losowania i pozwól organizatorowi skontaktować się ze mną, jeśli wygram.",
     "followUpConsent": "Zgadzam się, aby organizator mógł się ze mną skontaktować w sprawie tej ankiety.",

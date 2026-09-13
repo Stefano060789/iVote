@@ -398,12 +398,12 @@ export default function Vote() {
     };
   }, [allAnswers, poll, translationLanguage]);
 
-  if (loading) return <Layout><p className="text-center p-6">{t("vote.loading")}</p></Layout>;
+  if (loading) return <Layout><p className="text-center p-6" role="status">{t("vote.loading")}</p></Layout>;
 
   if (duplicate || alreadyVoted) {
     return (
       <Layout>
-        <div className="text-center p-6">
+        <div className="text-center p-6" role="status">
           <h2 className="text-2xl font-bold mb-4">{t("vote.alreadyVotedTitle")}</h2>
           <p className="text-gray-600 mb-6">
             {t("vote.alreadyVotedBody")}
@@ -413,10 +413,10 @@ export default function Vote() {
     );
   }
 
-  if (!poll) return <Layout><p className="text-center p-6">{t("vote.notFound")}</p></Layout>;
+  if (!poll) return <Layout><p className="text-center p-6" role="alert">{t("vote.notFound")}</p></Layout>;
 
   if (!Array.isArray(poll.answers)) {
-    return <Layout><p className="text-center p-6">{t("vote.invalidAnswers")}</p></Layout>;
+    return <Layout><p className="text-center p-6" role="alert">{t("vote.invalidAnswers")}</p></Layout>;
   }
 
   const startsAt = poll.starts_at ?? pollMeta.starts_at;
@@ -427,7 +427,7 @@ export default function Vote() {
   if (isNotStarted) {
     return (
       <Layout>
-        <div className="text-center p-6">
+        <div className="text-center p-6" role="status">
           <h2 className="text-2xl font-bold mb-4">{t("vote.notStartedTitle")}</h2>
           <p className="text-gray-600 mb-6">
             {t("vote.notStartedBody", { time: new Date(startsAt).toLocaleString() })}
@@ -440,7 +440,7 @@ export default function Vote() {
   if (isExpired) {
     return (
       <Layout>
-        <div className="text-center p-6">
+        <div className="text-center p-6" role="status">
           <h2 className="text-2xl font-bold mb-4">{t("vote.expiredTitle")}</h2>
           <p className="text-gray-600 mb-6">
             {t("vote.expiredBody")}
@@ -453,7 +453,7 @@ export default function Vote() {
   if (submitted)
     return (
       <Layout>
-        <div className="text-center p-6">
+        <div className="text-center p-6" role="status">
           <h2 className="text-2xl font-bold mb-4">{t("vote.submittedTitle")}</h2>
           <p className="text-gray-600 mb-6">{t("vote.submittedBody")}</p>
 
@@ -514,12 +514,12 @@ export default function Vote() {
             <span className="mt-1 block text-slate-500">{t("vote.originalOnly")}</span>
           )}
           </label>
-          {translationLoading && <p className="text-xs text-gray-400 mt-2">{t("vote.translating")}</p>}
-          {translationError && <p className="text-xs text-amber-300 mt-2">{translationError}</p>}
+          {translationLoading && <p className="text-xs text-gray-400 mt-2" role="status">{t("vote.translating")}</p>}
+          {translationError && <p className="text-xs text-amber-300 mt-2" role="alert">{translationError}</p>}
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">{questionForDisplay}</h1>
+        <h1 id="poll-question" lang={translationLanguage !== "original" ? translationLanguage : undefined} className="text-2xl sm:text-3xl font-bold mb-6 text-center">{questionForDisplay}</h1>
 
-        <div className="space-y-3">
+        <div className="space-y-3" role="group" aria-labelledby="poll-question">
           {allAnswers.map((answer) => {
             const isUserAnswer = userAnswers.some((item) => item.answer === answer);
             return <div key={answer} className="flex items-center gap-2">
@@ -535,7 +535,7 @@ export default function Vote() {
                 onChange={() => handleSelect(answer)}
                 className="h-5 w-5"
               />
-              <span className="font-medium">{translationLanguage === "original" ? answer : translatedAnswers[answer] || answer}</span>
+              <span className="font-medium" lang={translationLanguage !== "original" ? translationLanguage : undefined}>{translationLanguage === "original" ? answer : translatedAnswers[answer] || answer}</span>
             </label>
             {isUserAnswer && <button type="button" onClick={() => reportAnswer(answer)} disabled={reportingAnswer === answer} className="shrink-0 text-xs text-slate-300 underline disabled:opacity-60" aria-label={t("vote.reportAriaLabel", { answer })}>{reportingAnswer === answer ? t("vote.reporting") : t("vote.report")}</button>}
             </div>;
@@ -562,6 +562,7 @@ export default function Vote() {
                   value={newAnswer}
                   onChange={(e) => setNewAnswer(e.target.value)}
                   className="border p-2 rounded w-full text-black"
+                  aria-label={t("vote.addOwnAnswer")}
                   placeholder={t("vote.typeYourAnswer")}
                 />
 
@@ -620,10 +621,12 @@ export default function Vote() {
             }}
             disabled={!followUpConsent}
             aria-invalid={Boolean(followUpEmailError)}
+            aria-describedby={followUpEmailError ? "followup-email-error" : undefined}
+            aria-label={t("vote.emailLabel")}
             className={`mt-3 w-full border rounded p-2 text-black disabled:bg-slate-200 ${followUpEmailError ? "border-red-500" : ""}`}
             placeholder={t("vote.emailPlaceholder")}
           />
-          {followUpEmailError && <p className="mt-1 text-xs text-red-400">{followUpEmailError}</p>}
+          {followUpEmailError && <p id="followup-email-error" className="mt-1 text-xs text-red-400" role="alert">{followUpEmailError}</p>}
           <label className="mt-3 flex items-start gap-2 text-xs text-slate-200">
             <input
               type="checkbox"
@@ -643,6 +646,7 @@ export default function Vote() {
             onChange={(event) => setOrganizerMessage(event.target.value)}
             maxLength={2000}
             rows="3"
+            aria-label={t("vote.messageToOrganizer")}
             className="mt-3 w-full rounded border p-2 text-black"
             placeholder={t("vote.messagePlaceholder")}
           />
@@ -656,10 +660,12 @@ export default function Vote() {
               }
             }}
             aria-invalid={Boolean(messageReplyEmailError)}
+            aria-describedby={messageReplyEmailError ? "message-reply-email-error" : undefined}
+            aria-label={t("vote.emailLabel")}
             className={`mt-2 w-full rounded border p-2 text-black ${messageReplyEmailError ? "border-red-500" : ""}`}
             placeholder={t("vote.messageReplyEmailPlaceholder")}
           />
-          {messageReplyEmailError && <p className="mt-1 text-xs text-red-400">{messageReplyEmailError}</p>}
+          {messageReplyEmailError && <p id="message-reply-email-error" className="mt-1 text-xs text-red-400" role="alert">{messageReplyEmailError}</p>}
         </details>
       </div>
     </Layout>

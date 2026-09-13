@@ -134,7 +134,7 @@ export default function QrRedirect() {
     return (
       <main className="qr-portal" style={{ backgroundColor: branding.accentColor }}>
         <section className="qr-portal-card qr-portal-menu">
-          {branding.logoUrl && <img src={branding.logoUrl} alt="" className="qr-portal-logo" />}
+          {branding.logoUrl && <img src={branding.logoUrl} alt={`${branding.brandName || "Venue"} logo`} className="qr-portal-logo" />}
           <p className="qr-portal-brand" style={{ color: branding.primaryColor }}>{branding.brandName || "Godwit"}</p>
           <h1>{portalTitle || "Welcome! Choose an option below."}</h1>
           {portalMessage && <p>{portalMessage}</p>}
@@ -160,7 +160,7 @@ export default function QrRedirect() {
               return (
                 <div key={item.item_id} className="qr-portal-menu-item qr-portal-menu-info">
                   {item.image_url && (
-                    <img src={item.image_url} alt="" className="qr-portal-menu-item-image" />
+                    <img src={item.image_url} alt={item.title || ""} className="qr-portal-menu-item-image" />
                   )}
                   <span className="qr-portal-menu-item-title">{item.title}</span>
                   {item.body && <p className="qr-portal-menu-item-body">{item.body}</p>}
@@ -184,8 +184,8 @@ export default function QrRedirect() {
     );
   }
 
-  if (errorMessage) return <p className="p-6 text-center">{errorMessage}</p>;
-  if (!portal) return <p className="p-6 text-center">Opening feedback...</p>;
+  if (errorMessage) return <main className="p-6 text-center" role="alert">{errorMessage}</main>;
+  if (!portal) return <main className="p-6 text-center" role="status">Opening feedback...</main>;
 
   const { campaign, poll, branding } = portal;
   return (
