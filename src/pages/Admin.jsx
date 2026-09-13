@@ -49,6 +49,17 @@ export default function Admin() {
     const tabParam = new URLSearchParams(window.location.search).get("tab");
     return validTabs.includes(tabParam) ? tabParam : "overview";
   });
+
+  // Scroll a poll into view when arriving via a "jump to this poll" link from the QR codes
+  // tab. Must run unconditionally on every render (before any early return below) - hooks
+  // can't be skipped on some renders and not others.
+  useEffect(() => {
+    const selectedId = new URLSearchParams(location.search).get("poll");
+    if (activeTab !== "polls" || !selectedId) return;
+    const card = document.getElementById(`poll-card-${selectedId}`);
+    card?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [activeTab, location.search]);
+
   const [showQR, setShowQR] = useState(null);
   const [reuseQrPoll, setReuseQrPoll] = useState(null);
   const [reuseQrTargetId, setReuseQrTargetId] = useState("");
@@ -1648,14 +1659,6 @@ export default function Admin() {
     setLocationFilter("all");
     navigate(`/admin?tab=polls&poll=${pollId}`);
   }
-
-  useEffect(() => {
-    if (activeTab !== "polls" || !selectedPollId) return;
-    const card = document.getElementById(`poll-card-${selectedPollId}`);
-    card?.scrollIntoView({ behavior: "smooth", block: "center" });
-    // Only re-run when the highlighted poll or tab changes, not on every poll list update.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, selectedPollId]);
 
   const filteredPolls = polls.filter((poll) => {
     const pollMeta = readPollMeta(poll.id);
