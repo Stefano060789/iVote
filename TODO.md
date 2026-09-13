@@ -140,9 +140,15 @@ handful of venues.
 - [ ] **Wire up monitoring/alert routing.** Sentry is integrated (consent-gated) but alert
   rules for new error types, and Vercel alerts for function failures/elevated error rates,
   still need to be configured and pointed at a channel someone actually watches.
-- [ ] **Accessibility pass.** No ARIA landmarks/labels on the public voting flow
-  (`Vote.jsx`) yet - worth a proper pass given the product is used by the general public,
-  including at museums, which often carry their own accessibility obligations.
+- [x] **Accessibility pass on the public voting flow** (`Vote.jsx`, `ThankYou.jsx`,
+  `QrRedirect.jsx`). Added `<main>` landmarks (Layout.jsx and ThankYou.jsx didn't have one);
+  the answer list is a labelled `role="group"`; translated question/answers get a per-element
+  `lang` attribute; loading/status/error states use `role="status"`/`role="alert"`
+  appropriately; email/message fields now have real `aria-label`s (not just placeholder text)
+  with `aria-describedby` wired to their validation errors; QR-menu images got real `alt`
+  text instead of `alt=""`. Not a full WCAG audit - color contrast and keyboard-navigation
+  order weren't reviewed, so revisit if that becomes a real requirement (e.g. a museum client
+  asks for a conformance statement).
 - [ ] **Improve multi-language moderation coverage.** `restrictedContent.js` is an
   English-only keyword list (word-boundary + accent-insensitive matching). A determined
   user can still bypass it in another language - a real classification API (similar to the
