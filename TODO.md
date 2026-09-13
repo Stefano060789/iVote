@@ -7,19 +7,26 @@ address them.
 
 ## Open action items (needs you, not code)
 
-- [ ] **Stripe Dashboard setup for donations.** Before card/wallet donations work in
-  production: (1) enable **Connect** (Express accounts) under Stripe Settings -> Connect,
-  (2) on the existing webhook endpoint, check **"Listen to events on Connected accounts"**
-  and add the `account.updated` event, alongside the existing subscription events. No new
-  API keys needed. See `LAUNCH_SETUP.md` for the full Stripe Connect setup section.
+- [x] **Stripe Connect enabled** (test mode) - business model "You collect payments and pay
+  recipients" (marketplace/destination charges), matching `api/create-checkout-session.js`'s
+  destination-charge implementation.
+- [x] **Second webhook destination created for Connect events** - turns out a webhook
+  destination's scope (Your account vs. Connected accounts) is fixed at creation and can't be
+  added to an existing endpoint, so this needed its own destination: "Godwit Connect webhook",
+  scoped to Connected accounts, event `account.updated`, same URL as the existing webhook. Its
+  signing secret must be set as a new env var, `STRIPE_CONNECT_WEBHOOK_SECRET` (different from
+  `STRIPE_WEBHOOK_SECRET`) - `api/stripe-webhook.js` now checks incoming signatures against
+  both. **Still to do**: add `STRIPE_CONNECT_WEBHOOK_SECRET` to Vercel's environment variables
+  (test mode value done in Stripe; still needs setting in Vercel, and repeating for live mode
+  once you go live - live/test webhook destinations and secrets are separate). See
+  `LAUNCH_SETUP.md`'s "Stripe Connect setup" section for the full walkthrough.
 - [ ] **Check the Stripe Dashboard for the `STRIPE_PRICE_STARTER` and `STRIPE_PRICE_GROWTH`
   Price/Product objects and confirm neither one *also* has a trial period configured
   directly on it.** The 30-day trial is requested per-Checkout-Session from
   `api/create-checkout-session.js`, meant to be the single source of truth - a duplicate
   trial on the Price/Product itself would make the actual trial length unpredictable.
-- [ ] Run the pending migrations if you haven't yet: `supabase/20260917_donations_stripe_connect.sql`
-  and `supabase/20260918_qr_item_images.sql` (see `LAUNCH_SETUP.md`'s migration list for the
-  full ordered list).
+- [x] Ran the pending migrations: `supabase/20260917_donations_stripe_connect.sql` and
+  `supabase/20260918_qr_item_images.sql`.
 
 ## Robin's persona guide
 

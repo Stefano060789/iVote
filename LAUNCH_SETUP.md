@@ -30,7 +30,8 @@ Set these in Vercel for the Production environment. Do not put service-role, Str
 | `STRIPE_SECRET_KEY` | For paid plans | Stripe secret API key |
 | `STRIPE_PRICE_STARTER` | For Starter | Stripe recurring EUR 29 price ID |
 | `STRIPE_PRICE_GROWTH` | For Growth | Stripe recurring EUR 79 price ID |
-| `STRIPE_WEBHOOK_SECRET` | For webhook | Signing secret for the Stripe webhook endpoint |
+| `STRIPE_WEBHOOK_SECRET` | For webhook | Signing secret for the platform-events webhook destination (subscriptions, donation checkouts) |
+| `STRIPE_CONNECT_WEBHOOK_SECRET` | For donations | Signing secret for the separate Connected-accounts webhook destination (`account.updated`) - see "Stripe Connect setup" below |
 | `VITE_SENTRY_DSN` | Optional | Browser error reporting; no events are sent when absent |
 | `VITE_SUPPORT_EMAIL` | Before launch | Support mailbox displayed to customers |
 | `OPENAI_API_KEY` | Optional | Existing QR poster image generation endpoint only |
@@ -39,10 +40,11 @@ Create a Stripe webhook for `https://YOUR_DOMAIN/api/stripe-webhook` and subscri
 
 ### Stripe Connect setup (for donations)
 
-1. Enable **Connect** under Stripe Dashboard -> Settings -> Connect, and choose **Express** accounts (the account type `api/create-checkout-session.js` requests).
-2. On the same webhook endpoint above, also check **"Listen to events on Connected accounts"** and add the `account.updated` event - this is how a workspace's donation status (`stripe_charges_enabled`) gets updated once they finish onboarding.
-3. No additional API keys are required: `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are reused for both subscriptions and Connect.
+1. Enable **Connect** under Stripe Dashboard -> Settings -> Connect (or the "Get started" card on the Connect overview page) and choose the **"You collect payments and pay recipients"** business model (the marketplace/destination-charge pattern - not "Your merchants collect payments directly"). Express is the account type `api/create-checkout-session.js` requests, no separate account-type setting needed.
+2. **Webhook events for Connect must go on a *separate* destination, not added to the existing one.** In Stripe's dashboard, a webhook destination's "Events from" scope (Your account vs. Connected accounts) is fixed at creation and can't be changed later - confirmed hands-on, not just from docs. So: create a **second** webhook destination (Developers/Workbench -> Webhooks -> Add destination), scope **Connected accounts**, event **`account.updated`**, same Endpoint URL as your existing one (`https://YOUR_DOMAIN/api/stripe-webhook`). This is how a workspace's donation status (`stripe_charges_enabled`) gets updated once they finish onboarding.
+3. Copy that second destination's signing secret into `STRIPE_CONNECT_WEBHOOK_SECRET` (it's different from `STRIPE_WEBHOOK_SECRET` - `api/stripe-webhook.js` checks incoming signatures against both). `STRIPE_SECRET_KEY` itself is still shared/reused for everything (subscriptions, Connect account creation, Connect webhooks).
 4. Each workspace connects their own Stripe account from Admin -> Engagement -> Donations -> "Connect with Stripe" - there is nothing to configure per-workspace on the Stripe Dashboard side.
+5. Remember to repeat step 2-3 for **live mode** once you go live (test mode and live mode webhook destinations/secrets are separate).
 
 ## Payments and limits
 

@@ -87,11 +87,17 @@ export default async function handler(request, response) {
     return response.status(405).json({ error: "Method not allowed." });
   }
 
-  const signingSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  if (!signingSecret) return response.status(503).json({ error: "Webhook is not configured." });
+  // Two Stripe webhook endpoints point at this same URL, each with its own signing secret:
+  // STRIPE_WEBHOOK_SECRET for platform events ("Your account" scope - subscriptions,
+  // donation checkouts) and STRIPE_CONNECT_WEBHOOK_SECRET for account.updated events
+  // ("Connected accounts" scope - Connect onboarding status). Stripe only ever signs with
+  // one of the two for a given delivery, so try each until one verifies.
+  const signingSecrets = [process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_CONNECT_WEBHOOK_SECRET].filter(Boolean);
+  if (signingSecrets.length === 0) return response.status(503).json({ error: "Webhook is not configured." });
 
   const rawBody = await readRawBody(request);
-  if (!verifyStripeSignature(rawBody, request.headers["stripe-signature"], signingSecret)) {
+  const signatureHeader = request.headers["stripe-signature"];
+  if (!signingSecrets.some((secret) => verifyStripeSignature(rawBody, signatureHeader, secret))) {
     return response.status(400).json({ error: "Invalid Stripe signature." });
   }
 
