@@ -42,6 +42,35 @@ periodically and clear items as you address them.
     SEPA-direct-debit-mandate-fraud surface further, consider periodically reviewing who
     has your IBAN on file, same as you would for any published business bank account.
 
+- [ ] **ON HOLD: monetizing donations (Godwit earning something from the donation feature).**
+  User asked whether Godwit taking a cut of each donation is legally OK. Short answer: it
+  depends entirely on *how* - the current feature (static IBAN + SEPA QR, Godwit never
+  touches the money) is deliberately outside PSD2's scope because it's pure information
+  display, like an IBAN on an invoice. That safety disappears the moment Godwit tries to
+  earn money *from the transaction itself*. Options discussed, from simplest/no legal risk
+  to biggest project/needs real legal review:
+  1. **Gate the donation feature behind a paid plan** (e.g. Growth-only, or a paid add-on).
+     Zero new regulatory surface - this is just SaaS billing via the Stripe integration
+     already built. No code changes needed beyond adding an entitlements gate.
+  2. **Add a separate, independent "tip Godwit" option** via the existing Stripe checkout -
+     a voter pays Godwit directly and separately from the organizer's IBAN donation.
+     Godwit is a party to that transaction (selling its own "support us" product), so this
+     is normal e-commerce, not intermediation of someone else's money. No license needed.
+  3. **Take an actual percentage cut of each donation** - requires abandoning the current
+     manual-bank-transfer/static-QR architecture entirely and moving to a hosted-checkout
+     "platform payments" product (Stripe Connect, Mollie for Platforms, or Adyen for
+     Platforms are the standard choices - this is how Kickstarter/GoFundMe/Buy Me a Coffee
+     monetize). The PSP holds the actual payment-institution license; Godwit operates as
+     the "platform" collecting an application fee. Each venue would need to complete KYC
+     onboarding with the PSP. This is a genuinely bigger project (new payment architecture,
+     not just a fee field) and should not be built without a lawyer reviewing the
+     marketplace/facilitator terms and the chosen provider's platform agreement first.
+     Note also: having the *app itself* initiate a transfer (rather than a voter's own
+     banking app scanning a static QR) would separately require PISP (Payment Initiation
+     Service Provider) registration under PSD2, even without ever holding funds.
+  **Decision**: paused for now at the user's request - no code changes made. Revisit by
+  picking one of the three options above when ready to proceed.
+
 ## Hosting / deployment
 
 - [x] **Fixed a Vercel deploy failure**: "No more than 12 Serverless Functions can be
