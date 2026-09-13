@@ -358,6 +358,176 @@
         "downloadQr": "QR herunterladen",
         "printQr": "QR drucken"
       }
+    },
+    "connection": {
+      "eyebrow": "Ihr Workflow für Kundenbindung",
+      "title": "Machen Sie aus einem QR-Scan eine dauerhafte Beziehung.",
+      "subtitle": "Nutzen Sie diese Seite als Checkliste. Fragen Sie nur mit eindeutiger Einwilligung nach einer E-Mail, laden Sie ausgewählte Wähler zu ehrlichem öffentlichem Feedback ein und geben Sie Vorteile gemäß Ihren konfigurierten Regeln frei.",
+      "step1": {
+        "title": "Angebot konfigurieren",
+        "body": "Fügen Sie beim Erstellen einer Umfrage Google, Tripadvisor oder ein anderes Ziel für ehrliche Bewertungen hinzu und legen Sie fest, welchen Vorteil Wähler durch ihre Stimmabgabe freischalten. Jeder Wähler sieht unabhängig von seiner Antwort denselben Bewertungslink – eine Steuerung nach Stimmungslage würde gegen die Regeln von Google/Tripadvisor verstoßen.",
+        "cta": "Konfigurierte Umfrage erstellen"
+      },
+      "step2": {
+        "title": "Einwilligung einholen",
+        "body": "Wähler können ihre E-Mail-Adresse nach der Abstimmung freiwillig teilen. Nutzen Sie die E-Mail-Einstellungen unten, um Event-News, Angebote oder eine Follow-up-Nachricht zu senden.",
+        "cta": "Zu den E-Mail-Einstellungen"
+      },
+      "step3": {
+        "title": "Prüfen und belohnen",
+        "body": "Prüfen Sie ausstehende Anträge in der Bewertungswarteschlange. Geben Sie den Vorteil erst frei, wenn Sie bestätigt haben, dass der Wähler ehrliches Feedback auf der ausgewählten Plattform hinterlassen hat.",
+        "cta": "Bewertungsanträge öffnen"
+      },
+      "whatCustomerSees": {
+        "title": "Was der Kunde sieht",
+        "voteLabel": "Abstimmen:",
+        "voteBody": "Sie scannen den QR-Code und antworten, ohne ein Konto zu erstellen.",
+        "stayConnectedLabel": "In Verbindung bleiben:",
+        "stayConnectedBody": "Sie entscheiden, ob sie eine E-Mail für Follow-ups und Vorteile teilen möchten.",
+        "shareHonestlyLabel": "Ehrlich teilen:",
+        "shareHonestlyBody": "Jeder Wähler erhält unabhängig von seiner Antwort Ihre Bewertungslinks und kann einen Verifizierungsantrag stellen.",
+        "disclaimer": "Verlangen Sie keine positive Bewertung und geben Sie keinen Bewertungstext vor. Vorteile sollten transparent angeboten werden und Bewertungsanfragen sollten zu ehrlichem Feedback einladen."
+      },
+      "messageBodyPlaceholder": "Text der E-Mail-Nachricht",
+      "emailDeliveryNote": "Für den Versand sind die Servereinstellungen RESEND_API_KEY und REPORT_FROM_EMAIL erforderlich, genau wie für die Wochenberichte.",
+      "leadNurture": {
+        "title": "Lead-Nurturing-E-Mails",
+        "description": "Senden Sie Wählern, die einem Follow-up (oder einer Verlosung) zugestimmt haben, direkt nach ihrer Abstimmung automatisch eine E-Mail.",
+        "enableLabel": "Nurturing-E-Mail automatisch senden",
+        "subjectPlaceholder": "E-Mail-Betreff: Danke für Ihr Feedback!",
+        "saveButton": "Nurturing-E-Mail-Einstellungen speichern",
+        "lockedTitle": "Leads automatisch nachfassen",
+        "lockedDescription": "Sie sammeln bereits E-Mails – verwandeln Sie sie mit einer automatischen Dankes-E-Mail in wiederkehrende Besuche, ganz ohne manuellen Aufwand."
+      },
+      "winback": {
+        "title": "Rückgewinnungs-E-Mails",
+        "description": "Senden Sie automatisch eine E-Mail an einen Wähler, der seine E-Mail-Adresse hinterlassen und eingewilligt hat, aber nach der unten angegebenen Anzahl von Tagen nicht erneut abgestimmt hat. Dies erreicht nur Personen mit Opt-in – die Abstimmung selbst bleibt immer anonym.",
+        "enableLabel": "Rückgewinnungs-E-Mail automatisch senden",
+        "daysSinceLabel": "Tage seit dem letzten Besuch",
+        "subjectPlaceholder": "E-Mail-Betreff: Wir vermissen Sie!",
+        "saveButton": "Rückgewinnungs-E-Mail-Einstellungen speichern",
+        "lockedTitle": "Holen Sie ruhige Kunden zurück",
+        "lockedDescription": "Binden Sie Wähler automatisch wieder ein, die seit einiger Zeit nicht zurückgekommen sind, ohne manuell nachzuverfolgen, wer überfällig ist."
+      }
+    },
+    "engagement": {
+      "intro": {
+        "eyebrow": "Was ein QR-Code enthalten kann",
+        "title": "Ein gedruckter Code, drei Arten von Inhalten.",
+        "body": "Ein QR-Code ist nicht nur eine Abkürzung zu einer einzelnen Umfrage. Beim Scannen kann ein Wähler eine oder mehrere Umfragen, eine Infokarte (Menü, Öffnungszeiten, Bio, Ausstellungsnotizen ...) und eine Spendenbitte sehen – alles im selben Code. Richten Sie zuerst unten Spenden ein und erstellen Sie dann den Code selbst unter \"QR-Kampagnen\"."
+      },
+      "scanner": {
+        "title": "QR-Code scannen",
+        "subtitle": "Sie haben bereits einen gedruckten QR-Code in der Hand? Scannen Sie ihn, um zu sehen, welche Umfrage er gerade verwendet, und wechseln Sie sofort zu einer anderen Umfrage.",
+        "openCamera": "Kamera-Scanner öffnen",
+        "pastePlaceholder": "Oder den QR-Link hier einfügen",
+        "lookUp": "Nachschlagen",
+        "unlabeledPlacement": "Unbeschriftete Platzierung",
+        "noPollAssigned": "Noch keine Umfrage zugewiesen",
+        "redirectLabel": "Diesen QR-Code zu einer anderen Umfrage umleiten",
+        "choosePoll": "Umfrage auswählen",
+        "createNewPoll": "Neue Umfrage für diesen QR-Code erstellen"
+      },
+      "donations": {
+        "title": "Spenden",
+        "description": "Lassen Sie Wähler Ihren Standort mit einer Karten- oder Wallet-Zahlung aus dem QR-Menü unterstützen. Verbinden Sie hier einmal ein Stripe-Konto und fügen Sie dann unten jedem QR-Code einen \"Spende\"-Eintrag hinzu. Stripe verarbeitet die Zahlung: 90 % werden direkt auf Ihr Konto überwiesen und Godwit behält 10 % als Plattformgebühr.",
+        "stripeConnected": "Stripe ist verbunden und bereit, Spenden anzunehmen.",
+        "stripeStarted": "Das Stripe-Konto wurde begonnen, aber das Onboarding ist noch nicht abgeschlossen.",
+        "stripeNotConnected": "Noch kein Stripe-Konto verbunden.",
+        "continueSetup": "Stripe-Einrichtung fortsetzen",
+        "connectStripe": "Mit Stripe verbinden",
+        "refreshStatus": "Status aktualisieren",
+        "acceptDonations": "Spenden annehmen",
+        "connectFirst": "(zuerst Stripe verbinden)",
+        "currency": "Währung",
+        "suggestedAmount": "Vorgeschlagener Betrag (optional)",
+        "messagePlaceholder": "Optionale Dankesnachricht, die mit der Spendenoption angezeigt wird",
+        "saveButton": "Spendeneinstellungen speichern",
+        "feeNote": "Stripe ist der Zahlungsabwickler – Godwit sieht oder speichert niemals Kartendaten. Von jeder Spende behält Godwit 10 % als Plattformgebühr ein, und 90 % werden auf Ihr verbundenes Stripe-Konto überwiesen."
+      },
+      "locations": {
+        "title": "QR-Standorte",
+        "subtitle": "Erstellen Sie wiederverwendbare QR-Standorte und weisen Sie dann jeden Standort der dort aktuell laufenden Umfrage zu.",
+        "namePlaceholder": "Standortname",
+        "tokenPlaceholder": "Optionales Token",
+        "addLocation": "Standort hinzufügen",
+        "chooseLocation": "QR-Standort auswählen",
+        "assignToPoll": "Standort der Umfrage zuweisen",
+        "noLocations": "Noch keine QR-Standorte.",
+        "tokenLabel": "Token: {{token}}",
+        "assignedToPrefix": "Zugewiesen an",
+        "pollNumber": "Umfrage #{{id}}",
+        "notAssigned": "Nicht zugewiesen",
+        "delete": "Löschen"
+      },
+      "campaigns": {
+        "title": "QR-Kampagnen",
+        "description": "Erstellen Sie pro Platzierung einen dauerhaften QR-Code, um Scans, Antworten und eingewilligte Follow-up-Leads zu messen. Jeder startet unten mit einer Standardumfrage, aber öffnen Sie bei einer beliebigen Kampagne \"Elemente auf diesem QR-Code\", um weitere Umfragen, eine Infokarte oder eine Spendenbitte hinzuzufügen.",
+        "tip": "Tipp: Öffnen Sie einen gedruckten QR-Code im angemeldeten Zustand, um seinen Namen und seine Umfrage zu sehen und direkt zu ändern.",
+        "namePlaceholder": "Lobby-Poster, Beleg, Tischaufsteller",
+        "createButton": "Kampagnen-QR erstellen",
+        "placementPlaceholder": "Platzierungslabel: Lobby, Beleg, Tisch",
+        "variantPlaceholder": "Variantenlabel: A, fette Überschrift",
+        "customizeWelcome": "QR-Begrüßungsbildschirm anpassen",
+        "welcomeHeadlinePlaceholder": "Begrüßungsüberschrift (optional)",
+        "buttonTextPlaceholder": "Schaltflächentext: Teilen Sie Ihr Feedback",
+        "welcomeMessagePlaceholder": "Kurze Begrüßungsnachricht (optional)",
+        "bulkGenerate": "Mehrere QR-Codes auf einmal generieren",
+        "bulkBaseNamePlaceholder": "Basisname: Tisch",
+        "bulkCountPlaceholder": "Wie viele? (1-50)",
+        "assignLater": "Später zuweisen",
+        "bulkGenerateButton": "QR-Codes generieren",
+        "bulkGenerateNote": "Erstellt \"Tisch 1\", \"Tisch 2\"... Sie können jeden später scannen oder öffnen, um seine Umfrage zuzuweisen oder zu ändern.",
+        "noCampaigns": "Noch keine verfolgten QR-Kampagnen.",
+        "noDefaultPoll": "Keine Standardumfrage",
+        "active": "Aktiv",
+        "paused": "Pausiert",
+        "rotating": "Rotierend",
+        "copyLink": "Link kopieren",
+        "changePoll": "Umfrage ändern:",
+        "orRotate": "Oder rotieren:",
+        "noRotation": "Keine Rotation",
+        "itemsOnQr": "Elemente auf diesem QR-Code ({{count}})",
+        "itemsHint": "Fügen Sie hier eine oder mehrere Umfragen, Infokarten und eine Spendenbitte hinzu, um diesen QR-Code in ein Menü zu verwandeln: Beim Scannen wird alles unten Aufgeführte auf einmal angezeigt, statt direkt zu einer einzelnen Umfrage zu führen."
+      },
+      "items": {
+        "addCurrentPoll": "Aktuelle Standardumfrage (#{{id}}) ebenfalls als Element hinzufügen",
+        "unknownPoll": "Unbekannte Umfrage",
+        "donationLabel": "Spende",
+        "default": "Standard",
+        "link": "Link",
+        "remove": "Entfernen",
+        "addPollOption": "Umfrage hinzufügen...",
+        "addPoll": "Umfrage hinzufügen",
+        "infoTitlePlaceholder": "Infotitel: Heutige Specials, Hausregeln...",
+        "linkUrlPlaceholder": "Optionale Link-URL",
+        "infoBodyPlaceholder": "Was soll diese Infokarte sagen?",
+        "linkLabelPlaceholder": "Beschriftung der Link-Schaltfläche (optional)",
+        "imageUrlPlaceholder": "Optionale Bild-URL (ein Portfoliofoto, Ausstellungsbild, Produktfoto...)",
+        "accessibilityLegend": "Barrierefreiheit (optional - wird Besuchern als Abzeichen angezeigt)",
+        "addInfoCard": "Infokarte hinzufügen",
+        "addDonationOption": "Spendenoption hinzufügen",
+        "enableDonationsNote": "Richten Sie im Spenden-Bereich unten Spenden ein und aktivieren Sie sie, um diesem QR-Code eine Spendenoption hinzuzufügen."
+      },
+      "rotations": {
+        "title": "Umfrage-Rotationen"
+      }
+    },
+    "feedback": {
+      "messages": {
+        "title": "Nachrichten von Wählern",
+        "subtitle": "Private Nachrichten, die zusammen mit einer Stimme gesendet wurden. Antworten Sie nur, wenn der Wähler eine E-Mail-Adresse angegeben hat.",
+        "noMessages": "Noch keine Nachrichten von Wählern.",
+        "replyToVoter": "Wähler antworten"
+      }
+    },
+    "accessibilityTags": {
+      "wheelchairAccessible": "Rollstuhlgerecht",
+      "audioDescription": "Audiodeskription verfügbar",
+      "signLanguage": "Gebärdensprache verfügbar",
+      "largePrint": "Großdruck verfügbar",
+      "hearingLoop": "Induktionsschleife",
+      "serviceAnimalsWelcome": "Assistenzhunde willkommen"
     }
   }
 }

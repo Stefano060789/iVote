@@ -358,6 +358,176 @@
         "downloadQr": "Baixar QR",
         "printQr": "Imprimir QR"
       }
+    },
+    "connection": {
+      "eyebrow": "Seu fluxo de relacionamento com o cliente",
+      "title": "Transforme uma leitura de QR em um relacionamento contínuo.",
+      "subtitle": "Use esta página como sua checklist. Peça um e-mail apenas com consentimento claro, convide votantes selecionados a deixar feedback público sincero e libere benefícios de acordo com as regras que você configurou.",
+      "step1": {
+        "title": "Configure a oferta",
+        "body": "Adicione Google, Tripadvisor ou outro destino de avaliações sinceras ao criar uma enquete e defina o benefício que os votantes desbloqueiam ao votar. Todo votante vê o mesmo link de avaliação independentemente da resposta — restringi-lo pelo sentimento violaria as regras do Google/Tripadvisor.",
+        "cta": "Criar uma enquete configurada"
+      },
+      "step2": {
+        "title": "Colete permissão",
+        "body": "Os votantes podem compartilhar voluntariamente seu e-mail após votar. Use as configurações de e-mail abaixo para enviar novidades do evento, ofertas ou uma mensagem de acompanhamento.",
+        "cta": "Ir para configurações de e-mail"
+      },
+      "step3": {
+        "title": "Verifique e recompense",
+        "body": "Verifique as solicitações pendentes na fila de avaliações. Aprove o benefício somente depois de confirmar que o votante deixou feedback sincero na plataforma selecionada.",
+        "cta": "Abrir solicitações de avaliação"
+      },
+      "whatCustomerSees": {
+        "title": "O que o cliente vê",
+        "voteLabel": "Vote:",
+        "voteBody": "Ele escaneia o código QR e responde sem criar uma conta.",
+        "stayConnectedLabel": "Fique conectado:",
+        "stayConnectedBody": "Ele escolhe se quer compartilhar um e-mail para acompanhamento e benefícios.",
+        "shareHonestlyLabel": "Compartilhe honestamente:",
+        "shareHonestlyBody": "Todo votante, independentemente da resposta, recebe seus links de avaliação e pode enviar uma solicitação de verificação.",
+        "disclaimer": "Não exija nem roteirize uma avaliação positiva. Os benefícios devem ser oferecidos com transparência e os pedidos de avaliação devem convidar a um feedback sincero."
+      },
+      "messageBodyPlaceholder": "Corpo da mensagem de e-mail",
+      "emailDeliveryNote": "O envio requer as configurações de servidor RESEND_API_KEY e REPORT_FROM_EMAIL, as mesmas dos relatórios semanais.",
+      "leadNurture": {
+        "title": "E-mails de nutrição de leads",
+        "description": "Envie automaticamente um e-mail para votantes que optaram por acompanhamento (ou sorteio) logo após votarem.",
+        "enableLabel": "Enviar automaticamente um e-mail de nutrição",
+        "subjectPlaceholder": "Assunto do e-mail: Obrigado pelo seu feedback!",
+        "saveButton": "Salvar configurações do e-mail de nutrição",
+        "lockedTitle": "Faça acompanhamento automático dos leads",
+        "lockedDescription": "Você já está coletando e-mails — transforme isso em visitas recorrentes com um e-mail automático de agradecimento, sem trabalho manual."
+      },
+      "winback": {
+        "title": "E-mails de reconquista",
+        "description": "Envie automaticamente um e-mail para um votante que deixou seu e-mail e consentiu, mas não votou novamente após o número de dias abaixo. Isso alcança apenas pessoas que optaram por participar — o voto em si continua sempre anônimo.",
+        "enableLabel": "Enviar automaticamente um e-mail de reconquista",
+        "daysSinceLabel": "Dias desde a última visita",
+        "subjectPlaceholder": "Assunto do e-mail: Sentimos sua falta!",
+        "saveButton": "Salvar configurações do e-mail de reconquista",
+        "lockedTitle": "Reconquiste clientes que sumiram",
+        "lockedDescription": "Reengaje automaticamente votantes que não voltaram há algum tempo, sem rastrear manualmente quem já passou do prazo."
+      }
+    },
+    "engagement": {
+      "intro": {
+        "eyebrow": "O que um código QR pode conter",
+        "title": "Um código impresso, três tipos de conteúdo.",
+        "body": "Um código QR não é apenas um atalho para uma única enquete. Ao escaneá-lo, um votante pode ver uma ou mais enquetes, um cartão informativo (menu, horários, bio, notas da exposição...) e um pedido de doação — tudo no mesmo código. Configure primeiro as doações abaixo e depois monte o próprio código em \"Campanhas QR\"."
+      },
+      "scanner": {
+        "title": "Escaneie um código QR",
+        "subtitle": "Já está com um código QR impresso em mãos? Escaneie-o para ver qual enquete ele usa agora e mude-o instantaneamente para outra enquete.",
+        "openCamera": "Abrir scanner da câmera",
+        "pastePlaceholder": "Ou cole o link do QR aqui",
+        "lookUp": "Buscar",
+        "unlabeledPlacement": "Posicionamento sem rótulo",
+        "noPollAssigned": "Nenhuma enquete atribuída ainda",
+        "redirectLabel": "Redirecionar este código QR para outra enquete",
+        "choosePoll": "Escolha uma enquete",
+        "createNewPoll": "Criar uma nova enquete para este código QR"
+      },
+      "donations": {
+        "title": "Doações",
+        "description": "Permita que os votantes apoiem seu local com um pagamento por cartão ou carteira digital pelo menu QR. Conecte uma conta Stripe uma vez aqui e depois adicione um item \"Doação\" a qualquer código QR abaixo. A Stripe processa o pagamento: 90% vão direto para a sua conta e a Godwit retém uma taxa de plataforma de 10%.",
+        "stripeConnected": "Stripe está conectada e pronta para aceitar doações.",
+        "stripeStarted": "A conta Stripe foi iniciada, mas o onboarding ainda não foi concluído.",
+        "stripeNotConnected": "Nenhuma conta Stripe conectada ainda.",
+        "continueSetup": "Continuar configuração da Stripe",
+        "connectStripe": "Conectar com Stripe",
+        "refreshStatus": "Atualizar status",
+        "acceptDonations": "Aceitar doações",
+        "connectFirst": "(conecte a Stripe primeiro)",
+        "currency": "Moeda",
+        "suggestedAmount": "Valor sugerido (opcional)",
+        "messagePlaceholder": "Mensagem opcional de agradecimento exibida com a opção de doação",
+        "saveButton": "Salvar configurações de doação",
+        "feeNote": "Stripe é a processadora de pagamentos — a Godwit nunca vê nem armazena dados do cartão. De cada doação, 10% ficam retidos pela Godwit como taxa de plataforma e 90% vão para sua conta Stripe conectada."
+      },
+      "locations": {
+        "title": "Locais QR",
+        "subtitle": "Crie locais QR reutilizáveis e depois aponte cada local para a enquete que está ativa ali no momento.",
+        "namePlaceholder": "Nome do local",
+        "tokenPlaceholder": "Token opcional",
+        "addLocation": "Adicionar local",
+        "chooseLocation": "Escolher um local QR",
+        "assignToPoll": "Atribuir local à enquete",
+        "noLocations": "Ainda não há locais QR.",
+        "tokenLabel": "Token: {{token}}",
+        "assignedToPrefix": "Atribuído à",
+        "pollNumber": "enquete #{{id}}",
+        "notAssigned": "Não atribuído",
+        "delete": "Excluir"
+      },
+      "campaigns": {
+        "title": "Campanhas QR",
+        "description": "Crie um código QR durável por posicionamento para medir leituras, respostas e leads de acompanhamento que optaram por participar. Cada um começa com uma enquete padrão abaixo, mas abra \"Itens neste código QR\" em qualquer campanha para adicionar mais enquetes, um cartão informativo ou um pedido de doação.",
+        "tip": "Dica: abra um código QR impresso enquanto estiver com sessão iniciada para ver o nome e a enquete dele e alterá-los diretamente.",
+        "namePlaceholder": "Pôster do saguão, recibo, display de mesa",
+        "createButton": "Criar QR de campanha",
+        "placementPlaceholder": "Rótulo do posicionamento: saguão, recibo, mesa",
+        "variantPlaceholder": "Rótulo da variante: A, título em negrito",
+        "customizeWelcome": "Personalizar a tela de boas-vindas do QR",
+        "welcomeHeadlinePlaceholder": "Título de boas-vindas (opcional)",
+        "buttonTextPlaceholder": "Texto do botão: Compartilhe seu feedback",
+        "welcomeMessagePlaceholder": "Mensagem curta de boas-vindas (opcional)",
+        "bulkGenerate": "Gerar vários códigos QR de uma vez",
+        "bulkBaseNamePlaceholder": "Nome base: Mesa",
+        "bulkCountPlaceholder": "Quantos? (1-50)",
+        "assignLater": "Atribuir depois",
+        "bulkGenerateButton": "Gerar códigos QR",
+        "bulkGenerateNote": "Cria \"Mesa 1\", \"Mesa 2\"... Você pode escanear ou abrir cada um depois para atribuir ou alterar sua enquete.",
+        "noCampaigns": "Ainda não há campanhas QR rastreadas.",
+        "noDefaultPoll": "Nenhuma enquete padrão",
+        "active": "Ativa",
+        "paused": "Pausada",
+        "rotating": "Em rotação",
+        "copyLink": "Copiar link",
+        "changePoll": "Alterar enquete:",
+        "orRotate": "Ou rotacionar:",
+        "noRotation": "Sem rotação",
+        "itemsOnQr": "Itens neste código QR ({{count}})",
+        "itemsHint": "Adicione aqui uma ou mais enquetes, cartões informativos e um pedido de doação para transformar este código QR em um menu: ao escaneá-lo, tudo listado abaixo será exibido de uma vez, em vez de ir direto para uma única enquete."
+      },
+      "items": {
+        "addCurrentPoll": "Adicionar também a enquete padrão atual (#{{id}}) como item",
+        "unknownPoll": "Enquete desconhecida",
+        "donationLabel": "Doação",
+        "default": "padrão",
+        "link": "Link",
+        "remove": "Remover",
+        "addPollOption": "Adicionar uma enquete...",
+        "addPoll": "Adicionar enquete",
+        "infoTitlePlaceholder": "Título da informação: Especiais de hoje, Regras da casa...",
+        "linkUrlPlaceholder": "URL de link opcional",
+        "infoBodyPlaceholder": "O que este cartão informativo deve dizer?",
+        "linkLabelPlaceholder": "Rótulo do botão de link (opcional)",
+        "imageUrlPlaceholder": "URL de imagem opcional (uma foto de portfólio, imagem de exposição, foto de produto...)",
+        "accessibilityLegend": "Acessibilidade (opcional - mostrada como emblemas aos visitantes)",
+        "addInfoCard": "Adicionar cartão informativo",
+        "addDonationOption": "Adicionar opção de doação",
+        "enableDonationsNote": "Configure e ative as doações no painel Doações abaixo para adicionar uma opção de doação a este código QR."
+      },
+      "rotations": {
+        "title": "Rotações de enquetes"
+      }
+    },
+    "feedback": {
+      "messages": {
+        "title": "Mensagens dos votantes",
+        "subtitle": "Mensagens privadas enviadas junto com um voto. Responda apenas quando o votante tiver fornecido um endereço de e-mail.",
+        "noMessages": "Ainda não há mensagens de votantes.",
+        "replyToVoter": "Responder ao votante"
+      }
+    },
+    "accessibilityTags": {
+      "wheelchairAccessible": "Acessível para cadeira de rodas",
+      "audioDescription": "Audiodescrição disponível",
+      "signLanguage": "Língua de sinais disponível",
+      "largePrint": "Impressão em letras grandes disponível",
+      "hearingLoop": "Aro magnético",
+      "serviceAnimalsWelcome": "Animais de assistência bem-vindos"
     }
   }
 }

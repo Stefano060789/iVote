@@ -2233,38 +2233,38 @@ export default function Admin() {
 
       {activeTab === "engagement" && (
       <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">QR locations</summary>
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.locations.title")}</summary>
         <div className="px-4 pb-4">
-        <p className="mb-3 text-sm text-slate-400">Create reusable QR locations, then point each location at the poll currently running there.</p>
+        <p className="mb-3 text-sm text-slate-400">{t("admin.engagement.locations.subtitle")}</p>
         <div className="grid md:grid-cols-3 gap-3 mb-4">
           <input
             type="text"
             value={newLocationName}
             onChange={(event) => setNewLocationName(event.target.value)}
             className="border p-2 rounded text-black"
-            placeholder="Location name"
+            placeholder={t("admin.engagement.locations.namePlaceholder")}
           />
           <input
             type="text"
             value={newLocationToken}
             onChange={(event) => setNewLocationToken(event.target.value)}
             className="border p-2 rounded text-black"
-            placeholder="Optional token"
+            placeholder={t("admin.engagement.locations.tokenPlaceholder")}
           />
           <button onClick={handleCreateLocation} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">
-            Add location
+            {t("admin.engagement.locations.addLocation")}
           </button>
         </div>
 
         <div className="grid md:grid-cols-2 gap-3 mb-3">
           <select value={selectedLocationId} onChange={(event) => setSelectedLocationId(event.target.value)} className="border p-2 rounded text-black">
-            <option value="">Choose a QR location</option>
+            <option value="">{t("admin.engagement.locations.chooseLocation")}</option>
             {qrLocations.map((location) => (
               <option key={location.id} value={String(location.id)}>{location.name}</option>
             ))}
           </select>
           <select value={selectedPollForLocation} onChange={(event) => setSelectedPollForLocation(event.target.value)} className="border p-2 rounded text-black">
-            <option value="">Choose a poll</option>
+            <option value="">{t("admin.engagement.scanner.choosePoll")}</option>
             {polls.map((poll) => (
               <option key={poll.id} value={String(poll.id)}>
                 #{poll.id} - {poll.question}
@@ -2274,26 +2274,26 @@ export default function Admin() {
         </div>
 
         <button onClick={assignLocationToPoll} className="bg-emerald-600 text-white px-4 py-2 rounded font-semibold mb-4">
-          Assign location to poll
+          {t("admin.engagement.locations.assignToPoll")}
         </button>
 
         <div className="space-y-2">
           {qrLocations.length === 0 ? (
-            <p className="text-gray-400">No QR locations yet.</p>
+            <p className="text-gray-400">{t("admin.engagement.locations.noLocations")}</p>
           ) : (
             qrLocations.map((location) => (
               <div key={location.id} className="flex items-center justify-between border border-gray-700 rounded p-3">
                 <div>
                   <p className="font-semibold">{location.name}</p>
-                  <p className="text-xs text-gray-400">Token: {location.token}</p>
+                  <p className="text-xs text-gray-400">{t("admin.engagement.locations.tokenLabel", { token: location.token })}</p>
                   <p className="text-xs text-gray-500">
                     {location.current_poll_id ? (
-                      <>Assigned to <button type="button" onClick={() => goToPoll(location.current_poll_id)} className="font-semibold text-teal-300 underline">poll #{location.current_poll_id}</button></>
-                    ) : "Not assigned"}
+                      <>{t("admin.engagement.locations.assignedToPrefix")} <button type="button" onClick={() => goToPoll(location.current_poll_id)} className="font-semibold text-teal-300 underline">{t("admin.engagement.locations.pollNumber", { id: location.current_poll_id })}</button></>
+                    ) : t("admin.engagement.locations.notAssigned")}
                   </p>
                 </div>
                 <button onClick={() => handleDeleteLocation(location.id)} className="bg-red-600 text-white px-3 py-2 rounded font-semibold">
-                  Delete
+                  {t("admin.engagement.locations.delete")}
                 </button>
               </div>
             ))
@@ -2305,14 +2305,14 @@ export default function Admin() {
 
       {activeTab === "feedback" && (
       <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">Messages from voters</summary>
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.feedback.messages.title")}</summary>
         <div className="px-4 pb-4">
-          <p className="mb-3 text-sm text-slate-400">Private messages submitted with a vote. Reply only when the voter provided an email address.</p>
-          {organizerMessages.length === 0 ? <p className="text-sm text-slate-400">No voter messages yet.</p> : <div className="space-y-3">{organizerMessages.map((message) => (
+          <p className="mb-3 text-sm text-slate-400">{t("admin.feedback.messages.subtitle")}</p>
+          {organizerMessages.length === 0 ? <p className="text-sm text-slate-400">{t("admin.feedback.messages.noMessages")}</p> : <div className="space-y-3">{organizerMessages.map((message) => (
             <article key={message.id} className="rounded border border-slate-700 p-3">
               <p>{message.message}</p>
-              <p className="mt-2 text-xs text-slate-400">Poll #{message.poll_id} · {new Date(message.created_at).toLocaleString()}</p>
-              {message.reply_email && <a className="mt-2 inline-block text-sm text-teal-300 underline" href={`mailto:${message.reply_email}`}>Reply to voter</a>}
+              <p className="mt-2 text-xs text-slate-400">{t("admin.engagement.locations.pollNumber", { id: message.poll_id })} · {new Date(message.created_at).toLocaleString()}</p>
+              {message.reply_email && <a className="mt-2 inline-block text-sm text-teal-300 underline" href={`mailto:${message.reply_email}`}>{t("admin.feedback.messages.replyToVoter")}</a>}
             </article>
           ))}</div>}
         </div>
@@ -2322,42 +2322,42 @@ export default function Admin() {
       {activeTab === "engagement" && (
       <>
       <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">QR campaigns</summary>
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.campaigns.title")}</summary>
         <div className="px-4 pb-4">
-          <p className="mb-3 text-sm text-slate-400">Create a durable QR code per placement to measure scans, responses, and opted-in follow-up leads. Each one starts with a default poll below, but open "Items on this QR code" on any campaign to add more polls, an info card, or a donation ask.</p>
-          <p className="mb-3 text-xs text-slate-500">Tip: open a printed QR code while signed in to see its name and poll, and change them directly.</p>
+          <p className="mb-3 text-sm text-slate-400">{t("admin.engagement.campaigns.description")}</p>
+          <p className="mb-3 text-xs text-slate-500">{t("admin.engagement.campaigns.tip")}</p>
           <div className="grid md:grid-cols-3 gap-3 mb-3">
-            <input value={newCampaignName} onChange={(event) => setNewCampaignName(event.target.value)} className="border p-2 rounded text-black" placeholder="Lobby poster, receipt, table tent" />
+            <input value={newCampaignName} onChange={(event) => setNewCampaignName(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.namePlaceholder")} />
             <select value={newCampaignPollId} onChange={(event) => setNewCampaignPollId(event.target.value)} className="border p-2 rounded text-black">
-              <option value="">Choose a poll</option>
+              <option value="">{t("admin.engagement.scanner.choosePoll")}</option>
               {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
             </select>
-            <button onClick={handleCreateCampaign} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">Create campaign QR</button>
+            <button onClick={handleCreateCampaign} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">{t("admin.engagement.campaigns.createButton")}</button>
           </div>
-          <div className="grid md:grid-cols-2 gap-3 mb-4"><input value={newCampaignPlacement} onChange={(event) => setNewCampaignPlacement(event.target.value)} className="border p-2 rounded text-black" placeholder="Placement label: lobby, receipt, table" /><input value={newCampaignVariant} onChange={(event) => setNewCampaignVariant(event.target.value)} className="border p-2 rounded text-black" placeholder="Variant label: A, bold headline" /></div>
+          <div className="grid md:grid-cols-2 gap-3 mb-4"><input value={newCampaignPlacement} onChange={(event) => setNewCampaignPlacement(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.placementPlaceholder")} /><input value={newCampaignVariant} onChange={(event) => setNewCampaignVariant(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.variantPlaceholder")} /></div>
           <details className="mb-4 rounded border border-slate-700">
-            <summary className="cursor-pointer p-3 text-sm font-semibold">Customize the QR welcome screen</summary>
+            <summary className="cursor-pointer p-3 text-sm font-semibold">{t("admin.engagement.campaigns.customizeWelcome")}</summary>
             <div className="grid gap-3 px-3 pb-3 md:grid-cols-2">
-              <input value={newCampaignPortalTitle} onChange={(event) => setNewCampaignPortalTitle(event.target.value)} maxLength={120} className="border p-2 rounded text-black" placeholder="Welcome headline (optional)" />
-              <input value={newCampaignPortalButton} onChange={(event) => setNewCampaignPortalButton(event.target.value)} maxLength={60} className="border p-2 rounded text-black" placeholder="Button text: Share your feedback" />
-              <textarea value={newCampaignPortalMessage} onChange={(event) => setNewCampaignPortalMessage(event.target.value)} maxLength={280} className="border p-2 rounded text-black md:col-span-2" placeholder="Short welcome message (optional)" rows="3" />
+              <input value={newCampaignPortalTitle} onChange={(event) => setNewCampaignPortalTitle(event.target.value)} maxLength={120} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.welcomeHeadlinePlaceholder")} />
+              <input value={newCampaignPortalButton} onChange={(event) => setNewCampaignPortalButton(event.target.value)} maxLength={60} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.buttonTextPlaceholder")} />
+              <textarea value={newCampaignPortalMessage} onChange={(event) => setNewCampaignPortalMessage(event.target.value)} maxLength={280} className="border p-2 rounded text-black md:col-span-2" placeholder={t("admin.engagement.campaigns.welcomeMessagePlaceholder")} rows="3" />
             </div>
           </details>
           <details className="mb-4 rounded border border-slate-700">
-            <summary className="cursor-pointer p-3 text-sm font-semibold">Generate multiple QR codes at once</summary>
+            <summary className="cursor-pointer p-3 text-sm font-semibold">{t("admin.engagement.campaigns.bulkGenerate")}</summary>
             <div className="grid gap-3 px-3 pb-3 md:grid-cols-3">
-              <input value={newBulkBaseName} onChange={(event) => setNewBulkBaseName(event.target.value)} className="border p-2 rounded text-black" placeholder="Base name: Table" />
-              <input type="number" min="1" max="50" value={newBulkCount} onChange={(event) => setNewBulkCount(event.target.value)} className="border p-2 rounded text-black" placeholder="How many? (1-50)" />
+              <input value={newBulkBaseName} onChange={(event) => setNewBulkBaseName(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.bulkBaseNamePlaceholder")} />
+              <input type="number" min="1" max="50" value={newBulkCount} onChange={(event) => setNewBulkCount(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.bulkCountPlaceholder")} />
               <select value={newBulkPollId} onChange={(event) => setNewBulkPollId(event.target.value)} className="border p-2 rounded text-black">
-                <option value="">Assign later</option>
+                <option value="">{t("admin.engagement.campaigns.assignLater")}</option>
                 {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
               </select>
-              <button onClick={handleBulkGenerateCampaigns} className="md:col-span-3 bg-violet-600 text-white px-4 py-2 rounded font-semibold">Generate QR codes</button>
-              <p className="md:col-span-3 text-xs text-slate-500">Creates "Table 1", "Table 2"... You can scan or open each one later to assign or change its poll.</p>
+              <button onClick={handleBulkGenerateCampaigns} className="md:col-span-3 bg-violet-600 text-white px-4 py-2 rounded font-semibold">{t("admin.engagement.campaigns.bulkGenerateButton")}</button>
+              <p className="md:col-span-3 text-xs text-slate-500">{t("admin.engagement.campaigns.bulkGenerateNote")}</p>
             </div>
           </details>
           <div className="space-y-2">
-            {qrCampaigns.length === 0 ? <p className="text-gray-400">No tracked QR campaigns yet.</p> : qrCampaigns.map((campaign) => {
+            {qrCampaigns.length === 0 ? <p className="text-gray-400">{t("admin.engagement.campaigns.noCampaigns")}</p> : qrCampaigns.map((campaign) => {
               const url = `${window.location.origin}/qr/${campaign.token}`;
               return (
                 <div key={campaign.id} className="gap-3 border border-gray-700 rounded p-3">
@@ -2366,43 +2366,42 @@ export default function Admin() {
                       <p className="font-semibold">{campaign.name}</p>
                       <p className="text-xs text-gray-400">
                         {campaign.poll_id ? (
-                          <button type="button" onClick={() => goToPoll(campaign.poll_id)} className="font-semibold text-teal-300 underline">Poll #{campaign.poll_id}</button>
-                        ) : "No default poll"}
-                        {" · "}{campaign.placement_label || "Unlabeled placement"}{campaign.variant_label ? ` · ${campaign.variant_label}` : ""} · {campaign.is_active ? "Active" : "Paused"}{campaign.rotation_id ? " · Rotating" : ""}
+                          <button type="button" onClick={() => goToPoll(campaign.poll_id)} className="font-semibold text-teal-300 underline">{t("admin.polls.card.pollNumber", { id: campaign.poll_id })}</button>
+                        ) : t("admin.engagement.campaigns.noDefaultPoll")}
+                        {" · "}{campaign.placement_label || t("admin.engagement.scanner.unlabeledPlacement")}{campaign.variant_label ? ` · ${campaign.variant_label}` : ""} · {campaign.is_active ? t("admin.engagement.campaigns.active") : t("admin.engagement.campaigns.paused")}{campaign.rotation_id ? ` · ${t("admin.engagement.campaigns.rotating")}` : ""}
                       </p>
                       <p className="truncate text-xs text-blue-300">{url}</p>
                     </div>
-                    <button onClick={() => navigator.clipboard.writeText(url)} className="shrink-0 bg-slate-700 text-white px-3 py-2 rounded font-semibold">Copy link</button>
+                    <button onClick={() => navigator.clipboard.writeText(url)} className="shrink-0 bg-slate-700 text-white px-3 py-2 rounded font-semibold">{t("admin.engagement.campaigns.copyLink")}</button>
                   </div>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <label className="text-xs text-slate-400">Change poll:</label>
+                    <label className="text-xs text-slate-400">{t("admin.engagement.campaigns.changePoll")}</label>
                     <select
                       value={campaign.poll_id ? String(campaign.poll_id) : ""}
                       onChange={(event) => reassignQrCampaignPoll(campaign.id, event.target.value)}
                       className="border p-1.5 rounded text-black text-sm"
                     >
-                      <option value="">Choose a poll</option>
+                      <option value="">{t("admin.engagement.scanner.choosePoll")}</option>
                       {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
                     </select>
-                    <label className="text-xs text-slate-400">Or rotate:</label>
+                    <label className="text-xs text-slate-400">{t("admin.engagement.campaigns.orRotate")}</label>
                     <select
                       value={campaign.rotation_id ? String(campaign.rotation_id) : ""}
                       onChange={(event) => assignCampaignRotation(campaign.id, event.target.value)}
                       className="border p-1.5 rounded text-black text-sm"
                     >
-                      <option value="">No rotation</option>
+                      <option value="">{t("admin.engagement.campaigns.noRotation")}</option>
                       {pollRotations.map((rotation) => <option key={rotation.id} value={String(rotation.id)}>{rotation.name}</option>)}
                     </select>
                   </div>
 
                   <details className="mt-3 rounded border border-slate-700">
                     <summary className="cursor-pointer p-2 text-sm font-semibold">
-                      Items on this QR code ({itemsForCampaign(campaign.id).length})
+                      {t("admin.engagement.campaigns.itemsOnQr", { count: itemsForCampaign(campaign.id).length })}
                     </summary>
                     <div className="space-y-3 p-3">
                       <p className="text-xs text-slate-400">
-                        Add one or more polls, info cards, and a donation ask here to turn this QR code into a menu: scanning it
-                        will show everything listed below at once, instead of going straight to a single poll.
+                        {t("admin.engagement.campaigns.itemsHint")}
                       </p>
                       {campaign.poll_id && !itemsForCampaign(campaign.id).some((item) => item.item_type === "poll" && item.poll_id === campaign.poll_id) && (
                         <button
@@ -2410,7 +2409,7 @@ export default function Admin() {
                           onClick={() => handleAddCurrentPollAsItem(campaign)}
                           className="text-xs font-semibold text-blue-300 underline"
                         >
-                          Add the current default poll (#{campaign.poll_id}) as an item too
+                          {t("admin.engagement.items.addCurrentPoll", { id: campaign.poll_id })}
                         </button>
                       )}
 
@@ -2420,12 +2419,12 @@ export default function Admin() {
                             <div key={item.id} className="flex items-center justify-between gap-2 rounded border border-slate-700 p-2 text-sm">
                               <div className="min-w-0">
                                 {item.item_type === "poll" ? (
-                                  <p className="truncate">📊 <button type="button" onClick={() => goToPoll(item.poll_id)} className="font-semibold text-teal-300 underline">Poll #{item.poll_id}</button> - {polls.find((poll) => poll.id === item.poll_id)?.question || "Unknown poll"}</p>
+                                  <p className="truncate">📊 <button type="button" onClick={() => goToPoll(item.poll_id)} className="font-semibold text-teal-300 underline">{t("admin.polls.card.pollNumber", { id: item.poll_id })}</button> - {polls.find((poll) => poll.id === item.poll_id)?.question || t("admin.engagement.items.unknownPoll")}</p>
                                 ) : item.item_type === "donation" ? (
-                                  <p className="truncate">💛 Donation{item.title ? ` - ${item.title}` : " (default)"}</p>
+                                  <p className="truncate">💛 {t("admin.engagement.items.donationLabel")}{item.title ? ` - ${item.title}` : ` (${t("admin.engagement.items.default")})`}</p>
                                 ) : (
                                   <div className="min-w-0">
-                                    <p className="truncate">📄 {item.title}{item.link_url ? ` · ${item.link_label || "Link"}` : ""}</p>
+                                    <p className="truncate">📄 {item.title}{item.link_url ? ` · ${item.link_label || t("admin.engagement.items.link")}` : ""}</p>
                                     {item.accessibility_tags?.length > 0 && (
                                       <p className="truncate text-xs text-slate-400">
                                         {item.accessibility_tags.map((tag) => ACCESSIBILITY_TAGS.find((entry) => entry.value === tag)?.icon).filter(Boolean).join(" ")}
@@ -2437,7 +2436,7 @@ export default function Admin() {
                               <div className="flex shrink-0 items-center gap-1">
                                 <button type="button" onClick={() => handleMoveItem(campaign.id, item.id, "up")} disabled={index === 0} className="rounded px-2 py-1 disabled:opacity-30">↑</button>
                                 <button type="button" onClick={() => handleMoveItem(campaign.id, item.id, "down")} disabled={index === all.length - 1} className="rounded px-2 py-1 disabled:opacity-30">↓</button>
-                                <button type="button" onClick={() => handleRemoveItem(item.id)} className="rounded px-2 py-1 font-semibold text-red-400">Remove</button>
+                                <button type="button" onClick={() => handleRemoveItem(item.id)} className="rounded px-2 py-1 font-semibold text-red-400">{t("admin.engagement.items.remove")}</button>
                               </div>
                             </div>
                           ))}
@@ -2450,10 +2449,10 @@ export default function Admin() {
                           onChange={(event) => { setItemFormCampaignId(campaign.id); setItemPollId(event.target.value); }}
                           className="border p-2 rounded text-black md:col-span-2"
                         >
-                          <option value="">Add a poll...</option>
+                          <option value="">{t("admin.engagement.items.addPollOption")}</option>
                           {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
                         </select>
-                        <button type="button" onClick={() => handleAddPollItem(campaign.id)} className="bg-violet-600 text-white px-3 py-2 rounded font-semibold">Add poll</button>
+                        <button type="button" onClick={() => handleAddPollItem(campaign.id)} className="bg-violet-600 text-white px-3 py-2 rounded font-semibold">{t("admin.engagement.items.addPoll")}</button>
                       </div>
 
                       <div className="grid gap-2 md:grid-cols-2">
@@ -2462,13 +2461,13 @@ export default function Admin() {
                           onChange={(event) => { setItemFormCampaignId(campaign.id); setItemTitle(event.target.value); }}
                           maxLength={120}
                           className="border p-2 rounded text-black"
-                          placeholder="Info title: Today's specials, House rules..."
+                          placeholder={t("admin.engagement.items.infoTitlePlaceholder")}
                         />
                         <input
                           value={itemFormCampaignId === campaign.id ? itemLinkUrl : ""}
                           onChange={(event) => { setItemFormCampaignId(campaign.id); setItemLinkUrl(event.target.value); }}
                           className="border p-2 rounded text-black"
-                          placeholder="Optional link URL"
+                          placeholder={t("admin.engagement.items.linkUrlPlaceholder")}
                         />
                         <textarea
                           value={itemFormCampaignId === campaign.id ? itemBody : ""}
@@ -2476,23 +2475,23 @@ export default function Admin() {
                           maxLength={2000}
                           rows="2"
                           className="border p-2 rounded text-black md:col-span-2"
-                          placeholder="What should this info card say?"
+                          placeholder={t("admin.engagement.items.infoBodyPlaceholder")}
                         />
                         <input
                           value={itemFormCampaignId === campaign.id ? itemLinkLabel : ""}
                           onChange={(event) => { setItemFormCampaignId(campaign.id); setItemLinkLabel(event.target.value); }}
                           maxLength={60}
                           className="border p-2 rounded text-black"
-                          placeholder="Link button label (optional)"
+                          placeholder={t("admin.engagement.items.linkLabelPlaceholder")}
                         />
                         <input
                           value={itemFormCampaignId === campaign.id ? itemImageUrl : ""}
                           onChange={(event) => { setItemFormCampaignId(campaign.id); setItemImageUrl(event.target.value); }}
                           className="border p-2 rounded text-black md:col-span-2"
-                          placeholder="Optional image URL (a portfolio photo, exhibit image, product shot...)"
+                          placeholder={t("admin.engagement.items.imageUrlPlaceholder")}
                         />
                         <fieldset className="md:col-span-2 rounded border border-slate-700 p-2">
-                          <legend className="text-xs font-semibold text-slate-300 px-1">Accessibility (optional - shown as badges to visitors)</legend>
+                          <legend className="text-xs font-semibold text-slate-300 px-1">{t("admin.engagement.items.accessibilityLegend")}</legend>
                           <div className="flex flex-wrap gap-3 pt-1">
                             {ACCESSIBILITY_TAGS.map((tag) => (
                               <label key={tag.value} className="flex items-center gap-1 text-sm text-slate-200">
@@ -2501,21 +2500,21 @@ export default function Admin() {
                                   checked={itemFormCampaignId === campaign.id && itemAccessibilityTags.includes(tag.value)}
                                   onChange={() => { setItemFormCampaignId(campaign.id); toggleItemAccessibilityTag(tag.value); }}
                                 />
-                                <span aria-hidden="true">{tag.icon}</span> {tag.label}
+                                <span aria-hidden="true">{tag.icon}</span> {t(tag.labelKey)}
                               </label>
                             ))}
                           </div>
                         </fieldset>
-                        <button type="button" onClick={() => handleAddInfoItem(campaign.id)} className="bg-violet-600 text-white px-3 py-2 rounded font-semibold">Add info card</button>
+                        <button type="button" onClick={() => handleAddInfoItem(campaign.id)} className="bg-violet-600 text-white px-3 py-2 rounded font-semibold">{t("admin.engagement.items.addInfoCard")}</button>
                       </div>
 
                       <div className="rounded border border-slate-700 p-3">
                         {donationSettings.is_enabled ? (
                           <button type="button" onClick={() => handleAddDonationItem(campaign.id)} className="bg-amber-500 text-slate-950 px-3 py-2 rounded font-semibold">
-                            💛 Add donation option
+                            💛 {t("admin.engagement.items.addDonationOption")}
                           </button>
                         ) : (
-                          <p className="text-xs text-slate-500">Set up and enable donations in the Donations panel below to add a donation option to this QR code.</p>
+                          <p className="text-xs text-slate-500">{t("admin.engagement.items.enableDonationsNote")}</p>
                         )}
                       </div>
                     </div>
@@ -2528,7 +2527,7 @@ export default function Admin() {
       </details>
 
       <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">Poll rotations</summary>
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.rotations.title")}</summary>
         <div className="px-4 pb-4">
           <p className="mb-3 text-sm text-slate-400">Build an ordered list of polls that automatically swap on a schedule, so a printed QR code stays fresh without any admin action.</p>
           <div className="grid gap-3 md:grid-cols-3 mb-3">

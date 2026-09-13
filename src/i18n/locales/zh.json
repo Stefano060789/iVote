@@ -358,6 +358,176 @@
         "downloadQr": "下载 QR",
         "printQr": "打印 QR"
       }
+    },
+    "connection": {
+      "eyebrow": "您的客户连接流程",
+      "title": "把一次 QR 扫描变成持续的关系。",
+      "subtitle": "把这个页面当作您的检查清单。只有在获得明确同意时才索取邮箱，邀请选定的投票者留下真实的公开评价，并按照您配置的规则发放奖励。",
+      "step1": {
+        "title": "配置优惠",
+        "body": "创建投票时，添加 Google、Tripadvisor 或其他真实评价目的地，并设置投票者投票后可解锁的奖励。无论投票者给出什么答案，每个人看到的都是同一个评价链接——如果按情绪结果区分，就会违反 Google/Tripadvisor 的规则。",
+        "cta": "创建已配置的投票"
+      },
+      "step2": {
+        "title": "收集授权",
+        "body": "投票者可以在投票后自愿分享他们的邮箱。使用下方的邮箱设置发送活动消息、优惠或后续跟进消息。",
+        "cta": "前往邮箱设置"
+      },
+      "step3": {
+        "title": "验证并奖励",
+        "body": "检查评价队列中的待处理申请。只有在确认投票者已在所选平台留下真实反馈后，才批准该奖励。",
+        "cta": "打开评价申请"
+      },
+      "whatCustomerSees": {
+        "title": "客户会看到什么",
+        "voteLabel": "投票：",
+        "voteBody": "他们扫描二维码，无需创建账户即可作答。",
+        "stayConnectedLabel": "保持联系：",
+        "stayConnectedBody": "他们可以选择是否分享邮箱，以便后续联系和领取奖励。",
+        "shareHonestlyLabel": "真实分享：",
+        "shareHonestlyBody": "每位投票者无论回答什么，都会收到您的评价链接，并可提交验证申请。",
+        "disclaimer": "不要要求或引导对方给出正面评价。奖励应透明提供，评价请求应鼓励真实反馈。"
+      },
+      "messageBodyPlaceholder": "邮件正文",
+      "emailDeliveryNote": "发送邮件需要配置服务器设置 RESEND_API_KEY 和 REPORT_FROM_EMAIL，与每周报告相同。",
+      "leadNurture": {
+        "title": "潜在客户培育邮件",
+        "description": "对选择接收后续联系（或参加抽奖）的投票者，在他们投票后立即自动发送邮件。",
+        "enableLabel": "自动发送培育邮件",
+        "subjectPlaceholder": "邮件主题：感谢您的反馈！",
+        "saveButton": "保存培育邮件设置",
+        "lockedTitle": "自动跟进潜在客户",
+        "lockedDescription": "您已经在收集邮箱——用一封自动感谢邮件把它们转化为回头客，无需任何人工操作。"
+      },
+      "winback": {
+        "title": "召回邮件",
+        "description": "对留下邮箱并表示同意、但在下方设定天数后仍未再次投票的投票者自动发送邮件。这只会触达选择加入的人——投票本身始终保持匿名。",
+        "enableLabel": "自动发送召回邮件",
+        "daysSinceLabel": "距离上次到访的天数",
+        "subjectPlaceholder": "邮件主题：我们想您了！",
+        "saveButton": "保存召回邮件设置",
+        "lockedTitle": "召回沉寂的客户",
+        "lockedDescription": "自动重新吸引一段时间没有回来的投票者，无需手动追踪谁已经间隔太久。"
+      }
+    },
+    "engagement": {
+      "intro": {
+        "eyebrow": "二维码可以承载什么",
+        "title": "一个印刷二维码，三种内容类型。",
+        "body": "二维码不仅仅是通往单个投票的快捷方式。扫描后，投票者可以看到一个或多个投票、一张信息卡（菜单、营业时间、简介、展览说明等），以及一个捐赠请求——全部都在同一个二维码里。请先在下方设置捐赠，然后在 \"QR 活动\" 中创建二维码本身。"
+      },
+      "scanner": {
+        "title": "扫描二维码",
+        "subtitle": "手上已经有印刷好的二维码？扫描它即可查看它当前使用的是哪个投票，并立即切换到另一个投票。",
+        "openCamera": "打开相机扫描器",
+        "pastePlaceholder": "或在此粘贴 QR 链接",
+        "lookUp": "查找",
+        "unlabeledPlacement": "未命名位置",
+        "noPollAssigned": "尚未分配投票",
+        "redirectLabel": "将此二维码重定向到另一个投票",
+        "choosePoll": "选择一个投票",
+        "createNewPoll": "为此二维码创建新投票"
+      },
+      "donations": {
+        "title": "捐赠",
+        "description": "让投票者通过 QR 菜单使用银行卡或电子钱包支付来支持您的场地。先在这里一次性连接 Stripe 账户，然后为下方任意二维码添加一个 \"捐赠\" 项目。Stripe 负责处理支付：90% 直接转入您的账户，Godwit 保留 10% 作为平台费用。",
+        "stripeConnected": "Stripe 已连接，可以接受捐赠。",
+        "stripeStarted": "Stripe 账户已开始设置，但入驻流程尚未完成。",
+        "stripeNotConnected": "尚未连接 Stripe 账户。",
+        "continueSetup": "继续设置 Stripe",
+        "connectStripe": "连接 Stripe",
+        "refreshStatus": "刷新状态",
+        "acceptDonations": "接受捐赠",
+        "connectFirst": "(请先连接 Stripe)",
+        "currency": "货币",
+        "suggestedAmount": "建议金额（可选）",
+        "messagePlaceholder": "随捐赠选项显示的可选感谢语",
+        "saveButton": "保存捐赠设置",
+        "feeNote": "Stripe 是支付处理方——Godwit 永远不会看到或存储银行卡信息。每笔捐赠中，Godwit 保留 10% 作为平台费用，90% 转入您已连接的 Stripe 账户。"
+      },
+      "locations": {
+        "title": "二维码位置",
+        "subtitle": "创建可重复使用的二维码位置，然后将每个位置指向当前在那里使用的投票。",
+        "namePlaceholder": "位置名称",
+        "tokenPlaceholder": "可选令牌",
+        "addLocation": "添加位置",
+        "chooseLocation": "选择二维码位置",
+        "assignToPoll": "将位置分配给投票",
+        "noLocations": "尚无二维码位置。",
+        "tokenLabel": "令牌：{{token}}",
+        "assignedToPrefix": "已分配给",
+        "pollNumber": "投票 #{{id}}",
+        "notAssigned": "未分配",
+        "delete": "删除"
+      },
+      "campaigns": {
+        "title": "二维码活动",
+        "description": "为每个投放位置创建一个可长期使用的二维码，以衡量扫描次数、回复数以及选择接收后续联系的潜在客户。每个二维码都会以下方的默认投票开始，但您可以在任意活动中打开 \"此二维码中的项目\"，添加更多投票、信息卡或捐赠请求。",
+        "tip": "提示：登录后打开一个印刷二维码，即可查看它的名称和投票，并直接修改。",
+        "namePlaceholder": "大厅海报、收据、桌牌",
+        "createButton": "创建活动二维码",
+        "placementPlaceholder": "投放位置标签：大厅、收据、桌子",
+        "variantPlaceholder": "变体标签：A、粗体标题",
+        "customizeWelcome": "自定义二维码欢迎界面",
+        "welcomeHeadlinePlaceholder": "欢迎标题（可选）",
+        "buttonTextPlaceholder": "按钮文字：分享您的反馈",
+        "welcomeMessagePlaceholder": "简短欢迎语（可选）",
+        "bulkGenerate": "一次生成多个二维码",
+        "bulkBaseNamePlaceholder": "基础名称：桌子",
+        "bulkCountPlaceholder": "生成多少个？(1-50)",
+        "assignLater": "稍后分配",
+        "bulkGenerateButton": "生成二维码",
+        "bulkGenerateNote": "会创建 \"桌子 1\"、\"桌子 2\"…… 您稍后可以逐个扫描或打开它们，为其分配或更改投票。",
+        "noCampaigns": "尚无已跟踪的二维码活动。",
+        "noDefaultPoll": "没有默认投票",
+        "active": "启用中",
+        "paused": "已暂停",
+        "rotating": "轮换中",
+        "copyLink": "复制链接",
+        "changePoll": "更改投票：",
+        "orRotate": "或轮换：",
+        "noRotation": "不轮换",
+        "itemsOnQr": "此二维码中的项目 ({{count}})",
+        "itemsHint": "在此添加一个或多个投票、信息卡和捐赠请求，把这个二维码变成一个菜单：扫描后会一次显示下方列出的全部内容，而不是直接前往某一个投票。"
+      },
+      "items": {
+        "addCurrentPoll": "也将当前默认投票 (#{{id}}) 添加为一个项目",
+        "unknownPoll": "未知投票",
+        "donationLabel": "捐赠",
+        "default": "默认",
+        "link": "链接",
+        "remove": "移除",
+        "addPollOption": "添加投票...",
+        "addPoll": "添加投票",
+        "infoTitlePlaceholder": "信息标题：今日特餐、店内规则...",
+        "linkUrlPlaceholder": "可选链接 URL",
+        "infoBodyPlaceholder": "这张信息卡要显示什么内容？",
+        "linkLabelPlaceholder": "链接按钮文字（可选）",
+        "imageUrlPlaceholder": "可选图片 URL（作品集照片、展览图片、产品图等）",
+        "accessibilityLegend": "无障碍信息（可选 - 会以徽章形式向访客显示）",
+        "addInfoCard": "添加信息卡",
+        "addDonationOption": "添加捐赠选项",
+        "enableDonationsNote": "请先在下方的“捐赠”面板中设置并启用捐赠，才能为此二维码添加捐赠选项。"
+      },
+      "rotations": {
+        "title": "投票轮换"
+      }
+    },
+    "feedback": {
+      "messages": {
+        "title": "投票者留言",
+        "subtitle": "随投票一起提交的私信。仅当投票者提供了电子邮箱地址时才回复。",
+        "noMessages": "暂无投票者留言。",
+        "replyToVoter": "回复投票者"
+      }
+    },
+    "accessibilityTags": {
+      "wheelchairAccessible": "无障碍通道",
+      "audioDescription": "提供语音讲解",
+      "signLanguage": "提供手语服务",
+      "largePrint": "提供大字版",
+      "hearingLoop": "助听环路",
+      "serviceAnimalsWelcome": "欢迎服务犬"
     }
   }
 }

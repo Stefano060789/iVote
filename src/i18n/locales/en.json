@@ -444,6 +444,89 @@
         "messagePlaceholder": "Optional thank-you message shown with the donation option",
         "saveButton": "Save donation settings",
         "feeNote": "Stripe is the payment processor - Godwit never sees or stores card details. Of each donation, 10% is a platform fee retained by Godwit and 90% transfers to your connected Stripe account."
+      },
+      "locations": {
+        "title": "QR locations",
+        "subtitle": "Create reusable QR locations, then point each location at the poll currently running there.",
+        "namePlaceholder": "Location name",
+        "tokenPlaceholder": "Optional token",
+        "addLocation": "Add location",
+        "chooseLocation": "Choose a QR location",
+        "assignToPoll": "Assign location to poll",
+        "noLocations": "No QR locations yet.",
+        "tokenLabel": "Token: {{token}}",
+        "assignedToPrefix": "Assigned to",
+        "pollNumber": "poll #{{id}}",
+        "notAssigned": "Not assigned",
+        "delete": "Delete"
+      },
+      "campaigns": {
+        "title": "QR campaigns",
+        "description": "Create a durable QR code per placement to measure scans, responses, and opted-in follow-up leads. Each one starts with a default poll below, but open \"Items on this QR code\" on any campaign to add more polls, an info card, or a donation ask.",
+        "tip": "Tip: open a printed QR code while signed in to see its name and poll, and change them directly.",
+        "namePlaceholder": "Lobby poster, receipt, table tent",
+        "createButton": "Create campaign QR",
+        "placementPlaceholder": "Placement label: lobby, receipt, table",
+        "variantPlaceholder": "Variant label: A, bold headline",
+        "customizeWelcome": "Customize the QR welcome screen",
+        "welcomeHeadlinePlaceholder": "Welcome headline (optional)",
+        "buttonTextPlaceholder": "Button text: Share your feedback",
+        "welcomeMessagePlaceholder": "Short welcome message (optional)",
+        "bulkGenerate": "Generate multiple QR codes at once",
+        "bulkBaseNamePlaceholder": "Base name: Table",
+        "bulkCountPlaceholder": "How many? (1-50)",
+        "assignLater": "Assign later",
+        "bulkGenerateButton": "Generate QR codes",
+        "bulkGenerateNote": "Creates \"Table 1\", \"Table 2\"... You can scan or open each one later to assign or change its poll.",
+        "noCampaigns": "No tracked QR campaigns yet.",
+        "noDefaultPoll": "No default poll",
+        "active": "Active",
+        "paused": "Paused",
+        "rotating": "Rotating",
+        "copyLink": "Copy link",
+        "changePoll": "Change poll:",
+        "orRotate": "Or rotate:",
+        "noRotation": "No rotation",
+        "itemsOnQr": "Items on this QR code ({{count}})",
+        "itemsHint": "Add one or more polls, info cards, and a donation ask here to turn this QR code into a menu: scanning it will show everything listed below at once, instead of going straight to a single poll."
+      },
+      "items": {
+        "addCurrentPoll": "Add the current default poll (#{{id}}) as an item too",
+        "unknownPoll": "Unknown poll",
+        "donationLabel": "Donation",
+        "default": "default",
+        "link": "Link",
+        "remove": "Remove",
+        "addPollOption": "Add a poll...",
+        "addPoll": "Add poll",
+        "infoTitlePlaceholder": "Info title: Today's specials, House rules...",
+        "linkUrlPlaceholder": "Optional link URL",
+        "infoBodyPlaceholder": "What should this info card say?",
+        "linkLabelPlaceholder": "Link button label (optional)",
+        "imageUrlPlaceholder": "Optional image URL (a portfolio photo, exhibit image, product shot...)",
+        "accessibilityLegend": "Accessibility (optional - shown as badges to visitors)",
+        "addInfoCard": "Add info card",
+        "addDonationOption": "Add donation option",
+        "enableDonationsNote": "Set up and enable donations in the Donations panel below to add a donation option to this QR code."
+      },
+      "rotations": {
+        "title": "Poll rotations"
+      }
+    },
+    "accessibilityTags": {
+      "wheelchairAccessible": "Wheelchair accessible",
+      "audioDescription": "Audio description available",
+      "signLanguage": "Sign language available",
+      "largePrint": "Large print available",
+      "hearingLoop": "Hearing loop",
+      "serviceAnimalsWelcome": "Service animals welcome"
+    },
+    "feedback": {
+      "messages": {
+        "title": "Messages from voters",
+        "subtitle": "Private messages submitted with a vote. Reply only when the voter provided an email address.",
+        "noMessages": "No voter messages yet.",
+        "replyToVoter": "Reply to voter"
       }
     }
   }

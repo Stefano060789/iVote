@@ -358,6 +358,176 @@
         "downloadQr": "QR downloaden",
         "printQr": "QR afdrukken"
       }
+    },
+    "connection": {
+      "eyebrow": "Je workflow voor klantrelaties",
+      "title": "Maak van één QR-scan een doorlopende relatie.",
+      "subtitle": "Gebruik deze pagina als je checklist. Vraag alleen om een e-mailadres met duidelijke toestemming, nodig geselecteerde stemmers uit om eerlijke openbare feedback achter te laten en geef voordelen vrij volgens je ingestelde regels.",
+      "step1": {
+        "title": "Configureer het aanbod",
+        "body": "Voeg Google, Tripadvisor of een andere bestemming voor eerlijke beoordelingen toe wanneer je een peiling maakt en stel in welk voordeel stemmers door te stemmen ontgrendelen. Elke stemmer ziet dezelfde beoordelingslink ongeacht het antwoord; die op sentiment baseren zou in strijd zijn met de regels van Google/Tripadvisor.",
+        "cta": "Een geconfigureerde peiling maken"
+      },
+      "step2": {
+        "title": "Toestemming verzamelen",
+        "body": "Stemmers kunnen na het stemmen vrijwillig hun e-mailadres delen. Gebruik de e-mailinstellingen hieronder om evenementnieuws, aanbiedingen of een follow-upbericht te sturen.",
+        "cta": "Ga naar e-mailinstellingen"
+      },
+      "step3": {
+        "title": "Verifiëren en belonen",
+        "body": "Controleer openstaande claims in de beoordelingswachtrij. Keur het voordeel pas goed nadat je hebt bevestigd dat de stemmer eerlijke feedback heeft achtergelaten op het geselecteerde platform.",
+        "cta": "Beoordelingsclaims openen"
+      },
+      "whatCustomerSees": {
+        "title": "Wat de klant ziet",
+        "voteLabel": "Stemmen:",
+        "voteBody": "Ze scannen de QR-code en antwoorden zonder een account aan te maken.",
+        "stayConnectedLabel": "In contact blijven:",
+        "stayConnectedBody": "Ze kiezen of ze een e-mailadres willen delen voor follow-up en voordelen.",
+        "shareHonestlyLabel": "Eerlijk delen:",
+        "shareHonestlyBody": "Elke stemmer krijgt, ongeacht het antwoord, jouw beoordelingslinks en kan een verificatieclaim indienen.",
+        "disclaimer": "Vraag niet om een positieve beoordeling en schrijf die ook niet voor. Voordelen moeten transparant worden aangeboden en beoordelingsverzoeken moeten uitnodigen tot eerlijke feedback."
+      },
+      "messageBodyPlaceholder": "Hoofdtekst van e-mailbericht",
+      "emailDeliveryNote": "Voor verzending zijn de serverinstellingen RESEND_API_KEY en REPORT_FROM_EMAIL vereist, net als bij wekelijkse rapporten.",
+      "leadNurture": {
+        "title": "Lead nurturing-e-mails",
+        "description": "Mail stemmers die toestemming gaven voor follow-up (of een prijsverloting) automatisch meteen nadat ze hebben gestemd.",
+        "enableLabel": "Automatisch een nurturing-e-mail versturen",
+        "subjectPlaceholder": "Onderwerp e-mail: Bedankt voor je feedback!",
+        "saveButton": "Instellingen voor nurturing-e-mail opslaan",
+        "lockedTitle": "Volg leads automatisch op",
+        "lockedDescription": "Je verzamelt al e-mailadressen - maak er terugkerende bezoeken van met een automatische bedankmail, zonder handmatig werk."
+      },
+      "winback": {
+        "title": "Terugwin-e-mails",
+        "description": "Mail automatisch een stemmer die een e-mailadres heeft achtergelaten en toestemming heeft gegeven, maar na het onderstaande aantal dagen niet opnieuw heeft gestemd. Dit bereikt alleen mensen die hebben ingestemd - stemmen zelf blijft altijd anoniem.",
+        "enableLabel": "Automatisch een terugwin-e-mail versturen",
+        "daysSinceLabel": "Dagen sinds hun laatste bezoek",
+        "subjectPlaceholder": "Onderwerp e-mail: We missen je!",
+        "saveButton": "Instellingen voor terugwin-e-mail opslaan",
+        "lockedTitle": "Win stille klanten terug",
+        "lockedDescription": "Betrek stemmers die al een tijd niet zijn teruggekomen automatisch opnieuw, zonder handmatig bij te houden wie achterloopt."
+      }
+    },
+    "engagement": {
+      "intro": {
+        "eyebrow": "Wat een QR-code kan bevatten",
+        "title": "Eén gedrukte code, drie soorten inhoud.",
+        "body": "Een QR-code is niet alleen een snelkoppeling naar één peiling. Door hem te scannen kan een stemmer één of meer peilingen, een infokaart (menu, openingstijden, bio, tentoonstellingsnotities...) en een donatieverzoek zien - allemaal in dezelfde code. Stel hieronder eerst donaties in en bouw daarna de code zelf onder \"QR-campagnes\"."
+      },
+      "scanner": {
+        "title": "Een QR-code scannen",
+        "subtitle": "Heb je al een gedrukte QR-code in handen? Scan hem om te zien welke peiling hij nu gebruikt en schakel hem direct over naar een andere peiling.",
+        "openCamera": "Camerascanner openen",
+        "pastePlaceholder": "Of plak de QR-link hier",
+        "lookUp": "Opzoeken",
+        "unlabeledPlacement": "Plaatsing zonder label",
+        "noPollAssigned": "Nog geen peiling toegewezen",
+        "redirectLabel": "Stuur deze QR-code door naar een andere peiling",
+        "choosePoll": "Kies een peiling",
+        "createNewPoll": "Maak een nieuwe peiling voor deze QR-code"
+      },
+      "donations": {
+        "title": "Donaties",
+        "description": "Laat stemmers je locatie ondersteunen met een kaart- of walletbetaling vanuit het QR-menu. Koppel hier eenmalig een Stripe-account en voeg daarna een item \"Donatie\" toe aan elke QR-code hieronder. Stripe verwerkt de betaling: 90% wordt rechtstreeks naar je account overgemaakt en Godwit houdt 10% platformkosten.",
+        "stripeConnected": "Stripe is gekoppeld en klaar om donaties te accepteren.",
+        "stripeStarted": "Stripe-account is gestart, maar onboarding is nog niet afgerond.",
+        "stripeNotConnected": "Er is nog geen Stripe-account gekoppeld.",
+        "continueSetup": "Stripe-instelling voortzetten",
+        "connectStripe": "Verbinden met Stripe",
+        "refreshStatus": "Status vernieuwen",
+        "acceptDonations": "Donaties accepteren",
+        "connectFirst": "(koppel eerst Stripe)",
+        "currency": "Valuta",
+        "suggestedAmount": "Voorgesteld bedrag (optioneel)",
+        "messagePlaceholder": "Optioneel bedankbericht dat bij de donatieoptie wordt getoond",
+        "saveButton": "Donatie-instellingen opslaan",
+        "feeNote": "Stripe is de betalingsverwerker - Godwit ziet of bewaart nooit kaartgegevens. Van elke donatie houdt Godwit 10% in als platformvergoeding en wordt 90% overgemaakt naar je gekoppelde Stripe-account."
+      },
+      "locations": {
+        "title": "QR-locaties",
+        "subtitle": "Maak herbruikbare QR-locaties en koppel daarna elke locatie aan de peiling die daar nu actief is.",
+        "namePlaceholder": "Locatienaam",
+        "tokenPlaceholder": "Optioneel token",
+        "addLocation": "Locatie toevoegen",
+        "chooseLocation": "Kies een QR-locatie",
+        "assignToPoll": "Locatie aan peiling koppelen",
+        "noLocations": "Nog geen QR-locaties.",
+        "tokenLabel": "Token: {{token}}",
+        "assignedToPrefix": "Toegewezen aan",
+        "pollNumber": "peiling #{{id}}",
+        "notAssigned": "Niet toegewezen",
+        "delete": "Verwijderen"
+      },
+      "campaigns": {
+        "title": "QR-campagnes",
+        "description": "Maak per plaatsing een duurzame QR-code om scans, reacties en aangemelde follow-upleads te meten. Elke code start hieronder met een standaardpeiling, maar open bij een campagne \"Items op deze QR-code\" om meer peilingen, een infokaart of een donatieverzoek toe te voegen.",
+        "tip": "Tip: open een gedrukte QR-code terwijl je bent ingelogd om de naam en peiling te zien en die direct te wijzigen.",
+        "namePlaceholder": "Lobbyposter, bon, tafelkaart",
+        "createButton": "Campagne-QR maken",
+        "placementPlaceholder": "Plaatsingslabel: lobby, bon, tafel",
+        "variantPlaceholder": "Variantlabel: A, vetgedrukte kop",
+        "customizeWelcome": "Het QR-welkomstscherm aanpassen",
+        "welcomeHeadlinePlaceholder": "Welkomstkop (optioneel)",
+        "buttonTextPlaceholder": "Knoptekst: Deel je feedback",
+        "welcomeMessagePlaceholder": "Kort welkomstbericht (optioneel)",
+        "bulkGenerate": "Meerdere QR-codes tegelijk genereren",
+        "bulkBaseNamePlaceholder": "Basisnaam: Tafel",
+        "bulkCountPlaceholder": "Hoeveel? (1-50)",
+        "assignLater": "Later toewijzen",
+        "bulkGenerateButton": "QR-codes genereren",
+        "bulkGenerateNote": "Maakt \"Tafel 1\", \"Tafel 2\"... Je kunt ze later allemaal scannen of openen om hun peiling toe te wijzen of te wijzigen.",
+        "noCampaigns": "Nog geen bijgehouden QR-campagnes.",
+        "noDefaultPoll": "Geen standaardpeiling",
+        "active": "Actief",
+        "paused": "Gepauzeerd",
+        "rotating": "Roterend",
+        "copyLink": "Link kopiëren",
+        "changePoll": "Peiling wijzigen:",
+        "orRotate": "Of roteren:",
+        "noRotation": "Geen rotatie",
+        "itemsOnQr": "Items op deze QR-code ({{count}})",
+        "itemsHint": "Voeg hier één of meer peilingen, infokaarten en een donatieverzoek toe om van deze QR-code een menu te maken: na het scannen wordt alles hieronder tegelijk getoond, in plaats van meteen naar één peiling te gaan."
+      },
+      "items": {
+        "addCurrentPoll": "Voeg ook de huidige standaardpeiling (#{{id}}) als item toe",
+        "unknownPoll": "Onbekende peiling",
+        "donationLabel": "Donatie",
+        "default": "standaard",
+        "link": "Link",
+        "remove": "Verwijderen",
+        "addPollOption": "Een peiling toevoegen...",
+        "addPoll": "Peiling toevoegen",
+        "infoTitlePlaceholder": "Infotitel: Specialiteiten van vandaag, Huisregels...",
+        "linkUrlPlaceholder": "Optionele link-URL",
+        "infoBodyPlaceholder": "Wat moet deze infokaart zeggen?",
+        "linkLabelPlaceholder": "Label van linkknop (optioneel)",
+        "imageUrlPlaceholder": "Optionele afbeeldings-URL (een portfoliophoto, tentoonstellingsafbeelding, productfoto...)",
+        "accessibilityLegend": "Toegankelijkheid (optioneel - getoond als badges aan bezoekers)",
+        "addInfoCard": "Infokaart toevoegen",
+        "addDonationOption": "Donatieoptie toevoegen",
+        "enableDonationsNote": "Stel donaties in en schakel ze in via het Donaties-paneel hieronder om een donatieoptie aan deze QR-code toe te voegen."
+      },
+      "rotations": {
+        "title": "Peilingrotaties"
+      }
+    },
+    "feedback": {
+      "messages": {
+        "title": "Berichten van stemmers",
+        "subtitle": "Privéberichten die samen met een stem zijn verstuurd. Reageer alleen als de stemmer een e-mailadres heeft achtergelaten.",
+        "noMessages": "Nog geen berichten van stemmers.",
+        "replyToVoter": "Reageren naar stemmer"
+      }
+    },
+    "accessibilityTags": {
+      "wheelchairAccessible": "Rolstoeltoegankelijk",
+      "audioDescription": "Audiodescriptie beschikbaar",
+      "signLanguage": "Gebarentaal beschikbaar",
+      "largePrint": "Grootletterdruk beschikbaar",
+      "hearingLoop": "Ringleiding",
+      "serviceAnimalsWelcome": "Assistentiehonden welkom"
     }
   }
 }
