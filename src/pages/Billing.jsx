@@ -10,22 +10,19 @@ const PLANS = [
     key: "free",
     name: "Free",
     price: "EUR 0",
-    description: "Try the feedback loop at a single venue.",
-    features: ["3 total polls", "No tracked QR campaigns", "Core response results", "1 team seat"]
+    description: "Try the feedback loop at a single venue."
   },
   {
     key: "starter",
     name: "Starter",
     price: "EUR 29 / month",
-    description: "Run feedback professionally, with your own branding and exports.",
-    features: ["25 total polls", "10 tracked QR campaigns", "CSV export & audit log", "Weekly email reports", "Post-vote rewards", "3 team seats"]
+    description: "Run feedback professionally, with your own branding and exports."
   },
   {
     key: "growth",
     name: "Growth",
     price: "EUR 79 / month",
     description: "Turn feedback into repeat business with automation and integrations.",
-    features: ["250 total polls", "100 tracked QR campaigns", "Reward redemption tracking", "Prize draws / raffles", "Automated follow-up & win-back emails", "Public reputation monitoring", "Webhooks & developer API", "10 team seats"],
     highlight: true
   }
 ];
@@ -140,13 +137,10 @@ export default function Billing() {
                   <p className="mt-1 inline-block rounded-full bg-amber-400/15 px-2.5 py-0.5 text-xs font-bold text-amber-300">30-day free trial</p>
                 )}
                 <p className="mt-2 min-h-12 text-sm text-slate-300">{plan.description}</p>
-                <ul className="mt-4 space-y-2 text-sm text-slate-200">
-                  {plan.features.map((feature) => <li key={feature}>{feature}</li>)}
-                </ul>
                 <button
                   onClick={() => startCheckout(plan)}
                   disabled={Boolean(loadingPlan) || plan.key === "free" || isCurrent}
-                  className="mt-6 w-full rounded bg-blue-600 p-3 font-semibold text-white disabled:opacity-60"
+                  className="mt-4 w-full rounded bg-blue-600 p-3 font-semibold text-white disabled:opacity-60"
                 >
                   {isCurrent ? "Current plan" : plan.key === "free" ? "Included by default" : loadingPlan === plan.key ? "Opening checkout..." : offersTrial ? `Start free trial` : `Choose ${plan.name}`}
                 </button>
@@ -156,14 +150,21 @@ export default function Billing() {
           })}
         </div>
 
-        <h2 className="mt-12 text-xl font-bold text-center">Compare every feature</h2>
+        <h2 className="mt-12 text-xl font-bold text-center">Compare plans</h2>
+        <p className="mt-1 text-center text-sm text-slate-400">Everything each plan supports, side by side.</p>
         <div className="mt-4 overflow-x-auto rounded-lg border border-slate-700">
           <table className="w-full min-w-[560px] border-collapse text-sm">
             <thead>
               <tr className="border-b border-slate-700 bg-slate-900 text-left">
                 <th className="p-3 font-semibold text-slate-300">Feature</th>
                 {PLANS.map((plan) => (
-                  <th key={plan.key} className="p-3 text-center font-semibold text-slate-300">{plan.name}</th>
+                  <th
+                    key={plan.key}
+                    className={`p-3 text-center font-semibold ${plan.highlight ? "text-teal-300" : "text-slate-300"}`}
+                  >
+                    {plan.name}
+                    {currentPlan === plan.key && <span className="ml-1.5 font-normal text-xs text-slate-400">(current)</span>}
+                  </th>
                 ))}
               </tr>
             </thead>
@@ -174,7 +175,7 @@ export default function Billing() {
                   {PLANS.map((plan) => {
                     const value = PLAN_FEATURES[plan.key][row.key];
                     return (
-                      <td key={plan.key} className="p-3 text-center text-slate-100">
+                      <td key={plan.key} className={`p-3 text-center text-slate-100 ${plan.highlight ? "bg-teal-400/5" : ""}`}>
                         <FeatureCell value={row.format ? row.format(value) : value} />
                       </td>
                     );
