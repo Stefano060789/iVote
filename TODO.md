@@ -1,161 +1,71 @@
 # Godwit — open items to come back to
 
 Things that are known gaps or still need a human action, not forgotten. Fully-resolved work
-is summarized in one line rather than kept as a long changelog - check git history for the
-full story on anything marked done. Check this file periodically and clear items as you
-address them.
+is not listed here anymore - check git history / commit messages for the full story on
+anything that used to be tracked here and is now done. Check this file periodically and clear
+items as you address them.
 
 ## Open action items (needs you, not code)
 
-- [ ] **External legal review (2026-09-14) - action tracker.** A second AI legal review of
-  `marketing/Godwit-Feature-Overview.md` came back with a developer checklist covering
-  payments/KYC, privacy, prize draws, tax, and security. What actually needed code has been
-  built (see below); the rest genuinely needs a business/legal decision from you, not more
-  code, so it's tracked here instead of half-implemented:
-  - [ ] **Stripe Tax (or a local tax service) for VAT/SST on subscriptions and platform fees.**
-    Code side is now ready (2026-09-14): `api/create-checkout-session.js` sends
-    `automatic_tax[enabled]`, `billing_address_collection=required`, and
-    `tax_id_collection[enabled]` on the subscription Checkout Session, but **only** when the
-    `STRIPE_TAX_ENABLED=1` env var is set on Vercel - it's off by default because Stripe Tax
-    errors out until the Dashboard side (Settings -> Tax -> add an origin address, likely
-    Austria given `OPERATOR_ADDRESS` in `Legal.jsx`) is finished. Once that's done in Stripe,
-    set `STRIPE_TAX_ENABLED=1` in Vercel and redeploy - no further code change needed. Also
-    worth checking with an Austrian *Steuerberater* whether the small-business VAT exemption
-    (*Kleinunternehmerregelung*, currently ~EUR 55,000/year) applies before enabling.
-  - [x] **Explicit trial/auto-renewal acknowledgment** (2026-09-14) - `Billing.jsx` now requires
-    a checkbox ("I understand my subscription starts immediately, renews automatically... and
-    that I give up the 14-day right of withdrawal...") before any "Start free trial" / "Choose
-    plan" button is clickable, addressing the EU consumer-protection disclosure gap noted below.
-  - [ ] **Signed Data Processing Agreements (DPAs) with each subprocessor** - Stripe, Supabase,
-    Vercel, Resend, and OpenAI (once its API key is activated). Most of these platforms offer a
-    standard DPA you accept in their own dashboard; this just needs to actually be done and
-    the acceptance date recorded.
-  - [ ] **Admin account 2FA/MFA** (Supabase Auth supports TOTP) - a real feature to build, not
-    done yet. Separate from the existing Stripe phone-only-2FA item above.
-  - [ ] **Geo-gating prize draws / donations by jurisdiction.** Voters already see a full
-    eligibility disclaimer and must give explicit consent per entry (`vote.prizeDrawDisclaimer`
-    / `vote.prizeDrawConsent`), and as of 2026-09-14 an admin must explicitly acknowledge
-    they've checked local sweepstakes rules before a prize draw can be turned on at all (DB
-    constraint, see below) - but nothing blocks the feature by country. Doing that properly
-    needs a legally-vetted country list, which isn't something to guess at in code.
-  - [ ] **Nightly Stripe reconciliation job** (compare `donations`/`workspace_subscriptions`
-    against the Stripe API for drift) - a real, buildable feature, just not built yet. Worth
-    doing before scaling donation volume.
-  - [ ] **Fully automated DSAR export/delete.** `Account.jsx`'s "Request data export" / "Request
-    account deletion" buttons currently just log a request into `privacy_requests` for manual
-    handling (see `request()` in `Account.jsx`) - there's no admin UI to view that queue yet,
-    and no automated export across every table touching a given voter's data. Fine for a small
-    team handling requests within the GDPR one-month window by hand today; revisit if request
-    volume grows.
-  - GitHub repo settings: turn on **Dependabot alerts** and **Dependabot security updates**
-    under Settings -> Security (the `.github/dependabot.yml` added 2026-09-14 only covers
-    scheduled version-update PRs, which is a separate toggle).
-- [x] **Code-level fixes from the same review, done 2026-09-14** (see
-  `marketing/Godwit-Feature-Overview.md` Section 12 for the updated legal-review notes):
-  - Stripe webhook events are now persisted with their raw payload and a real idempotency
-    check on `event.id` (`supabase/20260914_stripe_webhook_audit_log.sql`,
-    `api/stripe-webhook.js`) - previously idempotency was only incidental (natural-key
-    upserts), now a duplicate delivery is detected and skipped explicitly, with an audit trail
-    for investigating a disputed payment/payout.
-  - Prize draws now require the admin to explicitly acknowledge local sweepstakes/promotional
-    law before enabling one (DB constraint `polls_raffle_requires_ack`, checkbox in
-    `CreatePoll.jsx`/`EditPoll.jsx`), and every winner pick is now logged to an audit table
-    (`raffle_draw_audit`) with a hashed entrant snapshot - not plaintext emails - so a disputed
-    draw can be verified later (`supabase/20260914_raffle_admin_ack_and_audit.sql`).
-  - Confirmed (already true, just not documented until now): donations are already blocked at
-    the database level until Stripe Connect KYC is verified - the `donation_settings` table has
-    a check constraint requiring `stripe_charges_enabled` before `is_enabled` can be true, and
-    every donation-checkout lookup filters on both. Card data has always gone straight to
-    Stripe (Checkout), never through Godwit's servers.
-  - Added `.github/dependabot.yml` for weekly npm + GitHub Actions dependency scanning.
-  - **Still to run**: `supabase/20260914_stripe_webhook_audit_log.sql` and
-    `supabase/20260914_raffle_admin_ack_and_audit.sql` in the Supabase SQL editor.
-- [x] Ran `supabase/20260922_qr_reward_prize_items.sql` (2026-09-14) - adds `reward` as a
-  fourth QR-code item type, alongside poll/info/donation, for the "Reward & prize" section
-  in the QR codes tab.
+- [ ] **VAT (Austria / EU digital subscriptions).**
+  Confirmed 2026-09-14: the **Kleinunternehmerregelung** (small-business VAT exemption)
+  threshold is **EUR 55,000/year** revenue - if you're under that, you may not need to charge
+  VAT at all yet. Decide (with your *Steuerberater* if unsure) whether it applies to you.
+
+  If VAT does apply, or once you cross the threshold:
+  1. In Stripe Dashboard -> **Settings -> Tax**, click "Get started," add Austria as your
+     origin/tax registration.
+  2. In Vercel -> your project -> **Settings -> Environment Variables**, add
+     `STRIPE_TAX_ENABLED` = `1` (Production), then redeploy.
+  3. That's it - the checkout code (`automatic_tax`, address collection, VAT-ID field for B2B
+     reverse charge) is already wired behind that flag in `api/create-checkout-session.js`, so
+     no further code change is needed.
+
+- [ ] **Admin account 2FA/MFA** (Supabase Auth supports TOTP) - not built yet. Separate from
+  the Stripe phone-only-2FA item below (that one is about Godwit's own platform Stripe
+  account; this one is about admins logging into Godwit itself).
+
+- [ ] **Geo-gating prize draws / donations by jurisdiction.** Voters already see a full
+  eligibility disclaimer and must give explicit consent per entry (`vote.prizeDrawDisclaimer`
+  / `vote.prizeDrawConsent`), and an admin must explicitly acknowledge they've checked local
+  sweepstakes rules before a prize draw can be turned on at all (DB constraint
+  `polls_raffle_requires_ack`) - but nothing blocks the feature by country. Doing that properly
+  needs a legally-vetted country list, which isn't something to guess at in code.
+
+- [ ] **Nightly Stripe reconciliation job** (compare `donations`/`workspace_subscriptions`
+  against the Stripe API for drift) - a real, buildable feature, just not built yet. Worth
+  doing before scaling donation volume.
+
+- [ ] **Fully automated DSAR export/delete.** `Account.jsx`'s "Request data export" / "Request
+  account deletion" buttons currently just log a request into `privacy_requests` for manual
+  handling - there's no admin UI to view that queue yet, and no automated export across every
+  table touching a given voter's data. Fine for a small team handling requests within the GDPR
+  one-month window by hand today; revisit if request volume grows.
+
+- [ ] GitHub repo settings: turn on **Dependabot alerts** and **Dependabot security updates**
+  under Settings -> Security (`.github/dependabot.yml` only covers scheduled version-update
+  PRs, which is a separate toggle).
+
 - [ ] Stripe account verification currently relies on phone number only (SMS). Add a stronger
   second identification factor for the live account - e.g. government ID verification
   (Stripe Identity), authenticator-app 2FA instead of/in addition to SMS, and/or a recovery
   method - to reduce the risk of the account being taken over via SIM-swap or phone number
   compromise. Check Stripe Dashboard -> Settings -> Security for available options.
-- [x] `STRIPE_CONNECT_WEBHOOK_SECRET` added to Vercel's Production environment variables
-  (test mode value) and redeployed. **Still to do when going live**: repeat the whole
-  two-destination webhook setup for live mode - live/test destinations and secrets are
-  separate in Stripe. See `LAUNCH_SETUP.md`'s "Stripe Connect setup" section.
-- [x] Stripe Connect enabled (test mode, "You collect payments and pay recipients"
-  marketplace/destination-charge model) and a second webhook destination created for
-  Connected-account events (`account.updated`), since a destination's event scope is fixed
-  at creation and can't be added to the existing one.
-- [x] Checked `STRIPE_PRICE_STARTER`/`STRIPE_PRICE_GROWTH` for a duplicate trial - Growth is
-  fully clean; Starter has a currently-inert dashboard-level "Trials" pairing (only takes
-  effect via a Payment Link, and the account has none). Watch for it if a Payment Link is
-  ever created for that price.
-- [x] Ran the pending migrations: `supabase/20260917_donations_stripe_connect.sql`,
-  `supabase/20260918_qr_item_images.sql`, and `supabase/20260919_ai_content_moderation.sql`.
-- [x] Ran `supabase/20260920_usage_instrumentation.sql` and
-  `supabase/20260921_info_item_accessibility_tags.sql` directly in the Supabase SQL editor
-  (2026-09-14) - verified `workspaces.last_active_at`, `workspace_admin_events`,
-  `qr_campaign_items.accessibility_tags`, `log_workspace_admin_event()`, and
-  `get_public_qr_campaign_items()` all exist in the live schema.
-- [x] Set both Sentry DSNs in Vercel's Production environment variables and redeployed
-  (2026-09-14): `VITE_SENTRY_DSN` (was a placeholder) updated to the `godwit-frontend` project
-  DSN, and a new `SENTRY_DSN` var added with the `godwit-api` project DSN. Confirmed live via
-  Vercel's Deployments list (latest commit `f88b3e5` - "Ready"). See "Pilot readiness" section
-  below for the full story.
 
-## Robin's persona guide
-
-- [x] Robin's Overview-tab guide (artist/creator, cafe/restaurant/shop, museum/city/venue -
-  each a tailored checklist of existing features) and optional images on QR "info" cards
-  (`supabase/20260918_qr_item_images.sql`) shipped.
-- [x] **Ideas surfaced but not built** - all three now done:
-  - Accessibility tagging (wheelchair access, audio description, sign language, large print,
-    hearing loop, service animals welcome) for info cards: checkboxes in the "Add info card"
-    form (`Admin.jsx`), stored as `qr_campaign_items.accessibility_tags`
-    (`supabase/20260921_info_item_accessibility_tags.sql` - **run 2026-09-14**), shown as
-    small icon badges on the public QR menu (`QrRedirect.jsx`). Shared vocabulary lives in
-    `src/lib/accessibilityTags.js`.
-  - Entitlement limits are now surfaced directly inside Robin's guide: steps tied to a
-    plan-gated feature (`src/lib/personas.js`'s new `feature` key) show a "🔒 Available on
-    {plan} · Upgrade" note before the step's "Go" button when the workspace's current plan
-    doesn't include it (`Admin.jsx`, reusing `minPlanLabelFor()` from `entitlements.js`).
-  - Still open (genuinely lower priority, revisit if an artist user asks): a dedicated
-    "gallery"/portfolio item type for multiple images in one card, instead of one image per
-    info card.
-
-## QR code donations (Stripe Connect, 10% platform fee)
-
-- [x] Donations were rebuilt from a free IBAN/SEPA-QR display into a real Stripe Connect
-  payment flow: each workspace connects an Express account, a destination-charge Checkout
-  Session splits every donation 90% workspace / 10% Godwit automatically, and the fee is
-  disclosed on the donation card itself and in `Legal.jsx`. See
-  `supabase/20260917_donations_stripe_connect.sql` and `api/create-checkout-session.js`'s
-  `mode` dispatch for the implementation. The Stripe Dashboard setup this needs is tracked
-  above under "Open action items".
-
-## Hosting / deployment
-
-- [x] Fixed a Vercel Hobby-plan deploy failure (12-serverless-function cap) by consolidating
-  4 cron-only endpoints into `api/cron.js` and moving job logic to `lib/cron/` (outside
-  `api/`, so it doesn't count toward the limit).
-- **Still true and worth remembering**: the project sits at exactly 12/12 API functions with
-  zero headroom. Before adding any new `api/*.js` file, consolidate an existing one first
-  (e.g. `notify-content-report.js` + `dispatch-webhook.js` could merge into one
-  action-dispatched function) or upgrade to Vercel Pro.
 - [ ] **Buy a custom domain and point it at Vercel.** Production currently runs on Vercel's
   default `i-vote-one.vercel.app` subdomain - fine for testing, not for a real pilot venue
   (looks unfinished, and the legacy "i-vote" name doesn't match the "Godwit" brand everywhere
   else).
   **Availability checked 2026-09-14 (via RDAP - re-verify before buying, in case something
   changes):**
-  - ❌ Taken: `godwit.com` (registered since 1999), `godwit.app` (registered **July 2026**,
+  - Taken: `godwit.com` (registered since 1999), `godwit.app` (registered **July 2026**,
     live Squarespace site), `godwit.io` (live, Cloudflare-hosted), `godwit.ai` (live,
     GoDaddy-hosted), `usegodwit.com` (registered **August 2026**), `flockfeedback.com`
     (registered July 2025, GoDaddy-hosted).
-  - ✅ Available: `trygodwit.com` (top pick - clean, standard SaaS pattern), `hellogodwit.com`,
+  - Available: `trygodwit.com` (top pick - clean, standard SaaS pattern), `hellogodwit.com`,
     `godwitapp.com`, `meetgodwit.com`. `godwit.co` couldn't be reliably checked from here -
     verify directly with a registrar.
-  - ⚠️ **Worth a closer look before deciding**: `godwit.app` and `usegodwit.com` were both
+  - **Worth a closer look before deciding**: `godwit.app` and `usegodwit.com` were both
     registered within the last two months and have *live* nameservers (not parked/squatted) -
     possibly another company or project actively building something under a similar "Godwit"
     name right now. Worth a quick trademark/name-collision gut-check before investing more
@@ -164,178 +74,68 @@ address them.
   Once bought: add it in Vercel -> Settings -> Domains, update `APP_URL`, and update any
   hardcoded links (emails, Stripe Checkout success/cancel URLs, QR short-link generation).
 
-## Billing
+- **Still true and worth remembering**: the project sits at exactly 12/12 Vercel serverless
+  API functions with zero headroom (Hobby plan). Before adding any new `api/*.js` file,
+  consolidate an existing one first (e.g. `notify-content-report.js` +
+  `dispatch-webhook.js` could merge into one action-dispatched function) or upgrade to
+  Vercel Pro.
 
-- [x] 30-day free trial on Starter and Growth, gated to first-time subscribers only
-  (`api/create-checkout-session.js`, `Billing.jsx`). See "Open action items" above for the
-  one remaining manual Stripe Dashboard check.
+## Resolved legal-review items (2026-09-14)
 
-## Product
-
-- [x] **Churn/usage instrumentation** added: `workspaces.last_active_at` bumped on every
-  dashboard load (`ensure_my_workspace()`), a new `workspace_admin_events` table +
-  `log_workspace_admin_event()` RPC logs each admin tab opened (`Admin.jsx` calls it on every
-  `activeTab` change), and a `workspace_engagement_summary` view (last-active + tab-open counts
-  per workspace) for direct querying in the Supabase SQL editor - intentionally *not* exposed
-  through the app UI yet, since there's no admin-facing analytics page for it.
-  `supabase/20260920_usage_instrumentation.sql` - **run 2026-09-14**.
+- [x] **Signed DPAs with each subprocessor.** Stripe, Supabase, Vercel, and Resend DPAs
+  downloaded and saved to the local `dpa/` folder (gitignored - operator recordkeeping, not a
+  product asset) for GDPR Art. 30 records. OpenAI's DPA still needs saving once its API key is
+  activated (currently unused - see AI features below).
+- [x] **Data residency confirmed.** Supabase project runs in AWS `eu-west-2` (London, UK) - not
+  technically EU/EEA post-Brexit, but the UK has a standing EU adequacy decision (data flows
+  from the EU to the UK are treated the same as intra-EU transfers, no extra Standard
+  Contractual Clauses needed). `Legal.jsx`'s existing transfer-safeguards clause already covers
+  this in general terms; revisit only if that adequacy decision is ever withdrawn.
 
 ## Internationalization
 
-- [x] i18n infrastructure (`i18next` + `react-i18next`), 8 languages wired up (English,
-  Chinese, Spanish, French, Arabic, Portuguese, German, Italian). Dutch and Polish were removed
-  (2026-09-13) at the operator's request - `src/i18n/languages.js`, `src/i18n/index.js`, and the
-  `nl.json`/`pl.json` locale files were dropped; `LanguageSwitcher` reads the language list
-  dynamically so no other change was needed. The
-  `LanguageSwitcher` lives in `NavBar.jsx`, which renders on every route (outside `<Routes>`
-  in `main.jsx`), so it's already available everywhere - the gap was translated *content*,
-  not the switcher's visibility.
-- [x] `Vote.jsx` (the actual voter-facing poll page - the highest-value page to localize,
-  since real guests scanning a QR code may not read English) and `ThankYou.jsx` are now fully
-  wired with `useTranslation()` + `t("vote.*")`/`t("thankYou.*")` keys, translated in all
-  locale files. Note `Vote.jsx` still has a separate, unrelated feature that translates poll
-  *content* (the question/answers themselves) via Google Translate - that's independent of
-  the UI-chrome translation added here.
-- [x] `Admin.jsx` (the main dashboard, 3000+ lines, all 6 tabs: Overview, Polls, QR codes/Engagement,
-  Customer Connection, Feedback, Settings) is now fully localized in all supported languages - a large
-  `admin.*` i18n namespace, key parity verified. Also translated: the accessibility-tag vocabulary
-  (`src/lib/accessibilityTags.js`) and the print-QR popup window strings. **Not translated on purpose**:
-  `alert()`/`confirm()` validation messages scattered through handler functions (~75 of them) - these are
-  transient, low-visibility strings; worth a follow-up pass if it becomes a priority.
-- [ ] **Still hardcoded English**: `CreatePoll.jsx`, `EditPoll.jsx`. Lower priority than Vote/ThankYou since
-  these are used by the workspace owner/admin, not the general public - but follow the same pattern
-  (`useTranslation()` + `t("key")`, new keys added to *every* `src/i18n/locales/*.json` file) to extend
-  further.
-- [x] `Billing.jsx` fully localized (plan names/descriptions, comparison table, trial/checkout messages, CTAs)
-  in every supported language - `billing.*` namespace, key parity verified across every locale file.
-- [x] `Legal.jsx` (Privacy notice / Terms of service) deliberately kept **English-only**, with a short notice
-  added to the page explaining the English text is the sole official/governing version. Auto-translating legal
-  text carries real liability risk (a mistranslated clause on refunds, data-processor terms, etc. could be read
-  as legally binding in that language) - many companies handle it exactly this way rather than translating ToS
-  literally.
-- [ ] **Add Russian and Ukrainian.** Follow the existing pattern: new `src/i18n/locales/ru.json` /
-  `uk.json` (Ukrainian uses `dir: "ltr"` like the rest, no RTL needed), add both to
-  `SUPPORTED_LANGUAGES` in `src/i18n/languages.js` and to the `resources` map in `src/i18n/index.js`.
-  Since `Vote.jsx`/`ThankYou.jsx`/`Billing.jsx`/`Admin.jsx` are already fully keyed with `t("...")`,
-  this is "translate every key already in `en.json` into these two languages" rather than new
-  wiring work. Also worth adding Cyrillic keyword coverage (`politicalTerms`/etc. in
-  `restrictedContent.js`) for the same reason the other languages are covered there - a
-  Russian/Ukrainian-speaking voter can submit restricted-topic free text regardless of which UI
-  language they picked.
+- [ ] **Still hardcoded English**: `CreatePoll.jsx`, `EditPoll.jsx`. Lower priority than
+  Vote/ThankYou since these are used by the workspace owner/admin, not the general public -
+  but follow the existing pattern (`useTranslation()` + `t("key")`, new keys added to *every*
+  `src/i18n/locales/*.json` file) to extend further.
+- [ ] **Add Russian and Ukrainian.** Follow the existing pattern: new
+  `src/i18n/locales/ru.json` / `uk.json` (Ukrainian uses `dir: "ltr"` like the rest, no RTL
+  needed), add both to `SUPPORTED_LANGUAGES` in `src/i18n/languages.js` and to the `resources`
+  map in `src/i18n/index.js`. Since `Vote.jsx`/`ThankYou.jsx`/`Billing.jsx`/`Admin.jsx` are
+  already fully keyed with `t("...")`, this is "translate every key already in `en.json` into
+  these two languages" rather than new wiring work. Also worth adding Cyrillic keyword
+  coverage (`politicalTerms`/etc. in `restrictedContent.js`) for the same reason the other
+  languages are covered there - a Russian/Ukrainian-speaking voter can submit restricted-topic
+  free text regardless of which UI language they picked.
 
 ## QR codes with multiple linked items
 
-- [x] One QR code can show several polls and/or info cards at once (`qr_campaign_items`
-  table, `supabase/20260915_qr_campaign_items.sql`). Not plan-gated.
-- [x] Dashboard reorganized so this isn't buried: the "QR codes" tab (renamed from
-  "Engagement & growth") now leads with an explainer banner and the Donations setup (a
-  prerequisite), moved ahead of "QR campaigns", and the campaign item picker's copy calls out
-  polls + info cards + donations explicitly. Lead nurture/win-back emails moved to the
-  "Customer connection" tab, where they conceptually belong.
-- [x] Poll <-> QR code relationship is now visible in both directions: every poll card in the
-  Polls tab shows a "Linked QR codes" panel (which locations/campaigns point to it, click to
-  jump to the QR codes tab), and every poll reference inside the QR codes tab (location
-  assignment, campaign's default poll, each poll inside "Items on this QR code") links back
-  and highlights+scrolls to that exact poll. The "Scan a QR code" tool moved from Overview
-  into the QR codes tab, and each poll's quick "Open QR tools" preview now explains it's an
-  untracked, single-poll QR - distinct from the reusable/trackable QR codes tab.
-- [x] Each QR code's item manager is now split into clearly separated Info / Polls / Donation /
-  Reward & Prize sections (own list, reorder, and add form per section) instead of one flat
-  mixed list, per explicit request. Added a fourth item type, `reward` (a display-only
-  freebie/discount/prize-draw card with an optional redemption code), alongside poll/info/
-  donation - `supabase/20260922_qr_reward_prize_items.sql`, run 2026-09-14. Rendered in
-  `QrRedirect.jsx` with its own card style.
-
-## AI features
-
-- [x] Fixed the AI poster-background generator (`api/generate-qr-poster.js`, used from a
-  poll's "Open QR tools") returning a generic "Image generation failed" for every OpenAI-side
-  rejection. It now passes through OpenAI's real error message, with friendly guidance for
-  the most common cause: the OpenAI organization needing to complete verification for
-  `gpt-image-1` access (separate from just having a valid API key). See `AI_IMAGE_SETUP.md`.
-
-## Email validation
-
-- [x] Voter follow-up/prize-draw email and organizer-reply email are validated client-side
-  before submit, mirroring the server-side regex.
+- [ ] Still open (genuinely lower priority, revisit if an artist user asks): a dedicated
+  "gallery"/portfolio item type for multiple images in one QR info card, instead of one image
+  per info card.
 
 ## Pilot readiness — needs an account/dashboard action, not just code
-
-The code-level mitigations for each of these are already in place; each needs a human to
-configure an external account or make a judgment call before the pilot scales past a
-handful of venues.
 
 - [ ] **Migrate translation off the unofficial Google endpoint.** `Vote.jsx` calls the free,
   unsupported `translate.googleapis.com/translate_a/single?client=gtx...` endpoint (no SLA,
   can be rate-limited/blocked without notice). A kill switch
   (`VITE_ENABLE_TRANSLATION=false`), timeout, and fallback message are in place, but the
   real fix is the official, paid Google Cloud Translation API.
-- [x] **Configured rate limiting at the infrastructure level** via Vercel Firewall: a custom
-  rule rate-limits all `/api/*` requests to 30 per 60 seconds per IP address (Deny 403 when
-  exceeded), confirmed live ("Custom Rules: 1 active"). The Hobby plan caps custom rate-limit
-  rules at 1 (Pro allows up to 40), so this one rule was pointed at the highest-value target:
-  the serverless functions that cost real money per call (Stripe, OpenAI, Resend), not the
-  `/vote`/`/qr` page loads. **Important caveat**: votes are inserted directly from the browser
-  to Supabase's REST API, not through a Vercel `/api/*` route, so this rule does not rate-limit
-  vote submissions themselves - only page loads and the app's own serverless functions. A
-  honeypot + minimum-dwell-time check (already in `Vote.jsx`) is still the only defense against
-  scripted vote spam; a proper fix would be a Postgres-side rate limit (e.g. a trigger capping
-  votes per IP/poll in a time window) or routing votes through a `/api/*` function instead.
 - [ ] **Supabase backup/restore drill - blocked on a plan decision, not configuration.**
-  Checked the actual dashboard: this project's organization ("bonomistefano@outlook.it's
-  Org") is on the **Supabase Free plan**, which Supabase states explicitly **does not include
-  project backups at all** - not "not yet turned on", structurally unavailable. There is
-  currently no way to recover this production database if data is ever lost or corrupted.
-  Fixing this requires upgrading the organization to **Supabase Pro ($25/month base, includes
-  daily backups retained 7 days)** - a real recurring cost, so this needs your decision, not
-  just configuration. Once upgraded, still do an actual test restore before the pilot, not
-  just confirm the toggle is on.
-- [x] **Sentry fully wired up (2026-09-14).** The `VITE_SENTRY_DSN` env var was confirmed to be
-  a placeholder - the "godwit-vt" Sentry org had zero projects. Fixed properly:
-  - Created two Sentry projects (client/server errors were never worth mixing in one feed):
-    `godwit-frontend` (React) and `godwit-api` (Node, "Vanilla" - matches Vercel's plain
-    handler-function style). **Action needed from you**: update Vercel's `VITE_SENTRY_DSN` to
-    the `godwit-frontend` DSN, and add a new `SENTRY_DSN` env var with the `godwit-api` DSN
-    (values given separately - not committed to the repo).
-  - Added `lib/errorReporting.js` (`captureError(label, error)`) - a drop-in replacement for
-    the `console.error(label, error)` pattern already used throughout `api/*.js` and
-    `lib/cron/*.js`. Before this, **only the browser React app was ever reported to Sentry** -
-    a Stripe webhook failure, a cron job throwing, or an AI classification error was invisible
-    outside Vercel's own function logs. Now 16 of 18 `console.error` call sites (every real
-    `catch` block) also report to Sentry when `SENTRY_DSN` is set; still `console.error`-only
-    console logging kept exactly as before either way. The 2 sites left untouched
-    (`generate-qr-poster.js`, `refresh-reputation.js`) are expected/handled API-error payloads
-    with a friendly message already shown to the user, not bugs - reporting those would just be
-    noise.
-  - Verified end-to-end with a real test error from a local script targeting the live
-    `godwit-api` DSN - it appeared in the Sentry issue feed within seconds (`GODWIT-API-1`).
-  - Both new projects already have Sentry's default "notify on new/existing high-priority
-    issue" email alert rule active (confirmed it fired on the test error) - no extra alert
-    configuration was needed.
-  - `api/system-status.js` now reports `monitoring.sentryServerDsn` alongside the existing
-    `monitoring.sentryDsn`, so a future check can confirm both DSNs are configured before
-    onboarding a pilot venue.
-  - **Still not done**: Vercel's own real-time anomaly alerting ("Observability Plus") remains
-    gated behind a Vercel Pro upgrade - unrelated to Sentry, a separate paid-plan decision.
-- [x] **Accessibility pass on the public voting flow** (`Vote.jsx`, `ThankYou.jsx`,
-  `QrRedirect.jsx`). Added `<main>` landmarks (Layout.jsx and ThankYou.jsx didn't have one);
-  the answer list is a labelled `role="group"`; translated question/answers get a per-element
-  `lang` attribute; loading/status/error states use `role="status"`/`role="alert"`
-  appropriately; email/message fields now have real `aria-label`s (not just placeholder text)
-  with `aria-describedby` wired to their validation errors; QR-menu images got real `alt`
-  text instead of `alt=""`. Not a full WCAG audit - color contrast and keyboard-navigation
-  order weren't reviewed, so revisit if that becomes a real requirement (e.g. a museum client
-  asks for a conformance statement).
-- [x] **Multi-language moderation coverage.** `restrictedContent.js` now covers all 10
-  languages the app ships translations for (was English-only), with a Unicode-aware
-  matcher (the old plain `\b` boundary silently never matched anything in Arabic/Chinese -
-  a real bug fixed along the way). `api/classify-sentiment.js` also runs a real AI
-  classification pass (any language) on voter-submitted custom answers after insertion and
-  auto-hides anything flagged, logging an audit entry in `content_reports`
-  (`reason="policy_violation"`) visible on the Moderation page. Admin-authored poll
-  questions/answers still only get the synchronous keyword check, not the AI backstop -
-  the highest real-world risk is anonymous public voters, not the workspace's own admin.
+  This project's organization is on the **Supabase Free plan**, which Supabase states
+  explicitly **does not include project backups at all** - not "not yet turned on",
+  structurally unavailable. There is currently no way to recover this production database if
+  data is ever lost or corrupted. Fixing this requires upgrading the organization to
+  **Supabase Pro ($25/month base, includes daily backups retained 7 days)** - a real
+  recurring cost, so this needs your decision, not just configuration. Once upgraded, still do
+  an actual test restore before the pilot, not just confirm the toggle is on.
+- [ ] **Vercel's own real-time anomaly alerting ("Observability Plus")** remains gated behind a
+  Vercel Pro upgrade - unrelated to Sentry (already fully wired up), a separate paid-plan
+  decision.
 - [ ] **Use the `api/system-status.js` endpoint before onboarding each pilot venue.** Call
   it with the `CRON_SECRET` bearer token to confirm which optional integrations (Stripe,
   Resend email, Google Places, Sentry) are actually configured, so you don't promise a
   Growth-tier feature that silently no-ops.
+- [ ] Full WCAG audit not done - color contrast and keyboard-navigation order weren't
+  reviewed on the public voting flow. Revisit if that becomes a real requirement (e.g. a
+  museum client asks for a conformance statement).

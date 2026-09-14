@@ -30,3 +30,7 @@ dist-ssr
 # src/assets/ and public/favicon.svg, which are tracked normally.
 marketing/logo-concepts/
 marketing/name-references/
+
+# Downloaded subprocessor DPA PDFs (Stripe/Supabase/Vercel/Resend), kept locally for the
+# operator's own GDPR Art. 30 recordkeeping - not a product asset, not committed.
+dpa/
