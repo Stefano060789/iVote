@@ -482,6 +482,15 @@ textarea {
   color: var(--navy-deep) !important;
 }
 
+.workspace-page .bg-blue-600 {
+  background: var(--gold) !important;
+  color: var(--navy-deep) !important;
+}
+
+.workspace-page [class*="ring-teal-"] {
+  --tw-ring-color: var(--gold) !important;
+}
+
 .app-page .bg-blue-600 {
   background: var(--teal) !important;
   color: #ffffff !important;
@@ -864,15 +873,7 @@ textarea {
 }
 
 .landing-flock-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
   margin-bottom: 14px;
-  border-radius: 50%;
-  background: rgba(242, 199, 68, 0.14);
-  color: var(--gold);
 }
 
 .landing-flock-card h3 {

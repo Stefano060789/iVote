@@ -39,7 +39,7 @@ export default function ProductFeedback() {
 
   if (!user) return null;
   return (
-    <Layout>
+    <Layout theme="workspace">
       <div className="mx-auto max-w-xl p-2 sm:p-6">
         <h1 className="text-3xl font-bold">Share product feedback</h1>
         <p className="mt-2 text-slate-300">Tell us what worked, what was confusing, or what would make Godwit more useful for your venue.</p>

@@ -214,8 +214,7 @@
       "settings": "Brand, team access, developer API, and recent activity."
     },
     "quickActions": {
-      "create": { "label": "Create a poll", "description": "Start a new QR feedback poll for a table, counter, or event." },
-      "polls": { "label": "Manage your polls", "description": "Search, filter, and see how each poll performs." },
+      "polls": { "label": "Polls", "description": "Create a new poll, then search, filter, and see how each one performs." },
       "engagement": { "label": "Build a QR code", "description": "Combine polls, info cards, and donations under one printed code." },
       "connection": { "label": "Customer connection", "description": "Collect emails, invite honest reviews, and manage rewards." },
       "analytics": { "label": "View analytics", "description": "See trends across every poll and location." },
@@ -510,7 +509,9 @@
         "summaryRewardPlural": "Rewards",
         "summaryEmpty": "Just the default poll above — add more below to build a menu",
         "itemsOnQr": "Manage what's on this QR code ({{count}})",
-        "itemsHint": "Add one or more polls, info cards, and a donation ask here to turn this QR code into a menu: scanning it will show everything listed below at once, instead of going straight to a single poll."
+        "itemsHint": "Add one or more polls, info cards, and a donation ask here to turn this QR code into a menu: scanning it will show everything listed below at once, instead of going straight to a single poll.",
+        "advancedTitle": "More QR tools",
+        "advancedDescription": "Connect Stripe for donations, manage poll rotations, track reward redemptions, run prize draws, or use the older single-poll QR tool — all optional, and all related to the QR codes above."
       },
       "items": {
         "sectionPolls": "Polls",

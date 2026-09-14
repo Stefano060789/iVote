@@ -266,7 +266,7 @@ export default function CreatePoll() {
   const entitlements = getEntitlements(plan);
 
   return (
-    <Layout>
+    <Layout theme="workspace">
       <div className="max-w-xl mx-auto p-6">
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-bold">Create a poll</h1>

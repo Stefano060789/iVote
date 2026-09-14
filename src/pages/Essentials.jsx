@@ -28,7 +28,7 @@ const STEPS = [
 
 export default function Essentials() {
   return (
-    <Layout>
+    <Layout theme="workspace">
       <div className="mx-auto max-w-2xl space-y-8 p-4 sm:p-8">
         <div className="text-center">
           <p className="flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-wide text-teal-400">

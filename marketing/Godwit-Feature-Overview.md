@@ -1,6 +1,6 @@
 # Godwit — Complete Feature Overview
-### QR-Based Feedback & Engagement Platform for Physical Venues
-*Prepared for marketing use — September 2026*
+### QR-Based Feedback, Engagement & Payments Platform for Physical Venues
+*Prepared for marketing use and legal review — September 2026*
 
 ---
 
@@ -72,8 +72,17 @@ An existing poll can be cloned in one click, and an existing printed QR code can
 
 ## 5. QR & Campaign Tools
 
-### Reusable QR codes
-Every QR code Godwit generates points to a stable link that can be reassigned to a different poll at any time. A venue can print one QR poster and change what it asks about weekly, monthly, or in response to a specific issue — without ever reprinting a single sign. This alone removes one of the biggest ongoing costs and headaches of physical feedback campaigns.
+### One QR code, several purposes: Info, Polls, Donation, Reward & Prize
+A single printed QR code is no longer tied to one poll — it's built as a small menu with up to four kinds of content, added in any combination: one or more **polls**, an **info card** (menu, hours, bio, exhibit notes — anything non-poll), a **donation** ask, and a **reward or prize** entry. A guest who scans the code sees everything the venue has attached to it at once. This is the main structure of the "Create QR code" workflow in the dashboard, and it means one physical sign at a table or entrance can simultaneously collect feedback, show information, invite a tip, and offer an incentive — instead of a venue needing four separate printed codes.
+
+### Reusable, stable QR codes
+Every QR code Godwit generates points to a stable link that can be reassigned or reconfigured at any time — which poll(s) it shows, what info card it carries, whether it has a donation ask, what reward it offers — all without ever reprinting the physical code. A venue can print one QR poster and change what's behind it weekly, monthly, or in response to a specific issue.
+
+### Built-in donations (Stripe Connect)
+Any QR code can include a donation option so a guest can tip or support the venue directly from their phone — card or digital wallet, no app required. The venue connects their own Stripe account once (via Stripe Connect's hosted onboarding, which handles that business's own identity verification), and from then on every donation is processed as a destination charge: **90% transfers directly to the venue's own connected Stripe account, and Godwit retains a 10% platform fee** on each transaction. Godwit's servers never see or store card details — Stripe handles the entire payment. This is presented to venues explicitly as "tips or donations for your venue" (i.e., discretionary support paid to the business itself), not a charitable-giving or nonprofit-fundraising product.
+
+### Reward & Prize QR items
+Separately from a poll's own optional post-vote reward (Section 7), a QR code can carry a standalone "Reward & Prize" item — a freebie, discount, or prize-draw entry shown to every guest who scans that code, independent of any specific poll or answer given (e.g. "Free coffee with any vote" or "Enter to win a gift card"), with an optional redemption code attached.
 
 ### Trackable campaigns with placement & variant labels
 Each printed QR code can be registered as its own "campaign" with a placement label (lobby, receipt, table tent, restroom, etc.) and an optional variant label (for A/B testing different designs or wording). The dashboard then reports scans, completed votes, and the resulting conversion rate for every single placement separately — so a venue can see, for example, that the QR code by the register converts at 40% while the one on the receipt converts at 12%, and reallocate their printed materials accordingly.
@@ -132,7 +141,7 @@ While voting, a guest can optionally write a short private message directly to t
 ## 7. Engagement & Growth Tools
 
 ### Post-vote rewards
-A venue can configure any poll to show a custom thank-you reward immediately after voting — a message, a discount code, and/or a link to redeem it. This is entirely optional and fully controlled by the admin, who decides both whether a reward exists at all and exactly what it is, per poll. It transforms the end of a feedback interaction from a dead end into a concrete incentive to come back.
+A venue can configure any individual poll to show a custom thank-you reward immediately after voting — a message, a discount code, and/or a link to redeem it. This is entirely optional and fully controlled by the admin, who decides both whether a reward exists at all and exactly what it is, per poll. It transforms the end of a feedback interaction from a dead end into a concrete incentive to come back. (This is distinct from the QR-level "Reward & Prize" item described in Section 5, which is shown to every scanner of a given QR code regardless of whether — or how — they vote; a venue can use either, both, or neither.)
 
 ### Reward redemption tracking
 When a customer shows their reward code in person, staff can enter it into the dashboard to mark it redeemed, and the system keeps a running count of how many times each code has actually been used. This turns "we're offering a reward" into measurable proof that the reward is genuinely driving repeat visits, which is exactly the kind of evidence a venue owner needs to justify continuing — or expanding — the program.
@@ -162,8 +171,11 @@ Within a workspace, team members can be assigned Owner, Editor, or Viewer roles,
 ### Real email team invitations
 Adding a colleague isn't just a note in a list — entering their email sends them an actual account invitation, so they get their own secure login rather than sharing a single password across a team. This is a real prerequisite for confidently selling multi-seat plans to a business.
 
-### Three-tier subscription plans
-The product is structured around Free, Starter, and Growth tiers, fully wired into Stripe for billing, with plan-based limits already enforced on the number of polls and QR campaigns a workspace can create. The monetization foundation is not a future project — it already works end-to-end.
+### Three-tier subscription plans with a free trial
+The product is structured around three tiers — **Free** (EUR 0), **Starter** (EUR 29/month), and **Growth** (EUR 79/month) — fully wired into Stripe for billing, with plan-based limits already enforced (poll count, QR/campaign count, team seats) both in the UI and at the database level. New subscribers to Starter or Growth automatically receive a **30-day free trial** (once per workspace) before the first charge, handled natively through Stripe's subscription trial mechanism. The monetization foundation is not a future project — it already works end-to-end, live, in production.
+
+### Two independent Stripe money flows: subscriptions and donations
+Godwit uses Stripe in two distinct ways, both already live: (1) **platform subscription billing** — the venue pays Godwit directly for its plan, via standard Stripe Checkout subscriptions; and (2) **guest-to-venue donations** — a guest pays the *venue*, not Godwit, via a Stripe Connect destination charge, with Godwit automatically retaining a 10% platform fee and passing the remaining 90% straight through to the venue's own connected Stripe account (see Section 5). These are legally and operationally distinct: in flow (1) Godwit is the merchant of record; in flow (2) the venue is the merchant of record for its own connected account and Godwit acts only as the facilitating platform collecting a fee, with Stripe performing the underlying identity verification (KYC) on each connected venue.
 
 ### Workspace webhooks
 A venue can paste in a webhook URL, and every new vote is automatically forwarded there as structured data — enabling a one-time setup that connects Godwit to Slack, Zapier, Google Sheets, or virtually any other tool a business already uses, without Godwit having to build a dedicated integration for each one individually.
@@ -181,30 +193,54 @@ Every significant administrative action taken inside a workspace is recorded and
 
 ## 9. Trust, Compliance & Platform Quality
 
+### Payment handling: no card data ever touches Godwit's servers
+All payment processing — both platform subscriptions and guest donations — is handled entirely by Stripe (a PCI-DSS Level 1 certified processor). Godwit never receives, transmits, or stores raw card numbers, expiry dates, or CVCs; card entry happens on Stripe-hosted Checkout pages or Stripe's own embedded elements. Godwit's database stores only Stripe's own identifiers (customer ID, subscription ID, connected account ID) needed to look up and manage billing state.
+
+### Connected-account identity verification (KYC) for donations
+Before a venue can receive donations, Stripe Connect's own hosted onboarding flow collects and verifies that venue's business/individual identity (KYC/AML checks are performed by Stripe, not Godwit). Godwit only stores the resulting connected-account ID and its verification status; it does not collect or store the underlying identity documents itself.
+
+### Multi-tenant secure workspaces
+Every venue operates inside its own fully isolated workspace, with data access enforced at the database level (Postgres row-level security) rather than just in the application code. This means one customer's votes, polls, and settings are architecturally guaranteed to be invisible to every other customer — a foundational trust requirement for any business handling customer feedback and payment-adjacent data.
+
+### Role-based team access
+Within a workspace, team members can be assigned Owner, Editor, or Viewer roles, each with a different set of permissions — for example, only owners and editors can delete polls or manage billing, while viewers can see everything but change nothing.
+
+### Explicit, unbundled consent for every optional data-collection point
+Nothing beyond an anonymous poll answer is collected without a deliberate, separate opt-in: a lead-capture email requires its own consent checkbox; a prize-draw entry requires its own consent checkbox; a private message to the organizer is voluntary free text the guest chooses to submit. None of these is a precondition for voting, and none is bundled into a single "accept everything" checkbox.
+
+### Neutral, policy-compliant review invitations
+Every guest who completes a poll sees the same "leave a public review" links regardless of which answer they gave — the invite is never gated by sentiment, and no reward or incentive is ever tied to leaving a (or a specific rating of) public review, consistent with Google's and Tripadvisor's review policies against incentivized or filtered reviews.
+
 ### Content moderation
-Open-text answers are automatically screened for political, religious, or sexual content before they're accepted, and any guest can report an existing answer they find inappropriate for manual review. This keeps public-facing, crowd-sourced answer lists safe and usable without requiring constant manual moderation.
+Open-text answers are automatically screened for political, religious, or sexual content before they're accepted, and any guest can report an existing answer they find inappropriate for manual review.
 
 ### Optional automatic vote retention window
-A workspace can set an optional number of days after which old votes are automatically and permanently deleted by a scheduled background job. This is a genuine, concrete data-minimization control that matters directly to privacy-conscious buyers and is often a specific requirement in EU and enterprise procurement conversations.
+A workspace can set an optional number of days after which old votes are automatically and permanently deleted by a scheduled background job — a concrete data-minimization control relevant to GDPR's storage-limitation principle and to enterprise/EU procurement requirements. The default, if a workspace sets no window, is indefinite retention until the workspace itself exports or deletes data.
 
 ### Privacy, Terms, and Support pages
-The legal and support foundation a real business needs — a privacy policy, terms of service, and a support page — is already built and live, rather than being an afterthought bolted on right before launch.
+A privacy policy, terms of service, and a support page are already built and live at `/legal` and `/support` (see `src/pages/Legal.jsx`), rather than being an afterthought bolted on right before launch.
+
+### Third-party subprocessors currently in use
+For a data-processing/privacy-policy legal review, the concrete list of subprocessors that touch venue or voter data today is: **Stripe** (payments, subscriptions, Connect/KYC), **Supabase** (Postgres database, auth, hosting of all workspace/poll/vote data), **Vercel** (application hosting and serverless functions), **Resend** (transactional and weekly-report emails), and **OpenAI** (poster background image generation and open-text sentiment tagging — both currently feature-complete but pending API key activation, see Section 11). No other third parties currently receive venue or voter data.
 
 ### Installable app (PWA)
-Godwit can be installed directly onto a phone or desktop home screen like a native app, with no app store submission required, giving venues and their staff a persistent, one-tap way to reach their dashboard.
+Godwit can be installed directly onto a phone or desktop home screen like a native app, with no app store submission required.
 
 ### Mobile-first, tab-organized admin dashboard
-The admin experience is organized into five clear tabs — Overview, Polls, Engagement & Growth, Feedback, and Settings — so that as the feature set has grown substantially, the day-to-day experience of running a single poll and printing a QR code has stayed simple and uncluttered rather than becoming an overwhelming wall of options.
+The admin experience is organized into clear tabs — Overview, Polls, QR codes/Engagement, Connection, Feedback, and Settings — so that as the feature set has grown substantially, day-to-day use has stayed simple rather than becoming an overwhelming wall of options.
 
 ### Live error monitoring
 Application errors are tracked in real time through integrated monitoring, so problems can be identified and fixed proactively rather than being discovered only when a customer complains.
+
+### Known open item flagged for legal/security review
+Stripe account-level verification for the platform's own live Stripe account currently relies on phone number (SMS) only. A stronger second identification factor (e.g. Stripe Identity document verification, authenticator-app 2FA, or a recovery contact) has been identified internally as needed and is tracked as an open action item, not yet resolved as of this document's date. This does not affect the KYC Stripe performs independently on each venue's own connected account for donations (see above) — it concerns only the security of Godwit's own platform-level Stripe account.
 
 ---
 
 ## 10. What Makes Godwit Different
 
 1. **It's a two-way loop, not just a survey tool.** Rewards, prize draws, review routing, and public "we heard you" updates all close the loop back to the guest — most QR feedback tools stop at data collection and leave the venue to figure out what to do next on their own.
-2. **It's built for physical locations first.** Reusable QR codes, rotating polls, bulk QR generation, and per-location analytics are designed around the reality of printed materials and real venues, not just repurposed from a generic online form builder.
+2. **It's built for physical locations first.** Reusable, multi-purpose QR codes (poll + info + donation + reward in one), rotating polls, bulk QR generation, and per-location analytics are designed around the reality of printed materials and real venues, not just repurposed from a generic online form builder.
 3. **It gets smarter over time.** Anomaly detection, AI sentiment tagging, and benchmark reports turn raw feedback into proactive insight instead of a spreadsheet someone has to read and interpret manually every week.
 4. **It's already enterprise-shaped.** Multi-tenant security, team roles, a developer API, webhooks, and compliance controls like data retention are in place from day one — the platform can grow from a single independent café to a multi-location chain without needing to be rebuilt from scratch.
 
@@ -228,4 +264,21 @@ Application errors are tracked in real time through integrated monitoring, so pr
 
 ---
 
-*This document was generated to support marketing content creation — website copy, sales one-pagers, social content, and pitch decks. All feature descriptions reflect the current, working state of the product as of the date above.*
+## 12. Specific Questions for Legal Review
+
+This section exists to focus a legal review, not to pre-judge the answers. Godwit's team believes the product is reasonably designed, but has **not** had these points confirmed by a lawyer, and none of the following should be read as a legal conclusion.
+
+1. **"Donation" wording vs. charitable-solicitation law.** Guests are told they can "tip or donate" to a venue, and the money goes straight to that venue's own bank account via its own Stripe Connect account — it is not routed through, or given to, any registered charity or nonprofit, and Godwit is not a party to the underlying transaction beyond its 10% platform fee. Does calling this a "donation" (rather than, say, a "tip" or "support payment") create any charitable-solicitation registration/disclosure obligation in any jurisdiction where a venue operates, given it's actually a payment to a for-profit business?
+2. **Platform-fee / payment-facilitator classification.** Godwit takes a 10% application fee on each donation passed through via Stripe Connect destination charges. Does this arrangement (with Stripe as the regulated payment processor and Stripe performing KYC on each connected venue) keep Godwit outside money-transmitter/payment-facilitator licensing requirements, or does the fee-taking role itself trigger any registration in the jurisdictions Godwit or its venues operate in?
+3. **Consumer protection for subscriptions with a free trial.** Starter and Growth plans auto-convert from a 30-day free trial into a paid recurring subscription unless cancelled. Are the current disclosures (shown at checkout and in the billing UI) sufficient under applicable consumer-protection / distance-selling / auto-renewal laws (e.g. EU Consumer Rights Directive, US state auto-renewal statutes), including the required clarity on price, renewal date, and cancellation method?
+4. **Prize draws / raffles.** The prize-draw feature (Section 7) lets a venue run a no-purchase-necessary style entry via email opt-in, with a manual "pick a winner" action. Godwit does not currently restrict this by jurisdiction, age, or local gambling/promotional-contest law. What baseline rules, disclosures, or eligibility restrictions (e.g. official rules, no-purchase-necessary language, minimum age, odds disclosure) should be required of venues using this feature, and does Godwit need to add any product-level guardrails?
+5. **GDPR / cross-border data transfer.** Venue and voter data is hosted via Supabase and Vercel, with additional processing by Stripe, Resend, and (once activated) OpenAI. Confirm what data-processing agreements, subprocessor disclosures, and cross-border transfer mechanisms (e.g. SCCs) are needed given Godwit's and its customers' likely jurisdictions, and whether the current privacy policy (`/legal`) adequately names these subprocessors and describes the legal basis for each processing purpose (contract performance vs. legitimate interest vs. consent).
+6. **Data retention defaults.** Retention is opt-in per workspace (Section 9) — a workspace that sets no retention window keeps votes indefinitely. Is an opt-in (rather than a default maximum) retention model defensible under GDPR's storage-limitation principle for personal data collected via lead-capture emails and prize-draw entries specifically (as opposed to anonymous poll answers)?
+7. **Review-platform compliance.** The neutral, non-gated review-invite design (Section 9) is intended to comply with Google's and Tripadvisor's policies against incentivized/filtered reviews. Should this be reviewed against the current text of those platforms' policies, and does bundling a reward or prize-draw entry on the *same* QR code as a review link (even though not conditioned on leaving a review) need clearer separation or disclosure?
+8. **Merchant-of-record and tax reporting for connected accounts.** For donations, the venue is the merchant of record on its own Stripe Connect account. Confirm whether Godwit has any tax-information-reporting obligation of its own (e.g. EU DAC7-style platform reporting for facilitated payments, or equivalent rules elsewhere) given its role in facilitating and taking a fee from these transactions.
+9. **Minors and age eligibility.** No feature currently checks or restricts a voter's age. Is this acceptable given the data collected is generally anonymous poll answers, but flag specifically for the lead-capture, prize-draw, and donation flows, all of which collect an email address or a payment from an unverified individual.
+10. **Terms of Service coverage.** Confirm the current Terms of Service (`/legal`) adequately covers: the venue's own responsibility for content it posts (info cards, welcome messages, reward terms), the venue's own responsibility for running compliant prize draws/donations, Godwit's liability limitations as a platform (not a party to the venue-guest relationship), and the phone-only-2FA gap noted in Section 9 as a disclosed operational risk rather than a hidden one.
+
+---
+
+*This document was generated to support marketing content creation — website copy, sales one-pagers, social content, and pitch decks — and, as of this revision, to support an external legal review. Section 12 is written to flag open questions, not to assert conclusions. All feature descriptions reflect the current, working state of the product as of the date above.*

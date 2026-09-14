@@ -187,7 +187,7 @@ export default function EditPoll() {
   const entitlements = getEntitlements(plan);
 
   return (
-    <div className="max-w-xl mx-auto p-6">
+    <div className="workspace-page max-w-xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6 text-center">Edit Poll</h1>
 
       <label className="block mb-2 font-semibold">Template</label>

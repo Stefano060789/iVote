@@ -1775,7 +1775,6 @@ export default function Admin() {
   };
 
   const quickActions = [
-    { key: "create", icon: "\u2795", bird: null, label: t("admin.quickActions.create.label"), description: t("admin.quickActions.create.description"), onSelect: () => navigate("/create") },
     { key: "polls", icon: "\ud83d\udcca", bird: flockMemberForTab("polls"), label: t("admin.quickActions.polls.label"), description: t("admin.quickActions.polls.description"), onSelect: () => setActiveTab("polls") },
     { key: "engagement", icon: "\u2728", bird: flockMemberForTab("engagement"), label: t("admin.quickActions.engagement.label"), description: t("admin.quickActions.engagement.description"), onSelect: () => setActiveTab("engagement") },
     { key: "connection", icon: "\ud83e\udd1d", bird: flockMemberForTab("connection"), label: t("admin.quickActions.connection.label"), description: t("admin.quickActions.connection.description"), onSelect: () => setActiveTab("connection") },
@@ -2566,58 +2565,10 @@ export default function Admin() {
               );
             })}
           </div>
-        </div>
-      </details>
-      )}
 
-      {activeTab === "engagement" && (
-      <div className="mb-6 border rounded bg-gray-900 p-4">
-        <h2 className="text-xl font-bold">{t("admin.engagement.scanner.title")}</h2>
-        <p className="mt-1 mb-3 text-sm text-slate-400">{t("admin.engagement.scanner.subtitle")}</p>
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <button onClick={() => { setScannerOpen(true); setScanMessage(""); }} className="bg-teal-500 text-slate-950 px-4 py-2 rounded font-semibold">
-            {t("admin.engagement.scanner.openCamera")}
-          </button>
-          <input
-            value={scanLookupValue}
-            onChange={(event) => setScanLookupValue(event.target.value)}
-            placeholder={t("admin.engagement.scanner.pastePlaceholder")}
-            className="flex-1 border p-2 rounded text-black"
-          />
-          <button onClick={() => lookUpScannedQr(scanLookupValue)} className="bg-slate-700 text-white px-4 py-2 rounded font-semibold">
-            {t("admin.engagement.scanner.lookUp")}
-          </button>
-        </div>
-        {scanMessage && <p className="mt-3 text-sm text-amber-300">{scanMessage}</p>}
-        {scanResult && (
-          <div className="mt-4 rounded border border-teal-700 bg-slate-950 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-teal-300">{scanResult.campaign.name}</p>
-            <p className="mt-1 text-sm text-slate-400">
-              {scanResult.campaign.placement_label || t("admin.engagement.scanner.unlabeledPlacement")}{scanResult.campaign.variant_label ? ` · ${scanResult.campaign.variant_label}` : ""}
-            </p>
-            <p className="mt-3 font-semibold">{scanResult.currentPoll?.question || t("admin.engagement.scanner.noPollAssigned")}</p>
-            <label className="mt-4 block text-sm font-semibold">{t("admin.engagement.scanner.redirectLabel")}</label>
-            <select
-              value={scanResult.campaign.poll_id ? String(scanResult.campaign.poll_id) : ""}
-              onChange={(event) => changeScannedPoll(event.target.value)}
-              className="mt-2 w-full rounded border p-2 text-black"
-            >
-              <option value="">{t("admin.engagement.scanner.choosePoll")}</option>
-              {scanResult.polls.map((poll) => (
-                <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>
-              ))}
-            </select>
-            <Link to={`/create?campaign=${scanResult.campaign.id}`} className="mt-3 block rounded bg-teal-400 px-4 py-2 text-center font-semibold text-slate-950">
-              {t("admin.engagement.scanner.createNewPoll")}
-            </Link>
-          </div>
-        )}
-      </div>
-      )}
-
-      {scannerOpen && <QrScanner onDecode={handleScanDecode} onClose={() => setScannerOpen(false)} />}
-
-      {activeTab === "engagement" && (
+          <div className="mt-6 border-t border-slate-800 pt-4">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">{t("admin.engagement.campaigns.advancedTitle")}</p>
+            <p className="mb-3 text-xs text-slate-500">{t("admin.engagement.campaigns.advancedDescription")}</p>
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.donations.title")}</summary>
         <div className="px-4 pb-4 space-y-3">
@@ -2694,26 +2645,6 @@ export default function Admin() {
           </p>
         </div>
       </details>
-      )}
-
-      {activeTab === "feedback" && (
-      <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.feedback.messages.title")}</summary>
-        <div className="px-4 pb-4">
-          <p className="mb-3 text-sm text-slate-400">{t("admin.feedback.messages.subtitle")}</p>
-          {organizerMessages.length === 0 ? <p className="text-sm text-slate-400">{t("admin.feedback.messages.noMessages")}</p> : <div className="space-y-3">{organizerMessages.map((message) => (
-            <article key={message.id} className="rounded border border-slate-700 p-3">
-              <p>{message.message}</p>
-              <p className="mt-2 text-xs text-slate-400">{t("admin.engagement.locations.pollNumber", { id: message.poll_id })} · {new Date(message.created_at).toLocaleString()}</p>
-              {message.reply_email && <a className="mt-2 inline-block text-sm text-teal-300 underline" href={`mailto:${message.reply_email}`}>{t("admin.feedback.messages.replyToVoter")}</a>}
-            </article>
-          ))}</div>}
-        </div>
-      </details>
-      )}
-
-      {activeTab === "engagement" && (
-      <>
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.rotations.title")}</summary>
         <div className="px-4 pb-4">
@@ -2761,7 +2692,6 @@ export default function Admin() {
           <p className="mt-3 text-xs text-slate-500">{t("admin.engagement.rotations.assignHint")}</p>
         </div>
       </details>
-
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.redemptions.title")}</summary>
         <div className="px-4 pb-4">
@@ -2795,7 +2725,6 @@ export default function Admin() {
           )}
         </div>
       </details>
-
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.prizeDraws.title")}</summary>
         <div className="px-4 pb-4">
@@ -2829,8 +2758,6 @@ export default function Admin() {
           )}
         </div>
       </details>
-
-      {activeTab === "engagement" && (
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.locations.title")}</summary>
         <div className="px-4 pb-4">
@@ -2900,9 +2827,75 @@ export default function Admin() {
         </div>
         </div>
       </details>
+          </div>
+        </div>
+      </details>
       )}
-      </>
+
+      {activeTab === "engagement" && (
+      <div className="mb-6 border rounded bg-gray-900 p-4">
+        <h2 className="text-xl font-bold">{t("admin.engagement.scanner.title")}</h2>
+        <p className="mt-1 mb-3 text-sm text-slate-400">{t("admin.engagement.scanner.subtitle")}</p>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <button onClick={() => { setScannerOpen(true); setScanMessage(""); }} className="bg-teal-500 text-slate-950 px-4 py-2 rounded font-semibold">
+            {t("admin.engagement.scanner.openCamera")}
+          </button>
+          <input
+            value={scanLookupValue}
+            onChange={(event) => setScanLookupValue(event.target.value)}
+            placeholder={t("admin.engagement.scanner.pastePlaceholder")}
+            className="flex-1 border p-2 rounded text-black"
+          />
+          <button onClick={() => lookUpScannedQr(scanLookupValue)} className="bg-slate-700 text-white px-4 py-2 rounded font-semibold">
+            {t("admin.engagement.scanner.lookUp")}
+          </button>
+        </div>
+        {scanMessage && <p className="mt-3 text-sm text-amber-300">{scanMessage}</p>}
+        {scanResult && (
+          <div className="mt-4 rounded border border-teal-700 bg-slate-950 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-teal-300">{scanResult.campaign.name}</p>
+            <p className="mt-1 text-sm text-slate-400">
+              {scanResult.campaign.placement_label || t("admin.engagement.scanner.unlabeledPlacement")}{scanResult.campaign.variant_label ? ` · ${scanResult.campaign.variant_label}` : ""}
+            </p>
+            <p className="mt-3 font-semibold">{scanResult.currentPoll?.question || t("admin.engagement.scanner.noPollAssigned")}</p>
+            <label className="mt-4 block text-sm font-semibold">{t("admin.engagement.scanner.redirectLabel")}</label>
+            <select
+              value={scanResult.campaign.poll_id ? String(scanResult.campaign.poll_id) : ""}
+              onChange={(event) => changeScannedPoll(event.target.value)}
+              className="mt-2 w-full rounded border p-2 text-black"
+            >
+              <option value="">{t("admin.engagement.scanner.choosePoll")}</option>
+              {scanResult.polls.map((poll) => (
+                <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>
+              ))}
+            </select>
+            <Link to={`/create?campaign=${scanResult.campaign.id}`} className="mt-3 block rounded bg-teal-400 px-4 py-2 text-center font-semibold text-slate-950">
+              {t("admin.engagement.scanner.createNewPoll")}
+            </Link>
+          </div>
+        )}
+      </div>
       )}
+
+      {scannerOpen && <QrScanner onDecode={handleScanDecode} onClose={() => setScannerOpen(false)} />}
+
+
+      {activeTab === "feedback" && (
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.feedback.messages.title")}</summary>
+        <div className="px-4 pb-4">
+          <p className="mb-3 text-sm text-slate-400">{t("admin.feedback.messages.subtitle")}</p>
+          {organizerMessages.length === 0 ? <p className="text-sm text-slate-400">{t("admin.feedback.messages.noMessages")}</p> : <div className="space-y-3">{organizerMessages.map((message) => (
+            <article key={message.id} className="rounded border border-slate-700 p-3">
+              <p>{message.message}</p>
+              <p className="mt-2 text-xs text-slate-400">{t("admin.engagement.locations.pollNumber", { id: message.poll_id })} · {new Date(message.created_at).toLocaleString()}</p>
+              {message.reply_email && <a className="mt-2 inline-block text-sm text-teal-300 underline" href={`mailto:${message.reply_email}`}>{t("admin.feedback.messages.replyToVoter")}</a>}
+            </article>
+          ))}</div>}
+        </div>
+      </details>
+      )}
+
 
       {activeTab === "feedback" && (
       <details className="mb-6 border rounded bg-gray-900">

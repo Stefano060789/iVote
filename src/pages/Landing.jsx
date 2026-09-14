@@ -103,9 +103,7 @@ export default function Landing() {
         <div className="landing-flock-grid">
           {flockKeys.map((bird) => (
             <article key={bird.key} className="landing-flock-card">
-              <span className="landing-flock-badge" aria-hidden="true">
-                <FlockAvatar bird={FLOCK.find((member) => member.key === bird.key)} size={30} />
-              </span>
+              <FlockAvatar bird={FLOCK.find((member) => member.key === bird.key)} size={44} className="landing-flock-badge" />
               <h3>{t(bird.nameKey)}</h3>
               <p className="landing-flock-role">{t(bird.roleKey)}</p>
               <p>{t(bird.detailKey)}</p>
