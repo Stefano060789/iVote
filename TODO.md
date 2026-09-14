@@ -7,6 +7,11 @@ address them.
 
 ## Open action items (needs you, not code)
 
+- [ ] Stripe account verification currently relies on phone number only (SMS). Add a stronger
+  second identification factor for the live account - e.g. government ID verification
+  (Stripe Identity), authenticator-app 2FA instead of/in addition to SMS, and/or a recovery
+  method - to reduce the risk of the account being taken over via SIM-swap or phone number
+  compromise. Check Stripe Dashboard -> Settings -> Security for available options.
 - [x] `STRIPE_CONNECT_WEBHOOK_SECRET` added to Vercel's Production environment variables
   (test mode value) and redeployed. **Still to do when going live**: repeat the whole
   two-destination webhook setup for live mode - live/test destinations and secrets are

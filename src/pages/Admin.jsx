@@ -142,6 +142,7 @@ export default function Admin() {
   });
   const [stripeConnectBusy, setStripeConnectBusy] = useState(false);
   const [stripeConnectError, setStripeConnectError] = useState("");
+  const [donationStats, setDonationStats] = useState({ totalRaised: 0, count: 0 });
   const [reputationSnapshot, setReputationSnapshot] = useState(null);
   const [reputationLoading, setReputationLoading] = useState(false);
   const [reputationError, setReputationError] = useState("");
@@ -281,6 +282,11 @@ export default function Admin() {
         setNurtureSettings(await loadLeadNurtureSettings(profile.id));
         setWinbackSettings(await loadWinbackSettings(profile.id));
         setDonationSettings(await loadDonationSettings(profile.id));
+        const { data: donationRows } = await supabase.from("donations").select("amount_total").eq("status", "succeeded");
+        setDonationStats({
+          totalRaised: (donationRows || []).reduce((sum, row) => sum + Number(row.amount_total || 0), 0),
+          count: (donationRows || []).length
+        });
         try {
           setReputationSnapshot(await loadLatestReputationSnapshot(profile.id));
         } catch (reputationLoadError) {
@@ -1769,6 +1775,38 @@ export default function Admin() {
         ))}
       </div>
 
+      {donationSettings.is_enabled && donationSettings.stripe_charges_enabled ? (
+        <div className="mb-6 rounded border border-amber-600 bg-gradient-to-r from-amber-950/40 to-slate-900 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-amber-300">💛 {t("admin.overview.donations.eyebrow")}</p>
+              <p className="mt-1 text-2xl font-bold">
+                {new Intl.NumberFormat(undefined, { style: "currency", currency: donationSettings.currency || "EUR" }).format(donationStats.totalRaised)}
+              </p>
+              <p className="mt-1 text-sm text-slate-300">
+                {t("admin.overview.donations.raisedPrefix")} {donationStats.count} {donationStats.count === 1 ? t("admin.overview.donations.donationSingular") : t("admin.overview.donations.donationPlural")}
+              </p>
+            </div>
+            <button type="button" onClick={() => setActiveTab("engagement")} className="shrink-0 rounded bg-amber-500 px-4 py-2 font-semibold text-slate-950">
+              {t("admin.overview.donations.manageCta")}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="mb-6 rounded border border-amber-600 bg-amber-950/20 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-amber-300">💛 {t("admin.overview.donations.eyebrow")}</p>
+              <p className="mt-1 font-bold">{t("admin.overview.donations.setupTitle")}</p>
+              <p className="mt-1 max-w-xl text-sm text-slate-300">{t("admin.overview.donations.setupBody")}</p>
+            </div>
+            <button type="button" onClick={() => setActiveTab("engagement")} className="shrink-0 rounded bg-amber-500 px-4 py-2 font-semibold text-slate-950">
+              {t("admin.overview.donations.setupCta")}
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="mb-6 grid grid-cols-2 md:grid-cols-5 gap-3">
         <div className="border rounded p-3 bg-gray-900">
           <p className="text-gray-400 text-sm">{t("admin.overview.stats.totalPolls")}</p>
@@ -2106,222 +2144,7 @@ export default function Admin() {
       )}
 
       {activeTab === "engagement" && (
-      <div className="mb-6 border rounded bg-gray-900 p-4">
-        <h2 className="text-xl font-bold">{t("admin.engagement.scanner.title")}</h2>
-        <p className="mt-1 mb-3 text-sm text-slate-400">{t("admin.engagement.scanner.subtitle")}</p>
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <button onClick={() => { setScannerOpen(true); setScanMessage(""); }} className="bg-teal-500 text-slate-950 px-4 py-2 rounded font-semibold">
-            {t("admin.engagement.scanner.openCamera")}
-          </button>
-          <input
-            value={scanLookupValue}
-            onChange={(event) => setScanLookupValue(event.target.value)}
-            placeholder={t("admin.engagement.scanner.pastePlaceholder")}
-            className="flex-1 border p-2 rounded text-black"
-          />
-          <button onClick={() => lookUpScannedQr(scanLookupValue)} className="bg-slate-700 text-white px-4 py-2 rounded font-semibold">
-            {t("admin.engagement.scanner.lookUp")}
-          </button>
-        </div>
-        {scanMessage && <p className="mt-3 text-sm text-amber-300">{scanMessage}</p>}
-        {scanResult && (
-          <div className="mt-4 rounded border border-teal-700 bg-slate-950 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-teal-300">{scanResult.campaign.name}</p>
-            <p className="mt-1 text-sm text-slate-400">
-              {scanResult.campaign.placement_label || t("admin.engagement.scanner.unlabeledPlacement")}{scanResult.campaign.variant_label ? ` · ${scanResult.campaign.variant_label}` : ""}
-            </p>
-            <p className="mt-3 font-semibold">{scanResult.currentPoll?.question || t("admin.engagement.scanner.noPollAssigned")}</p>
-            <label className="mt-4 block text-sm font-semibold">{t("admin.engagement.scanner.redirectLabel")}</label>
-            <select
-              value={scanResult.campaign.poll_id ? String(scanResult.campaign.poll_id) : ""}
-              onChange={(event) => changeScannedPoll(event.target.value)}
-              className="mt-2 w-full rounded border p-2 text-black"
-            >
-              <option value="">{t("admin.engagement.scanner.choosePoll")}</option>
-              {scanResult.polls.map((poll) => (
-                <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>
-              ))}
-            </select>
-            <Link to={`/create?campaign=${scanResult.campaign.id}`} className="mt-3 block rounded bg-teal-400 px-4 py-2 text-center font-semibold text-slate-950">
-              {t("admin.engagement.scanner.createNewPoll")}
-            </Link>
-          </div>
-        )}
-      </div>
-      )}
-
-      {scannerOpen && <QrScanner onDecode={handleScanDecode} onClose={() => setScannerOpen(false)} />}
-
-      {activeTab === "engagement" && (
-      <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.donations.title")}</summary>
-        <div className="px-4 pb-4 space-y-3">
-          <p className="text-sm text-slate-400">
-            {t("admin.engagement.donations.description")}
-          </p>
-
-          <div className="rounded border border-slate-700 bg-slate-950 p-4">
-            {donationSettings.stripe_charges_enabled ? (
-              <p className="text-sm font-semibold text-green-400">✓ {t("admin.engagement.donations.stripeConnected")}</p>
-            ) : donationSettings.stripe_account_id ? (
-              <p className="text-sm font-semibold text-amber-300">{t("admin.engagement.donations.stripeStarted")}</p>
-            ) : (
-              <p className="text-sm text-slate-400">{t("admin.engagement.donations.stripeNotConnected")}</p>
-            )}
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button onClick={connectStripeHandler} disabled={stripeConnectBusy} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
-                {donationSettings.stripe_account_id ? t("admin.engagement.donations.continueSetup") : t("admin.engagement.donations.connectStripe")}
-              </button>
-              {donationSettings.stripe_account_id && (
-                <button onClick={refreshStripeStatusHandler} disabled={stripeConnectBusy} className="bg-slate-700 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
-                  {t("admin.engagement.donations.refreshStatus")}
-                </button>
-              )}
-            </div>
-            {stripeConnectError && <p className="mt-2 text-xs font-semibold text-red-400">{stripeConnectError}</p>}
-          </div>
-
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={donationSettings.is_enabled}
-              disabled={!donationSettings.stripe_charges_enabled}
-              onChange={(event) => setDonationSettings((current) => ({ ...current, is_enabled: event.target.checked }))}
-            />
-            <span>{t("admin.engagement.donations.acceptDonations")}{!donationSettings.stripe_charges_enabled && ` ${t("admin.engagement.donations.connectFirst")}`}</span>
-          </label>
-
-          <div className="grid gap-3 md:grid-cols-2">
-            <label className="block font-semibold">
-              {t("admin.engagement.donations.currency")}
-              <input
-                value={donationSettings.currency || "EUR"}
-                onChange={(event) => setDonationSettings((current) => ({ ...current, currency: event.target.value }))}
-                maxLength={3}
-                className="mt-1 w-full border p-2 rounded text-black uppercase"
-                placeholder="EUR"
-              />
-            </label>
-            <label className="block font-semibold">
-              {t("admin.engagement.donations.suggestedAmount")}
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={donationSettings.suggested_amount || ""}
-                onChange={(event) => setDonationSettings((current) => ({ ...current, suggested_amount: event.target.value }))}
-                className="mt-1 w-full border p-2 rounded text-black"
-                placeholder="5.00"
-              />
-            </label>
-          </div>
-          <textarea
-            value={donationSettings.message || ""}
-            onChange={(event) => setDonationSettings((current) => ({ ...current, message: event.target.value }))}
-            maxLength={300}
-            rows="2"
-            className="w-full border p-2 rounded text-black"
-            placeholder={t("admin.engagement.donations.messagePlaceholder")}
-          />
-          <button onClick={saveDonationSettingsHandler} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">{t("admin.engagement.donations.saveButton")}</button>
-          <p className="text-xs text-slate-500">
-            {t("admin.engagement.donations.feeNote")}
-          </p>
-        </div>
-      </details>
-      )}
-
-      {activeTab === "engagement" && (
-      <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.locations.title")}</summary>
-        <div className="px-4 pb-4">
-        <p className="mb-3 text-sm text-slate-400">{t("admin.engagement.locations.subtitle")}</p>
-        <div className="grid md:grid-cols-3 gap-3 mb-4">
-          <input
-            type="text"
-            value={newLocationName}
-            onChange={(event) => setNewLocationName(event.target.value)}
-            className="border p-2 rounded text-black"
-            placeholder={t("admin.engagement.locations.namePlaceholder")}
-          />
-          <input
-            type="text"
-            value={newLocationToken}
-            onChange={(event) => setNewLocationToken(event.target.value)}
-            className="border p-2 rounded text-black"
-            placeholder={t("admin.engagement.locations.tokenPlaceholder")}
-          />
-          <button onClick={handleCreateLocation} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">
-            {t("admin.engagement.locations.addLocation")}
-          </button>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-3 mb-3">
-          <select value={selectedLocationId} onChange={(event) => setSelectedLocationId(event.target.value)} className="border p-2 rounded text-black">
-            <option value="">{t("admin.engagement.locations.chooseLocation")}</option>
-            {qrLocations.map((location) => (
-              <option key={location.id} value={String(location.id)}>{location.name}</option>
-            ))}
-          </select>
-          <select value={selectedPollForLocation} onChange={(event) => setSelectedPollForLocation(event.target.value)} className="border p-2 rounded text-black">
-            <option value="">{t("admin.engagement.scanner.choosePoll")}</option>
-            {polls.map((poll) => (
-              <option key={poll.id} value={String(poll.id)}>
-                #{poll.id} - {poll.question}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <button onClick={assignLocationToPoll} className="bg-emerald-600 text-white px-4 py-2 rounded font-semibold mb-4">
-          {t("admin.engagement.locations.assignToPoll")}
-        </button>
-
-        <div className="space-y-2">
-          {qrLocations.length === 0 ? (
-            <p className="text-gray-400">{t("admin.engagement.locations.noLocations")}</p>
-          ) : (
-            qrLocations.map((location) => (
-              <div key={location.id} className="flex items-center justify-between border border-gray-700 rounded p-3">
-                <div>
-                  <p className="font-semibold">{location.name}</p>
-                  <p className="text-xs text-gray-400">{t("admin.engagement.locations.tokenLabel", { token: location.token })}</p>
-                  <p className="text-xs text-gray-500">
-                    {location.current_poll_id ? (
-                      <>{t("admin.engagement.locations.assignedToPrefix")} <button type="button" onClick={() => goToPoll(location.current_poll_id)} className="font-semibold text-teal-300 underline">{t("admin.engagement.locations.pollNumber", { id: location.current_poll_id })}</button></>
-                    ) : t("admin.engagement.locations.notAssigned")}
-                  </p>
-                </div>
-                <button onClick={() => handleDeleteLocation(location.id)} className="bg-red-600 text-white px-3 py-2 rounded font-semibold">
-                  {t("admin.engagement.locations.delete")}
-                </button>
-              </div>
-            ))
-          )}
-        </div>
-        </div>
-      </details>
-      )}
-
-      {activeTab === "feedback" && (
-      <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.feedback.messages.title")}</summary>
-        <div className="px-4 pb-4">
-          <p className="mb-3 text-sm text-slate-400">{t("admin.feedback.messages.subtitle")}</p>
-          {organizerMessages.length === 0 ? <p className="text-sm text-slate-400">{t("admin.feedback.messages.noMessages")}</p> : <div className="space-y-3">{organizerMessages.map((message) => (
-            <article key={message.id} className="rounded border border-slate-700 p-3">
-              <p>{message.message}</p>
-              <p className="mt-2 text-xs text-slate-400">{t("admin.engagement.locations.pollNumber", { id: message.poll_id })} · {new Date(message.created_at).toLocaleString()}</p>
-              {message.reply_email && <a className="mt-2 inline-block text-sm text-teal-300 underline" href={`mailto:${message.reply_email}`}>{t("admin.feedback.messages.replyToVoter")}</a>}
-            </article>
-          ))}</div>}
-        </div>
-      </details>
-      )}
-
-      {activeTab === "engagement" && (
-      <>
-      <details className="mb-6 border rounded bg-gray-900">
+      <details className="mb-6 border rounded bg-gray-900" open>
         <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.campaigns.title")}</summary>
         <div className="px-4 pb-4">
           <p className="mb-3 text-sm text-slate-400">{t("admin.engagement.campaigns.description")}</p>
@@ -2374,6 +2197,37 @@ export default function Admin() {
                     </div>
                     <button onClick={() => navigator.clipboard.writeText(url)} className="shrink-0 bg-slate-700 text-white px-3 py-2 rounded font-semibold">{t("admin.engagement.campaigns.copyLink")}</button>
                   </div>
+
+                  {(() => {
+                    const items = itemsForCampaign(campaign.id);
+                    const itemPollIds = new Set(items.filter((item) => item.item_type === "poll").map((item) => item.poll_id));
+                    const pollCount = itemPollIds.size + (campaign.poll_id && !itemPollIds.has(campaign.poll_id) ? 1 : 0);
+                    const infoCount = items.filter((item) => item.item_type === "info").length;
+                    const hasDonation = items.some((item) => item.item_type === "donation");
+                    if (pollCount <= 1 && infoCount === 0 && !hasDonation) {
+                      return <p className="mt-2 text-xs text-slate-500">{t("admin.engagement.campaigns.summaryEmpty")}</p>;
+                    }
+                    return (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {pollCount > 0 && (
+                          <span className="rounded-full bg-blue-950/60 border border-blue-800 px-2.5 py-0.5 text-xs font-semibold text-blue-300">
+                            📊 {pollCount} {pollCount === 1 ? t("admin.engagement.campaigns.summaryPoll") : t("admin.engagement.campaigns.summaryPollPlural")}
+                          </span>
+                        )}
+                        {infoCount > 0 && (
+                          <span className="rounded-full bg-slate-800 border border-slate-600 px-2.5 py-0.5 text-xs font-semibold text-slate-300">
+                            📄 {infoCount} {infoCount === 1 ? t("admin.engagement.campaigns.summaryInfoCard") : t("admin.engagement.campaigns.summaryInfoCardPlural")}
+                          </span>
+                        )}
+                        {hasDonation && (
+                          <span className="rounded-full bg-amber-950/60 border border-amber-700 px-2.5 py-0.5 text-xs font-semibold text-amber-300">
+                            💛 {t("admin.engagement.campaigns.summaryDonation")}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })()}
+
                   <div className="mt-2 flex flex-wrap items-center gap-2">
                     <label className="text-xs text-slate-400">{t("admin.engagement.campaigns.changePoll")}</label>
                     <select
@@ -2525,7 +2379,152 @@ export default function Admin() {
           </div>
         </div>
       </details>
+      )}
 
+      {activeTab === "engagement" && (
+      <div className="mb-6 border rounded bg-gray-900 p-4">
+        <h2 className="text-xl font-bold">{t("admin.engagement.scanner.title")}</h2>
+        <p className="mt-1 mb-3 text-sm text-slate-400">{t("admin.engagement.scanner.subtitle")}</p>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <button onClick={() => { setScannerOpen(true); setScanMessage(""); }} className="bg-teal-500 text-slate-950 px-4 py-2 rounded font-semibold">
+            {t("admin.engagement.scanner.openCamera")}
+          </button>
+          <input
+            value={scanLookupValue}
+            onChange={(event) => setScanLookupValue(event.target.value)}
+            placeholder={t("admin.engagement.scanner.pastePlaceholder")}
+            className="flex-1 border p-2 rounded text-black"
+          />
+          <button onClick={() => lookUpScannedQr(scanLookupValue)} className="bg-slate-700 text-white px-4 py-2 rounded font-semibold">
+            {t("admin.engagement.scanner.lookUp")}
+          </button>
+        </div>
+        {scanMessage && <p className="mt-3 text-sm text-amber-300">{scanMessage}</p>}
+        {scanResult && (
+          <div className="mt-4 rounded border border-teal-700 bg-slate-950 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-teal-300">{scanResult.campaign.name}</p>
+            <p className="mt-1 text-sm text-slate-400">
+              {scanResult.campaign.placement_label || t("admin.engagement.scanner.unlabeledPlacement")}{scanResult.campaign.variant_label ? ` · ${scanResult.campaign.variant_label}` : ""}
+            </p>
+            <p className="mt-3 font-semibold">{scanResult.currentPoll?.question || t("admin.engagement.scanner.noPollAssigned")}</p>
+            <label className="mt-4 block text-sm font-semibold">{t("admin.engagement.scanner.redirectLabel")}</label>
+            <select
+              value={scanResult.campaign.poll_id ? String(scanResult.campaign.poll_id) : ""}
+              onChange={(event) => changeScannedPoll(event.target.value)}
+              className="mt-2 w-full rounded border p-2 text-black"
+            >
+              <option value="">{t("admin.engagement.scanner.choosePoll")}</option>
+              {scanResult.polls.map((poll) => (
+                <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>
+              ))}
+            </select>
+            <Link to={`/create?campaign=${scanResult.campaign.id}`} className="mt-3 block rounded bg-teal-400 px-4 py-2 text-center font-semibold text-slate-950">
+              {t("admin.engagement.scanner.createNewPoll")}
+            </Link>
+          </div>
+        )}
+      </div>
+      )}
+
+      {scannerOpen && <QrScanner onDecode={handleScanDecode} onClose={() => setScannerOpen(false)} />}
+
+      {activeTab === "engagement" && (
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.donations.title")}</summary>
+        <div className="px-4 pb-4 space-y-3">
+          <p className="text-sm text-slate-400">
+            {t("admin.engagement.donations.description")}
+          </p>
+
+          <div className="rounded border border-slate-700 bg-slate-950 p-4">
+            {donationSettings.stripe_charges_enabled ? (
+              <p className="text-sm font-semibold text-green-400">✓ {t("admin.engagement.donations.stripeConnected")}</p>
+            ) : donationSettings.stripe_account_id ? (
+              <p className="text-sm font-semibold text-amber-300">{t("admin.engagement.donations.stripeStarted")}</p>
+            ) : (
+              <p className="text-sm text-slate-400">{t("admin.engagement.donations.stripeNotConnected")}</p>
+            )}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button onClick={connectStripeHandler} disabled={stripeConnectBusy} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
+                {donationSettings.stripe_account_id ? t("admin.engagement.donations.continueSetup") : t("admin.engagement.donations.connectStripe")}
+              </button>
+              {donationSettings.stripe_account_id && (
+                <button onClick={refreshStripeStatusHandler} disabled={stripeConnectBusy} className="bg-slate-700 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
+                  {t("admin.engagement.donations.refreshStatus")}
+                </button>
+              )}
+            </div>
+            {stripeConnectError && <p className="mt-2 text-xs font-semibold text-red-400">{stripeConnectError}</p>}
+          </div>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={donationSettings.is_enabled}
+              disabled={!donationSettings.stripe_charges_enabled}
+              onChange={(event) => setDonationSettings((current) => ({ ...current, is_enabled: event.target.checked }))}
+            />
+            <span>{t("admin.engagement.donations.acceptDonations")}{!donationSettings.stripe_charges_enabled && ` ${t("admin.engagement.donations.connectFirst")}`}</span>
+          </label>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            <label className="block font-semibold">
+              {t("admin.engagement.donations.currency")}
+              <input
+                value={donationSettings.currency || "EUR"}
+                onChange={(event) => setDonationSettings((current) => ({ ...current, currency: event.target.value }))}
+                maxLength={3}
+                className="mt-1 w-full border p-2 rounded text-black uppercase"
+                placeholder="EUR"
+              />
+            </label>
+            <label className="block font-semibold">
+              {t("admin.engagement.donations.suggestedAmount")}
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={donationSettings.suggested_amount || ""}
+                onChange={(event) => setDonationSettings((current) => ({ ...current, suggested_amount: event.target.value }))}
+                className="mt-1 w-full border p-2 rounded text-black"
+                placeholder="5.00"
+              />
+            </label>
+          </div>
+          <textarea
+            value={donationSettings.message || ""}
+            onChange={(event) => setDonationSettings((current) => ({ ...current, message: event.target.value }))}
+            maxLength={300}
+            rows="2"
+            className="w-full border p-2 rounded text-black"
+            placeholder={t("admin.engagement.donations.messagePlaceholder")}
+          />
+          <button onClick={saveDonationSettingsHandler} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">{t("admin.engagement.donations.saveButton")}</button>
+          <p className="text-xs text-slate-500">
+            {t("admin.engagement.donations.feeNote")}
+          </p>
+        </div>
+      </details>
+      )}
+
+      {activeTab === "feedback" && (
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.feedback.messages.title")}</summary>
+        <div className="px-4 pb-4">
+          <p className="mb-3 text-sm text-slate-400">{t("admin.feedback.messages.subtitle")}</p>
+          {organizerMessages.length === 0 ? <p className="text-sm text-slate-400">{t("admin.feedback.messages.noMessages")}</p> : <div className="space-y-3">{organizerMessages.map((message) => (
+            <article key={message.id} className="rounded border border-slate-700 p-3">
+              <p>{message.message}</p>
+              <p className="mt-2 text-xs text-slate-400">{t("admin.engagement.locations.pollNumber", { id: message.poll_id })} · {new Date(message.created_at).toLocaleString()}</p>
+              {message.reply_email && <a className="mt-2 inline-block text-sm text-teal-300 underline" href={`mailto:${message.reply_email}`}>{t("admin.feedback.messages.replyToVoter")}</a>}
+            </article>
+          ))}</div>}
+        </div>
+      </details>
+      )}
+
+      {activeTab === "engagement" && (
+      <>
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.rotations.title")}</summary>
         <div className="px-4 pb-4">
@@ -2641,6 +2640,78 @@ export default function Admin() {
           )}
         </div>
       </details>
+
+      {activeTab === "engagement" && (
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.locations.title")}</summary>
+        <div className="px-4 pb-4">
+        <p className="mb-3 text-sm text-slate-400">{t("admin.engagement.locations.subtitle")}</p>
+        <div className="grid md:grid-cols-3 gap-3 mb-4">
+          <input
+            type="text"
+            value={newLocationName}
+            onChange={(event) => setNewLocationName(event.target.value)}
+            className="border p-2 rounded text-black"
+            placeholder={t("admin.engagement.locations.namePlaceholder")}
+          />
+          <input
+            type="text"
+            value={newLocationToken}
+            onChange={(event) => setNewLocationToken(event.target.value)}
+            className="border p-2 rounded text-black"
+            placeholder={t("admin.engagement.locations.tokenPlaceholder")}
+          />
+          <button onClick={handleCreateLocation} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">
+            {t("admin.engagement.locations.addLocation")}
+          </button>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-3 mb-3">
+          <select value={selectedLocationId} onChange={(event) => setSelectedLocationId(event.target.value)} className="border p-2 rounded text-black">
+            <option value="">{t("admin.engagement.locations.chooseLocation")}</option>
+            {qrLocations.map((location) => (
+              <option key={location.id} value={String(location.id)}>{location.name}</option>
+            ))}
+          </select>
+          <select value={selectedPollForLocation} onChange={(event) => setSelectedPollForLocation(event.target.value)} className="border p-2 rounded text-black">
+            <option value="">{t("admin.engagement.scanner.choosePoll")}</option>
+            {polls.map((poll) => (
+              <option key={poll.id} value={String(poll.id)}>
+                #{poll.id} - {poll.question}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button onClick={assignLocationToPoll} className="bg-emerald-600 text-white px-4 py-2 rounded font-semibold mb-4">
+          {t("admin.engagement.locations.assignToPoll")}
+        </button>
+
+        <div className="space-y-2">
+          {qrLocations.length === 0 ? (
+            <p className="text-gray-400">{t("admin.engagement.locations.noLocations")}</p>
+          ) : (
+            qrLocations.map((location) => (
+              <div key={location.id} className="flex items-center justify-between border border-gray-700 rounded p-3">
+                <div>
+                  <p className="font-semibold">{location.name}</p>
+                  <p className="text-xs text-gray-400">{t("admin.engagement.locations.tokenLabel", { token: location.token })}</p>
+                  <p className="text-xs text-gray-500">
+                    {location.current_poll_id ? (
+                      <>{t("admin.engagement.locations.assignedToPrefix")} <button type="button" onClick={() => goToPoll(location.current_poll_id)} className="font-semibold text-teal-300 underline">{t("admin.engagement.locations.pollNumber", { id: location.current_poll_id })}</button></>
+                    ) : t("admin.engagement.locations.notAssigned")}
+                  </p>
+                </div>
+                <button onClick={() => handleDeleteLocation(location.id)} className="bg-red-600 text-white px-3 py-2 rounded font-semibold">
+                  {t("admin.engagement.locations.delete")}
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+        </div>
+      </details>
+      )}
       </>
       )}
 

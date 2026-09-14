@@ -231,6 +231,16 @@
         "locations": "Locations",
         "votesThisWeek": "Votes this week"
       },
+      "donations": {
+        "eyebrow": "Donations",
+        "setupTitle": "Let voters support you with a tap",
+        "setupBody": "Turn on donations so any QR code can offer a quick, secure way for customers to tip or give — card or wallet, no app required for them. Stripe handles the payment; you keep 90%.",
+        "setupCta": "Set up donations",
+        "raisedPrefix": "From",
+        "donationSingular": "donation",
+        "donationPlural": "donations",
+        "manageCta": "Manage donations"
+      },
       "weeklyInsightTitle": "This week's insight",
       "weeklyInsightBody": "Your top mentioned answer was \"{{answer}}\", mentioned {{count}} {{countLabel}} out of {{totalVotes}} votes in the last 7 days.",
       "time": "time",
@@ -412,9 +422,9 @@
     },
     "engagement": {
       "intro": {
-        "eyebrow": "What a QR code can hold",
-        "title": "One printed code, three kinds of content.",
-        "body": "A QR code isn't just a shortcut to one poll. Scan it and a voter can see one or more polls, an info card (menu, hours, bio, exhibit notes...), and a donation ask — all in the same code. Set up donations first below, then build the code itself under \"QR campaigns\"."
+        "eyebrow": "How polls and QR codes fit together",
+        "title": "One QR code, several polls, one donation.",
+        "body": "Polls (in the Polls tab) are your questions. A QR code, below, is what you print or display — scan it and a voter can see one or more polls, an info card (menu, hours, bio, exhibit notes...), and a donation ask, all bundled under a single code. Build your QR codes here; each poll's card shows which QR codes it's linked to."
       },
       "scanner": {
         "title": "Scan a QR code",
@@ -446,14 +456,14 @@
         "feeNote": "Stripe is the payment processor - Godwit never sees or stores card details. Of each donation, 10% is a platform fee retained by Godwit and 90% transfers to your connected Stripe account."
       },
       "locations": {
-        "title": "QR locations",
-        "subtitle": "Create reusable QR locations, then point each location at the poll currently running there.",
+        "title": "Simple QR codes (older, single-poll)",
+        "subtitle": "An older, simpler tool: each QR location points at exactly one poll, with no info cards or donation option. New to Godwit? Use the QR codes above instead — they can hold several polls, info cards, and a donation ask.",
         "namePlaceholder": "Location name",
         "tokenPlaceholder": "Optional token",
         "addLocation": "Add location",
         "chooseLocation": "Choose a QR location",
         "assignToPoll": "Assign location to poll",
-        "noLocations": "No QR locations yet.",
+        "noLocations": "No simple QR codes yet.",
         "tokenLabel": "Token: {{token}}",
         "assignedToPrefix": "Assigned to",
         "pollNumber": "poll #{{id}}",
@@ -461,11 +471,11 @@
         "delete": "Delete"
       },
       "campaigns": {
-        "title": "QR campaigns",
-        "description": "Create a durable QR code per placement to measure scans, responses, and opted-in follow-up leads. Each one starts with a default poll below, but open \"Items on this QR code\" on any campaign to add more polls, an info card, or a donation ask.",
+        "title": "Your QR codes",
+        "description": "Each QR code below is one printed or displayed code. Give it a default poll, then optionally add more polls, info cards, or a donation ask so scanning it shows a whole menu instead of a single question.",
         "tip": "Tip: open a printed QR code while signed in to see its name and poll, and change them directly.",
         "namePlaceholder": "Lobby poster, receipt, table tent",
-        "createButton": "Create campaign QR",
+        "createButton": "Create QR code",
         "placementPlaceholder": "Placement label: lobby, receipt, table",
         "variantPlaceholder": "Variant label: A, bold headline",
         "customizeWelcome": "Customize the QR welcome screen",
@@ -478,7 +488,7 @@
         "assignLater": "Assign later",
         "bulkGenerateButton": "Generate QR codes",
         "bulkGenerateNote": "Creates \"Table 1\", \"Table 2\"... You can scan or open each one later to assign or change its poll.",
-        "noCampaigns": "No tracked QR campaigns yet.",
+        "noCampaigns": "No QR codes yet. Create your first one above.",
         "noDefaultPoll": "No default poll",
         "active": "Active",
         "paused": "Paused",
@@ -487,7 +497,13 @@
         "changePoll": "Change poll:",
         "orRotate": "Or rotate:",
         "noRotation": "No rotation",
-        "itemsOnQr": "Items on this QR code ({{count}})",
+        "summaryPoll": "poll",
+        "summaryPollPlural": "polls",
+        "summaryInfoCard": "info card",
+        "summaryInfoCardPlural": "info cards",
+        "summaryDonation": "Donation",
+        "summaryEmpty": "Just the default poll above — add more below to build a menu",
+        "itemsOnQr": "Manage what's on this QR code ({{count}})",
         "itemsHint": "Add one or more polls, info cards, and a donation ask here to turn this QR code into a menu: scanning it will show everything listed below at once, instead of going straight to a single poll."
       },
       "items": {
