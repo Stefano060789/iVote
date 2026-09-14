@@ -21,9 +21,11 @@ address them.
   ever created for that price.
 - [x] Ran the pending migrations: `supabase/20260917_donations_stripe_connect.sql`,
   `supabase/20260918_qr_item_images.sql`, and `supabase/20260919_ai_content_moderation.sql`.
-- [ ] **Two new migrations need to be run** in the Supabase SQL editor:
-  `supabase/20260920_usage_instrumentation.sql` (churn/usage tracking) and
-  `supabase/20260921_info_item_accessibility_tags.sql` (accessibility tags on info cards).
+- [x] Ran `supabase/20260920_usage_instrumentation.sql` and
+  `supabase/20260921_info_item_accessibility_tags.sql` directly in the Supabase SQL editor
+  (2026-09-14) - verified `workspaces.last_active_at`, `workspace_admin_events`,
+  `qr_campaign_items.accessibility_tags`, `log_workspace_admin_event()`, and
+  `get_public_qr_campaign_items()` all exist in the live schema.
 
 ## Robin's persona guide
 
@@ -34,7 +36,7 @@ address them.
   - Accessibility tagging (wheelchair access, audio description, sign language, large print,
     hearing loop, service animals welcome) for info cards: checkboxes in the "Add info card"
     form (`Admin.jsx`), stored as `qr_campaign_items.accessibility_tags`
-    (`supabase/20260921_info_item_accessibility_tags.sql` - **needs to be run**), shown as
+    (`supabase/20260921_info_item_accessibility_tags.sql` - **run 2026-09-14**), shown as
     small icon badges on the public QR menu (`QrRedirect.jsx`). Shared vocabulary lives in
     `src/lib/accessibilityTags.js`.
   - Entitlement limits are now surfaced directly inside Robin's guide: steps tied to a
@@ -79,7 +81,7 @@ address them.
   `activeTab` change), and a `workspace_engagement_summary` view (last-active + tab-open counts
   per workspace) for direct querying in the Supabase SQL editor - intentionally *not* exposed
   through the app UI yet, since there's no admin-facing analytics page for it.
-  `supabase/20260920_usage_instrumentation.sql` - **needs to be run**.
+  `supabase/20260920_usage_instrumentation.sql` - **run 2026-09-14**.
 
 ## Internationalization
 
