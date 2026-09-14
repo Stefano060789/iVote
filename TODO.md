@@ -26,11 +26,11 @@ address them.
   (2026-09-14) - verified `workspaces.last_active_at`, `workspace_admin_events`,
   `qr_campaign_items.accessibility_tags`, `log_workspace_admin_event()`, and
   `get_public_qr_campaign_items()` all exist in the live schema.
-- [ ] **Set two Sentry DSNs in Vercel's Production environment variables** (2026-09-14): update
-  `VITE_SENTRY_DSN` (was a placeholder) to the new `godwit-frontend` project DSN, and add a new
-  `SENTRY_DSN` var with the `godwit-api` project DSN. Values were given directly, not committed
-  to the repo. Redeploy after saving so the running functions pick them up. See
-  "Pilot readiness" section below for the full story.
+- [x] Set both Sentry DSNs in Vercel's Production environment variables and redeployed
+  (2026-09-14): `VITE_SENTRY_DSN` (was a placeholder) updated to the `godwit-frontend` project
+  DSN, and a new `SENTRY_DSN` var added with the `godwit-api` project DSN. Confirmed live via
+  Vercel's Deployments list (latest commit `f88b3e5` - "Ready"). See "Pilot readiness" section
+  below for the full story.
 
 ## Robin's persona guide
 
