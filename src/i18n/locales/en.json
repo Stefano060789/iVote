@@ -484,13 +484,10 @@
         "noDefaultPoll": "No default poll",
         "active": "Active",
         "paused": "Paused",
-        "rotating": "Rotating",
         "copyLink": "Copy link",
         "delete": "Delete",
         "confirmDelete": "Delete the QR code \"{{name}}\"? This removes it and everything on its menu (polls links, info cards, donation, reward). This can't be undone.",
         "changePoll": "Change poll:",
-        "orRotate": "Or rotate:",
-        "noRotation": "No rotation",
         "summaryPoll": "poll",
         "summaryPollPlural": "polls",
         "summaryInfoCard": "info card",
@@ -502,7 +499,7 @@
         "itemsOnQr": "Manage what's on this QR code ({{count}})",
         "itemsHint": "Add one or more polls, info cards, and a donation ask here to turn this QR code into a menu: scanning it will show everything listed below at once, instead of going straight to a single poll.",
         "advancedTitle": "More QR tools",
-        "advancedDescription": "Connect Stripe for donations, manage poll rotations, track reward redemptions, or run prize draws — all optional, and all related to the QR codes above."
+        "advancedDescription": "Connect Stripe for donations, track reward redemptions, or run prize draws — all optional, and all related to the QR codes above."
       },
       "items": {
         "sectionPolls": "Polls",
@@ -535,19 +532,6 @@
         "rewardCodePlaceholder": "Redemption code to show staff (optional)",
         "rewardCodeLabel": "code {{code}}",
         "addRewardOption": "Add reward or prize"
-      },
-      "rotations": {
-        "title": "Poll rotations",
-        "subtitle": "Build an ordered list of polls that automatically swap on a schedule, so a printed QR code stays fresh without any admin action.",
-        "namePlaceholder": "Rotation name: Daily question",
-        "changeDaily": "Change daily",
-        "changeWeekly": "Change weekly",
-        "choosePollToAdd": "Choose a poll to add",
-        "add": "Add",
-        "createButton": "Create rotation",
-        "noRotations": "No poll rotations yet.",
-        "rotationSummary": "{{name}} · {{frequency}} · {{count}} polls",
-        "assignHint": "Assign a rotation to a QR campaign above using \"Or rotate\"."
       },
       "redemptions": {
         "title": "Reward redemptions",

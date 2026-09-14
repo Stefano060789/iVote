@@ -1,7 +1,11 @@
 import { supabase } from "./supabase";
-import { buildQrToken } from "./qrLocations";
 
-export { buildQrToken };
+// Unique token generator for a QR code's public URL (/qr/<token>). Originally lived in
+// qrLocations.js (the now-removed legacy single-poll QR tool) - moved here since qr_campaigns
+// is the only remaining consumer.
+export function buildQrToken() {
+  return `loc-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
 
 export async function loadQrCampaigns() {
   const { data, error } = await supabase

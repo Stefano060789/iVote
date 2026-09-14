@@ -93,12 +93,6 @@ Before a guest even sees the question, they can be shown a fully custom welcome 
 ### In-dashboard camera QR scanner
 Rather than requiring an admin to leave the app and use their phone's separate camera app, Godwit includes a built-in camera scanner directly inside the admin dashboard. Point a phone or laptop camera at any printed QR code and the dashboard instantly shows which poll it's currently pointing to, how many entries it has, and lets the admin redirect it to a different poll on the spot — all without leaving the page.
 
-### Bulk QR generation
-For venues with many physical locations under one roof — a restaurant with twenty tables, a hotel with fifty rooms — generating twenty individual QR codes one at a time is a real operational burden. Bulk generation lets an admin type a base name and a count, and instantly creates that many uniquely trackable QR codes (Table 1, Table 2, Table 3, and so on), ready to print and place.
-
-### Rotating / recurring polls
-A single printed QR code can be configured to automatically rotate through an ordered list of polls on a daily or weekly schedule. A venue could, for example, ask a different question every day of the week, or automatically switch a promotional poll after a set number of days — all without any admin having to log in and manually change anything. The QR code on the wall never changes; what it asks does, on autopilot.
-
 ### AI-generated poster background images *(feature complete, pending API key activation)*
 An admin can describe a visual style in plain language — "modern blue city lights for an event poll" — and the system generates a polished, print-ready background image to sit behind the QR code on a printed poster. This removes the need for a venue to hire a designer just to make their QR poster look professional, and turns a plain black-and-white QR code into something that matches their brand aesthetic.
 
@@ -250,7 +244,7 @@ Stripe account-level verification for the platform's own live Stripe account cur
 ## 10. What Makes Godwit Different
 
 1. **It's a two-way loop, not just a survey tool.** Rewards, prize draws, review routing, and public "we heard you" updates all close the loop back to the guest — most QR feedback tools stop at data collection and leave the venue to figure out what to do next on their own.
-2. **It's built for physical locations first.** Reusable, multi-purpose QR codes (poll + info + donation + reward in one), rotating polls, bulk QR generation, and per-location analytics are designed around the reality of printed materials and real venues, not just repurposed from a generic online form builder.
+2. **It's built for physical locations first.** Reusable, multi-purpose QR codes (poll + info + donation + reward in one) and per-location analytics are designed around the reality of printed materials and real venues, not just repurposed from a generic online form builder.
 3. **It gets smarter over time.** Anomaly detection, AI sentiment tagging, and benchmark reports turn raw feedback into proactive insight instead of a spreadsheet someone has to read and interpret manually every week.
 4. **It's already enterprise-shaped.** Multi-tenant security, team roles, a developer API, webhooks, and compliance controls like data retention are in place from day one — the platform can grow from a single independent café to a multi-location chain without needing to be rebuilt from scratch.
 

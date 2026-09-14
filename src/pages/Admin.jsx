@@ -5,7 +5,6 @@ import { supabase, supabaseUrl, supabaseAnonKey } from "../lib/supabase";
 import { createStableQrUrl } from "../lib/pollLinks";
 import { isRestrictedTopic } from "../lib/restrictedContent";
 import { appendAuditLog, readAuditLog, readPollMeta, savePollMeta, isPollClosed } from "../lib/pollMeta";
-import { loadQrLocations } from "../lib/qrLocations";
 import { createQrCampaign, loadQrCampaigns } from "../lib/qrCampaigns";
 import {
   loadQrCampaignItems,
@@ -25,7 +24,6 @@ import { loadLeadNurtureSettings, saveLeadNurtureSettings } from "../lib/leadNur
 import { loadWinbackSettings, saveWinbackSettings } from "../lib/winbackSettings";
 import { loadDonationSettings, saveDonationSettings, startStripeConnectOnboarding, refreshStripeConnectStatus } from "../lib/donationSettings";
 import { loadLatestReputationSnapshot, refreshReputationSnapshot } from "../lib/reputation";
-import { loadPollRotations, createPollRotation, deletePollRotation } from "../lib/pollRotations";
 import { loadApiKeys, createApiKey, deleteApiKey } from "../lib/apiKeys";
 import { getEntitlements, planLabel, minPlanLabelFor } from "../lib/entitlements";
 import { FLOCK, flockMemberForTab } from "../lib/flock";
@@ -72,7 +70,6 @@ export default function Admin() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
-  const [qrLocations, setQrLocations] = useState([]);
   const [qrPrintFormat, setQrPrintFormat] = useState("a4");
   const [qrStyleSeed, setQrStyleSeed] = useState(1);
   const [qrStylePreset, setQrStylePreset] = useState("brand");
@@ -168,10 +165,6 @@ export default function Admin() {
   const [workspaceUpdates, setWorkspaceUpdates] = useState([]);
   const [newUpdateMessage, setNewUpdateMessage] = useState("");
   const [newUpdatePollId, setNewUpdatePollId] = useState("");
-  const [pollRotations, setPollRotations] = useState([]);  const [newRotationName, setNewRotationName] = useState("");
-  const [newRotationFrequency, setNewRotationFrequency] = useState("daily");
-  const [newRotationPollIds, setNewRotationPollIds] = useState([]);
-  const [rotationPollToAdd, setRotationPollToAdd] = useState("");
   const [apiKeys, setApiKeys] = useState([]);
   const [newApiKeyLabel, setNewApiKeyLabel] = useState("");
 
@@ -262,8 +255,6 @@ export default function Admin() {
         setCurrentUserRole(profile.role);
         setWorkspaceProfile(profile);
         setTeamMembers(await readWorkspaceMembers(profile.id));
-        const nextLocations = await loadQrLocations();
-        setQrLocations(nextLocations);
         setQrCampaigns(await loadQrCampaigns());
         setQrCampaignItems(await loadQrCampaignItems());
         const [rulesResult, alertsResult, tasksResult, reportsResult, messagesResult] = await Promise.all([
@@ -330,7 +321,6 @@ export default function Admin() {
         const { data: updatesRows } = await supabase.from("workspace_updates").select("*").order("created_at", { ascending: false }).limit(20);
         setWorkspaceUpdates(updatesRows || []);
 
-        setPollRotations(await loadPollRotations());
         try {
           setApiKeys(await loadApiKeys(supabase, profile.id));
         } catch (apiKeyError) {
@@ -492,12 +482,12 @@ export default function Admin() {
 
   async function reassignQrCampaignPoll(campaignId, nextPollId) {
     if (!nextPollId) return;
-    const { error } = await supabase.from("qr_campaigns").update({ poll_id: Number(nextPollId), rotation_id: null }).eq("id", campaignId);
+    const { error } = await supabase.from("qr_campaigns").update({ poll_id: Number(nextPollId) }).eq("id", campaignId);
     if (error) {
       alert(error.message);
       return;
     }
-    setQrCampaigns((current) => current.map((item) => item.id === campaignId ? { ...item, poll_id: Number(nextPollId), rotation_id: null } : item));
+    setQrCampaigns((current) => current.map((item) => item.id === campaignId ? { ...item, poll_id: Number(nextPollId) } : item));
   }
 
   // --- QR code items: let one QR code show a menu of several polls and/or info cards at once ---
@@ -646,55 +636,6 @@ export default function Admin() {
       }));
     } catch (error) {
       alert(error.message);
-    }
-  }
-
-  async function assignCampaignRotation(campaignId, rotationId) {
-    const { error } = await supabase.from("qr_campaigns").update({ rotation_id: rotationId ? Number(rotationId) : null }).eq("id", campaignId);
-    if (error) {
-      alert(error.message);
-      return;
-    }
-    setQrCampaigns((current) => current.map((item) => item.id === campaignId ? { ...item, rotation_id: rotationId ? Number(rotationId) : null } : item));
-  }
-
-  function addPollToRotationDraft() {
-    if (!rotationPollToAdd) return;
-    setNewRotationPollIds((current) => [...current, rotationPollToAdd]);
-    setRotationPollToAdd("");
-  }
-
-  function removePollFromRotationDraft(index) {
-    setNewRotationPollIds((current) => current.filter((_, itemIndex) => itemIndex !== index));
-  }
-
-  async function handleCreateRotation() {
-    if (!newRotationName.trim() || newRotationPollIds.length < 2) {
-      alert("Name the rotation and add at least 2 polls in the order you want them to rotate.");
-      return;
-    }
-    try {
-      const rotation = await createPollRotation({ name: newRotationName, pollIds: newRotationPollIds, frequency: newRotationFrequency });
-      setPollRotations((current) => [rotation, ...current]);
-      setNewRotationName("");
-      setNewRotationPollIds([]);
-      setNewRotationFrequency("daily");
-    } catch (error) {
-      console.error(error);
-      alert(error.message || "Unable to create poll rotation.");
-    }
-  }
-
-  async function handleDeleteRotation(rotationId) {
-    const confirmed = window.confirm("Delete this rotation? QR codes using it will need a new poll or rotation assigned.");
-    if (!confirmed) return;
-    try {
-      await deletePollRotation(rotationId);
-      setPollRotations((current) => current.filter((item) => item.id !== rotationId));
-      setQrCampaigns((current) => current.map((item) => item.rotation_id === rotationId ? { ...item, rotation_id: null } : item));
-    } catch (error) {
-      console.error(error);
-      alert(error.message || "Unable to delete poll rotation.");
     }
   }
 
@@ -1636,11 +1577,6 @@ export default function Admin() {
         matches.push({ kind: "campaign", id: campaign.id, name: campaign.name, token: campaign.token });
       }
     });
-    qrLocations.forEach((qrLocation) => {
-      if (qrLocation.current_poll_id === pollId) {
-        matches.push({ kind: "location", id: qrLocation.id, name: qrLocation.name, token: qrLocation.token });
-      }
-    });
     return matches;
   }
 
@@ -2158,7 +2094,7 @@ export default function Admin() {
                         {campaign.poll_id ? (
                           <button type="button" onClick={() => goToPoll(campaign.poll_id)} className="font-semibold text-teal-300 underline">{t("admin.polls.card.pollNumber", { id: campaign.poll_id })}</button>
                         ) : t("admin.engagement.campaigns.noDefaultPoll")}
-                        {" · "}{campaign.placement_label || t("admin.engagement.scanner.unlabeledPlacement")}{campaign.variant_label ? ` · ${campaign.variant_label}` : ""} · {campaign.is_active ? t("admin.engagement.campaigns.active") : t("admin.engagement.campaigns.paused")}{campaign.rotation_id ? ` · ${t("admin.engagement.campaigns.rotating")}` : ""}
+                        {" · "}{campaign.placement_label || t("admin.engagement.scanner.unlabeledPlacement")}{campaign.variant_label ? ` · ${campaign.variant_label}` : ""} · {campaign.is_active ? t("admin.engagement.campaigns.active") : t("admin.engagement.campaigns.paused")}
                       </p>
                       <p className="truncate text-xs text-blue-300">{url}</p>
                     </div>
@@ -2211,15 +2147,6 @@ export default function Admin() {
                     >
                       <option value="">{t("admin.engagement.scanner.choosePoll")}</option>
                       {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
-                    </select>
-                    <label className="text-xs text-slate-400">{t("admin.engagement.campaigns.orRotate")}</label>
-                    <select
-                      value={campaign.rotation_id ? String(campaign.rotation_id) : ""}
-                      onChange={(event) => assignCampaignRotation(campaign.id, event.target.value)}
-                      className="border p-1.5 rounded text-black text-sm"
-                    >
-                      <option value="">{t("admin.engagement.campaigns.noRotation")}</option>
-                      {pollRotations.map((rotation) => <option key={rotation.id} value={String(rotation.id)}>{rotation.name}</option>)}
                     </select>
                   </div>
 
@@ -2543,53 +2470,6 @@ export default function Admin() {
           <p className="text-xs text-slate-500">
             {t("admin.engagement.donations.feeNote")}
           </p>
-        </div>
-      </details>
-      <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.rotations.title")}</summary>
-        <div className="px-4 pb-4">
-          <p className="mb-3 text-sm text-slate-400">{t("admin.engagement.rotations.subtitle")}</p>
-          <div className="grid gap-3 md:grid-cols-3 mb-3">
-            <input value={newRotationName} onChange={(event) => setNewRotationName(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.rotations.namePlaceholder")} />
-            <select value={newRotationFrequency} onChange={(event) => setNewRotationFrequency(event.target.value)} className="border p-2 rounded text-black">
-              <option value="daily">{t("admin.engagement.rotations.changeDaily")}</option>
-              <option value="weekly">{t("admin.engagement.rotations.changeWeekly")}</option>
-            </select>
-            <div className="flex gap-2">
-              <select value={rotationPollToAdd} onChange={(event) => setRotationPollToAdd(event.target.value)} className="flex-1 border p-2 rounded text-black">
-                <option value="">{t("admin.engagement.rotations.choosePollToAdd")}</option>
-                {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
-              </select>
-              <button onClick={addPollToRotationDraft} className="bg-slate-700 text-white px-3 py-2 rounded font-semibold">{t("admin.engagement.rotations.add")}</button>
-            </div>
-          </div>
-          {newRotationPollIds.length > 0 && (
-            <ol className="mb-3 list-decimal space-y-1 pl-5 text-sm">
-              {newRotationPollIds.map((pollId, index) => {
-                const poll = polls.find((item) => String(item.id) === String(pollId));
-                return (
-                  <li key={`${pollId}-${index}`} className="flex items-center justify-between gap-2">
-                    <span>{poll ? `#${poll.id} - ${poll.question}` : t("admin.polls.card.pollNumber", { id: pollId })}</span>
-                    <button onClick={() => removePollFromRotationDraft(index)} className="text-xs text-red-300 underline">{t("admin.engagement.items.remove")}</button>
-                  </li>
-                );
-              })}
-            </ol>
-          )}
-          <button onClick={handleCreateRotation} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">{t("admin.engagement.rotations.createButton")}</button>
-          <div className="mt-4 space-y-2 text-sm">
-            {pollRotations.length === 0 ? (
-              <p className="text-gray-400">{t("admin.engagement.rotations.noRotations")}</p>
-            ) : (
-              pollRotations.map((rotation) => (
-                <div key={rotation.id} className="flex items-center justify-between border-b border-gray-700 py-2">
-                  <span>{t("admin.engagement.rotations.rotationSummary", { name: rotation.name, frequency: rotation.frequency, count: rotation.poll_ids.length })}</span>
-                  <button onClick={() => handleDeleteRotation(rotation.id)} className="text-xs text-red-300 underline">{t("admin.engagement.locations.delete")}</button>
-                </div>
-              ))
-            )}
-          </div>
-          <p className="mt-3 text-xs text-slate-500">{t("admin.engagement.rotations.assignHint")}</p>
         </div>
       </details>
       <details className="mb-6 border rounded bg-gray-900">
@@ -3193,7 +3073,7 @@ export default function Admin() {
                         className="rounded-full border border-teal-700 bg-teal-950/40 px-3 py-1 text-xs font-semibold text-teal-300"
                         title={t("admin.polls.card.tokenTitle", { token: qrCode.token })}
                       >
-                        {qrCode.kind === "location" ? "📍" : "🔗"} {qrCode.name}
+                        {"🔗"} {qrCode.name}
                       </button>
                     ))}
                   </div>
