@@ -14,6 +14,8 @@ export default function EditPoll() {
 
   const [question, setQuestion] = useState("");
   const [answers, setAnswers] = useState([""]);
+  const [multipleChoice, setMultipleChoice] = useState(false);
+  const [allowUserAnswers, setAllowUserAnswers] = useState(false);
   const [templateKey, setTemplateKey] = useState("blank");
   const [locationName, setLocationName] = useState("");
   const [startsAt, setStartsAt] = useState("");
@@ -55,6 +57,8 @@ export default function EditPoll() {
 
       const pollMeta = readPollMeta(pollId);
       setQuestion(data.question ?? "");
+      setMultipleChoice(Boolean(data.multiple_choice));
+      setAllowUserAnswers(Boolean(data.allow_user_answers));
       setTemplateKey(data.template_key ?? pollMeta.template_key ?? "blank");
       setLocationName(data.location_name ?? pollMeta.location_name ?? "");
       setStartsAt(data.starts_at ? new Date(data.starts_at).toISOString().slice(0, 16) : pollMeta.starts_at ? new Date(pollMeta.starts_at).toISOString().slice(0, 16) : "");
@@ -156,7 +160,9 @@ export default function EditPoll() {
       .from("polls")
       .update({
         question: question.trim(),
-        answers: cleanedAnswers
+        answers: cleanedAnswers,
+        multiple_choice: multipleChoice,
+        allow_user_answers: allowUserAnswers
       })
       .eq("id", pollId)
       .eq("creator_id", user.id);
@@ -238,6 +244,29 @@ export default function EditPoll() {
       {answers.length >= 10 && (
         <p className="text-red-600 text-sm mb-4">Maximum of 10 answers reached.</p>
       )}
+
+      <details className="mb-4 border border-slate-700 rounded">
+        <summary className="cursor-pointer p-3 font-semibold">Response options</summary>
+        <div className="px-3 pb-3">
+          <p className="mb-3 text-sm text-slate-400">Choose how people can respond to this poll.</p>
+          <label className="flex items-center gap-2 mb-3">
+            <input
+              type="checkbox"
+              checked={multipleChoice}
+              onChange={(e) => setMultipleChoice(e.target.checked)}
+            />
+            <span>Allow more than one answer</span>
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={allowUserAnswers}
+              onChange={(e) => setAllowUserAnswers(e.target.checked)}
+            />
+            <span>Let people add their own answer</span>
+          </label>
+        </div>
+      </details>
 
       <label className="block mb-2 font-semibold">QR location name</label>
       <input

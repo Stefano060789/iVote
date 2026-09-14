@@ -2055,9 +2055,9 @@ export default function Admin() {
         <div className="rounded border border-slate-700 bg-gray-900 p-5">
           <h2 className="text-xl font-bold">{t("admin.connection.whatCustomerSees.title")}</h2>
           <div className="mt-3 grid gap-3 text-sm text-slate-300 md:grid-cols-3">
-            <p><strong className="text-white">{t("admin.connection.whatCustomerSees.voteLabel")}</strong> {t("admin.connection.whatCustomerSees.voteBody")}</p>
-            <p><strong className="text-white">{t("admin.connection.whatCustomerSees.stayConnectedLabel")}</strong> {t("admin.connection.whatCustomerSees.stayConnectedBody")}</p>
-            <p><strong className="text-white">{t("admin.connection.whatCustomerSees.shareHonestlyLabel")}</strong> {t("admin.connection.whatCustomerSees.shareHonestlyBody")}</p>
+            <p><strong>{t("admin.connection.whatCustomerSees.voteLabel")}</strong> {t("admin.connection.whatCustomerSees.voteBody")}</p>
+            <p><strong>{t("admin.connection.whatCustomerSees.stayConnectedLabel")}</strong> {t("admin.connection.whatCustomerSees.stayConnectedBody")}</p>
+            <p><strong>{t("admin.connection.whatCustomerSees.shareHonestlyLabel")}</strong> {t("admin.connection.whatCustomerSees.shareHonestlyBody")}</p>
           </div>
           <p className="mt-4 text-xs text-slate-500">{t("admin.connection.whatCustomerSees.disclaimer")}</p>
         </div>

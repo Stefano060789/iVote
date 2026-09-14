@@ -477,7 +477,9 @@ textarea {
 }
 
 .workspace-page .bg-teal-500,
-.workspace-page .bg-teal-400 {
+.workspace-page .bg-teal-400,
+.workspace-page .bg-amber-400,
+.workspace-page .bg-amber-500 {
   background: var(--gold) !important;
   color: var(--navy-deep) !important;
 }
@@ -485,6 +487,31 @@ textarea {
 .workspace-page .bg-blue-600 {
   background: var(--gold) !important;
   color: var(--navy-deep) !important;
+}
+
+/* Secondary/utility actions (create-a-thing buttons that aren't the single primary CTA of
+   their section) were each using a different, unrelated Tailwind hue left over from the
+   original dark theme (violet, indigo, fuchsia, purple, sky) - consolidated into one
+   consistent secondary color that pairs with the gold primary, instead of a rainbow of
+   one-off accents. Destructive actions (red) are handled separately below and untouched. */
+.workspace-page .bg-violet-600,
+.workspace-page .bg-indigo-600,
+.workspace-page .bg-fuchsia-600,
+.workspace-page .bg-purple-600,
+.workspace-page .bg-sky-500 {
+  background: var(--teal) !important;
+  color: #ffffff !important;
+}
+
+.workspace-page .bg-red-600 {
+  background: #b91c1c !important;
+  color: #ffffff !important;
+}
+
+.workspace-page [class*="border-violet-"],
+.workspace-page [class*="border-fuchsia-"],
+.workspace-page [class*="border-purple-"] {
+  border-color: rgba(11, 26, 51, 0.14) !important;
 }
 
 .workspace-page [class*="ring-teal-"] {
@@ -505,8 +532,15 @@ textarea {
 .workspace-page .text-slate-400,
 .workspace-page .text-slate-300,
 .workspace-page .text-slate-200,
-.workspace-page .text-slate-100 {
+.workspace-page .text-slate-100,
+.workspace-page [class*="text-gray-"] {
   color: #5b6577 !important;
+}
+
+/* Plain white/near-white emphasis text (e.g. <strong className="text-white">) was meant for
+   the old dark card background and is otherwise invisible against the light workspace canvas. */
+.workspace-page .text-white {
+  color: var(--navy-deep) !important;
 }
 
 .app-page .text-emerald-400 {
@@ -514,8 +548,11 @@ textarea {
 }
 
 /* Brand accent text (labels, stat highlights, step numbers) reads as warm gold on the new
-   light workspace canvas instead of the marketing site's teal. */
-.workspace-page [class*="text-teal-"] {
+   light workspace canvas instead of the marketing site's teal. The step-number badges used
+   sky purely as decoration (not semantic status), so it's folded in here too - every numbered
+   step now reads as the same consistent gold instead of three unrelated hues. */
+.workspace-page [class*="text-teal-"],
+.workspace-page [class*="text-sky-"] {
   color: var(--gold-deep) !important;
 }
 
