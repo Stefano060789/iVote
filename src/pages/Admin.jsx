@@ -125,9 +125,6 @@ export default function Admin() {
   const [newCampaignPortalTitle, setNewCampaignPortalTitle] = useState("");
   const [newCampaignPortalMessage, setNewCampaignPortalMessage] = useState("");
   const [newCampaignPortalButton, setNewCampaignPortalButton] = useState("");
-  const [newBulkBaseName, setNewBulkBaseName] = useState("");
-  const [newBulkCount, setNewBulkCount] = useState("10");
-  const [newBulkPollId, setNewBulkPollId] = useState("");
   const [invitingMember, setInvitingMember] = useState(false);
   const [redeemCode, setRedeemCode] = useState("");
   const [redeemMessage, setRedeemMessage] = useState("");
@@ -516,29 +513,14 @@ export default function Admin() {
     }
   }
 
-  async function handleBulkGenerateCampaigns() {
-    const base = newBulkBaseName.trim();
-    const count = Number(newBulkCount);
-    if (!base || !Number.isInteger(count) || count < 1 || count > 50) {
-      alert("Enter a name and a count between 1 and 50.");
+  async function handleDeleteQrCampaign(campaignId, campaignName) {
+    if (!window.confirm(t("admin.engagement.campaigns.confirmDelete", { name: campaignName }))) return;
+    const { error } = await supabase.from("qr_campaigns").delete().eq("id", campaignId);
+    if (error) {
+      alert(error.message);
       return;
     }
-    try {
-      const created = [];
-      for (let index = 1; index <= count; index += 1) {
-        const label = `${base} ${index}`;
-        const campaign = await createQrCampaign({ name: label, pollId: newBulkPollId || null, placementLabel: label });
-        created.push(campaign);
-      }
-      setQrCampaigns((current) => [...created, ...current]);
-      setNewBulkBaseName("");
-      setNewBulkCount("10");
-      setNewBulkPollId("");
-      alert(`Created ${created.length} QR codes. Open each printed code to assign or change its poll.`);
-    } catch (error) {
-      console.error(error);
-      alert(error.message || "Unable to generate QR codes.");
-    }
+    setQrCampaigns((current) => current.filter((item) => item.id !== campaignId));
   }
 
   async function reassignQrCampaignPoll(campaignId, nextPollId) {
@@ -2234,19 +2216,6 @@ export default function Admin() {
               <textarea value={newCampaignPortalMessage} onChange={(event) => setNewCampaignPortalMessage(event.target.value)} maxLength={280} className="border p-2 rounded text-black md:col-span-2" placeholder={t("admin.engagement.campaigns.welcomeMessagePlaceholder")} rows="3" />
             </div>
           </details>
-          <details className="mb-4 rounded border border-slate-700">
-            <summary className="cursor-pointer p-3 text-sm font-semibold">{t("admin.engagement.campaigns.bulkGenerate")}</summary>
-            <div className="grid gap-3 px-3 pb-3 md:grid-cols-3">
-              <input value={newBulkBaseName} onChange={(event) => setNewBulkBaseName(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.bulkBaseNamePlaceholder")} />
-              <input type="number" min="1" max="50" value={newBulkCount} onChange={(event) => setNewBulkCount(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.bulkCountPlaceholder")} />
-              <select value={newBulkPollId} onChange={(event) => setNewBulkPollId(event.target.value)} className="border p-2 rounded text-black">
-                <option value="">{t("admin.engagement.campaigns.assignLater")}</option>
-                {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
-              </select>
-              <button onClick={handleBulkGenerateCampaigns} className="md:col-span-3 bg-violet-600 text-white px-4 py-2 rounded font-semibold">{t("admin.engagement.campaigns.bulkGenerateButton")}</button>
-              <p className="md:col-span-3 text-xs text-slate-500">{t("admin.engagement.campaigns.bulkGenerateNote")}</p>
-            </div>
-          </details>
           <div className="space-y-2">
             {qrCampaigns.length === 0 ? <p className="text-gray-400">{t("admin.engagement.campaigns.noCampaigns")}</p> : qrCampaigns.map((campaign) => {
               const url = `${window.location.origin}/qr/${campaign.token}`;
@@ -2264,6 +2233,7 @@ export default function Admin() {
                       <p className="truncate text-xs text-blue-300">{url}</p>
                     </div>
                     <button onClick={() => navigator.clipboard.writeText(url)} className="shrink-0 bg-slate-700 text-white px-3 py-2 rounded font-semibold">{t("admin.engagement.campaigns.copyLink")}</button>
+                    <button onClick={() => handleDeleteQrCampaign(campaign.id, campaign.name)} className="shrink-0 bg-red-700 text-white px-3 py-2 rounded font-semibold">{t("admin.engagement.campaigns.delete")}</button>
                   </div>
 
                   {(() => {
