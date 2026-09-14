@@ -285,6 +285,7 @@
     "polls": {
       "title": "Your polls",
       "subtitle": "View results, duplicate, export responses, and see which QR codes each poll is on. Build and manage QR codes themselves in the QR codes tab.",
+      "createNew": "Create new poll",
       "searchPlaceholder": "Search question or location",
       "filters": {
         "allStatuses": "All statuses",
@@ -505,6 +506,8 @@
         "summaryInfoCard": "info card",
         "summaryInfoCardPlural": "info cards",
         "summaryDonation": "Donation",
+        "summaryReward": "Reward",
+        "summaryRewardPlural": "Rewards",
         "summaryEmpty": "Just the default poll above — add more below to build a menu",
         "itemsOnQr": "Manage what's on this QR code ({{count}})",
         "itemsHint": "Add one or more polls, info cards, and a donation ask here to turn this QR code into a menu: scanning it will show everything listed below at once, instead of going straight to a single poll."
@@ -516,6 +519,8 @@
         "sectionInfoHint": "Menus, hours, bios, exhibit notes — anything non-poll you want to show.",
         "sectionDonation": "Donation",
         "sectionDonationHint": "Let scanners support you with a quick card or wallet payment.",
+        "sectionReward": "Reward & prize",
+        "sectionRewardHint": "A freebie, discount, or prize-draw entry shown to every scanner — e.g. \"Free coffee with any vote\" or \"Enter to win a gift card\".",
         "addCurrentPoll": "Add the current default poll (#{{id}}) as an item too",
         "unknownPoll": "Unknown poll",
         "donationLabel": "Donation",
@@ -532,7 +537,12 @@
         "accessibilityLegend": "Accessibility (optional - shown as badges to visitors)",
         "addInfoCard": "Add info card",
         "addDonationOption": "Add donation option",
-        "enableDonationsNote": "Set up and enable donations in the Donations panel below to add a donation option to this QR code."
+        "enableDonationsNote": "Set up and enable donations in the Donations panel below to add a donation option to this QR code.",
+        "rewardTitlePlaceholder": "Reward or prize title: Free coffee, Win a gift card...",
+        "rewardBodyPlaceholder": "Details or terms (optional)",
+        "rewardCodePlaceholder": "Redemption code to show staff (optional)",
+        "rewardCodeLabel": "code {{code}}",
+        "addRewardOption": "Add reward or prize"
       },
       "rotations": {
         "title": "Poll rotations",

@@ -158,6 +158,28 @@ export default function QrRedirect() {
               if (item.item_type === "donation") {
                 return <DonationCard key={item.item_id} item={item} campaignToken={token} />;
               }
+              if (item.item_type === "reward") {
+                return (
+                  <div key={item.item_id} className="qr-portal-menu-item qr-portal-menu-reward">
+                    <span className="qr-portal-menu-item-title">🎁 {item.title}</span>
+                    {item.body && <p className="qr-portal-menu-item-body">{item.body}</p>}
+                    {item.reward_code && (
+                      <p className="qr-portal-menu-item-reward-code">{item.reward_code}</p>
+                    )}
+                    {item.link_url && (
+                      <a
+                        href={item.link_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="qr-portal-menu-item-cta"
+                        style={{ color: branding.primaryColor }}
+                      >
+                        {item.link_label || "Open link"} →
+                      </a>
+                    )}
+                  </div>
+                );
+              }
               return (
                 <div key={item.item_id} className="qr-portal-menu-item qr-portal-menu-info">
                   {item.image_url && (

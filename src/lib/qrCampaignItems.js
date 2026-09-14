@@ -58,6 +58,27 @@ export async function addQrCampaignDonationItem(campaignId, { title, body } = {}
   return data;
 }
 
+// A reward or prize card shown to every voter who scans this QR code (e.g. "Free coffee
+// with any vote", "Enter to win a $50 gift card"). Display-only, like an info card - not
+// tied to the existing per-poll reward_code/raffle redemption system.
+export async function addQrCampaignRewardItem(campaignId, { title, body, linkUrl, linkLabel, rewardCode }) {
+  const { data, error } = await supabase
+    .from("qr_campaign_items")
+    .insert({
+      campaign_id: Number(campaignId),
+      item_type: "reward",
+      title: String(title || "").trim(),
+      body: String(body || "").trim() || null,
+      link_url: String(linkUrl || "").trim() || null,
+      link_label: String(linkLabel || "").trim() || null,
+      reward_code: String(rewardCode || "").trim() || null
+    })
+    .select()
+    .single();
+  if (error) throw new Error(`Unable to add that reward or prize to the QR code: ${error.message}`);
+  return data;
+}
+
 export async function removeQrCampaignItem(itemId) {
   const { error } = await supabase.from("qr_campaign_items").delete().eq("id", itemId);
   if (error) throw new Error(`Unable to remove that item: ${error.message}`);

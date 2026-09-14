@@ -196,6 +196,24 @@ textarea {
   cursor: default;
 }
 
+.qr-portal-menu-reward {
+  cursor: default;
+  border-color: #d946ef33;
+  background: linear-gradient(180deg, #fdf4ff 0%, #ffffff 60%);
+}
+
+.qr-portal-menu-item-reward-code {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: #f5d0fe;
+  color: #701a75;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+}
+
 .qr-donation-amount-row {
   display: flex;
   align-items: center;
