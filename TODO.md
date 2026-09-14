@@ -74,17 +74,22 @@ address them.
 - [ ] **Buy a custom domain and point it at Vercel.** Production currently runs on Vercel's
   default `i-vote-one.vercel.app` subdomain - fine for testing, not for a real pilot venue
   (looks unfinished, and the legacy "i-vote" name doesn't match the "Godwit" brand everywhere
-  else). Name shortlist, proposed 2026-09-14 (check availability before deciding, e.g. via
-  Namecheap/Cloudflare - popularity roughly in this order):
-  - `godwit.app` - clean, on-brand, `.app` forces HTTPS by default. First choice if free.
-  - `usegodwit.com` / `trygodwit.com` - classic SaaS pattern, almost certainly available even
-    if the bare word is taken.
-  - `godwit.io` - very common in tech/SaaS, but `.io` domains are heavily squatted - check first.
-  - `godwit.co` - short fallback if `.com`/`.app` are gone.
-  - `hellogodwit.com` - friendlier, approachable alternative.
-  - `flockfeedback.com` - leans on the "flock of specialist birds" branding already used
-    throughout the product (Robin, Tern, Flamingo, etc.) instead of the single species name;
-    works well as a memorable, descriptive alternative or a marketing-page-only domain.
+  else).
+  **Availability checked 2026-09-14 (via RDAP - re-verify before buying, in case something
+  changes):**
+  - ❌ Taken: `godwit.com` (registered since 1999), `godwit.app` (registered **July 2026**,
+    live Squarespace site), `godwit.io` (live, Cloudflare-hosted), `godwit.ai` (live,
+    GoDaddy-hosted), `usegodwit.com` (registered **August 2026**), `flockfeedback.com`
+    (registered July 2025, GoDaddy-hosted).
+  - ✅ Available: `trygodwit.com` (top pick - clean, standard SaaS pattern), `hellogodwit.com`,
+    `godwitapp.com`, `meetgodwit.com`. `godwit.co` couldn't be reliably checked from here -
+    verify directly with a registrar.
+  - ⚠️ **Worth a closer look before deciding**: `godwit.app` and `usegodwit.com` were both
+    registered within the last two months and have *live* nameservers (not parked/squatted) -
+    possibly another company or project actively building something under a similar "Godwit"
+    name right now. Worth a quick trademark/name-collision gut-check before investing more
+    marketing spend into the "Godwit" name, though nothing confirmed either way.
+  - Decision paused 2026-09-14 pending the operator's input - not yet purchased.
   Once bought: add it in Vercel -> Settings -> Domains, update `APP_URL`, and update any
   hardcoded links (emails, Stripe Checkout success/cancel URLs, QR short-link generation).
 
