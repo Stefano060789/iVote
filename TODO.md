@@ -7,6 +7,18 @@ items as you address them.
 
 ## Open action items (needs you, not code)
 
+- [ ] **Confirm `qr_locations` has zero real data, then finish removing it.** Following a
+  feature-gap review (2026-09-14), the "Simple QR codes (older, single-poll)" section was
+  removed from the QR codes tab UI - it was fully superseded by `qr_campaigns` (which does
+  everything it did, plus multi-item menus). The underlying `qr_locations` table and its
+  cross-link read-path (`qrCodesForPoll()` in `Admin.jsx`, so an existing linked poll still
+  shows correctly) were deliberately left intact rather than dropped blind, since production
+  data couldn't be fully verified as empty from this session (only this workspace's "no simple
+  QR codes yet" was confirmed). Action: run
+  `select count(*) from qr_locations;` in the Supabase SQL editor - if it's 0 across all
+  workspaces, drop the table, delete `src/lib/qrLocations.js`, and remove the now-dead
+  `qrCodesForPoll()` location-matching branch and `loadQrLocations` import in `Admin.jsx`.
+
 - [ ] **VAT (Austria / EU digital subscriptions).**
   Confirmed 2026-09-14: the **Kleinunternehmerregelung** (small-business VAT exemption)
   threshold is **EUR 55,000/year** revenue - if you're under that, you may not need to charge

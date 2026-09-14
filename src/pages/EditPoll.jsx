@@ -335,6 +335,7 @@ export default function EditPoll() {
       />
 
       <h2 className="text-xl font-bold mb-3">After voting (optional)</h2>
+      <p className="mb-3 text-sm text-slate-400">This only appears to someone who actually completes this poll - different from a QR code's own "Reward &amp; Prize" item (set in the QR codes tab), which shows to every scanner regardless of voting.</p>
 
       {entitlements.rewardMessage ? (
       <>

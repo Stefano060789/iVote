@@ -443,7 +443,7 @@ export default function CreatePoll() {
         <details className="mb-6 border border-slate-700 rounded">
           <summary className="cursor-pointer p-3 font-semibold">After voting (optional)</summary>
           <div className="px-3 pb-3">
-            <p className="mb-3 text-sm text-slate-400">Show a thank-you reward and/or ask happy voters to leave a public review.</p>
+            <p className="mb-3 text-sm text-slate-400">Show a thank-you reward and/or ask happy voters to leave a public review. This only appears to someone who actually completes this poll - different from a QR code's own "Reward & Prize" item (set in the QR codes tab), which shows to every scanner regardless of voting.</p>
             {entitlements.rewardMessage ? (
             <>
             <label className="block mb-2 font-semibold">Reward message</label>

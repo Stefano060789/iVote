@@ -405,6 +405,10 @@
       },
       "messageBodyPlaceholder": "Email message body",
       "emailDeliveryNote": "Delivery requires the RESEND_API_KEY and REPORT_FROM_EMAIL server settings, same as weekly reports.",
+      "emailAutomations": {
+        "eyebrow": "Follow-up emails",
+        "description": "Two independent, opt-in email automations - set up either, both, or neither. Both only ever reach voters who explicitly left their email and consented; voting itself always stays anonymous."
+      },
       "leadNurture": {
         "title": "Lead nurture emails",
         "description": "Automatically email voters who opted in for follow-up (or a prize draw) right after they vote.",
@@ -461,18 +465,7 @@
         "feeNote": "Stripe is the payment processor - Godwit never sees or stores card details. Of each donation, 10% is a platform fee retained by Godwit and 90% transfers to your connected Stripe account."
       },
       "locations": {
-        "title": "Simple QR codes (older, single-poll)",
-        "subtitle": "An older, simpler tool: each QR location points at exactly one poll, with no info cards or donation option. New to Godwit? Use the QR codes above instead — they can hold several polls, info cards, and a donation ask.",
-        "namePlaceholder": "Location name",
-        "tokenPlaceholder": "Optional token",
-        "addLocation": "Add location",
-        "chooseLocation": "Choose a QR location",
-        "assignToPoll": "Assign location to poll",
-        "noLocations": "No simple QR codes yet.",
-        "tokenLabel": "Token: {{token}}",
-        "assignedToPrefix": "Assigned to",
         "pollNumber": "poll #{{id}}",
-        "notAssigned": "Not assigned",
         "delete": "Delete"
       },
       "campaigns": {
@@ -509,7 +502,7 @@
         "itemsOnQr": "Manage what's on this QR code ({{count}})",
         "itemsHint": "Add one or more polls, info cards, and a donation ask here to turn this QR code into a menu: scanning it will show everything listed below at once, instead of going straight to a single poll.",
         "advancedTitle": "More QR tools",
-        "advancedDescription": "Connect Stripe for donations, manage poll rotations, track reward redemptions, run prize draws, or use the older single-poll QR tool — all optional, and all related to the QR codes above."
+        "advancedDescription": "Connect Stripe for donations, manage poll rotations, track reward redemptions, or run prize draws — all optional, and all related to the QR codes above."
       },
       "items": {
         "sectionPolls": "Polls",
@@ -519,7 +512,7 @@
         "sectionDonation": "Donation",
         "sectionDonationHint": "Let scanners support you with a quick card or wallet payment.",
         "sectionReward": "Reward & prize",
-        "sectionRewardHint": "A freebie, discount, or prize-draw entry shown to every scanner — e.g. \"Free coffee with any vote\" or \"Enter to win a gift card\".",
+        "sectionRewardHint": "A freebie, discount, or prize-draw entry shown to every scanner of this QR code, regardless of which poll they vote on or how they answer — different from a poll's own \"post-vote reward\" (set in Create/Edit poll), which only shows to someone who actually completes that specific poll.",
         "addCurrentPoll": "Add the current default poll (#{{id}}) as an item too",
         "unknownPoll": "Unknown poll",
         "donationLabel": "Donation",

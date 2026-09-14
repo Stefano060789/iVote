@@ -5,7 +5,7 @@ import { supabase, supabaseUrl, supabaseAnonKey } from "../lib/supabase";
 import { createStableQrUrl } from "../lib/pollLinks";
 import { isRestrictedTopic } from "../lib/restrictedContent";
 import { appendAuditLog, readAuditLog, readPollMeta, savePollMeta, isPollClosed } from "../lib/pollMeta";
-import { buildQrToken, deleteQrLocation, loadQrLocations, saveQrLocation } from "../lib/qrLocations";
+import { loadQrLocations } from "../lib/qrLocations";
 import { createQrCampaign, loadQrCampaigns } from "../lib/qrCampaigns";
 import {
   loadQrCampaignItems,
@@ -73,10 +73,6 @@ export default function Admin() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
   const [qrLocations, setQrLocations] = useState([]);
-  const [newLocationName, setNewLocationName] = useState("");
-  const [newLocationToken, setNewLocationToken] = useState("");
-  const [selectedLocationId, setSelectedLocationId] = useState("");
-  const [selectedPollForLocation, setSelectedPollForLocation] = useState("");
   const [qrPrintFormat, setQrPrintFormat] = useState("a4");
   const [qrStyleSeed, setQrStyleSeed] = useState(1);
   const [qrStylePreset, setQrStylePreset] = useState("brand");
@@ -461,35 +457,6 @@ export default function Admin() {
       console.error(error);
       alert(error.message || "Unable to save workspace settings.");
     }
-  }
-
-  async function handleCreateLocation() {
-    const name = newLocationName.trim();
-    if (!name) {
-      alert("Add a QR location name first.");
-      return;
-    }
-
-    const nextLocation = await saveQrLocation({
-      name,
-      token: newLocationToken.trim() || buildQrToken(),
-      current_poll_id: null
-    });
-
-    setQrLocations((current) => [nextLocation, ...current.filter((item) => String(item.id) !== String(nextLocation.id))]);
-    setNewLocationName("");
-    setNewLocationToken("");
-  }
-
-  async function handleDeleteLocation(locationId) {
-    const location = qrLocations.find((item) => String(item.id) === String(locationId));
-    if (!location) return;
-
-    const confirmed = window.confirm(`Delete QR location "${location.name}"?`);
-    if (!confirmed) return;
-
-    await deleteQrLocation(locationId);
-    setQrLocations((current) => current.filter((item) => String(item.id) !== String(locationId)));
   }
 
   async function handleCreateCampaign() {
@@ -917,47 +884,6 @@ export default function Admin() {
     }
     setPolls((current) => current.map((poll) => poll.id === pollId ? { ...poll, raffle_winner_email: data.email, raffle_winner_picked_at: new Date().toISOString() } : poll));
     alert(`Winner picked: ${data.email}`);
-  }
-
-  async function assignLocationToPoll() {
-    const location = qrLocations.find((item) => String(item.id) === String(selectedLocationId));
-    const poll = polls.find((item) => String(item.id) === String(selectedPollForLocation));
-
-    if (!location || !poll) {
-      alert("Select both a location and a poll.");
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from("polls")
-        .update({
-          location_name: location.name,
-          location_token: location.token
-        })
-        .eq("id", poll.id);
-
-      if (error) {
-        console.warn("Could not sync location to Supabase, using local metadata fallback.", error);
-      }
-    } catch (error) {
-      console.warn("Could not sync location to Supabase, using local metadata fallback.", error);
-    }
-
-    const nextLocation = { ...location, current_poll_id: poll.id };
-    await saveQrLocation(nextLocation);
-    await savePollMeta(poll.id, {
-      location_name: location.name,
-      location_token: location.token
-    });
-
-    appendAuditLog("assign_qr_location", { poll_id: poll.id, location_name: location.name, location_token: location.token });
-    setAuditLog(readAuditLog());
-    setSelectedLocationId("");
-    setSelectedPollForLocation("");
-    setQrLocations(await loadQrLocations());
-    await loadPolls();
-    alert(`Assigned location "${location.name}" to poll #${poll.id}.`);
   }
 
   async function addTeamMember() {
@@ -2062,7 +1988,10 @@ export default function Admin() {
           <p className="mt-4 text-xs text-slate-500">{t("admin.connection.whatCustomerSees.disclaimer")}</p>
         </div>
 
-        <div id="nurture-settings" className="grid gap-4 md:grid-cols-2">
+        <div id="nurture-settings">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-teal-300">{t("admin.connection.emailAutomations.eyebrow")}</p>
+          <p className="mb-3 text-sm text-slate-400">{t("admin.connection.emailAutomations.description")}</p>
+          <div className="grid gap-4 md:grid-cols-2">
           <details className="rounded border border-slate-700 bg-gray-900" open>
             <summary className="cursor-pointer p-4 text-lg font-bold">{t("admin.connection.leadNurture.title")}</summary>
             <div className="px-4 pb-4 space-y-3">
@@ -2116,6 +2045,7 @@ export default function Admin() {
               )}
             </div>
           </details>
+          </div>
         </div>
       </section>
       )}
@@ -2726,75 +2656,6 @@ export default function Admin() {
               description={t("admin.engagement.prizeDraws.lockedDescription")}
             />
           )}
-        </div>
-      </details>
-      <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.locations.title")}</summary>
-        <div className="px-4 pb-4">
-        <p className="mb-3 text-sm text-slate-400">{t("admin.engagement.locations.subtitle")}</p>
-        <div className="grid md:grid-cols-3 gap-3 mb-4">
-          <input
-            type="text"
-            value={newLocationName}
-            onChange={(event) => setNewLocationName(event.target.value)}
-            className="border p-2 rounded text-black"
-            placeholder={t("admin.engagement.locations.namePlaceholder")}
-          />
-          <input
-            type="text"
-            value={newLocationToken}
-            onChange={(event) => setNewLocationToken(event.target.value)}
-            className="border p-2 rounded text-black"
-            placeholder={t("admin.engagement.locations.tokenPlaceholder")}
-          />
-          <button onClick={handleCreateLocation} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">
-            {t("admin.engagement.locations.addLocation")}
-          </button>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-3 mb-3">
-          <select value={selectedLocationId} onChange={(event) => setSelectedLocationId(event.target.value)} className="border p-2 rounded text-black">
-            <option value="">{t("admin.engagement.locations.chooseLocation")}</option>
-            {qrLocations.map((location) => (
-              <option key={location.id} value={String(location.id)}>{location.name}</option>
-            ))}
-          </select>
-          <select value={selectedPollForLocation} onChange={(event) => setSelectedPollForLocation(event.target.value)} className="border p-2 rounded text-black">
-            <option value="">{t("admin.engagement.scanner.choosePoll")}</option>
-            {polls.map((poll) => (
-              <option key={poll.id} value={String(poll.id)}>
-                #{poll.id} - {poll.question}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <button onClick={assignLocationToPoll} className="bg-emerald-600 text-white px-4 py-2 rounded font-semibold mb-4">
-          {t("admin.engagement.locations.assignToPoll")}
-        </button>
-
-        <div className="space-y-2">
-          {qrLocations.length === 0 ? (
-            <p className="text-gray-400">{t("admin.engagement.locations.noLocations")}</p>
-          ) : (
-            qrLocations.map((location) => (
-              <div key={location.id} className="flex items-center justify-between border border-gray-700 rounded p-3">
-                <div>
-                  <p className="font-semibold">{location.name}</p>
-                  <p className="text-xs text-gray-400">{t("admin.engagement.locations.tokenLabel", { token: location.token })}</p>
-                  <p className="text-xs text-gray-500">
-                    {location.current_poll_id ? (
-                      <>{t("admin.engagement.locations.assignedToPrefix")} <button type="button" onClick={() => goToPoll(location.current_poll_id)} className="font-semibold text-teal-300 underline">{t("admin.engagement.locations.pollNumber", { id: location.current_poll_id })}</button></>
-                    ) : t("admin.engagement.locations.notAssigned")}
-                  </p>
-                </div>
-                <button onClick={() => handleDeleteLocation(location.id)} className="bg-red-600 text-white px-3 py-2 rounded font-semibold">
-                  {t("admin.engagement.locations.delete")}
-                </button>
-              </div>
-            ))
-          )}
-        </div>
         </div>
       </details>
           </div>
