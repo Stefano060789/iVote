@@ -1635,15 +1635,15 @@ export default function Admin() {
       </div>
 
       <div className="mb-2 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center">
-        {adminTabs.map((tab, index) => {
+        {adminTabs.map((tab) => {
           const bird = flockMemberForTab(tab.key);
           return (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center justify-center gap-1.5 rounded px-4 py-3 text-center font-semibold ${index === adminTabs.length - 1 ? "col-span-2" : ""} ${activeTab === tab.key ? "bg-teal-500 text-slate-950" : "bg-gray-800 text-slate-300"}`}
+              className={`flex items-center justify-center gap-1.5 rounded px-4 py-3 text-center font-semibold ${activeTab === tab.key ? "bg-teal-500 text-slate-950" : "bg-gray-800 text-slate-300"}`}
             >
-              {bird && <FlockAvatar bird={bird} size={22} />}
+              {bird && <FlockAvatar bird={bird} size={28} />}
               {tab.label}
             </button>
           );
@@ -1652,7 +1652,7 @@ export default function Admin() {
       <p className="mb-1 text-center text-sm text-slate-400">{adminTabDescriptions[activeTab]}</p>
       {flockMemberForTab(activeTab) && (
         <p className="mb-6 flex items-center justify-center gap-2 text-xs text-slate-500">
-          <FlockAvatar bird={flockMemberForTab(activeTab)} size={22} />
+          <FlockAvatar bird={flockMemberForTab(activeTab)} size={28} />
           <span>
             {t("admin.onDuty", { name: flockMemberForTab(activeTab).name, role: flockMemberForTab(activeTab).role.toLowerCase() })}
           </span>
@@ -1670,7 +1670,7 @@ export default function Admin() {
             className="rounded border border-slate-700 bg-gray-900 p-4 text-left transition hover:border-teal-500"
           >
             {action.bird ? (
-              <FlockAvatar bird={action.bird} size={36} />
+              <FlockAvatar bird={action.bird} size={44} />
             ) : (
               <span className="text-2xl" aria-hidden="true">{action.icon}</span>
             )}
@@ -1763,7 +1763,7 @@ export default function Admin() {
 
       <div className="mb-6 rounded border border-teal-700 bg-slate-900 p-4">
         <div className="flex items-center gap-2">
-          <FlockAvatar bird={flockMemberForTab("overview")} size={28} />
+          <FlockAvatar bird={flockMemberForTab("overview")} size={32} />
           <span className="text-lg font-bold">{t("admin.overview.robinGuideTitle")}</span>
         </div>
 
@@ -1864,7 +1864,7 @@ export default function Admin() {
                 onClick={() => (bird.tab ? setActiveTab(bird.tab) : navigate(bird.route))}
                 className="rounded border border-slate-700 bg-gray-900 p-3 text-left transition hover:border-teal-500"
               >
-                <FlockAvatar bird={bird} size={48} />
+                <FlockAvatar bird={bird} size={56} />
                 <p className="mt-1 font-bold">{bird.name} <span className="font-normal text-slate-400">&middot; {bird.role}</span></p>
                 <p className="mt-1 text-xs text-slate-400">{bird.detail}</p>
               </button>

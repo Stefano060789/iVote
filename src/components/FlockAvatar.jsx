@@ -16,7 +16,7 @@ export default function FlockAvatar({ bird, size = 40, className = "" }) {
     );
   }
 
-  const imageSize = Math.round(size * 0.66);
+  const imageSize = Math.round(size * 0.76);
 
   return (
     <span

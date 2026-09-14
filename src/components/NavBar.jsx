@@ -91,7 +91,7 @@ export default function NavBar() {
           <span>{workspace.companyName}</span>
         </Link>
         <div className="site-nav-actions">
-          {user && <Link to="/create" onClick={closeMenu} className="site-nav-primary">{t("nav.createPoll")}</Link>}
+          {user && <Link to="/essentials" onClick={closeMenu} className="site-nav-primary">{t("nav.quickStart")}</Link>}
           {user && (
             <Link
               to="/admin"
@@ -121,7 +121,6 @@ export default function NavBar() {
       </div>
 
       <div id="site-navigation" className={`site-nav-links ${menuOpen ? "is-open" : ""}`}>
-        <Link to="/essentials" onClick={closeMenu}>{t("nav.quickStart")}</Link>
         <Link to="/support" onClick={closeMenu}>{t("nav.support")}</Link>
         {!user && <>
           <Link to="/login" onClick={closeMenu}>{t("nav.signIn")}</Link>

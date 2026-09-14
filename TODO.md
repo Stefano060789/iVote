@@ -7,6 +7,16 @@ items as you address them.
 
 ## Open action items (needs you, not code)
 
+- [ ] **Set `SUPPORT_TO_EMAIL` in Vercel (Production env vars).** The `/support` page no longer
+  shows a raw mailto link (was leaking your personal address via `VITE_SUPPORT_EMAIL`, a
+  client-bundled var visible in the page source to anyone). It's now a message form that
+  POSTs to `api/notify.js` (`type: "contact"`), which emails `SUPPORT_TO_EMAIL` - a
+  server-only var, never sent to the browser. Set it to the same address `VITE_SUPPORT_EMAIL`
+  had, then messages will actually deliver (until then the form will show a "not configured"
+  error). `VITE_SUPPORT_EMAIL` itself is unchanged and still needed - it's also used in
+  `Legal.jsx`'s privacy policy, where showing a real contact address is normal/expected for a
+  data-controller disclosure, so that one was left alone.
+
 - [ ] **Run the two new migrations, then confirm `qr_locations` fully dropped.** Per your
   explicit request (2026-09-14), both "Poll rotations" and the legacy "Simple QR codes
   (older, single-poll)" system were fully removed - UI, state/handlers, lib files, and now the

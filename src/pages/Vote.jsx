@@ -288,10 +288,10 @@ export default function Vote() {
 
     if (!error && reportResult?.workspace_id && reportResult?.id) {
       dispatchWorkspaceWebhook(reportResult.workspace_id, "content_reported", reportResult.id);
-      fetch("/api/notify-content-report", {
+      fetch("/api/notify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ workspaceId: reportResult.workspace_id, reportId: reportResult.id })
+        body: JSON.stringify({ type: "content_report", workspaceId: reportResult.workspace_id, reportId: reportResult.id })
       }).catch((notifyError) => console.error("Content report notification dispatch failed", notifyError));
     }
   }
