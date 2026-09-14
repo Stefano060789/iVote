@@ -20,6 +20,7 @@ import { extractQrToken, reassignManagedCampaignPoll, resolveManagedQrToken } fr
 import { ACCESSIBILITY_TAGS } from "../lib/accessibilityTags";
 import QrScanner from "../components/QrScanner";
 import LockedFeature from "../components/LockedFeature";
+import FlockAvatar from "../components/FlockAvatar";
 import { loadLeadNurtureSettings, saveLeadNurtureSettings } from "../lib/leadNurture";
 import { loadWinbackSettings, saveWinbackSettings } from "../lib/winbackSettings";
 import { loadDonationSettings, saveDonationSettings, startStripeConnectOnboarding, refreshStripeConnectStatus } from "../lib/donationSettings";
@@ -1774,13 +1775,13 @@ export default function Admin() {
   };
 
   const quickActions = [
-    { key: "create", icon: "\u2795", label: t("admin.quickActions.create.label"), description: t("admin.quickActions.create.description"), onSelect: () => navigate("/create") },
-    { key: "polls", icon: flockMemberForTab("polls")?.icon || "\ud83d\udcca", label: t("admin.quickActions.polls.label"), description: t("admin.quickActions.polls.description"), onSelect: () => setActiveTab("polls") },
-    { key: "engagement", icon: flockMemberForTab("engagement")?.icon || "\u2728", label: t("admin.quickActions.engagement.label"), description: t("admin.quickActions.engagement.description"), onSelect: () => setActiveTab("engagement") },
-    { key: "connection", icon: flockMemberForTab("connection")?.icon || "\ud83e\udd1d", label: t("admin.quickActions.connection.label"), description: t("admin.quickActions.connection.description"), onSelect: () => setActiveTab("connection") },
-    { key: "analytics", icon: "\ud83d\udcca", label: t("admin.quickActions.analytics.label"), description: t("admin.quickActions.analytics.description"), onSelect: () => navigate("/admin/analytics") },
-    { key: "feedback", icon: flockMemberForTab("feedback")?.icon || "\ud83d\udcac", label: t("admin.quickActions.feedback.label"), description: t("admin.quickActions.feedback.description"), onSelect: () => setActiveTab("feedback") },
-    { key: "settings", icon: flockMemberForTab("settings")?.icon || "\u2699\ufe0f", label: t("admin.quickActions.settings.label"), description: t("admin.quickActions.settings.description"), onSelect: () => setActiveTab("settings") }
+    { key: "create", icon: "\u2795", bird: null, label: t("admin.quickActions.create.label"), description: t("admin.quickActions.create.description"), onSelect: () => navigate("/create") },
+    { key: "polls", icon: "\ud83d\udcca", bird: flockMemberForTab("polls"), label: t("admin.quickActions.polls.label"), description: t("admin.quickActions.polls.description"), onSelect: () => setActiveTab("polls") },
+    { key: "engagement", icon: "\u2728", bird: flockMemberForTab("engagement"), label: t("admin.quickActions.engagement.label"), description: t("admin.quickActions.engagement.description"), onSelect: () => setActiveTab("engagement") },
+    { key: "connection", icon: "\ud83e\udd1d", bird: flockMemberForTab("connection"), label: t("admin.quickActions.connection.label"), description: t("admin.quickActions.connection.description"), onSelect: () => setActiveTab("connection") },
+    { key: "analytics", icon: "\ud83d\udcca", bird: FLOCK.find((member) => member.key === "waxwing"), label: t("admin.quickActions.analytics.label"), description: t("admin.quickActions.analytics.description"), onSelect: () => navigate("/admin/analytics") },
+    { key: "feedback", icon: "\ud83d\udcac", bird: flockMemberForTab("feedback"), label: t("admin.quickActions.feedback.label"), description: t("admin.quickActions.feedback.description"), onSelect: () => setActiveTab("feedback") },
+    { key: "settings", icon: "\u2699\ufe0f", bird: flockMemberForTab("settings"), label: t("admin.quickActions.settings.label"), description: t("admin.quickActions.settings.description"), onSelect: () => setActiveTab("settings") }
   ];
 
   return (
@@ -1797,9 +1798,9 @@ export default function Admin() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`rounded px-4 py-3 text-center font-semibold ${index === adminTabs.length - 1 ? "col-span-2" : ""} ${activeTab === tab.key ? "bg-teal-500 text-slate-950" : "bg-gray-800 text-slate-300"}`}
+              className={`flex items-center justify-center gap-1.5 rounded px-4 py-3 text-center font-semibold ${index === adminTabs.length - 1 ? "col-span-2" : ""} ${activeTab === tab.key ? "bg-teal-500 text-slate-950" : "bg-gray-800 text-slate-300"}`}
             >
-              {bird && <span className="mr-1.5" aria-hidden="true">{bird.icon}</span>}
+              {bird && <FlockAvatar bird={bird} size={22} />}
               {tab.label}
             </button>
           );
@@ -1808,7 +1809,7 @@ export default function Admin() {
       <p className="mb-1 text-center text-sm text-slate-400">{adminTabDescriptions[activeTab]}</p>
       {flockMemberForTab(activeTab) && (
         <p className="mb-6 flex items-center justify-center gap-2 text-xs text-slate-500">
-          <span aria-hidden="true">{flockMemberForTab(activeTab).icon}</span>
+          <FlockAvatar bird={flockMemberForTab(activeTab)} size={22} />
           <span>
             {t("admin.onDuty", { name: flockMemberForTab(activeTab).name, role: flockMemberForTab(activeTab).role.toLowerCase() })}
           </span>
@@ -1825,7 +1826,11 @@ export default function Admin() {
             onClick={action.onSelect}
             className="rounded border border-slate-700 bg-gray-900 p-4 text-left transition hover:border-teal-500"
           >
-            <span className="text-2xl" aria-hidden="true">{action.icon}</span>
+            {action.bird ? (
+              <FlockAvatar bird={action.bird} size={36} />
+            ) : (
+              <span className="text-2xl" aria-hidden="true">{action.icon}</span>
+            )}
             <p className="mt-2 font-bold">{action.label}</p>
             <p className="mt-1 text-sm text-slate-400">{action.description}</p>
           </button>
@@ -1915,7 +1920,7 @@ export default function Admin() {
 
       <div className="mb-6 rounded border border-teal-700 bg-slate-900 p-4">
         <div className="flex items-center gap-2">
-          <span className="text-xl" aria-hidden="true">{flockMemberForTab("overview")?.icon || "\ud83d\udc26"}</span>
+          <FlockAvatar bird={flockMemberForTab("overview")} size={28} />
           <span className="text-lg font-bold">{t("admin.overview.robinGuideTitle")}</span>
         </div>
 
@@ -2016,7 +2021,7 @@ export default function Admin() {
                 onClick={() => (bird.tab ? setActiveTab(bird.tab) : navigate(bird.route))}
                 className="rounded border border-slate-700 bg-gray-900 p-3 text-left transition hover:border-teal-500"
               >
-                <span className="text-xl" aria-hidden="true">{bird.icon}</span>
+                <FlockAvatar bird={bird} size={48} />
                 <p className="mt-1 font-bold">{bird.name} <span className="font-normal text-slate-400">&middot; {bird.role}</span></p>
                 <p className="mt-1 text-xs text-slate-400">{bird.detail}</p>
               </button>
@@ -2142,7 +2147,7 @@ export default function Admin() {
             <h2 className="text-xl font-bold">{t("admin.polls.title")}</h2>
             <p className="mt-1 mb-3 text-sm text-slate-400">{t("admin.polls.subtitle")}</p>
           </div>
-          <Link to="/create" className="shrink-0 rounded bg-teal-500 px-4 py-2 font-semibold text-slate-950">
+          <Link to="/create" className="w-full shrink-0 rounded bg-teal-500 px-4 py-2 text-center font-semibold text-slate-950 sm:w-auto">
             {t("admin.polls.createNew")}
           </Link>
         </div>

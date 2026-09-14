@@ -7,9 +7,9 @@ address them.
 
 ## Open action items (needs you, not code)
 
-- [ ] Run `supabase/20260922_qr_reward_prize_items.sql` in the Supabase SQL editor (adds
-  `reward` as a fourth QR-code item type, alongside poll/info/donation, for the new
-  "Reward & prize" section in the QR codes tab). Not yet applied to the live database.
+- [x] Ran `supabase/20260922_qr_reward_prize_items.sql` (2026-09-14) - adds `reward` as a
+  fourth QR-code item type, alongside poll/info/donation, for the "Reward & prize" section
+  in the QR codes tab.
 - [ ] Stripe account verification currently relies on phone number only (SMS). Add a stronger
   second identification factor for the live account - e.g. government ID verification
   (Stripe Identity), authenticator-app 2FA instead of/in addition to SMS, and/or a recovery
@@ -180,8 +180,8 @@ address them.
   Reward & Prize sections (own list, reorder, and add form per section) instead of one flat
   mixed list, per explicit request. Added a fourth item type, `reward` (a display-only
   freebie/discount/prize-draw card with an optional redemption code), alongside poll/info/
-  donation - `supabase/20260922_qr_reward_prize_items.sql` (not yet run, see "Open action
-  items" above). Rendered in `QrRedirect.jsx` with its own card style.
+  donation - `supabase/20260922_qr_reward_prize_items.sql`, run 2026-09-14. Rendered in
+  `QrRedirect.jsx` with its own card style.
 
 ## AI features
 

@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabase";
 import godwitLockup from "../assets/godwit-logo-lockup.svg";
+import { FLOCK } from "../lib/flock";
+import FlockAvatar from "../components/FlockAvatar";
 
 const stepKeys = [
   { number: "01", titleKey: "steps.step1Title", detailKey: "steps.step1Detail" },
@@ -102,9 +104,7 @@ export default function Landing() {
           {flockKeys.map((bird) => (
             <article key={bird.key} className="landing-flock-card">
               <span className="landing-flock-badge" aria-hidden="true">
-                <svg viewBox="0 0 40 60" width="22" height="33">
-                  <path d="M20,58 C14,44 15,26 24,10 C31,17 35,29 33,41 C31,50 26,56 20,58 Z" fill="currentColor" />
-                </svg>
+                <FlockAvatar bird={FLOCK.find((member) => member.key === bird.key)} size={30} />
               </span>
               <h3>{t(bird.nameKey)}</h3>
               <p className="landing-flock-role">{t(bird.roleKey)}</p>

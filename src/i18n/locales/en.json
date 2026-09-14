@@ -475,8 +475,8 @@
         "delete": "Delete"
       },
       "campaigns": {
-        "title": "Your QR codes",
-        "description": "Each QR code below is one printed or displayed code. Give it a default poll, then optionally add more polls, info cards, or a donation ask so scanning it shows a whole menu instead of a single question.",
+        "title": "Create QR code",
+        "description": "Set a name, placement, and variant below to create a QR code, then build what it shows: an info card, one or more polls, a donation ask, and a reward or prize — in that order, per QR code.",
         "tip": "Tip: open a printed QR code while signed in to see its name and poll, and change them directly.",
         "namePlaceholder": "Lobby poster, receipt, table tent",
         "createButton": "Create QR code",
