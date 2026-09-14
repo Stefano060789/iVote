@@ -7,6 +7,58 @@ address them.
 
 ## Open action items (needs you, not code)
 
+- [ ] **External legal review (2026-09-14) - action tracker.** A second AI legal review of
+  `marketing/Godwit-Feature-Overview.md` came back with a developer checklist covering
+  payments/KYC, privacy, prize draws, tax, and security. What actually needed code has been
+  built (see below); the rest genuinely needs a business/legal decision from you, not more
+  code, so it's tracked here instead of half-implemented:
+  - [ ] **Stripe Tax (or a local tax service) for VAT/SST on subscriptions and platform fees.**
+    Needs a decision on which jurisdictions Godwit is registered to charge tax in, then
+    enabling Stripe Tax in the Stripe Dashboard - not purely a code change.
+  - [ ] **Signed Data Processing Agreements (DPAs) with each subprocessor** - Stripe, Supabase,
+    Vercel, Resend, and OpenAI (once its API key is activated). Most of these platforms offer a
+    standard DPA you accept in their own dashboard; this just needs to actually be done and
+    the acceptance date recorded.
+  - [ ] **Admin account 2FA/MFA** (Supabase Auth supports TOTP) - a real feature to build, not
+    done yet. Separate from the existing Stripe phone-only-2FA item above.
+  - [ ] **Geo-gating prize draws / donations by jurisdiction.** Voters already see a full
+    eligibility disclaimer and must give explicit consent per entry (`vote.prizeDrawDisclaimer`
+    / `vote.prizeDrawConsent`), and as of 2026-09-14 an admin must explicitly acknowledge
+    they've checked local sweepstakes rules before a prize draw can be turned on at all (DB
+    constraint, see below) - but nothing blocks the feature by country. Doing that properly
+    needs a legally-vetted country list, which isn't something to guess at in code.
+  - [ ] **Nightly Stripe reconciliation job** (compare `donations`/`workspace_subscriptions`
+    against the Stripe API for drift) - a real, buildable feature, just not built yet. Worth
+    doing before scaling donation volume.
+  - [ ] **Fully automated DSAR export/delete.** `Account.jsx`'s "Request data export" / "Request
+    account deletion" buttons currently just log a request into `privacy_requests` for manual
+    handling (see `request()` in `Account.jsx`) - there's no admin UI to view that queue yet,
+    and no automated export across every table touching a given voter's data. Fine for a small
+    team handling requests within the GDPR one-month window by hand today; revisit if request
+    volume grows.
+  - GitHub repo settings: turn on **Dependabot alerts** and **Dependabot security updates**
+    under Settings -> Security (the `.github/dependabot.yml` added 2026-09-14 only covers
+    scheduled version-update PRs, which is a separate toggle).
+- [x] **Code-level fixes from the same review, done 2026-09-14** (see
+  `marketing/Godwit-Feature-Overview.md` Section 12 for the updated legal-review notes):
+  - Stripe webhook events are now persisted with their raw payload and a real idempotency
+    check on `event.id` (`supabase/20260914_stripe_webhook_audit_log.sql`,
+    `api/stripe-webhook.js`) - previously idempotency was only incidental (natural-key
+    upserts), now a duplicate delivery is detected and skipped explicitly, with an audit trail
+    for investigating a disputed payment/payout.
+  - Prize draws now require the admin to explicitly acknowledge local sweepstakes/promotional
+    law before enabling one (DB constraint `polls_raffle_requires_ack`, checkbox in
+    `CreatePoll.jsx`/`EditPoll.jsx`), and every winner pick is now logged to an audit table
+    (`raffle_draw_audit`) with a hashed entrant snapshot - not plaintext emails - so a disputed
+    draw can be verified later (`supabase/20260914_raffle_admin_ack_and_audit.sql`).
+  - Confirmed (already true, just not documented until now): donations are already blocked at
+    the database level until Stripe Connect KYC is verified - the `donation_settings` table has
+    a check constraint requiring `stripe_charges_enabled` before `is_enabled` can be true, and
+    every donation-checkout lookup filters on both. Card data has always gone straight to
+    Stripe (Checkout), never through Godwit's servers.
+  - Added `.github/dependabot.yml` for weekly npm + GitHub Actions dependency scanning.
+  - **Still to run**: `supabase/20260914_stripe_webhook_audit_log.sql` and
+    `supabase/20260914_raffle_admin_ack_and_audit.sql` in the Supabase SQL editor.
 - [x] Ran `supabase/20260922_qr_reward_prize_items.sql` (2026-09-14) - adds `reward` as a
   fourth QR-code item type, alongside poll/info/donation, for the "Reward & prize" section
   in the QR codes tab.

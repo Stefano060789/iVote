@@ -69,6 +69,8 @@ export async function savePollMeta(pollId, patch) {
         "review_platforms",
         "raffle_enabled",
         "raffle_prize",
+        "raffle_terms_acknowledged",
+        "raffle_rules_url",
         "loyalty_visit_threshold",
         "loyalty_benefit_message",
         "loyalty_benefit_code",

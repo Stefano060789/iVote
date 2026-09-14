@@ -80,6 +80,47 @@ async function recordDonation(object) {
   });
 }
 
+// Persist the verified raw event and, if it's the first time we've seen this event.id, return
+// true so the caller proceeds with side effects. A second delivery of the same event.id (Stripe
+// retries on timeout/5xx, or a delivery can simply be duplicated) hits the primary-key conflict,
+// is ignored, and the caller treats it as already handled - real idempotency, not just the
+// incidental safety of the natural-key upserts below.
+async function recordWebhookEventIfNew(event) {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceRoleKey) return true; // fail open rather than dropping a real event
+
+  const response = await fetch(`${supabaseUrl}/rest/v1/stripe_webhook_events?on_conflict=id`, {
+    method: "POST",
+    headers: {
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+      "Content-Type": "application/json",
+      Prefer: "resolution=ignore-duplicates,return=representation"
+    },
+    body: JSON.stringify({ id: event.id, event_type: event.type, payload: event })
+  });
+  if (!response.ok) return true; // fail open: don't block a real payment on an audit-log write
+  const rows = await response.json().catch(() => []);
+  return rows.length > 0;
+}
+
+async function markWebhookEventProcessed(eventId, errorMessage) {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceRoleKey || !eventId) return;
+  await fetch(`${supabaseUrl}/rest/v1/stripe_webhook_events?id=eq.${encodeURIComponent(eventId)}`, {
+    method: "PATCH",
+    headers: {
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal"
+    },
+    body: JSON.stringify({ processed_at: new Date().toISOString(), error: errorMessage || null })
+  }).catch(() => {}); // best-effort - never let audit-log bookkeeping fail the webhook response
+}
+
 export const config = { api: { bodyParser: false } };
 
 export default async function handler(request, response) {
@@ -102,8 +143,18 @@ export default async function handler(request, response) {
     return response.status(400).json({ error: "Invalid Stripe signature." });
   }
 
+  let event;
   try {
-    const event = JSON.parse(rawBody);
+    event = JSON.parse(rawBody);
+  } catch (error) {
+    captureError("Stripe webhook payload parse failed", error);
+    return response.status(400).json({ error: "Invalid payload." });
+  }
+
+  const isNewEvent = await recordWebhookEventIfNew(event);
+  if (!isNewEvent) return response.status(200).json({ received: true, duplicate: true });
+
+  try {
     const object = event.data?.object ?? {};
 
     // Connect account status changed (most importantly: onboarding completed) - update the
@@ -124,6 +175,7 @@ export default async function handler(request, response) {
           }
         }
       );
+      await markWebhookEventProcessed(event.id);
       return response.status(200).json({ received: true });
     }
 
@@ -132,11 +184,15 @@ export default async function handler(request, response) {
     // metadata.workspace_id as a plan change for that workspace).
     if (event.type === "checkout.session.completed" && object.metadata?.kind === "donation") {
       await recordDonation(object);
+      await markWebhookEventProcessed(event.id);
       return response.status(200).json({ received: true });
     }
 
     const workspaceId = object.metadata?.workspace_id;
-    if (!workspaceId) return response.status(200).json({ received: true });
+    if (!workspaceId) {
+      await markWebhookEventProcessed(event.id);
+      return response.status(200).json({ received: true });
+    }
 
     const plan = object.metadata?.plan || "free";
     const status = event.type === "checkout.session.completed"
@@ -151,9 +207,11 @@ export default async function handler(request, response) {
       current_period_end: object.current_period_end ? new Date(object.current_period_end * 1000).toISOString() : null,
       updated_at: new Date().toISOString()
     });
+    await markWebhookEventProcessed(event.id);
     return response.status(200).json({ received: true });
   } catch (error) {
     captureError("Stripe webhook failed", error);
+    await markWebhookEventProcessed(event.id, error.message);
     return response.status(500).json({ error: "Webhook processing failed." });
   }
 }

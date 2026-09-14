@@ -32,6 +32,8 @@ export default function EditPoll() {
   const [reviewPlatforms, setReviewPlatforms] = useState([{ name: "Google", url: "" }, { name: "Tripadvisor", url: "" }]);
   const [raffleEnabled, setRaffleEnabled] = useState(false);
   const [rafflePrize, setRafflePrize] = useState("");
+  const [raffleAcknowledged, setRaffleAcknowledged] = useState(false);
+  const [raffleRulesUrl, setRaffleRulesUrl] = useState("");
   const [loyaltyVisitThreshold, setLoyaltyVisitThreshold] = useState("");
   const [loyaltyBenefitMessage, setLoyaltyBenefitMessage] = useState("");
   const [loyaltyBenefitCode, setLoyaltyBenefitCode] = useState("");
@@ -71,6 +73,8 @@ export default function EditPoll() {
       setReviewPlatforms(Array.isArray(data.review_platforms ?? pollMeta.review_platforms) && (data.review_platforms ?? pollMeta.review_platforms).length > 0 ? (data.review_platforms ?? pollMeta.review_platforms) : [{ name: "Google", url: "" }, { name: "Tripadvisor", url: "" }]);
       setRaffleEnabled(data.raffle_enabled ?? pollMeta.raffle_enabled ?? false);
       setRafflePrize(data.raffle_prize ?? pollMeta.raffle_prize ?? "");
+      setRaffleAcknowledged(data.raffle_terms_acknowledged ?? pollMeta.raffle_terms_acknowledged ?? false);
+      setRaffleRulesUrl(data.raffle_rules_url ?? pollMeta.raffle_rules_url ?? "");
       setLoyaltyVisitThreshold(data.loyalty_visit_threshold ?? pollMeta.loyalty_visit_threshold ?? "");
       setLoyaltyBenefitMessage(data.loyalty_benefit_message ?? pollMeta.loyalty_benefit_message ?? "");
       setLoyaltyBenefitCode(data.loyalty_benefit_code ?? pollMeta.loyalty_benefit_code ?? "");
@@ -143,6 +147,11 @@ export default function EditPoll() {
 
     if (!question.trim() || cleanedAnswers.length === 0) return;
 
+    if (raffleEnabled && !raffleAcknowledged) {
+      alert("Confirm the prize draw eligibility rules checkbox before you can turn on a prize draw.");
+      return;
+    }
+
     const { error } = await supabase
       .from("polls")
       .update({
@@ -175,6 +184,8 @@ export default function EditPoll() {
       review_platforms: reviewPlatforms.filter((platform) => platform.url.trim()).map((platform) => ({ name: platform.name.trim(), url: platform.url.trim() })),
       raffle_enabled: raffleEnabled,
       raffle_prize: raffleEnabled ? rafflePrize.trim() || null : null,
+      raffle_terms_acknowledged: raffleEnabled ? raffleAcknowledged : false,
+      raffle_rules_url: raffleEnabled ? raffleRulesUrl.trim() || null : null,
       loyalty_visit_threshold: String(loyaltyVisitThreshold).trim() ? Number(loyaltyVisitThreshold) : null,
       loyalty_benefit_message: loyaltyBenefitMessage.trim() || null,
       loyalty_benefit_code: loyaltyBenefitCode.trim() || null,
@@ -383,9 +394,25 @@ export default function EditPoll() {
             className="w-full border p-2 rounded mb-1 text-black"
             placeholder="Prize: a free dessert, a $50 voucher..."
           />
-          <p className="mb-4 text-xs text-slate-400">
+          <p className="mb-2 text-xs text-slate-400">
             Voters will see official rules automatically: no purchase necessary, 18+ and locally eligible only, one entry per person, winner picked at random, void where prohibited.
           </p>
+          <input
+            type="url"
+            value={raffleRulesUrl}
+            onChange={(e) => setRaffleRulesUrl(e.target.value)}
+            className="w-full border p-2 rounded mb-2 text-black"
+            placeholder="Link to your own full official rules (optional)"
+          />
+          <label className="mb-4 flex items-start gap-2 text-xs">
+            <input
+              type="checkbox"
+              checked={raffleAcknowledged}
+              onChange={(e) => setRaffleAcknowledged(e.target.checked)}
+              className="mt-0.5"
+            />
+            <span>I confirm I've checked the promotional/sweepstakes law requirements that apply to this prize draw where I operate (registration, disclosures, or restrictions can apply above certain prize values).</span>
+          </label>
         </>
       )}
       </>

@@ -1,0 +1,21 @@
+version: 2
+updates:
+  # Keep npm dependencies patched against known vulnerabilities. Prompted by an external legal/
+  # security review (see marketing/Godwit-Feature-Overview.md, Section 9) that recommended
+  # ongoing dependency scanning rather than a one-time audit.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      production-dependencies:
+        dependency-type: "production"
+      development-dependencies:
+        dependency-type: "development"
+
+  # Keep the GitHub Actions workflows themselves patched too, if/when any are added.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
