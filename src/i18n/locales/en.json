@@ -50,6 +50,7 @@
     "flockEyebrow": "One product, a whole flock",
     "flockTitle": "Every part of Godwit has its own character.",
     "flockLede": "Seven specialists working together — each named after a bird, each with one job to do well.",
+    "flockCardAriaLabel": "Go to {{name}}'s area of the dashboard",
     "flock": {
       "robinName": "Robin",
       "robinRole": "Your friendly first guide",

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabase";
 import godwitLockup from "../assets/godwit-logo-lockup.svg";
@@ -34,12 +34,23 @@ const flockKeys = [
 export default function Landing() {
   const { t } = useTranslation("translation", { keyPrefix: "landing" });
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setIsSignedIn(Boolean(data.user)));
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => setIsSignedIn(Boolean(session?.user)));
     return () => listener.subscription.unsubscribe();
   }, []);
+
+  // Send a flock card to its matching Admin dashboard tab (or standalone page, for Waxwing's
+  // analytics). Works whether or not the visitor is signed in yet - /admin itself handles
+  // redirecting a signed-out visitor to login first.
+  function goToFlockItem(birdKey) {
+    const member = FLOCK.find((item) => item.key === birdKey);
+    if (!member) return;
+    if (member.tab) navigate(`/admin?tab=${member.tab}`);
+    else if (member.route) navigate(member.route);
+  }
 
   return (
     <main className="landing-page">
@@ -102,12 +113,18 @@ export default function Landing() {
         </div>
         <div className="landing-flock-grid">
           {flockKeys.map((bird) => (
-            <article key={bird.key} className="landing-flock-card">
+            <button
+              type="button"
+              key={bird.key}
+              className="landing-flock-card"
+              onClick={() => goToFlockItem(bird.key)}
+              aria-label={t("flockCardAriaLabel", { name: t(bird.nameKey) })}
+            >
               <FlockAvatar bird={FLOCK.find((member) => member.key === bird.key)} size={44} className="landing-flock-badge" />
               <h3>{t(bird.nameKey)}</h3>
               <p className="landing-flock-role">{t(bird.roleKey)}</p>
               <p>{t(bird.detailKey)}</p>
-            </article>
+            </button>
           ))}
         </div>
       </section>
