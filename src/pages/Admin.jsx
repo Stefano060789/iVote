@@ -575,6 +575,17 @@ export default function Admin() {
     }
   }
 
+  // Lets a poll card offer "add this poll to a QR code" directly, without going to the QR
+  // codes tab first. Same underlying operation as the QR tab's "Add a poll..." form.
+  async function assignPollToQrCode(pollId, campaignId) {
+    try {
+      const item = await addQrCampaignPollItem(campaignId, pollId);
+      setQrCampaignItems((current) => [...current, item]);
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
   async function handleAddInfoItem(campaignId) {
     if (!itemTitle.trim()) {
       alert("Give the info card a title.");
@@ -625,6 +636,28 @@ export default function Admin() {
 
   async function handleMoveItem(campaignId, itemId, direction) {
     const items = itemsForCampaign(campaignId);
+    const index = items.findIndex((item) => item.id === itemId);
+    const swapIndex = direction === "up" ? index - 1 : index + 1;
+    if (index < 0 || swapIndex < 0 || swapIndex >= items.length) return;
+    const current = items[index];
+    const swapWith = items[swapIndex];
+    try {
+      await swapQrCampaignItemPositions(current, swapWith);
+      setQrCampaignItems((prev) => prev.map((item) => {
+        if (item.id === current.id) return { ...item, sort_order: swapWith.sort_order };
+        if (item.id === swapWith.id) return { ...item, sort_order: current.sort_order };
+        return item;
+      }));
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
+  // Same reordering as handleMoveItem, but scoped to one item type (poll/info/donation) so the
+  // Polls/Info/Donation sections in the QR tab can each have their own independent up/down
+  // controls, instead of moving an item past unrelated items of a different type.
+  async function handleMoveItemWithinType(campaignId, itemId, itemType, direction) {
+    const items = itemsForCampaign(campaignId).filter((item) => item.item_type === itemType);
     const index = items.findIndex((item) => item.id === itemId);
     const swapIndex = direction === "up" ? index - 1 : index + 1;
     if (index < 0 || swapIndex < 0 || swapIndex >= items.length) return;
@@ -2253,122 +2286,171 @@ export default function Admin() {
                     <summary className="cursor-pointer p-2 text-sm font-semibold">
                       {t("admin.engagement.campaigns.itemsOnQr", { count: itemsForCampaign(campaign.id).length })}
                     </summary>
-                    <div className="space-y-3 p-3">
+                    <div className="space-y-4 p-3">
                       <p className="text-xs text-slate-400">
                         {t("admin.engagement.campaigns.itemsHint")}
                       </p>
-                      {campaign.poll_id && !itemsForCampaign(campaign.id).some((item) => item.item_type === "poll" && item.poll_id === campaign.poll_id) && (
-                        <button
-                          type="button"
-                          onClick={() => handleAddCurrentPollAsItem(campaign)}
-                          className="text-xs font-semibold text-blue-300 underline"
-                        >
-                          {t("admin.engagement.items.addCurrentPoll", { id: campaign.poll_id })}
-                        </button>
-                      )}
 
-                      {itemsForCampaign(campaign.id).length > 0 && (
-                        <div className="space-y-1.5">
-                          {itemsForCampaign(campaign.id).map((item, index, all) => (
-                            <div key={item.id} className="flex items-center justify-between gap-2 rounded border border-slate-700 p-2 text-sm">
-                              <div className="min-w-0">
-                                {item.item_type === "poll" ? (
-                                  <p className="truncate">📊 <button type="button" onClick={() => goToPoll(item.poll_id)} className="font-semibold text-teal-300 underline">{t("admin.polls.card.pollNumber", { id: item.poll_id })}</button> - {polls.find((poll) => poll.id === item.poll_id)?.question || t("admin.engagement.items.unknownPoll")}</p>
-                                ) : item.item_type === "donation" ? (
-                                  <p className="truncate">💛 {t("admin.engagement.items.donationLabel")}{item.title ? ` - ${item.title}` : ` (${t("admin.engagement.items.default")})`}</p>
-                                ) : (
+                      {/* POLLS */}
+                      <div className="rounded-lg border border-blue-800 bg-blue-950/10 p-3">
+                        <p className="text-sm font-bold text-blue-300">📊 {t("admin.engagement.items.sectionPolls")}</p>
+                        <p className="mt-0.5 text-xs text-slate-400">{t("admin.engagement.items.sectionPollsHint")}</p>
+
+                        {campaign.poll_id && !itemsForCampaign(campaign.id).some((item) => item.item_type === "poll" && item.poll_id === campaign.poll_id) && (
+                          <button
+                            type="button"
+                            onClick={() => handleAddCurrentPollAsItem(campaign)}
+                            className="mt-2 text-xs font-semibold text-blue-300 underline"
+                          >
+                            {t("admin.engagement.items.addCurrentPoll", { id: campaign.poll_id })}
+                          </button>
+                        )}
+
+                        {(() => {
+                          const pollItems = itemsForCampaign(campaign.id).filter((item) => item.item_type === "poll");
+                          return pollItems.length > 0 && (
+                            <div className="mt-2 space-y-1.5">
+                              {pollItems.map((item, index, all) => (
+                                <div key={item.id} className="flex items-center justify-between gap-2 rounded border border-slate-700 bg-slate-950/60 p-2 text-sm">
+                                  <p className="min-w-0 truncate">
+                                    <button type="button" onClick={() => goToPoll(item.poll_id)} className="font-semibold text-teal-300 underline">{t("admin.polls.card.pollNumber", { id: item.poll_id })}</button>
+                                    {" - "}{polls.find((poll) => poll.id === item.poll_id)?.question || t("admin.engagement.items.unknownPoll")}
+                                  </p>
+                                  <div className="flex shrink-0 items-center gap-1">
+                                    <button type="button" onClick={() => handleMoveItemWithinType(campaign.id, item.id, "poll", "up")} disabled={index === 0} className="rounded px-2 py-1 disabled:opacity-30">↑</button>
+                                    <button type="button" onClick={() => handleMoveItemWithinType(campaign.id, item.id, "poll", "down")} disabled={index === all.length - 1} className="rounded px-2 py-1 disabled:opacity-30">↓</button>
+                                    <button type="button" onClick={() => handleRemoveItem(item.id)} className="rounded px-2 py-1 font-semibold text-red-400">{t("admin.engagement.items.remove")}</button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })()}
+
+                        <div className="mt-2 grid gap-2 md:grid-cols-3">
+                          <select
+                            value={itemFormCampaignId === campaign.id ? itemPollId : ""}
+                            onChange={(event) => { setItemFormCampaignId(campaign.id); setItemPollId(event.target.value); }}
+                            className="border p-2 rounded text-black md:col-span-2"
+                          >
+                            <option value="">{t("admin.engagement.items.addPollOption")}</option>
+                            {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
+                          </select>
+                          <button type="button" onClick={() => handleAddPollItem(campaign.id)} className="bg-blue-700 text-white px-3 py-2 rounded font-semibold">{t("admin.engagement.items.addPoll")}</button>
+                        </div>
+                      </div>
+
+                      {/* INFO */}
+                      <div className="rounded-lg border border-slate-600 bg-slate-800/20 p-3">
+                        <p className="text-sm font-bold text-slate-200">📄 {t("admin.engagement.items.sectionInfo")}</p>
+                        <p className="mt-0.5 text-xs text-slate-400">{t("admin.engagement.items.sectionInfoHint")}</p>
+
+                        {(() => {
+                          const infoItems = itemsForCampaign(campaign.id).filter((item) => item.item_type === "info");
+                          return infoItems.length > 0 && (
+                            <div className="mt-2 space-y-1.5">
+                              {infoItems.map((item, index, all) => (
+                                <div key={item.id} className="flex items-center justify-between gap-2 rounded border border-slate-700 bg-slate-950/60 p-2 text-sm">
                                   <div className="min-w-0">
-                                    <p className="truncate">📄 {item.title}{item.link_url ? ` · ${item.link_label || t("admin.engagement.items.link")}` : ""}</p>
+                                    <p className="truncate">{item.title}{item.link_url ? ` · ${item.link_label || t("admin.engagement.items.link")}` : ""}</p>
                                     {item.accessibility_tags?.length > 0 && (
                                       <p className="truncate text-xs text-slate-400">
                                         {item.accessibility_tags.map((tag) => ACCESSIBILITY_TAGS.find((entry) => entry.value === tag)?.icon).filter(Boolean).join(" ")}
                                       </p>
                                     )}
                                   </div>
-                                )}
-                              </div>
-                              <div className="flex shrink-0 items-center gap-1">
-                                <button type="button" onClick={() => handleMoveItem(campaign.id, item.id, "up")} disabled={index === 0} className="rounded px-2 py-1 disabled:opacity-30">↑</button>
-                                <button type="button" onClick={() => handleMoveItem(campaign.id, item.id, "down")} disabled={index === all.length - 1} className="rounded px-2 py-1 disabled:opacity-30">↓</button>
-                                <button type="button" onClick={() => handleRemoveItem(item.id)} className="rounded px-2 py-1 font-semibold text-red-400">{t("admin.engagement.items.remove")}</button>
-                              </div>
+                                  <div className="flex shrink-0 items-center gap-1">
+                                    <button type="button" onClick={() => handleMoveItemWithinType(campaign.id, item.id, "info", "up")} disabled={index === 0} className="rounded px-2 py-1 disabled:opacity-30">↑</button>
+                                    <button type="button" onClick={() => handleMoveItemWithinType(campaign.id, item.id, "info", "down")} disabled={index === all.length - 1} className="rounded px-2 py-1 disabled:opacity-30">↓</button>
+                                    <button type="button" onClick={() => handleRemoveItem(item.id)} className="rounded px-2 py-1 font-semibold text-red-400">{t("admin.engagement.items.remove")}</button>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
-                          ))}
+                          );
+                        })()}
+
+                        <div className="mt-2 grid gap-2 md:grid-cols-2">
+                          <input
+                            value={itemFormCampaignId === campaign.id ? itemTitle : ""}
+                            onChange={(event) => { setItemFormCampaignId(campaign.id); setItemTitle(event.target.value); }}
+                            maxLength={120}
+                            className="border p-2 rounded text-black"
+                            placeholder={t("admin.engagement.items.infoTitlePlaceholder")}
+                          />
+                          <input
+                            value={itemFormCampaignId === campaign.id ? itemLinkUrl : ""}
+                            onChange={(event) => { setItemFormCampaignId(campaign.id); setItemLinkUrl(event.target.value); }}
+                            className="border p-2 rounded text-black"
+                            placeholder={t("admin.engagement.items.linkUrlPlaceholder")}
+                          />
+                          <textarea
+                            value={itemFormCampaignId === campaign.id ? itemBody : ""}
+                            onChange={(event) => { setItemFormCampaignId(campaign.id); setItemBody(event.target.value); }}
+                            maxLength={2000}
+                            rows="2"
+                            className="border p-2 rounded text-black md:col-span-2"
+                            placeholder={t("admin.engagement.items.infoBodyPlaceholder")}
+                          />
+                          <input
+                            value={itemFormCampaignId === campaign.id ? itemLinkLabel : ""}
+                            onChange={(event) => { setItemFormCampaignId(campaign.id); setItemLinkLabel(event.target.value); }}
+                            maxLength={60}
+                            className="border p-2 rounded text-black"
+                            placeholder={t("admin.engagement.items.linkLabelPlaceholder")}
+                          />
+                          <input
+                            value={itemFormCampaignId === campaign.id ? itemImageUrl : ""}
+                            onChange={(event) => { setItemFormCampaignId(campaign.id); setItemImageUrl(event.target.value); }}
+                            className="border p-2 rounded text-black md:col-span-2"
+                            placeholder={t("admin.engagement.items.imageUrlPlaceholder")}
+                          />
+                          <fieldset className="md:col-span-2 rounded border border-slate-700 p-2">
+                            <legend className="text-xs font-semibold text-slate-300 px-1">{t("admin.engagement.items.accessibilityLegend")}</legend>
+                            <div className="flex flex-wrap gap-3 pt-1">
+                              {ACCESSIBILITY_TAGS.map((tag) => (
+                                <label key={tag.value} className="flex items-center gap-1 text-sm text-slate-200">
+                                  <input
+                                    type="checkbox"
+                                    checked={itemFormCampaignId === campaign.id && itemAccessibilityTags.includes(tag.value)}
+                                    onChange={() => { setItemFormCampaignId(campaign.id); toggleItemAccessibilityTag(tag.value); }}
+                                  />
+                                  <span aria-hidden="true">{tag.icon}</span> {t(tag.labelKey)}
+                                </label>
+                              ))}
+                            </div>
+                          </fieldset>
+                          <button type="button" onClick={() => handleAddInfoItem(campaign.id)} className="bg-slate-600 text-white px-3 py-2 rounded font-semibold">{t("admin.engagement.items.addInfoCard")}</button>
                         </div>
-                      )}
-
-                      <div className="grid gap-2 md:grid-cols-3">
-                        <select
-                          value={itemFormCampaignId === campaign.id ? itemPollId : ""}
-                          onChange={(event) => { setItemFormCampaignId(campaign.id); setItemPollId(event.target.value); }}
-                          className="border p-2 rounded text-black md:col-span-2"
-                        >
-                          <option value="">{t("admin.engagement.items.addPollOption")}</option>
-                          {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
-                        </select>
-                        <button type="button" onClick={() => handleAddPollItem(campaign.id)} className="bg-violet-600 text-white px-3 py-2 rounded font-semibold">{t("admin.engagement.items.addPoll")}</button>
                       </div>
 
-                      <div className="grid gap-2 md:grid-cols-2">
-                        <input
-                          value={itemFormCampaignId === campaign.id ? itemTitle : ""}
-                          onChange={(event) => { setItemFormCampaignId(campaign.id); setItemTitle(event.target.value); }}
-                          maxLength={120}
-                          className="border p-2 rounded text-black"
-                          placeholder={t("admin.engagement.items.infoTitlePlaceholder")}
-                        />
-                        <input
-                          value={itemFormCampaignId === campaign.id ? itemLinkUrl : ""}
-                          onChange={(event) => { setItemFormCampaignId(campaign.id); setItemLinkUrl(event.target.value); }}
-                          className="border p-2 rounded text-black"
-                          placeholder={t("admin.engagement.items.linkUrlPlaceholder")}
-                        />
-                        <textarea
-                          value={itemFormCampaignId === campaign.id ? itemBody : ""}
-                          onChange={(event) => { setItemFormCampaignId(campaign.id); setItemBody(event.target.value); }}
-                          maxLength={2000}
-                          rows="2"
-                          className="border p-2 rounded text-black md:col-span-2"
-                          placeholder={t("admin.engagement.items.infoBodyPlaceholder")}
-                        />
-                        <input
-                          value={itemFormCampaignId === campaign.id ? itemLinkLabel : ""}
-                          onChange={(event) => { setItemFormCampaignId(campaign.id); setItemLinkLabel(event.target.value); }}
-                          maxLength={60}
-                          className="border p-2 rounded text-black"
-                          placeholder={t("admin.engagement.items.linkLabelPlaceholder")}
-                        />
-                        <input
-                          value={itemFormCampaignId === campaign.id ? itemImageUrl : ""}
-                          onChange={(event) => { setItemFormCampaignId(campaign.id); setItemImageUrl(event.target.value); }}
-                          className="border p-2 rounded text-black md:col-span-2"
-                          placeholder={t("admin.engagement.items.imageUrlPlaceholder")}
-                        />
-                        <fieldset className="md:col-span-2 rounded border border-slate-700 p-2">
-                          <legend className="text-xs font-semibold text-slate-300 px-1">{t("admin.engagement.items.accessibilityLegend")}</legend>
-                          <div className="flex flex-wrap gap-3 pt-1">
-                            {ACCESSIBILITY_TAGS.map((tag) => (
-                              <label key={tag.value} className="flex items-center gap-1 text-sm text-slate-200">
-                                <input
-                                  type="checkbox"
-                                  checked={itemFormCampaignId === campaign.id && itemAccessibilityTags.includes(tag.value)}
-                                  onChange={() => { setItemFormCampaignId(campaign.id); toggleItemAccessibilityTag(tag.value); }}
-                                />
-                                <span aria-hidden="true">{tag.icon}</span> {t(tag.labelKey)}
-                              </label>
-                            ))}
-                          </div>
-                        </fieldset>
-                        <button type="button" onClick={() => handleAddInfoItem(campaign.id)} className="bg-violet-600 text-white px-3 py-2 rounded font-semibold">{t("admin.engagement.items.addInfoCard")}</button>
-                      </div>
+                      {/* DONATION */}
+                      <div className="rounded-lg border border-amber-700 bg-amber-950/10 p-3">
+                        <p className="text-sm font-bold text-amber-300">💛 {t("admin.engagement.items.sectionDonation")}</p>
+                        <p className="mt-0.5 text-xs text-slate-400">{t("admin.engagement.items.sectionDonationHint")}</p>
 
-                      <div className="rounded border border-slate-700 p-3">
+                        {(() => {
+                          const donationItems = itemsForCampaign(campaign.id).filter((item) => item.item_type === "donation");
+                          return donationItems.length > 0 && (
+                            <div className="mt-2 space-y-1.5">
+                              {donationItems.map((item) => (
+                                <div key={item.id} className="flex items-center justify-between gap-2 rounded border border-slate-700 bg-slate-950/60 p-2 text-sm">
+                                  <p className="truncate">{item.title ? item.title : t("admin.engagement.items.default")}</p>
+                                  <button type="button" onClick={() => handleRemoveItem(item.id)} className="rounded px-2 py-1 font-semibold text-red-400">{t("admin.engagement.items.remove")}</button>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })()}
+
                         {donationSettings.is_enabled ? (
-                          <button type="button" onClick={() => handleAddDonationItem(campaign.id)} className="bg-amber-500 text-slate-950 px-3 py-2 rounded font-semibold">
-                            💛 {t("admin.engagement.items.addDonationOption")}
-                          </button>
+                          itemsForCampaign(campaign.id).some((item) => item.item_type === "donation") ? null : (
+                            <button type="button" onClick={() => handleAddDonationItem(campaign.id)} className="mt-2 bg-amber-500 text-slate-950 px-3 py-2 rounded font-semibold">
+                              {t("admin.engagement.items.addDonationOption")}
+                            </button>
+                          )
                         ) : (
-                          <p className="text-xs text-slate-500">{t("admin.engagement.items.enableDonationsNote")}</p>
+                          <p className="mt-2 text-xs text-slate-500">{t("admin.engagement.items.enableDonationsNote")}</p>
                         )}
                       </div>
                     </div>
@@ -3193,22 +3275,49 @@ export default function Admin() {
                 {t("admin.polls.card.viewResults")}
               </Link>
 
-              <button onClick={() => { setShowQR(showQR === poll.id ? null : poll.id); if (workspaceUserId) { localStorage.setItem(`ivote_qr_shared_${workspaceUserId}`, "true"); setQrShared(true); } }} className="rounded border border-slate-500 px-3 py-2 font-semibold text-slate-100">
-                {showQR === poll.id ? t("admin.polls.card.hideQr") : t("admin.polls.card.openQrTools")}
+              <button onClick={() => duplicatePoll(poll)} disabled={!canDuplicatePolls} className="rounded border border-slate-500 px-3 py-2 font-semibold text-slate-100 disabled:opacity-40">
+                {t("admin.polls.card.duplicatePoll")}
               </button>
 
-              <Link to={`/vote/${poll.id}`} className="rounded border border-slate-600 px-3 py-2 font-semibold text-slate-200">
-                {t("admin.polls.card.openVotePage")}
-              </Link>
+              <button onClick={() => exportPollCsv(poll)} disabled={!canExportResults} className="rounded border border-slate-500 px-3 py-2 font-semibold text-slate-100 disabled:opacity-40">
+                {t("admin.polls.card.exportCsv")}
+              </button>
+
+              <details className="relative">
+                <summary className="cursor-pointer rounded border border-blue-700 px-3 py-2 font-semibold text-blue-200">📊 {t("admin.polls.card.addToQr")}</summary>
+                <div className="absolute right-0 z-10 mt-2 grid min-w-64 gap-1 rounded border border-slate-700 bg-slate-950 p-2 shadow-xl">
+                  {qrCampaigns.length === 0 ? (
+                    <p className="px-3 py-2 text-xs text-slate-400">
+                      {t("admin.polls.card.noQrCodesYet")}{" "}
+                      <button type="button" onClick={() => setActiveTab("engagement")} className="font-semibold text-teal-300 underline">{t("admin.polls.card.setOneUp")}</button>
+                    </p>
+                  ) : qrCampaigns.map((campaign) => {
+                    const alreadyLinked = campaign.poll_id === poll.id || itemsForCampaign(campaign.id).some((item) => item.item_type === "poll" && item.poll_id === poll.id);
+                    return (
+                      <button
+                        key={campaign.id}
+                        type="button"
+                        disabled={alreadyLinked || !canReuseQr}
+                        onClick={() => assignPollToQrCode(poll.id, campaign.id)}
+                        className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500"
+                      >
+                        {campaign.name}{alreadyLinked ? ` (${t("admin.polls.card.alreadyLinked")})` : ""}
+                      </button>
+                    );
+                  })}
+                </div>
+              </details>
 
               <details className="relative">
                 <summary className="cursor-pointer rounded border border-slate-600 px-3 py-2 font-semibold text-slate-300">{t("admin.polls.card.moreActions")}</summary>
                 <div className="absolute right-0 z-10 mt-2 grid min-w-56 gap-1 rounded border border-slate-700 bg-slate-950 p-2 shadow-xl">
                   <Link to={`/edit/${poll.id}`} className={`rounded px-3 py-2 text-left ${canEditPolls ? "hover:bg-slate-800" : "pointer-events-none text-slate-500"}`}>{t("admin.polls.card.editPoll")}</Link>
                   <button onClick={() => copyShareLink(poll)} className="rounded px-3 py-2 text-left hover:bg-slate-800">{t("admin.polls.card.copyVotingLink")}</button>
-                  <button onClick={() => duplicatePoll(poll)} disabled={!canDuplicatePolls} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">{t("admin.polls.card.duplicatePoll")}</button>
+                  <Link to={`/vote/${poll.id}`} className="rounded px-3 py-2 text-left hover:bg-slate-800">{t("admin.polls.card.openVotePage")}</Link>
+                  <button onClick={() => { setShowQR(showQR === poll.id ? null : poll.id); if (workspaceUserId) { localStorage.setItem(`ivote_qr_shared_${workspaceUserId}`, "true"); setQrShared(true); } }} className="rounded px-3 py-2 text-left hover:bg-slate-800">
+                    {showQR === poll.id ? t("admin.polls.card.hideQr") : t("admin.polls.card.openQrTools")}
+                  </button>
                   <button onClick={() => reuseQR(poll)} disabled={!canReuseQr} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">{t("admin.polls.card.assignExistingQr")}</button>
-                  <button onClick={() => exportPollCsv(poll)} disabled={!canExportResults} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">{t("admin.polls.card.exportCsv")}</button>
                   <button onClick={() => copyEmbedWidgetSnippet(poll)} className="rounded px-3 py-2 text-left hover:bg-slate-800">{t("admin.polls.card.copyWidgetEmbed")}</button>
                   <button onClick={() => copyTrustBadgeSnippet(poll)} className="rounded px-3 py-2 text-left hover:bg-slate-800">{t("admin.polls.card.copyTrustBadgeEmbed")}</button>
                   <button onClick={() => closePoll(poll)} disabled={!canClosePolls} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">{isClosed ? t("admin.polls.card.reopenPoll") : t("admin.polls.card.closePoll")}</button>

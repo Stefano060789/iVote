@@ -36,9 +36,9 @@ export const FLOCK = [
     tab: "connection"
   },
   {
-    key: "waxwing",
-    name: "Waxwing",
-    role: "The premium plumage",
+    key: "magpie",
+    name: "Magpie",
+    role: "Gathers everything into one nest",
     detail: "Builds each QR code as a menu: one or more polls, an info card, and a donation ask, plus rotations and prize draws.",
     icon: "\u2728",
     tab: "engagement"
@@ -60,9 +60,9 @@ export const FLOCK = [
     tab: "settings"
   },
   {
-    key: "magpie",
-    name: "Magpie",
-    role: "Gathers the scattered nest",
+    key: "waxwing",
+    name: "Waxwing",
+    role: "The premium overview",
     detail: "Pulls trends from every poll and QR location into one dashboard, so nothing gets missed.",
     icon: "\ud83d\udcca",
     tab: null,
