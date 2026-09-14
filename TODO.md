@@ -114,6 +114,15 @@ address them.
   text carries real liability risk (a mistranslated clause on refunds, data-processor terms, etc. could be read
   as legally binding in that language) - many companies handle it exactly this way rather than translating ToS
   literally.
+- [ ] **Add Russian and Ukrainian.** Follow the existing pattern: new `src/i18n/locales/ru.json` /
+  `uk.json` (Ukrainian uses `dir: "ltr"` like the rest, no RTL needed), add both to
+  `SUPPORTED_LANGUAGES` in `src/i18n/languages.js` and to the `resources` map in `src/i18n/index.js`.
+  Since `Vote.jsx`/`ThankYou.jsx`/`Billing.jsx`/`Admin.jsx` are already fully keyed with `t("...")`,
+  this is "translate every key already in `en.json` into these two languages" rather than new
+  wiring work. Also worth adding Cyrillic keyword coverage (`politicalTerms`/etc. in
+  `restrictedContent.js`) for the same reason the other languages are covered there - a
+  Russian/Ukrainian-speaking voter can submit restricted-topic free text regardless of which UI
+  language they picked.
 
 ## QR codes with multiple linked items
 
