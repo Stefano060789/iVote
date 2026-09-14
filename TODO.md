@@ -26,6 +26,11 @@ address them.
   (2026-09-14) - verified `workspaces.last_active_at`, `workspace_admin_events`,
   `qr_campaign_items.accessibility_tags`, `log_workspace_admin_event()`, and
   `get_public_qr_campaign_items()` all exist in the live schema.
+- [ ] **Set two Sentry DSNs in Vercel's Production environment variables** (2026-09-14): update
+  `VITE_SENTRY_DSN` (was a placeholder) to the new `godwit-frontend` project DSN, and add a new
+  `SENTRY_DSN` var with the `godwit-api` project DSN. Values were given directly, not committed
+  to the repo. Redeploy after saving so the running functions pick them up. See
+  "Pilot readiness" section below for the full story.
 
 ## Robin's persona guide
 
@@ -187,15 +192,33 @@ handful of venues.
   daily backups retained 7 days)** - a real recurring cost, so this needs your decision, not
   just configuration. Once upgraded, still do an actual test restore before the pilot, not
   just confirm the toggle is on.
-- [ ] **Wire up monitoring/alert routing - partially done.** Checked Vercel's own notification
-  settings: **Deployment Failure** emails are already on by default for the account owner
-  (Team Settings -> My Notifications -> Deployments). Real-time runtime error-rate/anomaly
-  alerting ("Observability Plus") is **gated behind Vercel Pro** on this project's current
-  Hobby plan - not configurable without upgrading. Sentry alert rules (for new frontend error
-  types) are still untouched - Sentry isn't connected as a Vercel integration, so it needs its
-  own dashboard access to configure; ask whoever set up `VITE_SENTRY_DSN` for the org/project
-  URL, or confirm whether a Sentry project was ever actually created (the env var could still
-  be a placeholder).
+- [x] **Sentry fully wired up (2026-09-14).** The `VITE_SENTRY_DSN` env var was confirmed to be
+  a placeholder - the "godwit-vt" Sentry org had zero projects. Fixed properly:
+  - Created two Sentry projects (client/server errors were never worth mixing in one feed):
+    `godwit-frontend` (React) and `godwit-api` (Node, "Vanilla" - matches Vercel's plain
+    handler-function style). **Action needed from you**: update Vercel's `VITE_SENTRY_DSN` to
+    the `godwit-frontend` DSN, and add a new `SENTRY_DSN` env var with the `godwit-api` DSN
+    (values given separately - not committed to the repo).
+  - Added `lib/errorReporting.js` (`captureError(label, error)`) - a drop-in replacement for
+    the `console.error(label, error)` pattern already used throughout `api/*.js` and
+    `lib/cron/*.js`. Before this, **only the browser React app was ever reported to Sentry** -
+    a Stripe webhook failure, a cron job throwing, or an AI classification error was invisible
+    outside Vercel's own function logs. Now 16 of 18 `console.error` call sites (every real
+    `catch` block) also report to Sentry when `SENTRY_DSN` is set; still `console.error`-only
+    console logging kept exactly as before either way. The 2 sites left untouched
+    (`generate-qr-poster.js`, `refresh-reputation.js`) are expected/handled API-error payloads
+    with a friendly message already shown to the user, not bugs - reporting those would just be
+    noise.
+  - Verified end-to-end with a real test error from a local script targeting the live
+    `godwit-api` DSN - it appeared in the Sentry issue feed within seconds (`GODWIT-API-1`).
+  - Both new projects already have Sentry's default "notify on new/existing high-priority
+    issue" email alert rule active (confirmed it fired on the test error) - no extra alert
+    configuration was needed.
+  - `api/system-status.js` now reports `monitoring.sentryServerDsn` alongside the existing
+    `monitoring.sentryDsn`, so a future check can confirm both DSNs are configured before
+    onboarding a pilot venue.
+  - **Still not done**: Vercel's own real-time anomaly alerting ("Observability Plus") remains
+    gated behind a Vercel Pro upgrade - unrelated to Sentry, a separate paid-plan decision.
 - [x] **Accessibility pass on the public voting flow** (`Vote.jsx`, `ThankYou.jsx`,
   `QrRedirect.jsx`). Added `<main>` landmarks (Layout.jsx and ThankYou.jsx didn't have one);
   the answer list is a labelled `role="group"`; translated question/answers get a per-element

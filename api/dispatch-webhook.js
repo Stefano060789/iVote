@@ -1,3 +1,5 @@
+import { captureError } from "../lib/errorReporting.js";
+
 function isSafeWebhookUrl(value) {
   try {
     const parsed = new URL(value);
@@ -57,7 +59,7 @@ export default async function handler(request, response) {
 
     return response.status(200).json({ delivered: delivery.ok });
   } catch (error) {
-    console.error("Webhook dispatch failed", error);
+    captureError("Webhook dispatch failed", error);
     return response.status(200).json({ delivered: false });
   }
 }

@@ -14,6 +14,7 @@ import { runWeeklyReport } from "../lib/cron/weeklyReportJob.js";
 import { runAnomalyCheck } from "../lib/cron/anomalyCheckJob.js";
 import { runPurgeOldVotes } from "../lib/cron/purgeOldVotesJob.js";
 import { runSendWinbackEmails } from "../lib/cron/sendWinbackEmailsJob.js";
+import { captureError } from "../lib/errorReporting.js";
 
 const JOBS = {
   "weekly-report": { run: runWeeklyReport, methods: ["GET"] },
@@ -42,7 +43,7 @@ export default async function handler(request, response) {
     const result = await job.run();
     return response.status(200).json(result);
   } catch (error) {
-    console.error(`Cron job "${jobName}" failed`, error);
+    captureError(`Cron job "${jobName}" failed`, error);
     return response.status(500).json({ error: `Cron job "${jobName}" failed.` });
   }
 }

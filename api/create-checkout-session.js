@@ -10,6 +10,8 @@
 //     charge Checkout Session that sends 90% to the workspace's connected account and a 10%
 //     application fee to the platform account.
 
+import { captureError } from "../lib/errorReporting.js";
+
 const PLANS = {
   starter: { priceEnv: "STRIPE_PRICE_STARTER", label: "Starter" },
   growth: { priceEnv: "STRIPE_PRICE_GROWTH", label: "Growth" }
@@ -165,7 +167,7 @@ async function handleSubscriptionCheckout(request, response) {
     if (!checkout.url) throw new Error("Stripe did not return a checkout URL.");
     return response.status(200).json({ url: checkout.url, plan: plan.label, trialDays: trialEligible ? FREE_TRIAL_DAYS : 0 });
   } catch (error) {
-    console.error("Stripe Checkout error", error);
+    captureError("Stripe Checkout error", error);
     return response.status(500).json({ error: "Unable to start checkout right now." });
   }
 }
@@ -216,7 +218,7 @@ async function handleConnectOnboarding(request, response) {
     const accountLink = await stripeRequest("/account_links", linkForm, stripeSecretKey);
     return response.status(200).json({ url: accountLink.url });
   } catch (error) {
-    console.error("Stripe Connect onboarding error", error);
+    captureError("Stripe Connect onboarding error", error);
     return response.status(500).json({ error: "Unable to start Stripe onboarding right now." });
   }
 }
@@ -259,7 +261,7 @@ async function handleConnectStatus(request, response) {
       detailsSubmitted: Boolean(account.details_submitted)
     });
   } catch (error) {
-    console.error("Stripe Connect status refresh error", error);
+    captureError("Stripe Connect status refresh error", error);
     return response.status(500).json({ error: "Unable to check Stripe status right now." });
   }
 }
@@ -320,7 +322,7 @@ async function handleDonationCheckout(request, response) {
     if (!checkout.url) throw new Error("Stripe did not return a checkout URL.");
     return response.status(200).json({ url: checkout.url });
   } catch (error) {
-    console.error("Donation checkout error", error);
+    captureError("Donation checkout error", error);
     return response.status(500).json({ error: "Unable to start the donation right now." });
   }
 }

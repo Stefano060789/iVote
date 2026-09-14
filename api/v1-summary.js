@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { captureError } from "../lib/errorReporting.js";
 
 async function supabaseGet(path) {
   const url = process.env.SUPABASE_URL;
@@ -45,7 +46,7 @@ export default async function handler(request, response) {
 
     return response.status(200).json({ polls: pollCount, votes: voteCount, openAlerts, recentVotes });
   } catch (error) {
-    console.error("API v1 summary failed", error);
+    captureError("API v1 summary failed", error);
     return response.status(500).json({ error: "Unable to load summary right now." });
   }
 }

@@ -1,3 +1,5 @@
+import { captureError } from "../lib/errorReporting.js";
+
 async function supabaseGet(path) {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -107,13 +109,13 @@ export default async function handler(request, response) {
           });
         }
       } catch (reportError) {
-        console.error("Failed to log auto-moderation audit entry", reportError);
+        captureError("Failed to log auto-moderation audit entry", reportError);
       }
     }
 
     return response.status(200).json({ classified: Boolean(sentiment), sentiment, restricted });
   } catch (error) {
-    console.error("Sentiment classification failed", error);
+    captureError("Sentiment classification failed", error);
     return response.status(200).json({ classified: false });
   }
 }

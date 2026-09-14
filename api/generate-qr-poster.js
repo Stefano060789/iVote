@@ -1,3 +1,5 @@
+import { captureError } from "../lib/errorReporting.js";
+
 const MAX_PROMPT_LENGTH = 280;
 
 function readBearerToken(request) {
@@ -85,7 +87,7 @@ export default async function handler(request, response) {
 
     return response.status(200).json({ imageUrl });
   } catch (error) {
-    console.error("AI image generation error", error);
+    captureError("AI image generation error", error);
     return response.status(500).json({ error: "Unable to generate an image right now." });
   }
 }

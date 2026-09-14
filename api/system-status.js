@@ -44,7 +44,8 @@ export default async function handler(request, response) {
       openAiApiKey: Boolean(process.env.OPENAI_API_KEY)
     },
     monitoring: {
-      sentryDsn: Boolean(process.env.VITE_SENTRY_DSN)
+      sentryDsn: Boolean(process.env.VITE_SENTRY_DSN),
+      sentryServerDsn: Boolean(process.env.SENTRY_DSN)
     }
   });
 }

@@ -1,3 +1,5 @@
+import { captureError } from "../lib/errorReporting.js";
+
 function readBearerToken(request) {
   const header = request.headers.authorization || "";
   return header.startsWith("Bearer ") ? header.slice(7) : "";
@@ -82,7 +84,7 @@ export default async function handler(request, response) {
 
     return response.status(200).json({ rating, rating_count: ratingCount, captured_at: capturedAt });
   } catch (error) {
-    console.error("Reputation refresh failed", error);
+    captureError("Reputation refresh failed", error);
     return response.status(500).json({ error: "Unable to refresh public reputation right now." });
   }
 }

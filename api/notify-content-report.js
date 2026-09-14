@@ -1,3 +1,5 @@
+import { captureError } from "../lib/errorReporting.js";
+
 async function supabaseGet(path) {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -53,7 +55,7 @@ export default async function handler(request, response) {
     if (!delivery.ok) throw new Error(`Resend request failed (${delivery.status}).`);
     return response.status(200).json({ notified: true });
   } catch (error) {
-    console.error("Content report notification failed", error);
+    captureError("Content report notification failed", error);
     // Never let a notification failure surface as an error to the reporting voter.
     return response.status(200).json({ notified: false });
   }

@@ -1,3 +1,5 @@
+import { captureError } from "../lib/errorReporting.js";
+
 async function supabaseGet(path) {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -64,7 +66,7 @@ export default async function handler(request, response) {
     await supabasePatch(`voter_leads?id=eq.${leadId}`, { nurture_sent_at: new Date().toISOString() });
     return response.status(200).json({ sent: true });
   } catch (error) {
-    console.error("Lead nurture email failed", error);
+    captureError("Lead nurture email failed", error);
     return response.status(200).json({ sent: false });
   }
 }

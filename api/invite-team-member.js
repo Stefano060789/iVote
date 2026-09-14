@@ -1,3 +1,5 @@
+import { captureError } from "../lib/errorReporting.js";
+
 function readBearerToken(request) {
   const header = request.headers.authorization || "";
   return header.startsWith("Bearer ") ? header.slice(7) : "";
@@ -72,7 +74,7 @@ export default async function handler(request, response) {
       return response.status(403).json({ error: `Your workspace has reached its team seat limit for the ${plan} plan. Choose a higher plan to add more members.` });
     }
   } catch (seatCheckError) {
-    console.error("Seat limit check failed", seatCheckError);
+    captureError("Seat limit check failed", seatCheckError);
   }
 
   try {
@@ -101,7 +103,7 @@ export default async function handler(request, response) {
     const [member] = await memberResponse.json();
     return response.status(200).json({ member, actionLink: invited.action_link || null });
   } catch (error) {
-    console.error("Invite failed", error);
+    captureError("Invite failed", error);
     return response.status(500).json({ error: "Unable to send invite right now." });
   }
 }

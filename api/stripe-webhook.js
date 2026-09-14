@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { captureError } from "../lib/errorReporting.js";
 
 function verifyStripeSignature(payload, signatureHeader, secret) {
   const timestamp = signatureHeader?.match(/(?:^|,)t=(\d+)/)?.[1];
@@ -152,7 +153,7 @@ export default async function handler(request, response) {
     });
     return response.status(200).json({ received: true });
   } catch (error) {
-    console.error("Stripe webhook failed", error);
+    captureError("Stripe webhook failed", error);
     return response.status(500).json({ error: "Webhook processing failed." });
   }
 }
