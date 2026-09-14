@@ -71,6 +71,22 @@ address them.
   zero headroom. Before adding any new `api/*.js` file, consolidate an existing one first
   (e.g. `notify-content-report.js` + `dispatch-webhook.js` could merge into one
   action-dispatched function) or upgrade to Vercel Pro.
+- [ ] **Buy a custom domain and point it at Vercel.** Production currently runs on Vercel's
+  default `i-vote-one.vercel.app` subdomain - fine for testing, not for a real pilot venue
+  (looks unfinished, and the legacy "i-vote" name doesn't match the "Godwit" brand everywhere
+  else). Name shortlist, proposed 2026-09-14 (check availability before deciding, e.g. via
+  Namecheap/Cloudflare - popularity roughly in this order):
+  - `godwit.app` - clean, on-brand, `.app` forces HTTPS by default. First choice if free.
+  - `usegodwit.com` / `trygodwit.com` - classic SaaS pattern, almost certainly available even
+    if the bare word is taken.
+  - `godwit.io` - very common in tech/SaaS, but `.io` domains are heavily squatted - check first.
+  - `godwit.co` - short fallback if `.com`/`.app` are gone.
+  - `hellogodwit.com` - friendlier, approachable alternative.
+  - `flockfeedback.com` - leans on the "flock of specialist birds" branding already used
+    throughout the product (Robin, Tern, Flamingo, etc.) instead of the single species name;
+    works well as a memorable, descriptive alternative or a marketing-page-only domain.
+  Once bought: add it in Vercel -> Settings -> Domains, update `APP_URL`, and update any
+  hardcoded links (emails, Stripe Checkout success/cancel URLs, QR short-link generation).
 
 ## Billing
 
