@@ -44,6 +44,7 @@ export default function Billing() {
   const [error, setError] = useState("");
   const [currentPlan, setCurrentPlan] = useState("");
   const [trialEligible, setTrialEligible] = useState(false);
+  const [termsAcknowledged, setTermsAcknowledged] = useState(false);
   const checkoutState = searchParams.get("checkout");
   const trialJustStarted = checkoutState === "success" && searchParams.get("trial") === "1";
 
@@ -72,6 +73,10 @@ export default function Billing() {
 
   async function startCheckout(plan) {
     if (plan.key === "free") return;
+    if (!termsAcknowledged) {
+      setError(t("billing.startAcknowledgmentRequired"));
+      return;
+    }
     setError("");
     setLoadingPlan(plan.key);
     const { data: { session } } = await supabase.auth.getSession();
@@ -105,7 +110,16 @@ export default function Billing() {
         {checkoutState === "success" && !trialJustStarted && <p className="mt-5 text-center text-emerald-400">{t("billing.checkoutSuccess")}</p>}
         {checkoutState === "cancelled" && <p className="mt-5 text-center text-amber-300">{t("billing.checkoutCancelled")}</p>}
         {error && <p className="mt-5 text-center text-red-300">{error}</p>}
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
+        <label className="mx-auto mt-6 flex max-w-xl items-start gap-2 text-left text-xs text-slate-300">
+          <input
+            type="checkbox"
+            checked={termsAcknowledged}
+            onChange={(event) => { setTermsAcknowledged(event.target.checked); if (event.target.checked) setError(""); }}
+            className="mt-0.5"
+          />
+          <span>{t("billing.startAcknowledgment")}</span>
+        </label>
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
           {PLANS.map((plan) => {
             const isCurrent = currentPlan === plan.key;
             const offersTrial = plan.key !== "free" && trialEligible && !isCurrent;
@@ -126,7 +140,7 @@ export default function Billing() {
                 <p className="mt-2 min-h-12 text-sm text-slate-300">{t(`billing.plans.${plan.key}.description`)}</p>
                 <button
                   onClick={() => startCheckout(plan)}
-                  disabled={Boolean(loadingPlan) || plan.key === "free" || isCurrent}
+                  disabled={Boolean(loadingPlan) || plan.key === "free" || isCurrent || !termsAcknowledged}
                   className="mt-4 w-full rounded bg-blue-600 p-3 font-semibold text-white disabled:opacity-60"
                 >
                   {isCurrent

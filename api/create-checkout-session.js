@@ -94,6 +94,13 @@ async function getManagedWorkspace(token, userId) {
 // from a second free trial (otherwise: subscribe, cancel, resubscribe, repeat forever).
 const FREE_TRIAL_DAYS = 30;
 
+// Stripe Tax auto-calculates VAT/GST for subscriptions based on the customer's billing address,
+// but it errors out if the Stripe account hasn't finished the one-time "add an origin address /
+// enable Stripe Tax" setup in the Dashboard (Settings -> Tax). Gate it behind an env var so
+// checkout keeps working today, and flip it on only once that Dashboard setup is done - see
+// TODO.md's "External legal review" section for the full VAT walkthrough.
+const STRIPE_TAX_ENABLED = process.env.STRIPE_TAX_ENABLED === "1";
+
 async function hasUsedTrialBefore(headers, workspaceId) {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   if (!supabaseUrl) return true; // fail closed: no trial if we can't check
@@ -160,6 +167,13 @@ async function handleSubscriptionCheckout(request, response) {
     // billing a card that was never actually confirmed.
     form.set("subscription_data[trial_settings][end_behavior][missing_payment_method]", "cancel");
     form.set("payment_method_collection", "always");
+  }
+  if (STRIPE_TAX_ENABLED) {
+    // Requires the customer's location to pick the right jurisdiction/rate, and lets an EU
+    // business customer enter their own VAT ID for reverse charge.
+    form.set("automatic_tax[enabled]", "true");
+    form.set("billing_address_collection", "required");
+    form.set("tax_id_collection[enabled]", "true");
   }
 
   try {

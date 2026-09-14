@@ -13,8 +13,19 @@ address them.
   built (see below); the rest genuinely needs a business/legal decision from you, not more
   code, so it's tracked here instead of half-implemented:
   - [ ] **Stripe Tax (or a local tax service) for VAT/SST on subscriptions and platform fees.**
-    Needs a decision on which jurisdictions Godwit is registered to charge tax in, then
-    enabling Stripe Tax in the Stripe Dashboard - not purely a code change.
+    Code side is now ready (2026-09-14): `api/create-checkout-session.js` sends
+    `automatic_tax[enabled]`, `billing_address_collection=required`, and
+    `tax_id_collection[enabled]` on the subscription Checkout Session, but **only** when the
+    `STRIPE_TAX_ENABLED=1` env var is set on Vercel - it's off by default because Stripe Tax
+    errors out until the Dashboard side (Settings -> Tax -> add an origin address, likely
+    Austria given `OPERATOR_ADDRESS` in `Legal.jsx`) is finished. Once that's done in Stripe,
+    set `STRIPE_TAX_ENABLED=1` in Vercel and redeploy - no further code change needed. Also
+    worth checking with an Austrian *Steuerberater* whether the small-business VAT exemption
+    (*Kleinunternehmerregelung*, currently ~EUR 55,000/year) applies before enabling.
+  - [x] **Explicit trial/auto-renewal acknowledgment** (2026-09-14) - `Billing.jsx` now requires
+    a checkbox ("I understand my subscription starts immediately, renews automatically... and
+    that I give up the 14-day right of withdrawal...") before any "Start free trial" / "Choose
+    plan" button is clickable, addressing the EU consumer-protection disclosure gap noted below.
   - [ ] **Signed Data Processing Agreements (DPAs) with each subprocessor** - Stripe, Supabase,
     Vercel, Resend, and OpenAI (once its API key is activated). Most of these platforms offer a
     standard DPA you accept in their own dashboard; this just needs to actually be done and

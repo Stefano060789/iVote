@@ -166,6 +166,8 @@
     "startFreeTrial": "Start free trial",
     "chooseThisPlan": "Choose {{name}}",
     "trialFooterNote": "No charge for 30 days. Cancel anytime before the trial ends.",
+    "startAcknowledgment": "I understand my subscription starts immediately, renews automatically at the price shown above until I cancel, and that starting a digital service now means I give up the standard 14-day right of withdrawal for it. I can cancel anytime from this Billing page before my next renewal to avoid being charged.",
+    "startAcknowledgmentRequired": "Please check the box above to confirm you understand how billing and cancellation work before starting.",
     "compareTitle": "Compare plans",
     "compareSubtitle": "Everything each plan supports, side by side.",
     "featureHeader": "Feature",
