@@ -15,7 +15,6 @@ export default function QrRedirect() {
   // find the logged-in admin session and show the owner's "manage this QR code" view instead
   // of what an actual anonymous visitor sees.
   const isPreview = searchParams.get("preview") === "1";
-  const [portal, setPortal] = useState(null);
   const [menu, setMenu] = useState(null);
   const [manage, setManage] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
@@ -42,6 +41,17 @@ export default function QrRedirect() {
 
       if (!itemsError && Array.isArray(items) && items.length > 0) {
         await supabase.rpc("record_qr_scan", { target_campaign_id: items[0].campaign_id });
+
+        // If this QR code carries just one poll and nothing else (no info card, donation, or
+        // reward), skip the intermediate "menu" screen entirely - land directly on the
+        // question with answer options ready to tap, instead of an extra "Share feedback"
+        // click. Only collapse when there's truly one thing to show; a poll alongside other
+        // items still needs the menu so those other items remain visible.
+        if (items.length === 1 && items[0].item_type === "poll") {
+          navigate(`/vote/${items[0].poll_id}?campaign=${items[0].campaign_id}`, { replace: true });
+          return;
+        }
+
         const firstPollItem = items.find((item) => item.item_type === "poll");
         const branding = getPollBranding(firstPollItem ? {
           brand_name: firstPollItem.poll_brand_name,
@@ -59,14 +69,10 @@ export default function QrRedirect() {
 
       if (!campaignError && campaign?.poll_id) {
         await supabase.rpc("record_qr_scan", { target_campaign_id: campaign.campaign_id });
-        const { data: poll, error: pollError } = await supabase
-          .rpc("get_public_poll", { target_poll_id: Number(campaign.poll_id) })
-          .single();
-        if (pollError || !poll) {
-          setErrorMessage("This feedback campaign is unavailable right now.");
-          return;
-        }
-        setPortal({ campaign, poll, branding: getPollBranding(poll) });
+        // Same idea as above: a campaign with just a default poll and no extra items has
+        // nothing else to show - go straight to the question instead of a "Share your
+        // feedback" click-through screen.
+        navigate(`/vote/${campaign.poll_id}?campaign=${campaign.campaign_id}`, { replace: true });
         return;
       }
 
@@ -223,25 +229,5 @@ export default function QrRedirect() {
   }
 
   if (errorMessage) return <main className="p-6 text-center" role="alert">{errorMessage}</main>;
-  if (!portal) return <main className="p-6 text-center" role="status">Opening feedback...</main>;
-
-  const { campaign, poll, branding } = portal;
-  return (
-    <main className="qr-portal" style={{ backgroundColor: branding.accentColor }}>
-      <section className="qr-portal-card">
-        {branding.logoUrl && <img src={branding.logoUrl} alt={`${branding.brandName || "Venue"} logo`} className="qr-portal-logo" />}
-        <p className="qr-portal-brand" style={{ color: branding.primaryColor }}>{branding.brandName || "Godwit"}</p>
-        <h1>{campaign.portal_title || "Your feedback matters."}</h1>
-        <p>{campaign.portal_message || `Take a moment to share feedback about ${poll.question}.`}</p>
-        <button
-          type="button"
-          onClick={() => navigate(`/vote/${poll.id}?campaign=${campaign.campaign_id}`, { replace: true })}
-          style={{ backgroundColor: branding.primaryColor }}
-        >
-          {campaign.portal_button_label || "Share your feedback"}
-        </button>
-        <span>It only takes a few seconds.</span>
-      </section>
-    </main>
-  );
+  return <main className="p-6 text-center" role="status">Opening feedback...</main>;
 }
