@@ -70,6 +70,19 @@ jobs:
           test -s "$filename"
           echo "filename=$filename" >> "$GITHUB_OUTPUT"
 
+      - name: Create Supabase-reserved roles in restore target
+        # The dump's RLS policies and grants reference roles that Supabase provisions on every
+        # project (anon, authenticated, service_role, ...) but a vanilla postgres:17 container
+        # doesn't have. Create them (no login, no special privileges needed - this database is
+        # thrown away at the end of the job) so pg_restore can attach policies/grants to them.
+        run: |
+          set -euo pipefail
+          for role in anon authenticated service_role authenticator supabase_auth_admin supabase_storage_admin; do
+            psql "postgresql://postgres:postgres@127.0.0.1:5432/restore_test" \
+              -v ON_ERROR_STOP=1 \
+              -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '${role}') THEN CREATE ROLE ${role}; END IF; END \$\$;"
+          done
+
       - name: Restore backup into temporary PostgreSQL
         env:
           BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
