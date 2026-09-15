@@ -11,7 +11,9 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: postgres:16
+        # Must match (or exceed) the Supabase project's server version - pg_dump/pg_restore
+        # refuse to talk to a newer server than their own major version.
+        image: postgres:17
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: restore_test
@@ -24,6 +26,19 @@ jobs:
           --health-retries 10
 
     steps:
+      - name: Install PostgreSQL 17 client tools
+        run: |
+          set -euo pipefail
+          sudo install -d /usr/share/postgresql-common/pgdg
+          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+            | sudo tee /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc > /dev/null
+          . /etc/os-release
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-17
+          echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
+
       - name: Check required secrets
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
