@@ -497,11 +497,17 @@ export default function Admin() {
 
   // Step 2's "customize the welcome screen" fields save straight to the campaign (not an
   // item), so they're applied silently when moving to step 3 instead of needing their own
-  // button - nothing to save just means the welcome text stays at its default.
+  // button - nothing to save just means the welcome text stays at its default. This also
+  // catches a typed-but-not-submitted info card: if someone fills in the title/message and
+  // hits Next without clicking "Add info card" first, add it for them instead of silently
+  // dropping what they typed.
   async function handleSaveWelcomeAndContinue() {
     if (!qrWizardCampaign) {
       setQrWizardStep(3);
       return;
+    }
+    if (itemTitle.trim()) {
+      await handleAddInfoItem(qrWizardCampaign.id);
     }
     const portalTitle = newCampaignPortalTitle.trim() || null;
     const portalMessage = newCampaignPortalMessage.trim() || null;
@@ -528,9 +534,28 @@ export default function Admin() {
     await handleAddPollItem(qrWizardCampaign.id);
   }
 
+  // Same idea as handleSaveWelcomeAndContinue: if a poll is chosen in the dropdown but
+  // "Add poll" was never clicked, add it now instead of silently dropping the selection
+  // when the user moves on to step 4.
+  async function handleContinueFromPollStep() {
+    if (qrWizardCampaign && itemPollId) {
+      await handleAddPollItem(qrWizardCampaign.id);
+    }
+    setQrWizardStep(4);
+  }
+
   async function handleAddRewardItemFromWizard() {
     if (!qrWizardCampaign) return;
     await handleAddRewardItem(qrWizardCampaign.id);
+  }
+
+  // Same idea again: a typed-but-not-added reward/prize shouldn't be silently dropped when
+  // finishing the wizard.
+  async function handleContinueFromRewardStep() {
+    if (qrWizardCampaign && itemRewardTitle.trim()) {
+      await handleAddRewardItem(qrWizardCampaign.id);
+    }
+    setQrWizardStep(6);
   }
 
   async function handleAddDonationItemFromWizard() {
@@ -2305,7 +2330,7 @@ export default function Admin() {
                     </p>
                     <div className="flex gap-2">
                       <button onClick={() => setQrWizardStep(2)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
-                      <button onClick={() => setQrWizardStep(4)} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
+                      <button onClick={handleContinueFromPollStep} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
                     </div>
                   </div>
                 )}
@@ -2345,7 +2370,7 @@ export default function Admin() {
                     </button>
                     <div className="flex gap-2">
                       <button onClick={() => setQrWizardStep(4)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
-                      <button onClick={() => setQrWizardStep(6)} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
+                      <button onClick={handleContinueFromRewardStep} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
                     </div>
                   </div>
                 )}
