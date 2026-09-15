@@ -533,6 +533,7 @@
         "step4Title": "4. Ajouter une option de don (optionnel)",
         "step5Title": "5. Ajouter une récompense ou un prix (optionnel)",
         "step6Title": "6. Imprimer votre code QR",
+        "previewTitle": "Aperçu : ce qu'un scanner verra",
         "back": "Retour",
         "next": "Suivant",
         "finish": "Terminer"

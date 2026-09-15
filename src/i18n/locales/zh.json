@@ -533,6 +533,7 @@
         "step4Title": "4. 添加捐赠选项（可选）",
         "step5Title": "5. 添加奖励或奖品（可选）",
         "step6Title": "6. 打印您的二维码",
+        "previewTitle": "预览：扫码者将看到的内容",
         "back": "上一步",
         "next": "下一步",
         "finish": "完成"

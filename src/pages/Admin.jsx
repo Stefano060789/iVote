@@ -2228,7 +2228,7 @@ export default function Admin() {
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
               <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-slate-700 bg-gray-900 p-5">
                 <div className="mb-4 flex items-center justify-between">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-violet-300">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-teal-300">
                     {t("admin.engagement.wizard.stepOf", { step: qrWizardStep, total: 6 })}
                   </p>
                   <button onClick={closeQrWizard} className="text-slate-400 hover:text-white">✕</button>
@@ -2250,7 +2250,7 @@ export default function Admin() {
                         <textarea value={newCampaignPortalMessage} onChange={(event) => setNewCampaignPortalMessage(event.target.value)} maxLength={280} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.welcomeMessagePlaceholder")} rows="3" />
                       </div>
                     </details>
-                    <button onClick={handleCreateCampaignFromWizard} className="w-full bg-violet-600 text-white px-4 py-2 rounded font-semibold">
+                    <button onClick={handleCreateCampaignFromWizard} className="w-full bg-blue-600 text-white px-4 py-2 rounded font-semibold">
                       {t("admin.engagement.wizard.createAndContinue")}
                     </button>
                   </div>
@@ -2278,12 +2278,12 @@ export default function Admin() {
                         ))}
                       </div>
                     </fieldset>
-                    <button onClick={handleAddInfoItemFromWizard} className="w-full rounded border border-violet-500 px-4 py-2 font-semibold text-violet-300">
+                    <button onClick={handleAddInfoItemFromWizard} className="w-full rounded bg-violet-600 px-4 py-2 font-semibold text-white">
                       {t("admin.engagement.items.addInfoCard")}
                     </button>
                     <div className="flex gap-2">
-                      <button onClick={() => setQrWizardStep(1)} className="flex-1 rounded border border-slate-600 px-4 py-2 font-semibold text-slate-300">{t("admin.engagement.wizard.back")}</button>
-                      <button onClick={() => setQrWizardStep(3)} className="flex-1 rounded bg-violet-600 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.next")}</button>
+                      <button onClick={() => setQrWizardStep(1)} className="flex-1 rounded bg-slate-700 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.back")}</button>
+                      <button onClick={() => setQrWizardStep(3)} className="flex-1 rounded bg-blue-600 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.next")}</button>
                     </div>
                   </div>
                 )}
@@ -2296,7 +2296,7 @@ export default function Admin() {
                         <option value="">{t("admin.engagement.items.addPollOption")}</option>
                         {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
                       </select>
-                      <button onClick={handleAddPollItemFromWizard} className="shrink-0 rounded border border-violet-500 px-4 py-2 font-semibold text-violet-300">
+                      <button onClick={handleAddPollItemFromWizard} className="shrink-0 rounded bg-violet-600 px-4 py-2 font-semibold text-white">
                         {t("admin.engagement.items.addPoll")}
                       </button>
                     </div>
@@ -2304,8 +2304,8 @@ export default function Admin() {
                       {t("admin.engagement.wizard.pollsAddedSoFar", { count: itemsForCampaign(qrWizardCampaign.id).filter((item) => item.item_type === "poll").length })}
                     </p>
                     <div className="flex gap-2">
-                      <button onClick={() => setQrWizardStep(2)} className="flex-1 rounded border border-slate-600 px-4 py-2 font-semibold text-slate-300">{t("admin.engagement.wizard.back")}</button>
-                      <button onClick={() => setQrWizardStep(4)} className="flex-1 rounded bg-violet-600 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.next")}</button>
+                      <button onClick={() => setQrWizardStep(2)} className="flex-1 rounded bg-slate-700 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.back")}</button>
+                      <button onClick={() => setQrWizardStep(4)} className="flex-1 rounded bg-blue-600 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.next")}</button>
                     </div>
                   </div>
                 )}
@@ -2315,7 +2315,7 @@ export default function Admin() {
                     <h3 className="text-lg font-bold">{t("admin.engagement.wizard.step4Title")}</h3>
                     <p className="text-xs text-slate-400">{t("admin.engagement.items.sectionDonationHint")}</p>
                     {donationSettings.is_enabled ? (
-                      <button onClick={handleAddDonationItemFromWizard} className="w-full rounded border border-violet-500 px-4 py-2 font-semibold text-violet-300">
+                      <button onClick={handleAddDonationItemFromWizard} className="w-full rounded bg-violet-600 px-4 py-2 font-semibold text-white">
                         {t("admin.engagement.items.addDonationOption")}
                       </button>
                     ) : (
@@ -2324,8 +2324,8 @@ export default function Admin() {
                       </p>
                     )}
                     <div className="flex gap-2">
-                      <button onClick={() => setQrWizardStep(3)} className="flex-1 rounded border border-slate-600 px-4 py-2 font-semibold text-slate-300">{t("admin.engagement.wizard.back")}</button>
-                      <button onClick={() => setQrWizardStep(5)} className="flex-1 rounded bg-violet-600 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.next")}</button>
+                      <button onClick={() => setQrWizardStep(3)} className="flex-1 rounded bg-slate-700 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.back")}</button>
+                      <button onClick={() => setQrWizardStep(5)} className="flex-1 rounded bg-blue-600 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.next")}</button>
                     </div>
                   </div>
                 )}
@@ -2340,12 +2340,12 @@ export default function Admin() {
                       <input value={itemRewardLinkUrl} onChange={(event) => setItemRewardLinkUrl(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.items.linkUrlPlaceholder")} />
                       <input value={itemRewardLinkLabel} onChange={(event) => setItemRewardLinkLabel(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.items.linkLabelPlaceholder")} />
                     </div>
-                    <button onClick={handleAddRewardItemFromWizard} className="w-full rounded border border-violet-500 px-4 py-2 font-semibold text-violet-300">
+                    <button onClick={handleAddRewardItemFromWizard} className="w-full rounded bg-violet-600 px-4 py-2 font-semibold text-white">
                       {t("admin.engagement.items.addRewardOption")}
                     </button>
                     <div className="flex gap-2">
-                      <button onClick={() => setQrWizardStep(4)} className="flex-1 rounded border border-slate-600 px-4 py-2 font-semibold text-slate-300">{t("admin.engagement.wizard.back")}</button>
-                      <button onClick={() => setQrWizardStep(6)} className="flex-1 rounded bg-violet-600 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.next")}</button>
+                      <button onClick={() => setQrWizardStep(4)} className="flex-1 rounded bg-slate-700 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.back")}</button>
+                      <button onClick={() => setQrWizardStep(6)} className="flex-1 rounded bg-blue-600 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.next")}</button>
                     </div>
                   </div>
                 )}
@@ -2376,13 +2376,21 @@ export default function Admin() {
                         <button onClick={() => downloadCampaignQr(qrWizardCampaign, wizardUrl)} className="rounded bg-blue-600 px-4 py-2 font-semibold text-white">
                           {t("admin.polls.card.downloadQr")}
                         </button>
-                        <button onClick={() => printCampaignQr(qrWizardCampaign, wizardUrl)} className="rounded bg-green-600 px-4 py-2 font-semibold text-white">
+                        <button onClick={() => printCampaignQr(qrWizardCampaign, wizardUrl)} className="rounded bg-violet-600 px-4 py-2 font-semibold text-white">
                           {t("admin.polls.card.printQr")}
                         </button>
                       </div>
+
+                      <div className="border-t border-slate-700 pt-3">
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-teal-300">{t("admin.engagement.wizard.previewTitle")}</p>
+                        <div className="mx-auto w-full max-w-[260px] overflow-hidden rounded-[24px] border-4 border-slate-700 bg-white shadow-lg">
+                          <iframe src={wizardUrl} title={t("admin.engagement.wizard.previewTitle")} className="h-[440px] w-full border-0" />
+                        </div>
+                      </div>
+
                       <div className="flex gap-2">
-                        <button onClick={() => setQrWizardStep(5)} className="flex-1 rounded border border-slate-600 px-4 py-2 font-semibold text-slate-300">{t("admin.engagement.wizard.back")}</button>
-                        <button onClick={closeQrWizard} className="flex-1 rounded bg-emerald-600 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.finish")}</button>
+                        <button onClick={() => setQrWizardStep(5)} className="flex-1 rounded bg-slate-700 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.back")}</button>
+                        <button onClick={closeQrWizard} className="flex-1 rounded bg-blue-600 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.finish")}</button>
                       </div>
                     </div>
                   );
@@ -2420,7 +2428,7 @@ export default function Admin() {
                       <button onClick={() => downloadCampaignQr(campaign, url)} className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm font-semibold">
                         {t("admin.polls.card.downloadQr")}
                       </button>
-                      <button onClick={() => printCampaignQr(campaign, url)} className="bg-green-600 text-white px-3 py-1.5 rounded text-sm font-semibold">
+                      <button onClick={() => printCampaignQr(campaign, url)} className="bg-violet-600 text-white px-3 py-1.5 rounded text-sm font-semibold">
                         {t("admin.polls.card.printQr")}
                       </button>
                     </div>
@@ -3625,7 +3633,7 @@ export default function Admin() {
                     {t("admin.polls.card.downloadQr")}
                   </button>
 
-                  <button onClick={() => printQR(poll)} className="bg-green-600 text-white px-4 py-2 rounded font-semibold">
+                  <button onClick={() => printQR(poll)} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">
                     {t("admin.polls.card.printQr")}
                   </button>
                 </div>
