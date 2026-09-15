@@ -185,6 +185,7 @@
       "pollLimit": "Limite de enquetes",
       "campaignLimit": "Campanhas de QR rastreadas",
       "seatLimit": "Vagas da equipe",
+      "donations": "Doações",
       "csvExport": "Exportação em CSV",
       "auditLog": "Registro de atividade / auditoria",
       "weeklyReport": "Relatórios semanais por e-mail",

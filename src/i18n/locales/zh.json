@@ -185,6 +185,7 @@
       "pollLimit": "投票数量上限",
       "campaignLimit": "可跟踪的二维码活动",
       "seatLimit": "团队席位数",
+      "donations": "捐赠",
       "csvExport": "CSV 导出",
       "auditLog": "活动/审计日志",
       "weeklyReport": "每周邮件报告",

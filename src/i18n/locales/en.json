@@ -178,6 +178,7 @@
       "pollLimit": "Poll limit",
       "campaignLimit": "Tracked QR campaigns",
       "seatLimit": "Team seats",
+      "donations": "Donations",
       "csvExport": "CSV export",
       "auditLog": "Activity / audit log",
       "weeklyReport": "Weekly email reports",

@@ -185,6 +185,7 @@
       "pollLimit": "حد الاستطلاعات",
       "campaignLimit": "حملات رمز QR المتتبَّعة",
       "seatLimit": "مقاعد الفريق",
+      "donations": "التبرعات",
       "csvExport": "تصدير CSV",
       "auditLog": "سجل النشاط / التدقيق",
       "weeklyReport": "تقارير أسبوعية عبر البريد الإلكتروني",

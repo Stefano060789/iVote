@@ -16,6 +16,7 @@ const COMPARISON_ROWS = [
   { rowKey: "pollLimit", format: (value) => value },
   { rowKey: "campaignLimit", format: (value) => value },
   { rowKey: "seatLimit", format: (value) => value },
+  { rowKey: "donations" },
   { rowKey: "csvExport" },
   { rowKey: "auditLog" },
   { rowKey: "weeklyReport" },
@@ -161,7 +162,39 @@ export default function Billing() {
 
         <h2 className="mt-12 text-xl font-bold text-center">{t("billing.compareTitle")}</h2>
         <p className="mt-1 text-center text-sm text-slate-400">{t("billing.compareSubtitle")}</p>
-        <div className="mt-4 overflow-x-auto rounded-lg border border-slate-700">
+
+        {/* Below sm: a table with 4 columns and long feature names doesn't fit a phone screen even
+            with horizontal scroll enabled (it's easy to not notice there's more to scroll to), so
+            stack one card per plan instead - each lists every feature vertically, no side-scrolling
+            needed. From sm and up, there's enough width for the side-by-side table. */}
+        <div className="mt-4 grid gap-3 sm:hidden">
+          {PLANS.map((plan) => (
+            <div
+              key={plan.key}
+              className={`rounded-lg border p-4 ${plan.highlight ? "border-amber-400 bg-amber-400/5" : "border-slate-700"}`}
+            >
+              <p className={`font-semibold ${plan.highlight ? "text-teal-300" : "text-slate-100"}`}>
+                {t(`billing.plans.${plan.key}.name`)}
+                {currentPlan === plan.key && <span className="ml-1.5 text-xs font-normal text-slate-400">{t("billing.currentTag")}</span>}
+              </p>
+              <dl className="mt-2 divide-y divide-slate-800">
+                {COMPARISON_ROWS.map((row) => {
+                  const value = PLAN_FEATURES[plan.key][row.rowKey];
+                  return (
+                    <div key={row.rowKey} className="flex items-center justify-between gap-3 py-2 text-sm">
+                      <dt className="text-slate-400">{t(`billing.rows.${row.rowKey}`)}</dt>
+                      <dd className="shrink-0 font-semibold text-slate-100">
+                        <FeatureCell value={row.format ? row.format(value) : value} />
+                      </dd>
+                    </div>
+                  );
+                })}
+              </dl>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4 hidden overflow-x-auto rounded-lg border border-slate-700 sm:block">
           <table className="w-full min-w-[560px] border-collapse text-sm">
             <thead>
               <tr className="border-b border-slate-700 bg-slate-900 text-left">
