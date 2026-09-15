@@ -281,7 +281,7 @@
     },
     "polls": {
       "title": "Your polls",
-      "subtitle": "View results, duplicate, export responses, and see which QR codes each poll is on. Build and manage QR codes themselves in the QR codes tab.",
+      "subtitle": "View results, export responses, and see which QR codes each poll is on. Build and manage QR codes themselves in the QR codes tab.",
       "createNew": "Create new poll",
       "searchPlaceholder": "Search question or location",
       "filters": {
