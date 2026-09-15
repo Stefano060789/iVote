@@ -93,6 +93,18 @@ items as you address them.
   from the EU to the UK are treated the same as intra-EU transfers, no extra Standard
   Contractual Clauses needed). `Legal.jsx`'s existing transfer-safeguards clause already covers
   this in general terms; revisit only if that adequacy decision is ever withdrawn.
+- [x] **Free Supabase backup/restore drill working end-to-end (2026-09-15).**
+  `.github/workflows/supabase-backup.yml` runs daily (and on-demand) - dumps `public`, `auth`,
+  and `storage` schemas via `pg_dump`, encrypts the result with `openssl`, uploads it as a
+  private GitHub Actions artifact (30-day retention), and proves it's restorable by loading it
+  into a disposable `postgres:17` service container every run. `SUPABASE_DB_URL` (Session
+  pooler URI - the Direct connection host is IPv6-only and unreachable from GitHub runners) and
+  `BACKUP_ENCRYPTION_KEY` secrets are set; the restore step also had to pre-create Supabase's
+  reserved roles (`anon`, `authenticated`, `service_role`, etc.) since a vanilla Postgres
+  container doesn't have them and the dump's RLS policies reference them. First fully green
+  run: https://github.com/Stefano060789/iVote/actions/runs/34939001269. This is logical
+  backup/restore, not Supabase's managed point-in-time recovery - still worth an independent
+  off-GitHub copy before a larger launch, but no longer "no way to recover the database at all."
 
 ## Internationalization
 
@@ -123,13 +135,6 @@ items as you address them.
   can be rate-limited/blocked without notice). A kill switch
   (`VITE_ENABLE_TRANSLATION=false`), timeout, and fallback message are in place, but the
   real fix is the official, paid Google Cloud Translation API.
-- [ ] **Configure the free Supabase backup workflow.** `.github/workflows/supabase-backup.yml`
-  creates a daily encrypted PostgreSQL dump, uploads it as a private GitHub Actions artifact
-  for 30 days, and restores it into a temporary PostgreSQL service on every run. Add the
-  `SUPABASE_DB_URL` and `BACKUP_ENCRYPTION_KEY` GitHub Actions secrets (added 2026-09-15),
-  run it manually once, and verify the restore test succeeds. This is logical
-  backup/restore, not Supabase point-in-time recovery; retain an additional independent copy
-  before a larger launch.
 - [ ] **Vercel's own real-time anomaly alerting ("Observability Plus")** remains gated behind a
   Vercel Pro upgrade - unrelated to Sentry (already fully wired up), a separate paid-plan
   decision.
