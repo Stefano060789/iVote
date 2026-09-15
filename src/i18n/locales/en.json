@@ -148,20 +148,20 @@
   "billing": {
     "title": "Plans and billing",
     "subtitle": "Choose the plan that matches your feedback program.",
-    "trialBanner": "New here? Every paid plan includes a 30-day free trial — no charge until it ends.",
+    "trialBanner": "New here? Every paid plan includes a 90-day free trial — no charge until it ends.",
     "currentPlanNotice": "Your workspace is currently on the {{plan}} plan.",
-    "trialStarted": "Your 30-day free trial has started. You won't be charged until it ends, and you can cancel anytime before then.",
+    "trialStarted": "Your 90-day free trial has started. You won't be charged until it ends, and you can cancel anytime before then.",
     "checkoutSuccess": "Checkout completed. Your subscription will be confirmed by Stripe.",
     "checkoutCancelled": "Checkout was cancelled. No changes were made.",
     "mostPopular": "Most popular",
     "perMonth": "/ month",
-    "freeTrialBadge": "30-day free trial",
+    "freeTrialBadge": "90-day free trial",
     "currentPlanButton": "Current plan",
     "includedByDefault": "Included by default",
     "openingCheckout": "Opening checkout...",
     "startFreeTrial": "Start free trial",
     "chooseThisPlan": "Choose {{name}}",
-    "trialFooterNote": "No charge for 30 days. Cancel anytime before the trial ends.",
+    "trialFooterNote": "No charge for 90 days. Cancel anytime before the trial ends.",
     "startAcknowledgment": "I understand my subscription starts immediately, renews automatically at the price shown above until I cancel, and that starting a digital service now means I give up the standard 14-day right of withdrawal for it. I can cancel anytime from this Billing page before my next renewal to avoid being charged.",
     "startAcknowledgmentRequired": "Please check the box above to confirm you understand how billing and cancellation work before starting.",
     "compareTitle": "Compare plans",
@@ -231,7 +231,7 @@
       "donations": {
         "eyebrow": "Donations",
         "setupTitle": "Let voters support you with a tap",
-        "setupBody": "Turn on donations so any QR code can offer a quick, secure way for customers to tip or give — card or wallet, no app required for them. Stripe handles the payment; you keep 90%.",
+        "setupBody": "Turn on donations so any QR code can offer a quick, secure way for customers to tip or give — card or wallet, no app required for them. Stripe handles the payment; you keep 91%.",
         "setupCta": "Set up donations",
         "raisedPrefix": "From",
         "donationSingular": "donation",
@@ -445,7 +445,7 @@
       },
       "donations": {
         "title": "Donations",
-        "description": "Let voters support your venue with a card or wallet payment from the QR menu. Connect a Stripe account once here, then add a \"Donation\" item to any QR code below. Stripe processes the payment: 90% transfers straight to your account and Godwit keeps a 10% platform fee.",
+        "description": "Let voters support your venue with a card or wallet payment from the QR menu. Connect a Stripe account once here, then add a \"Donation\" item to any QR code below. Stripe processes the payment: 91% transfers straight to your account and Godwit keeps a 9% platform fee.",
         "stripeConnected": "Stripe is connected and ready to accept donations.",
         "stripeStarted": "Stripe account started, but onboarding isn't finished yet.",
         "stripeNotConnected": "No Stripe account connected yet.",
@@ -459,7 +459,7 @@
         "suggestedAmount": "Suggested amount (optional)",
         "messagePlaceholder": "Optional thank-you message shown with the donation option",
         "saveButton": "Save donation settings",
-        "feeNote": "Stripe is the payment processor - Godwit never sees or stores card details. Of each donation, 10% is a platform fee retained by Godwit and 90% transfers to your connected Stripe account."
+        "feeNote": "Stripe is the payment processor - Godwit never sees or stores card details. Of each donation, 9% is a platform fee retained by Godwit and 91% transfers to your connected Stripe account."
       },
       "locations": {
         "pollNumber": "poll #{{id}}",

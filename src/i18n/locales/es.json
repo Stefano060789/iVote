@@ -148,20 +148,20 @@
   "billing": {
     "title": "Planes y facturación",
     "subtitle": "Elige el plan que mejor se adapte a tu programa de opiniones.",
-    "trialBanner": "¿Eres nuevo? Todos los planes de pago incluyen una prueba gratuita de 30 días, sin cargo hasta que termine.",
+    "trialBanner": "¿Eres nuevo? Todos los planes de pago incluyen una prueba gratuita de 90 días, sin cargo hasta que termine.",
     "currentPlanNotice": "Tu espacio de trabajo está actualmente en el plan {{plan}}.",
-    "trialStarted": "Tu prueba gratuita de 30 días ha comenzado. No se te cobrará hasta que termine y puedes cancelar en cualquier momento antes de esa fecha.",
+    "trialStarted": "Tu prueba gratuita de 90 días ha comenzado. No se te cobrará hasta que termine y puedes cancelar en cualquier momento antes de esa fecha.",
     "checkoutSuccess": "Pago completado. Stripe confirmará tu suscripción.",
     "checkoutCancelled": "El pago fue cancelado. No se realizó ningún cambio.",
     "mostPopular": "Más popular",
     "perMonth": "/ mes",
-    "freeTrialBadge": "Prueba gratuita de 30 días",
+    "freeTrialBadge": "Prueba gratuita de 90 días",
     "currentPlanButton": "Plan actual",
     "includedByDefault": "Incluido por defecto",
     "openingCheckout": "Abriendo el pago...",
     "startFreeTrial": "Iniciar prueba gratuita",
     "chooseThisPlan": "Elegir {{name}}",
-    "trialFooterNote": "Sin cargo durante 30 días. Cancela en cualquier momento antes de que termine la prueba.",
+    "trialFooterNote": "Sin cargo durante 90 días. Cancela en cualquier momento antes de que termine la prueba.",
     "compareTitle": "Comparar planes",
     "compareSubtitle": "Todo lo que incluye cada plan, uno junto al otro.",
     "featureHeader": "Función",
@@ -456,7 +456,7 @@
       },
       "donations": {
         "title": "Donaciones",
-        "description": "Permite que los votantes apoyen tu local con un pago con tarjeta o billetera desde el menú QR. Conecta una cuenta de Stripe una sola vez aquí y después añade un elemento \"Donación\" a cualquier código QR de abajo. Stripe procesa el pago: el 90 % se transfiere directamente a tu cuenta y Godwit conserva una comisión de plataforma del 10 %.",
+        "description": "Permite que los votantes apoyen tu local con un pago con tarjeta o billetera desde el menú QR. Conecta una cuenta de Stripe una sola vez aquí y después añade un elemento \"Donación\" a cualquier código QR de abajo. Stripe procesa el pago: el 91 % se transfiere directamente a tu cuenta y Godwit conserva una comisión de plataforma del 9 %.",
         "stripeConnected": "Stripe está conectado y listo para aceptar donaciones.",
         "stripeStarted": "La cuenta de Stripe se ha iniciado, pero el proceso de activación aún no ha terminado.",
         "stripeNotConnected": "Todavía no hay ninguna cuenta de Stripe conectada.",
@@ -470,7 +470,7 @@
         "suggestedAmount": "Importe sugerido (opcional)",
         "messagePlaceholder": "Mensaje opcional de agradecimiento que se muestra con la opción de donación",
         "saveButton": "Guardar configuración de donaciones",
-        "feeNote": "Stripe es el procesador de pagos; Godwit nunca ve ni almacena los datos de la tarjeta. De cada donación, Godwit retiene un 10 % como comisión de plataforma y el 90 % se transfiere a tu cuenta de Stripe conectada."
+        "feeNote": "Stripe es el procesador de pagos; Godwit nunca ve ni almacena los datos de la tarjeta. De cada donación, Godwit retiene un 9 % como comisión de plataforma y el 91 % se transfiere a tu cuenta de Stripe conectada."
       },
       "locations": {
         "title": "Ubicaciones QR",

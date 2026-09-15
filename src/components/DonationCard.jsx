@@ -2,8 +2,8 @@ import { useState } from "react";
 import { startDonationCheckout } from "../lib/donationCheckout";
 
 // Renders one "donation" QR-campaign item: an amount field and a Donate button that redirects
-// to a Stripe-hosted Checkout page. Stripe splits the payment automatically - 90% transfers to
-// the venue's own connected Stripe account, and a 10% platform fee stays with Godwit - which is
+// to a Stripe-hosted Checkout page. Stripe splits the payment automatically - 91% transfers to
+// the venue's own connected Stripe account, and a 9% platform fee stays with Godwit - which is
 // why the fee is disclosed here rather than only in the Terms (donors should know before they pay).
 export default function DonationCard({ item, campaignToken }) {
   const suggested = item.donation_suggested_amount ? Number(item.donation_suggested_amount) : null;
@@ -56,7 +56,7 @@ export default function DonationCard({ item, campaignToken }) {
       </button>
 
       <p className="qr-donation-disclaimer">
-        Payments are securely processed by Stripe. Of each donation, 90% goes directly to this venue and 10% is a
+        Payments are securely processed by Stripe. Of each donation, 91% goes directly to this venue and 9% is a
         platform fee that supports Godwit. Godwit never sees or stores your card details.
       </p>
     </div>

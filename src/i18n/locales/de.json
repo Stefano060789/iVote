@@ -148,20 +148,20 @@
   "billing": {
     "title": "Tarife und Abrechnung",
     "subtitle": "Wählen Sie den Tarif, der zu Ihrem Feedback-Programm passt.",
-    "trialBanner": "Neu hier? Jeder kostenpflichtige Tarif enthält eine 30-tägige kostenlose Testphase – keine Kosten, bis diese endet.",
+    "trialBanner": "Neu hier? Jeder kostenpflichtige Tarif enthält eine 90-tägige kostenlose Testphase – keine Kosten, bis diese endet.",
     "currentPlanNotice": "Ihr Arbeitsbereich befindet sich derzeit im Tarif {{plan}}.",
-    "trialStarted": "Ihre 30-tägige kostenlose Testphase hat begonnen. Es fallen keine Kosten an, bis diese endet, und Sie können jederzeit vorher kündigen.",
+    "trialStarted": "Ihre 90-tägige kostenlose Testphase hat begonnen. Es fallen keine Kosten an, bis diese endet, und Sie können jederzeit vorher kündigen.",
     "checkoutSuccess": "Kauf abgeschlossen. Ihr Abonnement wird von Stripe bestätigt.",
     "checkoutCancelled": "Der Kauf wurde abgebrochen. Es wurden keine Änderungen vorgenommen.",
     "mostPopular": "Am beliebtesten",
     "perMonth": "/ Monat",
-    "freeTrialBadge": "30 Tage kostenlos testen",
+    "freeTrialBadge": "90 Tage kostenlos testen",
     "currentPlanButton": "Aktueller Tarif",
     "includedByDefault": "Standardmäßig enthalten",
     "openingCheckout": "Checkout wird geöffnet...",
     "startFreeTrial": "Kostenlose Testphase starten",
     "chooseThisPlan": "{{name}} wählen",
-    "trialFooterNote": "30 Tage kostenlos. Jederzeit vor Ablauf der Testphase kündbar.",
+    "trialFooterNote": "90 Tage kostenlos. Jederzeit vor Ablauf der Testphase kündbar.",
     "compareTitle": "Tarife vergleichen",
     "compareSubtitle": "Alles, was jeder Tarif bietet, im direkten Vergleich.",
     "featureHeader": "Funktion",
@@ -456,7 +456,7 @@
       },
       "donations": {
         "title": "Spenden",
-        "description": "Lassen Sie Wähler Ihren Standort mit einer Karten- oder Wallet-Zahlung aus dem QR-Menü unterstützen. Verbinden Sie hier einmal ein Stripe-Konto und fügen Sie dann unten jedem QR-Code einen \"Spende\"-Eintrag hinzu. Stripe verarbeitet die Zahlung: 90 % werden direkt auf Ihr Konto überwiesen und Godwit behält 10 % als Plattformgebühr.",
+        "description": "Lassen Sie Wähler Ihren Standort mit einer Karten- oder Wallet-Zahlung aus dem QR-Menü unterstützen. Verbinden Sie hier einmal ein Stripe-Konto und fügen Sie dann unten jedem QR-Code einen \"Spende\"-Eintrag hinzu. Stripe verarbeitet die Zahlung: 91 % werden direkt auf Ihr Konto überwiesen und Godwit behält 9 % als Plattformgebühr.",
         "stripeConnected": "Stripe ist verbunden und bereit, Spenden anzunehmen.",
         "stripeStarted": "Das Stripe-Konto wurde begonnen, aber das Onboarding ist noch nicht abgeschlossen.",
         "stripeNotConnected": "Noch kein Stripe-Konto verbunden.",
@@ -470,7 +470,7 @@
         "suggestedAmount": "Vorgeschlagener Betrag (optional)",
         "messagePlaceholder": "Optionale Dankesnachricht, die mit der Spendenoption angezeigt wird",
         "saveButton": "Spendeneinstellungen speichern",
-        "feeNote": "Stripe ist der Zahlungsabwickler – Godwit sieht oder speichert niemals Kartendaten. Von jeder Spende behält Godwit 10 % als Plattformgebühr ein, und 90 % werden auf Ihr verbundenes Stripe-Konto überwiesen."
+        "feeNote": "Stripe ist der Zahlungsabwickler – Godwit sieht oder speichert niemals Kartendaten. Von jeder Spende behält Godwit 9 % als Plattformgebühr ein, und 91 % werden auf Ihr verbundenes Stripe-Konto überwiesen."
       },
       "locations": {
         "title": "QR-Standorte",

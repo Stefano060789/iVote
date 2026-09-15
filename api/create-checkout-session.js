@@ -7,7 +7,7 @@
 //   - "connect-status": live refresh of a workspace's Connect account status, in case the
 //     account.updated webhook hasn't arrived yet by the time the admin returns from Stripe.
 //   - "donation": public, no auth - a voter donating through a QR code. Creates a destination
-//     charge Checkout Session that sends 90% to the workspace's connected account and a 10%
+//     charge Checkout Session that sends 91% to the workspace's connected account and a 9%
 //     application fee to the platform account.
 
 import { captureError } from "../lib/errorReporting.js";
@@ -17,7 +17,7 @@ const PLANS = {
   growth: { priceEnv: "STRIPE_PRICE_GROWTH", label: "Growth" }
 };
 
-const DONATION_PLATFORM_FEE_RATE = 0.10;
+const DONATION_PLATFORM_FEE_RATE = 0.09;
 const DONATION_MIN_AMOUNT = 1;
 const DONATION_MAX_AMOUNT = 10000;
 
@@ -92,7 +92,7 @@ async function getManagedWorkspace(token, userId) {
 // all" - regardless of its current plan/status - reliably means this workspace has
 // already been through Stripe checkout at least once, which is what disqualifies it
 // from a second free trial (otherwise: subscribe, cancel, resubscribe, repeat forever).
-const FREE_TRIAL_DAYS = 30;
+const FREE_TRIAL_DAYS = 90;
 
 // Stripe Tax auto-calculates VAT/GST for subscriptions based on the customer's billing address,
 // but it errors out if the Stripe account hasn't finished the one-time "add an origin address /
@@ -285,7 +285,7 @@ async function handleConnectStatus(request, response) {
 }
 
 // Public, no-auth: a voter donating through a QR code. Creates a Stripe Connect "destination
-// charge" - the platform account is charged, a 10% application fee stays with the platform,
+// charge" - the platform account is charged, a 9% application fee stays with the platform,
 // and the rest transfers straight to the workspace's connected account.
 async function handleDonationCheckout(request, response) {
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY;

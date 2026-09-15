@@ -177,8 +177,8 @@ function TermsOfService() {
         <h2 className="text-xl font-semibold">Donations</h2>
         <p>
           If you enable donations, Godwit acts as a payment facilitator using Stripe Connect: a voter's card or
-          wallet payment is processed by Stripe, 90% transfers directly to your own connected Stripe account, and
-          Godwit retains the remaining 10% as a platform fee. This fee is disclosed to the voter before they pay.
+          wallet payment is processed by Stripe, 91% transfers directly to your own connected Stripe account, and
+          Godwit retains the remaining 9% as a platform fee. This fee is disclosed to the voter before they pay.
           Unlike other data collected through your polls, Godwit is a party to each donation transaction (not merely
           a processor acting on your instructions), because Godwit itself receives a fee from it. You are responsible
           for completing Stripe's account verification (KYC), for the accuracy of your own account details, and for

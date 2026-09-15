@@ -148,20 +148,20 @@
   "billing": {
     "title": "Offres et facturation",
     "subtitle": "Choisissez l'offre adaptée à votre programme de retours clients.",
-    "trialBanner": "Nouveau ici ? Chaque offre payante inclut un essai gratuit de 30 jours - aucun prélèvement avant la fin de l'essai.",
+    "trialBanner": "Nouveau ici ? Chaque offre payante inclut un essai gratuit de 90 jours - aucun prélèvement avant la fin de l'essai.",
     "currentPlanNotice": "Votre espace de travail est actuellement sur l'offre {{plan}}.",
-    "trialStarted": "Votre essai gratuit de 30 jours a commencé. Vous ne serez pas prélevé avant la fin de l'essai, et vous pouvez annuler à tout moment avant cette date.",
+    "trialStarted": "Votre essai gratuit de 90 jours a commencé. Vous ne serez pas prélevé avant la fin de l'essai, et vous pouvez annuler à tout moment avant cette date.",
     "checkoutSuccess": "Paiement terminé. Votre abonnement sera confirmé par Stripe.",
     "checkoutCancelled": "Le paiement a été annulé. Aucune modification n'a été effectuée.",
     "mostPopular": "Le plus populaire",
     "perMonth": "/ mois",
-    "freeTrialBadge": "Essai gratuit de 30 jours",
+    "freeTrialBadge": "Essai gratuit de 90 jours",
     "currentPlanButton": "Offre actuelle",
     "includedByDefault": "Inclus par défaut",
     "openingCheckout": "Ouverture du paiement...",
     "startFreeTrial": "Démarrer l'essai gratuit",
     "chooseThisPlan": "Choisir {{name}}",
-    "trialFooterNote": "Aucun prélèvement pendant 30 jours. Annulez à tout moment avant la fin de l'essai.",
+    "trialFooterNote": "Aucun prélèvement pendant 90 jours. Annulez à tout moment avant la fin de l'essai.",
     "compareTitle": "Comparer les offres",
     "compareSubtitle": "Tout ce que chaque offre inclut, côte à côte.",
     "featureHeader": "Fonctionnalité",
@@ -456,7 +456,7 @@
       },
       "donations": {
         "title": "Dons",
-        "description": "Permettez aux votants de soutenir votre lieu avec un paiement par carte ou portefeuille depuis le menu QR. Connectez un compte Stripe une seule fois ici, puis ajoutez un élément \"Don\" à n'importe quel code QR ci-dessous. Stripe traite le paiement : 90 % sont transférés directement sur votre compte et Godwit conserve 10 % de frais de plateforme.",
+        "description": "Permettez aux votants de soutenir votre lieu avec un paiement par carte ou portefeuille depuis le menu QR. Connectez un compte Stripe une seule fois ici, puis ajoutez un élément \"Don\" à n'importe quel code QR ci-dessous. Stripe traite le paiement : 91 % sont transférés directement sur votre compte et Godwit conserve 9 % de frais de plateforme.",
         "stripeConnected": "Stripe est connecté et prêt à accepter des dons.",
         "stripeStarted": "Le compte Stripe est commencé, mais l'intégration n'est pas encore terminée.",
         "stripeNotConnected": "Aucun compte Stripe connecté pour le moment.",
@@ -470,7 +470,7 @@
         "suggestedAmount": "Montant suggéré (facultatif)",
         "messagePlaceholder": "Message de remerciement facultatif affiché avec l'option de don",
         "saveButton": "Enregistrer les paramètres de don",
-        "feeNote": "Stripe est le prestataire de paiement ; Godwit ne voit ni ne stocke jamais les données de carte. Sur chaque don, 10 % sont conservés par Godwit comme frais de plateforme et 90 % sont transférés vers votre compte Stripe connecté."
+        "feeNote": "Stripe est le prestataire de paiement ; Godwit ne voit ni ne stocke jamais les données de carte. Sur chaque don, 9 % sont conservés par Godwit comme frais de plateforme et 91 % sont transférés vers votre compte Stripe connecté."
       },
       "locations": {
         "title": "Emplacements QR",

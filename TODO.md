@@ -7,6 +7,67 @@ items as you address them.
 
 ## Open action items (needs you, not code)
 
+- [ ] **Register an Austrian business (Gewerbeanmeldung + Finanzamt Steuernummer) - the real
+  prerequisite before invoicing anyone. Final staged plan as of 2026-09-15 - do NOT rush full
+  registration; gather answers first, mostly for free.**
+
+  **Context that shapes this:** not launched yet, no venue confirmed (still in discussions),
+  employed elsewhere (ASVG-insured), traveling abroad for 9 months starting 2026-09-22 but
+  have ID Austria so most steps can be done remotely. Revenue model is (1) subscription fees
+  and (2) a 9% platform commission on donations via Stripe Connect's application-fee
+  mechanism - only these two count as Godwit's actual turnover, not the other 91% of each
+  donation that passes through to the venue. Already confirmed: taking a commission via Stripe
+  Connect's application-fee mechanism does **not** require Godwit to hold its own
+  payment-institution license - Stripe is the licensed processor, a standard SaaS/platform
+  pattern.
+
+  **Contact 1 - WKO Gründerservice (free, do this first).** Covers most questions below at no
+  cost - this is literally their job for new founders, not a sales pitch.
+  1. Which trade category fits a QR-feedback SaaS product with a donation commission?
+  2. Would this qualify as **"Neue Selbständige"** instead of a full Gewerbeschein? (Recurring
+     subscriptions + a transaction commission lean toward classic "Gewerbe," not the
+     freelance/liberal-profession "Neue Selbständige" category, but confirm - don't assume.)
+  3. If a Gewerbeschein is required: exact fees, and NeuFöG first-founder relief?
+  4. Does the Kleinunternehmerregelung basics/threshold apply the way I think (only
+     subscription + 9% commission count, not full donation pass-through)?
+  5. Can you recommend a Steuerberater used to solo software/SaaS businesses?
+
+  **Contact 2 - Magistrat der Stadt Villach (Gewerbereferat/Gewerbebehörde), in person or
+  phone.**
+  1. Given the trade category confirmed with WKO, can registration itself happen later, fully
+     remotely, via usp.gv.at with ID Austria, once a venue is ready - or does anything need to
+     happen in person now?
+  2. Can my home address in Villach serve as the Gewerbestandort for an online-only business?
+  3. Can all further correspondence (Magistrat/Finanzamt/SVS) be delivered digitally instead of
+     physical mail, given the 9-month trip?
+
+  **Contact 3 - SVS (free - it's their own program, ask them directly).**
+  1. Minimum contribution if registering now (pre-revenue) vs. once a venue is confirmed?
+  2. Does the small-income opting-out exemption, or Differenzvorschreibung (reduced health
+     contribution), apply given I'm already ASVG-insured through employment?
+  3. Can a SEPA direct debit be set up so payments run automatically while abroad, and can
+     correspondence be digital?
+
+  **Contact 4 - Steuerberater (paid - only for what WKO/SVS can't answer for free).** Video
+  call is fine.
+  1. Is the 9% platform commission on donations treated as its own service fee for VAT/
+     invoicing purposes, separate from subscription revenue?
+
+  **Already resolved 2026-09-15, no longer open questions:**
+  - Tax residency while abroad 9 months: discussed with employer, structured as a business
+    trip - Austrian tax residency isn't in question.
+  - Remote handling once a venue is ready: have a partner in Austria who can help with
+    registration/filings while traveling - no Vollmacht/mail-forwarding safety net needed.
+
+  **Decide, based on all of the above:**
+  - If "Neue Selbständige" applies: no mandatory WKO membership/Kammerumlage, likely minimal
+    SVS cost pre-revenue - registering earlier becomes low-risk.
+  - If a full Gewerbeschein is required: since no venue is confirmed yet, **wait to actually
+    register until a venue is genuinely close to signing** - don't run ongoing costs against
+    zero revenue. Can be done remotely from abroad (usp.gv.at + ID Austria + FinanzOnline +
+    phone/video calls) once that trigger point arrives, with the partner's help - does not
+    require being physically in Austria.
+
 - [ ] **VAT (Austria / EU digital subscriptions).**
   Confirmed 2026-09-14: the **Kleinunternehmerregelung** (small-business VAT exemption)
   threshold is **EUR 55,000/year** revenue - if you're under that, you may not need to charge
@@ -21,6 +82,14 @@ items as you address them.
      reverse charge) is already wired behind that flag in `api/create-checkout-session.js`, so
      no further code change is needed.
 
+- [ ] **Auto-renewal / free-trial disclosure wording - quick read-through, not urgent for a
+  small first pilot.** Starter and Growth plans auto-convert from a 90-day free trial into a
+  paid recurring subscription unless cancelled. Flagged in `Godwit-Feature-Overview.md` -
+  nobody has actually reviewed whether the current checkout/billing-UI disclosures (price,
+  renewal date, cancellation method) are clear enough under EU Consumer Rights Directive /
+  auto-renewal rules. Worth a look before scaling past a small pilot, not before the first
+  customer.
+
 - [ ] **Geo-gating prize draws / donations by jurisdiction.** Voters already see a full
   eligibility disclaimer and must give explicit consent per entry (`vote.prizeDrawDisclaimer`
   / `vote.prizeDrawConsent`), and an admin must explicitly acknowledge they've checked local
@@ -29,6 +98,15 @@ items as you address them.
   needs a legally-vetted country list, which isn't something to guess at in code.
   Decision 2026-09-14: keep prize draws and donations enabled for now with the existing
   disclaimers and consent; obtain Austrian legal advice before relying on them commercially.
+  Confirmed 2026-09-15: plan to actually offer prize draws to real venues soon. The German
+  disclaimer (`de.json`) already says "Kein Kauf erforderlich" (no purchase necessary) - this
+  is the key phrase that keeps a prize draw out of Austria's regulated-gambling category
+  (Glücksspielgesetz only applies when entry requires a stake/payment). Before the first real
+  one: (1) get a quick, specific opinion from WKO's free member Rechtsservice or a lawyer -
+  "is a free-to-enter prize draw via a QR-feedback tool compliant?" - not a full audit, just
+  that one question; (2) confirm the Pilot Venue Agreement / Terms make the venue responsible
+  for sourcing/delivering the prize and its tax treatment, with Godwit only as the technology
+  provider; (3) start with a low-value prize (a free coffee, small venue voucher), not cash.
 
 - [ ] **Nightly Stripe reconciliation job** (compare `donations`/`workspace_subscriptions`
   against the Stripe API for drift) - a real, buildable feature, just not built yet. Worth
