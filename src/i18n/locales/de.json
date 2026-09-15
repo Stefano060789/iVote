@@ -464,6 +464,7 @@
         "stripeConnected": "Stripe ist verbunden und bereit, Spenden anzunehmen.",
         "stripeStarted": "Das Stripe-Konto wurde begonnen, aber das Onboarding ist noch nicht abgeschlossen.",
         "stripeNotConnected": "Noch kein Stripe-Konto verbunden.",
+        "beforeYouConnect": "Sie benötigen: Ihre Bankverbindung (IBAN) und einen Ausweis. Dauert etwa 3-5 Minuten, auf Stripes eigener sicherer Seite.",
         "continueSetup": "Stripe-Einrichtung fortsetzen",
         "connectStripe": "Mit Stripe verbinden",
         "refreshStatus": "Status aktualisieren",

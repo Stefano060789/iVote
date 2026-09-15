@@ -210,6 +210,10 @@ async function handleConnectOnboarding(request, response) {
       const accountForm = new URLSearchParams({
         type: "express",
         email: user.email || "",
+        // "individual" is a sensible default for the vast majority of solo artists/small
+        // venues using this - it saves them one step in Stripe's own onboarding form. They can
+        // still change it there if they're actually a registered company.
+        business_type: "individual",
         "capabilities[card_payments][requested]": "true",
         "capabilities[transfers][requested]": "true",
         "metadata[workspace_id]": workspaceId

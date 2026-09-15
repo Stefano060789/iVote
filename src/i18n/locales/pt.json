@@ -464,6 +464,7 @@
         "stripeConnected": "Stripe está conectada e pronta para aceitar doações.",
         "stripeStarted": "A conta Stripe foi iniciada, mas o onboarding ainda não foi concluído.",
         "stripeNotConnected": "Nenhuma conta Stripe conectada ainda.",
+        "beforeYouConnect": "Você vai precisar de: os dados da sua conta bancária (IBAN) e um documento de identidade. Leva cerca de 3 a 5 minutos, na página segura da própria Stripe.",
         "continueSetup": "Continuar configuração da Stripe",
         "connectStripe": "Conectar com Stripe",
         "refreshStatus": "Atualizar status",

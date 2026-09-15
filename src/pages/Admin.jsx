@@ -2409,7 +2409,10 @@ export default function Admin() {
             ) : donationSettings.stripe_account_id ? (
               <p className="text-sm font-semibold text-amber-300">{t("admin.engagement.donations.stripeStarted")}</p>
             ) : (
-              <p className="text-sm text-slate-400">{t("admin.engagement.donations.stripeNotConnected")}</p>
+              <>
+                <p className="text-sm text-slate-400">{t("admin.engagement.donations.stripeNotConnected")}</p>
+                <p className="mt-2 text-xs text-slate-500">{t("admin.engagement.donations.beforeYouConnect")}</p>
+              </>
             )}
             <div className="mt-3 flex flex-wrap gap-2">
               <button onClick={connectStripeHandler} disabled={stripeConnectBusy} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">

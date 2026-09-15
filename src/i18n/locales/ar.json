@@ -464,6 +464,7 @@
         "stripeConnected": "تم ربط Stripe وهي جاهزة لقبول التبرعات.",
         "stripeStarted": "تم بدء حساب Stripe، لكن عملية الإعداد لم تكتمل بعد.",
         "stripeNotConnected": "لم يتم ربط أي حساب Stripe بعد.",
+        "beforeYouConnect": "ستحتاج إلى: بيانات حسابك المصرفي (IBAN) وهوية شخصية. يستغرق الأمر حوالي 3-5 دقائق، على صفحة Stripe الآمنة.",
         "continueSetup": "متابعة إعداد Stripe",
         "connectStripe": "الربط مع Stripe",
         "refreshStatus": "تحديث الحالة",

@@ -464,6 +464,7 @@
         "stripeConnected": "Stripe 已连接，可以接受捐赠。",
         "stripeStarted": "Stripe 账户已开始设置，但入驻流程尚未完成。",
         "stripeNotConnected": "尚未连接 Stripe 账户。",
+        "beforeYouConnect": "您需要准备：您的银行账户信息（IBAN）和一份身份证件。大约需要 3-5 分钟，在 Stripe 自己的安全页面上完成。",
         "continueSetup": "继续设置 Stripe",
         "connectStripe": "连接 Stripe",
         "refreshStatus": "刷新状态",

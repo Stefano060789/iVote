@@ -453,6 +453,7 @@
         "stripeConnected": "Stripe is connected and ready to accept donations.",
         "stripeStarted": "Stripe account started, but onboarding isn't finished yet.",
         "stripeNotConnected": "No Stripe account connected yet.",
+        "beforeYouConnect": "You'll need: your bank account details (IBAN) and a form of ID. Takes about 3-5 minutes, on Stripe's own secure page.",
         "continueSetup": "Continue Stripe setup",
         "connectStripe": "Connect with Stripe",
         "refreshStatus": "Refresh status",
