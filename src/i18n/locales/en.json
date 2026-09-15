@@ -504,6 +504,20 @@
         "advancedTitle": "More QR tools",
         "advancedDescription": "Connect Stripe for donations, track reward redemptions, or run prize draws — all optional, and all related to the QR codes above."
       },
+      "wizard": {
+        "stepOf": "Step {{step}} of {{total}}",
+        "step1Title": "1. Create your QR code",
+        "createAndContinue": "Create and continue",
+        "step2Title": "2. Add an info message (optional)",
+        "step3Title": "3. Add one or more polls (optional)",
+        "pollsAddedSoFar": "{{count}} poll(s) added so far",
+        "step4Title": "4. Add a donation option (optional)",
+        "step5Title": "5. Add a reward or prize (optional)",
+        "step6Title": "6. Print your QR code",
+        "back": "Back",
+        "next": "Next",
+        "finish": "Finish"
+      },
       "items": {
         "sectionPolls": "Polls",
         "sectionPollsHint": "Which poll(s) show up when someone scans this QR code.",

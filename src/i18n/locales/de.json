@@ -523,6 +523,20 @@
         "itemsOnQr": "Elemente auf diesem QR-Code ({{count}})",
         "itemsHint": "Fügen Sie hier eine oder mehrere Umfragen, Infokarten und eine Spendenbitte hinzu, um diesen QR-Code in ein Menü zu verwandeln: Beim Scannen wird alles unten Aufgeführte auf einmal angezeigt, statt direkt zu einer einzelnen Umfrage zu führen."
       },
+      "wizard": {
+        "stepOf": "Schritt {{step}} von {{total}}",
+        "step1Title": "1. QR-Code erstellen",
+        "createAndContinue": "Erstellen und weiter",
+        "step2Title": "2. Info-Nachricht hinzufügen (optional)",
+        "step3Title": "3. Eine oder mehrere Umfragen hinzufügen (optional)",
+        "pollsAddedSoFar": "{{count}} Umfrage(n) bisher hinzugefügt",
+        "step4Title": "4. Spendenoption hinzufügen (optional)",
+        "step5Title": "5. Belohnung oder Preis hinzufügen (optional)",
+        "step6Title": "6. QR-Code drucken",
+        "back": "Zurück",
+        "next": "Weiter",
+        "finish": "Fertig"
+      },
       "items": {
         "addCurrentPoll": "Aktuelle Standardumfrage (#{{id}}) ebenfalls als Element hinzufügen",
         "unknownPoll": "Unbekannte Umfrage",

@@ -523,6 +523,20 @@
         "itemsOnQr": "Éléments de ce code QR ({{count}})",
         "itemsHint": "Ajoutez ici un ou plusieurs sondages, des fiches d'information et une demande de don pour transformer ce code QR en menu : en le scannant, tout ce qui est listé ci-dessous s'affichera d'un coup, au lieu d'aller directement vers un seul sondage."
       },
+      "wizard": {
+        "stepOf": "Étape {{step}} sur {{total}}",
+        "step1Title": "1. Créer votre code QR",
+        "createAndContinue": "Créer et continuer",
+        "step2Title": "2. Ajouter un message d'information (optionnel)",
+        "step3Title": "3. Ajouter un ou plusieurs sondages (optionnel)",
+        "pollsAddedSoFar": "{{count}} sondage(s) ajouté(s) jusqu'ici",
+        "step4Title": "4. Ajouter une option de don (optionnel)",
+        "step5Title": "5. Ajouter une récompense ou un prix (optionnel)",
+        "step6Title": "6. Imprimer votre code QR",
+        "back": "Retour",
+        "next": "Suivant",
+        "finish": "Terminer"
+      },
       "items": {
         "addCurrentPoll": "Ajouter aussi le sondage par défaut actuel (#{{id}}) comme élément",
         "unknownPoll": "Sondage inconnu",

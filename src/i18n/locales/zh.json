@@ -523,6 +523,20 @@
         "itemsOnQr": "此二维码中的项目 ({{count}})",
         "itemsHint": "在此添加一个或多个投票、信息卡和捐赠请求，把这个二维码变成一个菜单：扫描后会一次显示下方列出的全部内容，而不是直接前往某一个投票。"
       },
+      "wizard": {
+        "stepOf": "第 {{step}} 步，共 {{total}} 步",
+        "step1Title": "1. 创建您的二维码",
+        "createAndContinue": "创建并继续",
+        "step2Title": "2. 添加信息消息（可选）",
+        "step3Title": "3. 添加一个或多个投票（可选）",
+        "pollsAddedSoFar": "目前已添加 {{count}} 个投票",
+        "step4Title": "4. 添加捐赠选项（可选）",
+        "step5Title": "5. 添加奖励或奖品（可选）",
+        "step6Title": "6. 打印您的二维码",
+        "back": "上一步",
+        "next": "下一步",
+        "finish": "完成"
+      },
       "items": {
         "addCurrentPoll": "也将当前默认投票 (#{{id}}) 添加为一个项目",
         "unknownPoll": "未知投票",

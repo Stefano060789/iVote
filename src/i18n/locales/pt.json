@@ -523,6 +523,20 @@
         "itemsOnQr": "Itens neste código QR ({{count}})",
         "itemsHint": "Adicione aqui uma ou mais enquetes, cartões informativos e um pedido de doação para transformar este código QR em um menu: ao escaneá-lo, tudo listado abaixo será exibido de uma vez, em vez de ir direto para uma única enquete."
       },
+      "wizard": {
+        "stepOf": "Etapa {{step}} de {{total}}",
+        "step1Title": "1. Crie seu código QR",
+        "createAndContinue": "Criar e continuar",
+        "step2Title": "2. Adicione uma mensagem informativa (opcional)",
+        "step3Title": "3. Adicione uma ou mais enquetes (opcional)",
+        "pollsAddedSoFar": "{{count}} enquete(s) adicionada(s) até agora",
+        "step4Title": "4. Adicione uma opção de doação (opcional)",
+        "step5Title": "5. Adicione uma recompensa ou prêmio (opcional)",
+        "step6Title": "6. Imprima seu código QR",
+        "back": "Voltar",
+        "next": "Próximo",
+        "finish": "Concluir"
+      },
       "items": {
         "addCurrentPoll": "Adicionar também a enquete padrão atual (#{{id}}) como item",
         "unknownPoll": "Enquete desconhecida",

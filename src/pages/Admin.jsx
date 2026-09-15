@@ -112,12 +112,14 @@ export default function Admin() {
   const [itemRewardLinkUrl, setItemRewardLinkUrl] = useState("");
   const [itemRewardLinkLabel, setItemRewardLinkLabel] = useState("");
   const [newCampaignName, setNewCampaignName] = useState("");
-  const [newCampaignPollId, setNewCampaignPollId] = useState("");
   const [newCampaignPlacement, setNewCampaignPlacement] = useState("");
   const [newCampaignVariant, setNewCampaignVariant] = useState("");
   const [newCampaignPortalTitle, setNewCampaignPortalTitle] = useState("");
   const [newCampaignPortalMessage, setNewCampaignPortalMessage] = useState("");
   const [newCampaignPortalButton, setNewCampaignPortalButton] = useState("");
+  const [qrWizardOpen, setQrWizardOpen] = useState(false);
+  const [qrWizardStep, setQrWizardStep] = useState(1);
+  const [qrWizardCampaign, setQrWizardCampaign] = useState(null);
   const [invitingMember, setInvitingMember] = useState(false);
   const [redeemCode, setRedeemCode] = useState("");
   const [redeemMessage, setRedeemMessage] = useState("");
@@ -449,25 +451,71 @@ export default function Admin() {
     }
   }
 
-  async function handleCreateCampaign() {
-    if (!newCampaignName.trim() || !newCampaignPollId) {
-      alert("Name the campaign and select its poll.");
+  // Guided QR creation wizard - replaces the old flat "name + poll + placement + variant, all
+  // at once" form. Walks through the same underlying steps (create -> info -> polls ->
+  // donation -> reward/prize -> print) one at a time, reusing the exact same handlers as the
+  // "edit an existing QR code's items" accordion below, so there's only one code path per
+  // action, not two.
+  function openQrWizard() {
+    setQrWizardCampaign(null);
+    setQrWizardStep(1);
+    setQrWizardOpen(true);
+  }
+
+  function closeQrWizard() {
+    setQrWizardOpen(false);
+    setQrWizardCampaign(null);
+    setQrWizardStep(1);
+  }
+
+  async function handleCreateCampaignFromWizard() {
+    if (!newCampaignName.trim()) {
+      alert("Give the QR code a name.");
       return;
     }
     try {
-      const campaign = await createQrCampaign({ name: newCampaignName, pollId: newCampaignPollId, placementLabel: newCampaignPlacement, variantLabel: newCampaignVariant, portalTitle: newCampaignPortalTitle, portalMessage: newCampaignPortalMessage, portalButtonLabel: newCampaignPortalButton });
+      const campaign = await createQrCampaign({
+        name: newCampaignName,
+        pollId: null,
+        placementLabel: newCampaignPlacement,
+        variantLabel: newCampaignVariant,
+        portalTitle: newCampaignPortalTitle,
+        portalMessage: newCampaignPortalMessage,
+        portalButtonLabel: newCampaignPortalButton
+      });
       setQrCampaigns((current) => [campaign, ...current]);
+      setQrWizardCampaign(campaign);
       setNewCampaignName("");
-      setNewCampaignPollId("");
       setNewCampaignPlacement("");
       setNewCampaignVariant("");
       setNewCampaignPortalTitle("");
       setNewCampaignPortalMessage("");
       setNewCampaignPortalButton("");
+      setQrWizardStep(2);
     } catch (error) {
       console.error(error);
       alert(error.message || "Unable to create QR campaign. Run the ROI migration first.");
     }
+  }
+
+  async function handleAddInfoItemFromWizard() {
+    if (!qrWizardCampaign) return;
+    await handleAddInfoItem(qrWizardCampaign.id);
+  }
+
+  async function handleAddPollItemFromWizard() {
+    if (!qrWizardCampaign) return;
+    await handleAddPollItem(qrWizardCampaign.id);
+  }
+
+  async function handleAddRewardItemFromWizard() {
+    if (!qrWizardCampaign) return;
+    await handleAddRewardItem(qrWizardCampaign.id);
+  }
+
+  async function handleAddDonationItemFromWizard() {
+    if (!qrWizardCampaign) return;
+    await handleAddDonationItem(qrWizardCampaign.id);
   }
 
   async function handleDeleteQrCampaign(campaignId, campaignName) {
@@ -1582,7 +1630,7 @@ export default function Admin() {
   }
 
   function printCampaignQr(campaign, url) {
-    const formatConfig = getQrPrintFormatConfig("a4");
+    const formatConfig = getQrPrintFormatConfig();
     const generatedStyle = generateAiQrStyle(1, "brand");
     const logoMarkup = workspaceProfile.logoUrl
       ? `<img src="${workspaceProfile.logoUrl}" alt="Brand logo" style="max-height: 56px; max-width: 160px; object-fit: contain; margin-right: 16px;" />`
@@ -2171,24 +2219,177 @@ export default function Admin() {
         <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.campaigns.title")}</summary>
         <div className="px-4 pb-4">
           <p className="mb-3 text-sm text-slate-400">{t("admin.engagement.campaigns.description")}</p>
-          <p className="mb-3 text-xs text-slate-500">{t("admin.engagement.campaigns.tip")}</p>
-          <div className="grid md:grid-cols-3 gap-3 mb-3">
-            <input value={newCampaignName} onChange={(event) => setNewCampaignName(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.namePlaceholder")} />
-            <select value={newCampaignPollId} onChange={(event) => setNewCampaignPollId(event.target.value)} className="border p-2 rounded text-black">
-              <option value="">{t("admin.engagement.scanner.choosePoll")}</option>
-              {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
-            </select>
-            <button onClick={handleCreateCampaign} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">{t("admin.engagement.campaigns.createButton")}</button>
-          </div>
-          <div className="grid md:grid-cols-2 gap-3 mb-4"><input value={newCampaignPlacement} onChange={(event) => setNewCampaignPlacement(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.placementPlaceholder")} /><input value={newCampaignVariant} onChange={(event) => setNewCampaignVariant(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.variantPlaceholder")} /></div>
-          <details className="mb-4 rounded border border-slate-700">
-            <summary className="cursor-pointer p-3 text-sm font-semibold">{t("admin.engagement.campaigns.customizeWelcome")}</summary>
-            <div className="grid gap-3 px-3 pb-3 md:grid-cols-2">
-              <input value={newCampaignPortalTitle} onChange={(event) => setNewCampaignPortalTitle(event.target.value)} maxLength={120} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.welcomeHeadlinePlaceholder")} />
-              <input value={newCampaignPortalButton} onChange={(event) => setNewCampaignPortalButton(event.target.value)} maxLength={60} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.buttonTextPlaceholder")} />
-              <textarea value={newCampaignPortalMessage} onChange={(event) => setNewCampaignPortalMessage(event.target.value)} maxLength={280} className="border p-2 rounded text-black md:col-span-2" placeholder={t("admin.engagement.campaigns.welcomeMessagePlaceholder")} rows="3" />
+          <p className="mb-4 text-xs text-slate-500">{t("admin.engagement.campaigns.tip")}</p>
+          <button onClick={openQrWizard} className="mb-4 bg-violet-600 text-white px-5 py-3 rounded font-semibold">
+            {t("admin.engagement.campaigns.createButton")}
+          </button>
+
+          {qrWizardOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+              <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-slate-700 bg-gray-900 p-5">
+                <div className="mb-4 flex items-center justify-between">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-violet-300">
+                    {t("admin.engagement.wizard.stepOf", { step: qrWizardStep, total: 6 })}
+                  </p>
+                  <button onClick={closeQrWizard} className="text-slate-400 hover:text-white">✕</button>
+                </div>
+
+                {qrWizardStep === 1 && (
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-bold">{t("admin.engagement.wizard.step1Title")}</h3>
+                    <input value={newCampaignName} onChange={(event) => setNewCampaignName(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.namePlaceholder")} />
+                    <div className="grid grid-cols-2 gap-3">
+                      <input value={newCampaignPlacement} onChange={(event) => setNewCampaignPlacement(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.placementPlaceholder")} />
+                      <input value={newCampaignVariant} onChange={(event) => setNewCampaignVariant(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.variantPlaceholder")} />
+                    </div>
+                    <details className="rounded border border-slate-700">
+                      <summary className="cursor-pointer p-3 text-sm font-semibold">{t("admin.engagement.campaigns.customizeWelcome")}</summary>
+                      <div className="grid gap-3 px-3 pb-3">
+                        <input value={newCampaignPortalTitle} onChange={(event) => setNewCampaignPortalTitle(event.target.value)} maxLength={120} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.welcomeHeadlinePlaceholder")} />
+                        <input value={newCampaignPortalButton} onChange={(event) => setNewCampaignPortalButton(event.target.value)} maxLength={60} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.buttonTextPlaceholder")} />
+                        <textarea value={newCampaignPortalMessage} onChange={(event) => setNewCampaignPortalMessage(event.target.value)} maxLength={280} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.welcomeMessagePlaceholder")} rows="3" />
+                      </div>
+                    </details>
+                    <button onClick={handleCreateCampaignFromWizard} className="w-full bg-violet-600 text-white px-4 py-2 rounded font-semibold">
+                      {t("admin.engagement.wizard.createAndContinue")}
+                    </button>
+                  </div>
+                )}
+
+                {qrWizardStep === 2 && qrWizardCampaign && (
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-bold">{t("admin.engagement.wizard.step2Title")}</h3>
+                    <p className="text-xs text-slate-400">{t("admin.engagement.items.sectionInfoHint")}</p>
+                    <input value={itemTitle} onChange={(event) => setItemTitle(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.infoTitlePlaceholder")} />
+                    <textarea value={itemBody} onChange={(event) => setItemBody(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.infoBodyPlaceholder")} rows="3" />
+                    <div className="grid grid-cols-2 gap-3">
+                      <input value={itemLinkUrl} onChange={(event) => setItemLinkUrl(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.items.linkUrlPlaceholder")} />
+                      <input value={itemLinkLabel} onChange={(event) => setItemLinkLabel(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.items.linkLabelPlaceholder")} />
+                    </div>
+                    <input value={itemImageUrl} onChange={(event) => setItemImageUrl(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.imageUrlPlaceholder")} />
+                    <fieldset className="rounded border border-slate-700 p-2">
+                      <legend className="px-1 text-xs text-slate-400">{t("admin.engagement.items.accessibilityLegend")}</legend>
+                      <div className="flex flex-wrap gap-2">
+                        {ACCESSIBILITY_TAGS.map((tag) => (
+                          <label key={tag.value} className="flex items-center gap-1 text-xs">
+                            <input type="checkbox" checked={itemAccessibilityTags.includes(tag.value)} onChange={() => toggleItemAccessibilityTag(tag.value)} />
+                            <span aria-hidden="true">{tag.icon}</span> {t(tag.labelKey)}
+                          </label>
+                        ))}
+                      </div>
+                    </fieldset>
+                    <button onClick={handleAddInfoItemFromWizard} className="w-full rounded border border-violet-500 px-4 py-2 font-semibold text-violet-300">
+                      {t("admin.engagement.items.addInfoCard")}
+                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={() => setQrWizardStep(1)} className="flex-1 rounded border border-slate-600 px-4 py-2 font-semibold text-slate-300">{t("admin.engagement.wizard.back")}</button>
+                      <button onClick={() => setQrWizardStep(3)} className="flex-1 rounded bg-violet-600 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.next")}</button>
+                    </div>
+                  </div>
+                )}
+
+                {qrWizardStep === 3 && qrWizardCampaign && (
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-bold">{t("admin.engagement.wizard.step3Title")}</h3>
+                    <div className="flex gap-2">
+                      <select value={itemPollId} onChange={(event) => setItemPollId(event.target.value)} className="flex-1 border p-2 rounded text-black">
+                        <option value="">{t("admin.engagement.items.addPollOption")}</option>
+                        {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
+                      </select>
+                      <button onClick={handleAddPollItemFromWizard} className="shrink-0 rounded border border-violet-500 px-4 py-2 font-semibold text-violet-300">
+                        {t("admin.engagement.items.addPoll")}
+                      </button>
+                    </div>
+                    <p className="text-xs text-slate-400">
+                      {t("admin.engagement.wizard.pollsAddedSoFar", { count: itemsForCampaign(qrWizardCampaign.id).filter((item) => item.item_type === "poll").length })}
+                    </p>
+                    <div className="flex gap-2">
+                      <button onClick={() => setQrWizardStep(2)} className="flex-1 rounded border border-slate-600 px-4 py-2 font-semibold text-slate-300">{t("admin.engagement.wizard.back")}</button>
+                      <button onClick={() => setQrWizardStep(4)} className="flex-1 rounded bg-violet-600 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.next")}</button>
+                    </div>
+                  </div>
+                )}
+
+                {qrWizardStep === 4 && qrWizardCampaign && (
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-bold">{t("admin.engagement.wizard.step4Title")}</h3>
+                    <p className="text-xs text-slate-400">{t("admin.engagement.items.sectionDonationHint")}</p>
+                    {donationSettings.is_enabled ? (
+                      <button onClick={handleAddDonationItemFromWizard} className="w-full rounded border border-violet-500 px-4 py-2 font-semibold text-violet-300">
+                        {t("admin.engagement.items.addDonationOption")}
+                      </button>
+                    ) : (
+                      <p className="rounded border border-amber-700 bg-amber-950/40 p-3 text-xs text-amber-300">
+                        {t("admin.engagement.items.enableDonationsNote")}
+                      </p>
+                    )}
+                    <div className="flex gap-2">
+                      <button onClick={() => setQrWizardStep(3)} className="flex-1 rounded border border-slate-600 px-4 py-2 font-semibold text-slate-300">{t("admin.engagement.wizard.back")}</button>
+                      <button onClick={() => setQrWizardStep(5)} className="flex-1 rounded bg-violet-600 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.next")}</button>
+                    </div>
+                  </div>
+                )}
+
+                {qrWizardStep === 5 && qrWizardCampaign && (
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-bold">{t("admin.engagement.wizard.step5Title")}</h3>
+                    <input value={itemRewardTitle} onChange={(event) => setItemRewardTitle(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.rewardTitlePlaceholder")} />
+                    <textarea value={itemRewardBody} onChange={(event) => setItemRewardBody(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.rewardBodyPlaceholder")} rows="2" />
+                    <input value={itemRewardCode} onChange={(event) => setItemRewardCode(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.rewardCodePlaceholder")} />
+                    <div className="grid grid-cols-2 gap-3">
+                      <input value={itemRewardLinkUrl} onChange={(event) => setItemRewardLinkUrl(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.items.linkUrlPlaceholder")} />
+                      <input value={itemRewardLinkLabel} onChange={(event) => setItemRewardLinkLabel(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.items.linkLabelPlaceholder")} />
+                    </div>
+                    <button onClick={handleAddRewardItemFromWizard} className="w-full rounded border border-violet-500 px-4 py-2 font-semibold text-violet-300">
+                      {t("admin.engagement.items.addRewardOption")}
+                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={() => setQrWizardStep(4)} className="flex-1 rounded border border-slate-600 px-4 py-2 font-semibold text-slate-300">{t("admin.engagement.wizard.back")}</button>
+                      <button onClick={() => setQrWizardStep(6)} className="flex-1 rounded bg-violet-600 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.next")}</button>
+                    </div>
+                  </div>
+                )}
+
+                {qrWizardStep === 6 && qrWizardCampaign && (() => {
+                  const wizardUrl = `${window.location.origin}/qr/${qrWizardCampaign.token}`;
+                  return (
+                    <div className="space-y-3 text-center">
+                      <h3 className="text-lg font-bold">{t("admin.engagement.wizard.step6Title")}</h3>
+                      <div className="flex justify-center">
+                        <img src={getCampaignQrImageUrl(wizardUrl, 220)} alt={t("admin.engagement.campaigns.qrAlt", { name: qrWizardCampaign.name })} className="h-40 w-40 rounded border border-slate-700 bg-white p-2" />
+                      </div>
+                      <p className="truncate text-xs text-blue-300">{wizardUrl}</p>
+                      <div className="text-left">
+                        <label className="mb-1 block text-xs font-semibold text-slate-300">{t("admin.polls.card.printFormat")}</label>
+                        <select value={qrPrintFormat} onChange={(event) => setQrPrintFormat(event.target.value)} className="w-full border p-2 rounded text-black">
+                          <option value="letter">{t("admin.polls.card.formats.letter")}</option>
+                          <option value="a4">{t("admin.polls.card.formats.a4")}</option>
+                          <option value="a5">{t("admin.polls.card.formats.a5")}</option>
+                          <option value="a6">{t("admin.polls.card.formats.a6")}</option>
+                          <option value="a3">{t("admin.polls.card.formats.a3")}</option>
+                          <option value="postcard">{t("admin.polls.card.formats.postcard")}</option>
+                          <option value="beerHolder">{t("admin.polls.card.formats.beerHolder")}</option>
+                          <option value="ticket">{t("admin.polls.card.formats.ticket")}</option>
+                        </select>
+                      </div>
+                      <div className="flex justify-center gap-2">
+                        <button onClick={() => downloadCampaignQr(qrWizardCampaign, wizardUrl)} className="rounded bg-blue-600 px-4 py-2 font-semibold text-white">
+                          {t("admin.polls.card.downloadQr")}
+                        </button>
+                        <button onClick={() => printCampaignQr(qrWizardCampaign, wizardUrl)} className="rounded bg-green-600 px-4 py-2 font-semibold text-white">
+                          {t("admin.polls.card.printQr")}
+                        </button>
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => setQrWizardStep(5)} className="flex-1 rounded border border-slate-600 px-4 py-2 font-semibold text-slate-300">{t("admin.engagement.wizard.back")}</button>
+                        <button onClick={closeQrWizard} className="flex-1 rounded bg-emerald-600 px-4 py-2 font-semibold text-white">{t("admin.engagement.wizard.finish")}</button>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
             </div>
-          </details>
+          )}
           <div className="space-y-2">
             {qrCampaigns.length === 0 ? <p className="text-gray-400">{t("admin.engagement.campaigns.noCampaigns")}</p> : qrCampaigns.map((campaign) => {
               const url = `${window.location.origin}/qr/${campaign.token}`;
