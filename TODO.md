@@ -7,30 +7,6 @@ items as you address them.
 
 ## Open action items (needs you, not code)
 
-- [ ] **Set `SUPPORT_TO_EMAIL` in Vercel (Production env vars).** The `/support` page no longer
-  shows a raw mailto link (was leaking your personal address via `VITE_SUPPORT_EMAIL`, a
-  client-bundled var visible in the page source to anyone). It's now a message form that
-  POSTs to `api/notify.js` (`type: "contact"`), which emails `SUPPORT_TO_EMAIL` - a
-  server-only var, never sent to the browser. Set it to the same address `VITE_SUPPORT_EMAIL`
-  had, then messages will actually deliver (until then the form will show a "not configured"
-  error). `VITE_SUPPORT_EMAIL` itself is unchanged and still needed - it's also used in
-  `Legal.jsx`'s privacy policy, where showing a real contact address is normal/expected for a
-  data-controller disclosure, so that one was left alone.
-
-- [ ] **Run the two new migrations, then confirm `qr_locations` fully dropped.** Per your
-  explicit request (2026-09-14), both "Poll rotations" and the legacy "Simple QR codes
-  (older, single-poll)" system were fully removed - UI, state/handlers, lib files, and now the
-  database side too:
-  - `supabase/20260914_remove_poll_rotations.sql` - drops `poll_rotations`, the
-    `qr_campaigns.rotation_id` column, and `get_rotation_current_poll()`; restores
-    `get_public_qr_campaign()` to resolve a campaign's poll directly (no rotation lookup).
-  - `supabase/20260914_remove_qr_locations.sql` - drops `qr_locations`, but **only if it's
-    empty** (a safety guard raises a notice and leaves the table alone otherwise, rather than
-    silently discarding data). Run it, then check the migration output: if it printed a notice
-    instead of dropping, look at what's still in the table before deciding whether to export
-    or manually drop it.
-  - Both migrations still need to be run in the Supabase SQL editor.
-
 - [ ] **VAT (Austria / EU digital subscriptions).**
   Confirmed 2026-09-14: the **Kleinunternehmerregelung** (small-business VAT exemption)
   threshold is **EUR 55,000/year** revenue - if you're under that, you may not need to charge
@@ -55,6 +31,8 @@ items as you address them.
   sweepstakes rules before a prize draw can be turned on at all (DB constraint
   `polls_raffle_requires_ack`) - but nothing blocks the feature by country. Doing that properly
   needs a legally-vetted country list, which isn't something to guess at in code.
+  Decision 2026-09-14: keep prize draws and donations enabled for now with the existing
+  disclaimers and consent; obtain Austrian legal advice before relying on them commercially.
 
 - [ ] **Nightly Stripe reconciliation job** (compare `donations`/`workspace_subscriptions`
   against the Stripe API for drift) - a real, buildable feature, just not built yet. Worth
@@ -145,21 +123,16 @@ items as you address them.
   can be rate-limited/blocked without notice). A kill switch
   (`VITE_ENABLE_TRANSLATION=false`), timeout, and fallback message are in place, but the
   real fix is the official, paid Google Cloud Translation API.
-- [ ] **Supabase backup/restore drill - blocked on a plan decision, not configuration.**
-  This project's organization is on the **Supabase Free plan**, which Supabase states
-  explicitly **does not include project backups at all** - not "not yet turned on",
-  structurally unavailable. There is currently no way to recover this production database if
-  data is ever lost or corrupted. Fixing this requires upgrading the organization to
-  **Supabase Pro ($25/month base, includes daily backups retained 7 days)** - a real
-  recurring cost, so this needs your decision, not just configuration. Once upgraded, still do
-  an actual test restore before the pilot, not just confirm the toggle is on.
+- [ ] **Configure the free Supabase backup workflow.** `.github/workflows/supabase-backup.yml`
+  creates a daily encrypted PostgreSQL dump, uploads it as a private GitHub Actions artifact
+  for 30 days, and restores it into a temporary PostgreSQL service on every run. Add the
+  `SUPABASE_DB_URL` and `BACKUP_ENCRYPTION_KEY` GitHub Actions secrets (added 2026-09-15),
+  run it manually once, and verify the restore test succeeds. This is logical
+  backup/restore, not Supabase point-in-time recovery; retain an additional independent copy
+  before a larger launch.
 - [ ] **Vercel's own real-time anomaly alerting ("Observability Plus")** remains gated behind a
   Vercel Pro upgrade - unrelated to Sentry (already fully wired up), a separate paid-plan
   decision.
-- [ ] **Use the `api/system-status.js` endpoint before onboarding each pilot venue.** Call
-  it with the `CRON_SECRET` bearer token to confirm which optional integrations (Stripe,
-  Resend email, Google Places, Sentry) are actually configured, so you don't promise a
-  Growth-tier feature that silently no-ops.
 - [ ] Full WCAG audit not done - color contrast and keyboard-navigation order weren't
   reviewed on the public voting flow. Revisit if that becomes a real requirement (e.g. a
   museum client asks for a conformance statement).

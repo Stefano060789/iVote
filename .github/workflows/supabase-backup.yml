@@ -1,0 +1,83 @@
+name: Supabase backup
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * *"
+
+jobs:
+  backup-and-restore-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: restore_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d restore_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Check required secrets
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_DB_URL" || { echo "Missing SUPABASE_DB_URL"; exit 1; }
+          test -n "$BACKUP_ENCRYPTION_KEY" || { echo "Missing BACKUP_ENCRYPTION_KEY"; exit 1; }
+
+      - name: Create encrypted database dump
+        id: backup
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+        run: |
+          set -euo pipefail
+          filename="supabase-${GITHUB_RUN_ID}-${GITHUB_SHA}.dump.enc"
+          pg_dump \
+            --format=custom \
+            --no-owner \
+            --no-acl \
+            --schema=public \
+            --schema=auth \
+            --schema=storage \
+            "$SUPABASE_DB_URL" \
+            | openssl enc -aes-256-cbc -pbkdf2 -salt \
+                -pass env:BACKUP_ENCRYPTION_KEY \
+                -out "$filename"
+          test -s "$filename"
+          echo "filename=$filename" >> "$GITHUB_OUTPUT"
+
+      - name: Restore backup into temporary PostgreSQL
+        env:
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+          BACKUP_FILE: ${{ steps.backup.outputs.filename }}
+        run: |
+          set -euo pipefail
+          openssl enc -d -aes-256-cbc -pbkdf2 \
+            -pass env:BACKUP_ENCRYPTION_KEY \
+            -in "$BACKUP_FILE" \
+            -out restored.dump
+          pg_restore \
+            --exit-on-error \
+            --clean \
+            --if-exists \
+            --no-owner \
+            --no-acl \
+            --dbname "postgresql://postgres:postgres@127.0.0.1:5432/restore_test" \
+            restored.dump
+
+      - name: Upload encrypted backup
+        uses: actions/upload-artifact@v4
+        with:
+          name: supabase-backup-${{ github.run_id }}
+          path: ${{ steps.backup.outputs.filename }}
+          retention-days: 30
+          if-no-files-found: error
