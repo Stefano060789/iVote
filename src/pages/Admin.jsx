@@ -113,10 +113,8 @@ export default function Admin() {
   const [itemRewardLinkLabel, setItemRewardLinkLabel] = useState("");
   const [newCampaignName, setNewCampaignName] = useState("");
   const [newCampaignPlacement, setNewCampaignPlacement] = useState("");
-  const [newCampaignVariant, setNewCampaignVariant] = useState("");
   const [newCampaignPortalTitle, setNewCampaignPortalTitle] = useState("");
   const [newCampaignPortalMessage, setNewCampaignPortalMessage] = useState("");
-  const [newCampaignPortalButton, setNewCampaignPortalButton] = useState("");
   const [qrWizardOpen, setQrWizardOpen] = useState(false);
   const [qrWizardStep, setQrWizardStep] = useState(1);
   const [qrWizardCampaign, setQrWizardCampaign] = useState(null);
@@ -477,20 +475,14 @@ export default function Admin() {
       const campaign = await createQrCampaign({
         name: newCampaignName,
         pollId: null,
-        placementLabel: newCampaignPlacement,
-        variantLabel: newCampaignVariant,
-        portalTitle: newCampaignPortalTitle,
-        portalMessage: newCampaignPortalMessage,
-        portalButtonLabel: newCampaignPortalButton
+        placementLabel: newCampaignPlacement
       });
       setQrCampaigns((current) => [campaign, ...current]);
       setQrWizardCampaign(campaign);
       setNewCampaignName("");
       setNewCampaignPlacement("");
-      setNewCampaignVariant("");
       setNewCampaignPortalTitle("");
       setNewCampaignPortalMessage("");
-      setNewCampaignPortalButton("");
       setQrWizardStep(2);
     } catch (error) {
       console.error(error);
@@ -501,6 +493,34 @@ export default function Admin() {
   async function handleAddInfoItemFromWizard() {
     if (!qrWizardCampaign) return;
     await handleAddInfoItem(qrWizardCampaign.id);
+  }
+
+  // Step 2's "customize the welcome screen" fields save straight to the campaign (not an
+  // item), so they're applied silently when moving to step 3 instead of needing their own
+  // button - nothing to save just means the welcome text stays at its default.
+  async function handleSaveWelcomeAndContinue() {
+    if (!qrWizardCampaign) {
+      setQrWizardStep(3);
+      return;
+    }
+    const portalTitle = newCampaignPortalTitle.trim() || null;
+    const portalMessage = newCampaignPortalMessage.trim() || null;
+    if (portalTitle === (qrWizardCampaign.portal_title ?? null) && portalMessage === (qrWizardCampaign.portal_message ?? null)) {
+      setQrWizardStep(3);
+      return;
+    }
+    try {
+      const { error } = await supabase
+        .from("qr_campaigns")
+        .update({ portal_title: portalTitle, portal_message: portalMessage })
+        .eq("id", qrWizardCampaign.id);
+      if (error) throw error;
+      setQrCampaigns((current) => current.map((item) => (item.id === qrWizardCampaign.id ? { ...item, portal_title: portalTitle, portal_message: portalMessage } : item)));
+      setQrWizardCampaign((current) => (current ? { ...current, portal_title: portalTitle, portal_message: portalMessage } : current));
+      setQrWizardStep(3);
+    } catch (error) {
+      alert(error.message || "Unable to save the welcome message.");
+    }
   }
 
   async function handleAddPollItemFromWizard() {
@@ -2238,18 +2258,7 @@ export default function Admin() {
                   <div className="space-y-3">
                     <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step1Title")}</h3>
                     <input value={newCampaignName} onChange={(event) => setNewCampaignName(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.namePlaceholder")} />
-                    <div className="grid grid-cols-2 gap-3">
-                      <input value={newCampaignPlacement} onChange={(event) => setNewCampaignPlacement(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.placementPlaceholder")} />
-                      <input value={newCampaignVariant} onChange={(event) => setNewCampaignVariant(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.variantPlaceholder")} />
-                    </div>
-                    <details className="rounded border border-[#24345c]">
-                      <summary className="cursor-pointer p-3 text-sm font-semibold text-[#e7ecf5]">{t("admin.engagement.campaigns.customizeWelcome")}</summary>
-                      <div className="grid gap-3 px-3 pb-3">
-                        <input value={newCampaignPortalTitle} onChange={(event) => setNewCampaignPortalTitle(event.target.value)} maxLength={120} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.welcomeHeadlinePlaceholder")} />
-                        <input value={newCampaignPortalButton} onChange={(event) => setNewCampaignPortalButton(event.target.value)} maxLength={60} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.buttonTextPlaceholder")} />
-                        <textarea value={newCampaignPortalMessage} onChange={(event) => setNewCampaignPortalMessage(event.target.value)} maxLength={280} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.welcomeMessagePlaceholder")} rows="3" />
-                      </div>
-                    </details>
+                    <input value={newCampaignPlacement} onChange={(event) => setNewCampaignPlacement(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.placementPlaceholder")} />
                     <button onClick={handleCreateCampaignFromWizard} className="w-full rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">
                       {t("admin.engagement.wizard.createAndContinue")}
                     </button>
@@ -2262,28 +2271,19 @@ export default function Admin() {
                     <p className="text-xs text-[#93a3c2]">{t("admin.engagement.items.sectionInfoHint")}</p>
                     <input value={itemTitle} onChange={(event) => setItemTitle(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.infoTitlePlaceholder")} />
                     <textarea value={itemBody} onChange={(event) => setItemBody(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.infoBodyPlaceholder")} rows="3" />
-                    <div className="grid grid-cols-2 gap-3">
-                      <input value={itemLinkUrl} onChange={(event) => setItemLinkUrl(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.items.linkUrlPlaceholder")} />
-                      <input value={itemLinkLabel} onChange={(event) => setItemLinkLabel(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.items.linkLabelPlaceholder")} />
-                    </div>
-                    <input value={itemImageUrl} onChange={(event) => setItemImageUrl(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.imageUrlPlaceholder")} />
-                    <fieldset className="rounded border border-[#24345c] p-2">
-                      <legend className="px-1 text-xs text-[#93a3c2]">{t("admin.engagement.items.accessibilityLegend")}</legend>
-                      <div className="flex flex-wrap gap-2">
-                        {ACCESSIBILITY_TAGS.map((tag) => (
-                          <label key={tag.value} className="flex items-center gap-1 text-xs text-[#cbd5e1]">
-                            <input type="checkbox" checked={itemAccessibilityTags.includes(tag.value)} onChange={() => toggleItemAccessibilityTag(tag.value)} />
-                            <span aria-hidden="true">{tag.icon}</span> {t(tag.labelKey)}
-                          </label>
-                        ))}
-                      </div>
-                    </fieldset>
                     <button onClick={handleAddInfoItemFromWizard} className="w-full rounded bg-[#0f766e] px-4 py-2 font-semibold text-[#f8fafc] hover:bg-[#0d6259]">
                       {t("admin.engagement.items.addInfoCard")}
                     </button>
+                    <details className="rounded border border-[#24345c]">
+                      <summary className="cursor-pointer p-3 text-sm font-semibold text-[#e7ecf5]">{t("admin.engagement.campaigns.customizeWelcome")}</summary>
+                      <div className="grid gap-3 px-3 pb-3">
+                        <input value={newCampaignPortalTitle} onChange={(event) => setNewCampaignPortalTitle(event.target.value)} maxLength={120} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.welcomeHeadlinePlaceholder")} />
+                        <textarea value={newCampaignPortalMessage} onChange={(event) => setNewCampaignPortalMessage(event.target.value)} maxLength={280} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.welcomeMessagePlaceholder")} rows="3" />
+                      </div>
+                    </details>
                     <div className="flex gap-2">
                       <button onClick={() => setQrWizardStep(1)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
-                      <button onClick={() => setQrWizardStep(3)} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
+                      <button onClick={handleSaveWelcomeAndContinue} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
                     </div>
                   </div>
                 )}
