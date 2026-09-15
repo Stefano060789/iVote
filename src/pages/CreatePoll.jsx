@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import { supabase } from "../lib/supabase";
-import QRCode from "qrcode";
 import { isRestrictedTopic } from "../lib/restrictedContent";
 import { createStableQrUrl } from "../lib/pollLinks";
 import { savePollMeta } from "../lib/pollMeta";
@@ -10,14 +9,12 @@ import { POLL_TEMPLATES, INDUSTRY_LABELS, getTemplateByKey } from "../lib/pollTe
 import { DEFAULT_ACCENT_COLOR, DEFAULT_PRIMARY_COLOR } from "../lib/pollBranding";
 import { loadWorkspaceProfile } from "../lib/workspaceProfile";
 import { getEntitlements } from "../lib/entitlements";
-import { loadQrCampaigns, createQrCampaign } from "../lib/qrCampaigns";
 import LockedFeature from "../components/LockedFeature";
 
 export default function CreatePoll() {
   const [searchParams] = useSearchParams();
   const assignCampaignId = searchParams.get("campaign");
   const [assignedCampaignName, setAssignedCampaignName] = useState("");
-  const [assignedQrToken, setAssignedQrToken] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [question, setQuestion] = useState("");
   const [answers, setAnswers] = useState([""]);
@@ -30,10 +27,6 @@ export default function CreatePoll() {
   const [brandLogoUrl, setBrandLogoUrl] = useState("");
   const [brandPrimaryColor, setBrandPrimaryColor] = useState(DEFAULT_PRIMARY_COLOR);
   const [brandAccentColor, setBrandAccentColor] = useState(DEFAULT_ACCENT_COLOR);
-  const [qrLinkMode, setQrLinkMode] = useState("new");
-  const [existingQrCampaigns, setExistingQrCampaigns] = useState([]);
-  const [selectedExistingQrId, setSelectedExistingQrId] = useState("");
-  const [newQrName, setNewQrName] = useState("");
   const [rewardMessage, setRewardMessage] = useState("");
   const [rewardCode, setRewardCode] = useState("");
   const [rewardUrl, setRewardUrl] = useState("");
@@ -51,7 +44,6 @@ export default function CreatePoll() {
   const [loyaltyBenefitCode, setLoyaltyBenefitCode] = useState("");
   const [loyaltyBenefitUrl, setLoyaltyBenefitUrl] = useState("");
   const [pollId, setPollId] = useState(null);
-  const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [plan, setPlan] = useState("free");
 
   useEffect(() => {
@@ -66,14 +58,6 @@ export default function CreatePoll() {
       setBrandLogoUrl((current) => current || profile.logoUrl || "");
       setBrandPrimaryColor((current) => current === DEFAULT_PRIMARY_COLOR ? profile.primaryColor : current);
       setBrandAccentColor((current) => current === DEFAULT_ACCENT_COLOR ? profile.accentColor : current);
-
-      if (!assignCampaignId) {
-        try {
-          setExistingQrCampaigns(await loadQrCampaigns());
-        } catch (qrLoadError) {
-          console.error(qrLoadError);
-        }
-      }
     }
 
     loadDefaultBranding();
@@ -214,29 +198,6 @@ export default function CreatePoll() {
         setAssignedCampaignName(campaign.name);
         resolvedLocationName = campaign.placement_label || campaign.name;
       }
-    } else if (qrLinkMode === "existing" && selectedExistingQrId) {
-      const { data: campaign, error: assignError } = await supabase
-        .from("qr_campaigns")
-        .update({ poll_id: data.id })
-        .eq("id", selectedExistingQrId)
-        .select("name, placement_label, token")
-        .maybeSingle();
-      if (assignError) {
-        alert(`Poll created, but it could not be linked to that QR code: ${assignError.message}`);
-      } else if (campaign) {
-        setAssignedCampaignName(campaign.name);
-        resolvedLocationName = campaign.placement_label || campaign.name;
-      }
-    } else if (qrLinkMode === "new" && newQrName.trim()) {
-      try {
-        const campaign = await createQrCampaign({ name: newQrName, pollId: data.id });
-        setAssignedCampaignName(campaign.name);
-        setAssignedQrToken(campaign.token);
-        resolvedLocationName = campaign.name;
-      } catch (qrCreateError) {
-        console.error(qrCreateError);
-        alert(`Poll created, but the new QR code could not be created: ${qrCreateError.message}`);
-      }
     }
 
     await savePollMeta(data.id, {
@@ -268,8 +229,6 @@ export default function CreatePoll() {
     });
 
     setPollId(data.id);
-    const qr = await QRCode.toDataURL(stableShortUrl);
-    setQrCodeUrl(qr);
   }
 
   const entitlements = getEntitlements(plan);
@@ -368,56 +327,6 @@ export default function CreatePoll() {
             </label>
           </div>
         </details>
-
-        {!assignCampaignId && (
-        <details className="mb-4 border border-slate-700 rounded">
-          <summary className="cursor-pointer p-3 font-semibold">QR code</summary>
-          <div className="px-3 pb-3">
-            <p className="mb-3 text-sm text-slate-400">Attach this poll to a QR code voters can scan. You can also do this anytime later from the QR codes tab.</p>
-            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-              <label className="flex items-center gap-2">
-                <input type="radio" name="qrLinkMode" checked={qrLinkMode === "new"} onChange={() => setQrLinkMode("new")} />
-                <span>Create a new QR code</span>
-              </label>
-              <label className="flex items-center gap-2">
-                <input type="radio" name="qrLinkMode" checked={qrLinkMode === "existing"} onChange={() => setQrLinkMode("existing")} />
-                <span>Link to existing QR code</span>
-              </label>
-              <label className="flex items-center gap-2">
-                <input type="radio" name="qrLinkMode" checked={qrLinkMode === "none"} onChange={() => setQrLinkMode("none")} />
-                <span>Skip for now</span>
-              </label>
-            </div>
-
-            {qrLinkMode === "new" && (
-              <input
-                type="text"
-                value={newQrName}
-                onChange={(e) => setNewQrName(e.target.value)}
-                className="w-full border p-2 rounded text-black placeholder-black"
-                placeholder="Lobby poster, receipt, table tent"
-              />
-            )}
-
-            {qrLinkMode === "existing" && (
-              existingQrCampaigns.length === 0 ? (
-                <p className="text-sm text-slate-400">No QR codes yet — choose "Create a new QR code" instead, or add one later from the QR codes tab.</p>
-              ) : (
-                <select
-                  value={selectedExistingQrId}
-                  onChange={(e) => setSelectedExistingQrId(e.target.value)}
-                  className="w-full border p-2 rounded text-black"
-                >
-                  <option value="">Choose a QR code...</option>
-                  {existingQrCampaigns.map((campaign) => (
-                    <option key={campaign.id} value={String(campaign.id)}>{campaign.name}</option>
-                  ))}
-                </select>
-              )
-            )}
-          </div>
-        </details>
-        )}
 
         <details className="mb-6 border border-slate-700 rounded">
           <summary className="cursor-pointer p-3 font-semibold">Schedule this poll</summary>
@@ -613,35 +522,9 @@ export default function CreatePoll() {
             {assignedCampaignName && (
               <p className="mb-4 rounded border border-teal-700 bg-teal-950 p-2 text-sm text-teal-200">
                 Assigned to QR code "{assignedCampaignName}".
-                {assignedQrToken && (
-                  <>
-                    {" "}
-                    <span
-                      className="cursor-pointer underline"
-                      onClick={() => navigator.clipboard.writeText(`${window.location.origin}/qr/${assignedQrToken}`)}
-                    >
-                      {window.location.origin}/qr/{assignedQrToken}
-                    </span>
-                  </>
-                )}
               </p>
             )}
             <p className="mb-4">Poll ID: {pollId}</p>
-
-            {qrCodeUrl && (
-              <>
-                <img
-                  src={qrCodeUrl}
-                  alt="QR Code"
-                  className="mx-auto mb-4 border p-2 bg-white"
-                />
-                <p className="text-sm text-gray-600">Scan this QR code to vote.</p>
-                <p className="mt-2 flex items-center justify-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
-                  <img src="/favicon.svg" alt="" aria-hidden="true" className="h-4 w-4 rounded-full" />
-                  <span>Made with Godwit &middot; {window.location.host}</span>
-                </p>
-              </>
-            )}
 
             <p className="text-white mt-4">
               Share link:{" "}
@@ -659,10 +542,27 @@ export default function CreatePoll() {
               </button>
             </p>
 
-            <div className="mt-6">
+            <p className="mt-6 text-sm text-slate-400">What's next?</p>
+            <div className="mt-3 flex flex-col justify-center gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => { window.location.href = "/create"; }}
+                className="inline-flex items-center justify-center rounded bg-slate-100 px-4 py-2 font-semibold text-slate-900"
+              >
+                Create another poll
+              </button>
+              <Link
+                to="/admin?tab=engagement"
+                className="inline-flex items-center justify-center rounded bg-amber-400 px-4 py-2 font-semibold text-slate-950"
+              >
+                Go to QR codes
+              </Link>
+            </div>
+
+            <div className="mt-3">
               <Link
                 to={`/admin?poll=${pollId}`}
-                className="inline-flex items-center justify-center rounded bg-slate-100 px-4 py-2 font-semibold text-slate-900"
+                className="inline-flex items-center justify-center rounded border border-slate-500 px-4 py-2 font-semibold text-slate-100"
               >
                 Manage this poll in workspace
               </Link>

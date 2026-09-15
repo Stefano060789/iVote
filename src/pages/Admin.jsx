@@ -1,9 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase, supabaseUrl, supabaseAnonKey } from "../lib/supabase";
-import { createStableQrUrl } from "../lib/pollLinks";
-import { isRestrictedTopic } from "../lib/restrictedContent";
 import { appendAuditLog, readAuditLog, readPollMeta, savePollMeta, isPollClosed } from "../lib/pollMeta";
 import { createQrCampaign, loadQrCampaigns } from "../lib/qrCampaigns";
 import {
@@ -44,7 +42,6 @@ export default function Admin() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const qrRef = useRef(null);
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(() => {
@@ -63,20 +60,11 @@ export default function Admin() {
     card?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [activeTab, location.search]);
 
-  const [showQR, setShowQR] = useState(null);
-  const [reuseQrPoll, setReuseQrPoll] = useState(null);
-  const [reuseQrTargetId, setReuseQrTargetId] = useState("");
   const [auditLog, setAuditLog] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
   const [qrPrintFormat, setQrPrintFormat] = useState("a4");
-  const [qrStyleSeed, setQrStyleSeed] = useState(1);
-  const [qrStylePreset, setQrStylePreset] = useState("brand");
-  const [aiImagePrompt, setAiImagePrompt] = useState("");
-  const [generatedPosterImage, setGeneratedPosterImage] = useState("");
-  const [imageGenerationStatus, setImageGenerationStatus] = useState("idle");
-  const [imageGenerationError, setImageGenerationError] = useState("");
   const [analytics, setAnalytics] = useState({ total: 0, active: 0, closed: 0, scheduled: 0, withLocation: 0 });
   const [locationStats, setLocationStats] = useState([]);
   const [templateBenchmark, setTemplateBenchmark] = useState(null);
@@ -167,16 +155,6 @@ export default function Admin() {
   const [newUpdatePollId, setNewUpdatePollId] = useState("");
   const [apiKeys, setApiKeys] = useState([]);
   const [newApiKeyLabel, setNewApiKeyLabel] = useState("");
-
-  async function createShortLink(longUrl) {
-    const response = await fetch(
-      `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`
-    );
-    if (!response.ok) {
-      throw new Error(`TinyURL request failed with status ${response.status}`);
-    }
-    return response.text();
-  }
 
   function getPollStatusInfo(poll) {
     const meta = readPollMeta(poll.id);
@@ -990,7 +968,6 @@ export default function Admin() {
     appendAuditLog("delete_poll", { poll_id: id });
     setAuditLog(readAuditLog());
     setPolls((prev) => prev.filter((p) => p.id !== id));
-    if (showQR === id) setShowQR(null);
   }
 
   async function closePoll(poll) {
@@ -1044,290 +1021,6 @@ export default function Admin() {
     URL.revokeObjectURL(url);
     appendAuditLog("export_csv", { poll_id: poll.id });
     setAuditLog(readAuditLog());
-  }
-
-  async function buildUniqueDuplicateQuestion(sourceQuestion, excludedPollId = null) {
-    const baseQuestion = String(sourceQuestion ?? "").trim();
-    if (!baseQuestion) return "";
-
-    let candidate = baseQuestion;
-    let counter = 1;
-
-    while (true) {
-      const { data, error } = await supabase
-        .from("polls")
-        .select("id")
-        .neq("id", excludedPollId ?? "")
-        .eq("question", candidate)
-        .limit(1);
-
-      if (error) {
-        throw error;
-      }
-
-      if (!data || data.length === 0) {
-        return candidate;
-      }
-
-      counter += 1;
-      candidate = `${baseQuestion} (Copy ${counter})`;
-    }
-  }
-
-  function buildDuplicateQuestionCandidate(baseQuestion, attempt) {
-    if (attempt <= 1) {
-      return `${baseQuestion} (Copy)`;
-    }
-    return `${baseQuestion} (Copy ${attempt})`;
-  }
-
-  function isQuestionUniqueViolation(error) {
-    const message = String(error?.message ?? "");
-    return error?.code === "23505" && message.includes("polls_question_key");
-  }
-
-  async function duplicatePoll(poll) {
-    const {
-      data: { user },
-      error: userError
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      console.error(userError || "User not authenticated");
-      alert("You must be logged in to duplicate a poll.");
-      return;
-    }
-
-    const sourceQuestion = String(poll.question ?? "").trim();
-    if (!sourceQuestion) {
-      alert("Cannot duplicate poll without a valid question.");
-      return;
-    }
-
-    let duplicateQuestion = sourceQuestion;
-    if (isRestrictedTopic(duplicateQuestion)) {
-      const replacementQuestion = prompt(
-        "This poll question is blocked by restricted-topic rules. Enter a new safe question for the duplicate:"
-      );
-
-      if (!replacementQuestion || !replacementQuestion.trim()) {
-        alert("Duplication canceled: a replacement question is required.");
-        return;
-      }
-
-      if (isRestrictedTopic(replacementQuestion.trim())) {
-        alert("The replacement question still contains restricted content.");
-        return;
-      }
-
-      duplicateQuestion = replacementQuestion.trim();
-    }
-
-    try {
-      duplicateQuestion = await buildUniqueDuplicateQuestion(duplicateQuestion, poll.id);
-    } catch (buildError) {
-      console.error(buildError);
-      alert(`Could not generate a unique duplicate title: ${buildError.message}`);
-      return;
-    }
-
-    const duplicateAnswers = Array.isArray(poll.answers)
-      ? poll.answers.map((answer) => String(answer).trim()).filter((answer) => answer.length > 0)
-      : [];
-
-    if (duplicateAnswers.length === 0) {
-      alert("Cannot duplicate poll because it has no valid answers.");
-      return;
-    }
-
-    for (const answer of duplicateAnswers) {
-      if (isRestrictedTopic(answer)) {
-        alert(`Cannot duplicate because answer \"${answer}\" contains restricted content.`);
-        return;
-      }
-    }
-
-    let newPoll = null;
-    let insertError = null;
-    const baseQuestion = duplicateQuestion;
-    let candidateQuestion = duplicateQuestion;
-
-    for (let attempt = 0; attempt < 10; attempt += 1) {
-      const { data, error } = await supabase
-        .from("polls")
-        .insert({
-          question: candidateQuestion,
-          answers: duplicateAnswers,
-          expires_at: poll.expires_at,
-          multiple_choice: Boolean(poll.multiple_choice),
-          allow_user_answers: Boolean(poll.allow_user_answers),
-          creator_id: user.id
-        })
-        .select()
-        .single();
-
-      if (!error) {
-        newPoll = data;
-        break;
-      }
-
-      if (isQuestionUniqueViolation(error)) {
-        candidateQuestion = buildDuplicateQuestionCandidate(baseQuestion, attempt + 1);
-        insertError = error;
-        continue;
-      }
-
-      insertError = error;
-      break;
-    }
-
-    if (!newPoll) {
-      console.error(insertError);
-      alert(`Error duplicating poll: ${insertError?.message ?? "Unknown error"}`);
-      return;
-    }
-
-    const stableShortUrl = createStableQrUrl();
-    const { error: stableError } = await supabase
-      .from("polls")
-      .update({ stable_short_url: stableShortUrl })
-      .eq("id", newPoll.id);
-
-    if (stableError) {
-      console.error(stableError);
-    }
-
-    const voteUrl = `${window.location.origin}/vote/${newPoll.id}`;
-    const shortUrlResult = await createShortLink(voteUrl).catch((shortUrlError) => {
-      console.error(shortUrlError);
-      return null;
-    });
-
-    let shortError = null;
-    if (shortUrlResult) {
-      const { error: updateShortError } = await supabase
-        .from("polls")
-        .update({ short_url: shortUrlResult })
-        .eq("id", newPoll.id);
-      shortError = updateShortError;
-      if (shortError) console.error(shortError);
-    }
-
-    if (stableError || shortError) {
-      const messages = [];
-      if (stableError) messages.push(`QR link: ${stableError.message}`);
-      if (shortError) messages.push(`Share link: ${shortError.message}`);
-      alert(`Poll duplicated, but some updates failed: ${messages.join("; ")}`);
-    } else {
-      appendAuditLog("duplicate_poll", { original_poll_id: poll.id, duplicate_poll_id: newPoll.id, question: duplicateQuestion });
-      setAuditLog(readAuditLog());
-      alert("Poll duplicated successfully!");
-    }
-
-    await loadPolls();
-  }
-
-  async function reuseQR(oldPoll) {
-    let sourceStableUrl = oldPoll.stable_short_url;
-
-    if (!sourceStableUrl) {
-      sourceStableUrl = createStableQrUrl();
-      const { error: createStableError } = await supabase
-        .from("polls")
-        .update({ stable_short_url: sourceStableUrl })
-        .eq("id", oldPoll.id);
-
-      if (createStableError) {
-        console.error(createStableError);
-        alert(`Failed to prepare reusable QR for this poll: ${createStableError.message}`);
-        return;
-      }
-    }
-
-    const candidatePolls = polls.filter((pollItem) => String(pollItem.id) !== String(oldPoll.id));
-    if (candidatePolls.length === 0) {
-      alert("No other polls available to receive this QR.");
-      return;
-    }
-
-    setReuseQrPoll({ ...oldPoll, stable_short_url: sourceStableUrl });
-    setReuseQrTargetId(String(candidatePolls[0].id));
-  }
-
-  async function confirmReuseQR() {
-    if (!reuseQrPoll) return;
-
-    const targetPoll = polls.find(
-      (pollItem) => String(pollItem.id) === String(reuseQrTargetId) && String(pollItem.id) !== String(reuseQrPoll.id)
-    );
-
-    if (!targetPoll) {
-      alert("Please choose a valid target poll.");
-      return;
-    }
-
-    const sourceStableUrl = reuseQrPoll.stable_short_url || createStableQrUrl();
-    const previousTargetQr = targetPoll.stable_short_url ?? null;
-    const shouldOverwrite = previousTargetQr && previousTargetQr !== sourceStableUrl
-      ? window.confirm(`Target poll #${targetPoll.id} already has another QR assigned. Reassign it to this QR?`)
-      : true;
-
-    if (!shouldOverwrite) {
-      alert("QR reassignment canceled.");
-      return;
-    }
-
-    if (previousTargetQr && previousTargetQr !== sourceStableUrl) {
-      const { error: clearTargetError } = await supabase
-        .from("polls")
-        .update({ stable_short_url: null })
-        .eq("id", targetPoll.id);
-
-      if (clearTargetError) {
-        console.error(clearTargetError);
-        alert(`Failed to free the target poll before reassigning the QR: ${clearTargetError.message}`);
-        return;
-      }
-    }
-
-    const { error: assignNewError } = await supabase
-      .from("polls")
-      .update({ stable_short_url: sourceStableUrl })
-      .eq("id", targetPoll.id);
-
-    if (assignNewError) {
-      console.error(assignNewError);
-      if (previousTargetQr) {
-        await supabase
-          .from("polls")
-          .update({ stable_short_url: previousTargetQr })
-          .eq("id", targetPoll.id);
-      }
-      alert(`Failed to assign reusable QR to the new poll: ${assignNewError.message}`);
-      return;
-    }
-
-    const { error: clearOldError } = await supabase
-      .from("polls")
-      .update({ stable_short_url: null })
-      .eq("id", reuseQrPoll.id);
-
-    if (clearOldError) {
-      console.error(clearOldError);
-      await supabase
-        .from("polls")
-        .update({ stable_short_url: previousTargetQr ?? null })
-        .eq("id", targetPoll.id);
-      alert(`QR was moved, but the old poll could not be cleared: ${clearOldError.message}`);
-      return;
-    }
-
-    appendAuditLog("reuse_qr", { source_poll_id: reuseQrPoll.id, target_poll_id: targetPoll.id, qr_url: sourceStableUrl });
-    setAuditLog(readAuditLog());
-    setReuseQrPoll(null);
-    setReuseQrTargetId("");
-    await loadPolls();
-    alert(`QR successfully reassigned to Poll #${targetPoll.id}!`);
   }
 
   function copyShareLink(poll) {
@@ -1411,7 +1104,7 @@ export default function Admin() {
     return formatMap[format] || formatMap.a4;
   }
 
-  function generateAiQrStyle(seedOverride = qrStyleSeed, presetOverride = qrStylePreset) {
+  function generateAiQrStyle(seedOverride = 1, presetOverride = "brand") {
     const baseName = `${workspaceProfile.companyName || "Godwit"}-${seedOverride}`;
     const hash = Array.from(baseName).reduce((sum, char) => sum + char.charCodeAt(0), 0);
     const palette = [
@@ -1441,208 +1134,6 @@ export default function Admin() {
         : `radial-gradient(circle at top left, ${first} 0%, ${second} 32%, ${third} 62%, ${fourth} 100%)`,
       shadow: `0 20px 45px rgba(15, 23, 42, 0.18)`
     };
-  }
-
-  async function generatePosterImage(poll) {
-    const description = aiImagePrompt.trim();
-    if (!description) {
-      setImageGenerationError("Describe the image you want behind this QR code.");
-      return;
-    }
-
-    setImageGenerationStatus("generating");
-    setImageGenerationError("");
-
-    try {
-      const {
-        data: { session }
-      } = await supabase.auth.getSession();
-
-      const response = await fetch("/api/generate-qr-poster", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.access_token || ""}`
-        },
-        body: JSON.stringify({
-          description: `${description}. The poll topic is: ${poll.question || "general feedback"}. Use a ${qrStylePreset} visual style.`
-        })
-      });
-      const payload = await response.json();
-
-      if (!response.ok) {
-        throw new Error(payload.error || "Image generation failed.");
-      }
-
-      setGeneratedPosterImage(payload.imageUrl);
-      setImageGenerationStatus("ready");
-    } catch (error) {
-      console.error(error);
-      setImageGenerationStatus("idle");
-      setImageGenerationError(error.message || "Unable to generate an image right now.");
-    }
-  }
-
-  function downloadQR(pollId) {
-    const img = qrRef.current;
-    if (!img) {
-      console.error("QR image is not available for download.");
-      return;
-    }
-
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-
-    if (!ctx) {
-      console.error("Unable to prepare QR image for download.");
-      return;
-    }
-
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
-    ctx.drawImage(img, 0, 0);
-
-    const link = document.createElement("a");
-    link.download = `poll-${pollId}-qr.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  }
-
-  function printQR(poll) {
-    const img = qrRef.current;
-    if (!img) {
-      console.error("QR image is not available for printing.");
-      return;
-    }
-
-    const formatConfig = getQrPrintFormatConfig();
-    const generatedStyle = generateAiQrStyle(qrStyleSeed, qrStylePreset);
-    const posterBackground = generatedPosterImage
-      ? `url("${generatedPosterImage}") center / cover no-repeat, ${generatedStyle.background}`
-      : generatedStyle.background;
-    const logoMarkup = workspaceProfile.logoUrl
-      ? `<img src="${workspaceProfile.logoUrl}" alt="Brand logo" style="max-height: 56px; max-width: 160px; object-fit: contain; margin-right: 16px;" />`
-      : "";
-    const companyName = (workspaceProfile.companyName || "Godwit").replace(/[<>&"']/g, "");
-    const pollTitle = (poll?.question || "Poll QR").replace(/[<>&"']/g, "");
-
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) {
-      console.error("Unable to open print window.");
-      return;
-    }
-
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>${t("admin.polls.card.printQr")}</title>
-          <style>
-            @page { size: ${formatConfig.size}; margin: ${formatConfig.margin}; }
-            body {
-              margin: 0;
-              background: #f8fafc;
-              font-family: Arial, sans-serif;
-              color: #0f172a;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-            }
-            .page {
-              width: ${formatConfig.cssSize};
-              min-height: ${formatConfig.cssSize};
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-              align-items: center;
-              background: ${posterBackground};
-              border-radius: ${formatConfig.shape === "round" ? "50%" : formatConfig.shape === "ticket" ? "18px 18px 4px 4px" : "20px"};
-              box-shadow: ${generatedStyle.shadow};
-              padding: ${formatConfig.shape === "round" ? "28px" : formatConfig.shape === "ticket" ? "22px" : "36px"};
-              box-sizing: border-box;
-            }
-            .header {
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              gap: 14px;
-              margin-bottom: 18px;
-            }
-            .brand {
-              font-size: 28px;
-              font-weight: 700;
-              letter-spacing: 0.04em;
-              color: #0f172a;
-            }
-            .qr-box {
-              background: rgba(255,255,255,0.92);
-              border-radius: 18px;
-              padding: 18px;
-              box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
-            }
-            .qr-box img {
-              display: block;
-              width: ${formatConfig.shape === "round" ? "210px" : formatConfig.shape === "ticket" ? "220px" : "260px"};
-              height: ${formatConfig.shape === "round" ? "210px" : formatConfig.shape === "ticket" ? "220px" : "260px"};
-              object-fit: contain;
-            }
-            .title {
-              margin-top: 18px;
-              font-size: 20px;
-              font-weight: 700;
-              text-align: center;
-              max-width: 620px;
-            }
-            .subtitle {
-              margin-top: 8px;
-              font-size: 14px;
-              text-align: center;
-              letter-spacing: 0.08em;
-              text-transform: uppercase;
-              color: #334155;
-            }
-            .godwit-footer {
-              margin-top: 22px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              gap: 6px;
-              font-size: 10px;
-              font-weight: 600;
-              letter-spacing: 0.05em;
-              text-transform: uppercase;
-              color: #475569;
-            }
-            .godwit-footer img {
-              display: block;
-              width: 16px;
-              height: 16px;
-              border-radius: 50%;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="page">
-            <div class="header">
-              ${logoMarkup}
-              <div class="brand">${companyName}</div>
-            </div>
-            <div class="qr-box">
-              <img src="${img.src}" alt="QR code" />
-            </div>
-            <div class="subtitle">${t("admin.polls.card.scanToVote")}</div>
-            <div class="title">${pollTitle}</div>
-            <div class="godwit-footer">
-              <img src="${window.location.origin}/favicon.svg" alt="" />
-              <span>${t("admin.polls.card.madeWithGodwit", { host: window.location.host })}</span>
-            </div>
-          </div>
-        </body>
-      </html>
-    `);
-
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
   }
 
   // QR campaigns (the multi-item menu QR codes) previously only offered a "copy link" text
@@ -1759,7 +1250,6 @@ export default function Admin() {
   const permission = getPermissionSet(currentUserRole);
   const canEditPolls = permission.canEditPolls;
   const canDeletePolls = permission.canDeletePolls;
-  const canDuplicatePolls = permission.canDuplicatePolls;
   const canReuseQr = permission.canReuseQr;
   const canExportResults = permission.canExportResults && entitlements.csvExport;
   const canClosePolls = permission.canClosePolls;
@@ -3446,17 +2936,13 @@ export default function Admin() {
                 {t("admin.polls.card.viewResults")}
               </Link>
 
-              <button onClick={() => duplicatePoll(poll)} disabled={!canDuplicatePolls} className="rounded border border-slate-500 px-3 py-2 font-semibold text-slate-100 disabled:opacity-40">
-                {t("admin.polls.card.duplicatePoll")}
-              </button>
-
               <button onClick={() => exportPollCsv(poll)} disabled={!canExportResults} className="rounded border border-slate-500 px-3 py-2 font-semibold text-slate-100 disabled:opacity-40">
                 {t("admin.polls.card.exportCsv")}
               </button>
 
               <details className="relative">
                 <summary className="cursor-pointer rounded border border-blue-700 px-3 py-2 font-semibold text-blue-200">📊 {t("admin.polls.card.addToQr")}</summary>
-                <div className="absolute right-0 z-10 mt-2 grid min-w-64 gap-1 rounded border border-slate-700 bg-slate-950 p-2 shadow-xl">
+                <div className="absolute left-0 z-10 mt-2 grid min-w-64 gap-1 rounded border border-slate-700 bg-slate-950 p-2 shadow-xl">
                   {qrCampaigns.length === 0 ? (
                     <p className="px-3 py-2 text-xs text-slate-400">
                       {t("admin.polls.card.noQrCodesYet")}{" "}
@@ -3481,14 +2967,10 @@ export default function Admin() {
 
               <details className="relative">
                 <summary className="cursor-pointer rounded border border-slate-600 px-3 py-2 font-semibold text-slate-300">{t("admin.polls.card.moreActions")}</summary>
-                <div className="absolute right-0 z-10 mt-2 grid min-w-56 gap-1 rounded border border-slate-700 bg-slate-950 p-2 shadow-xl">
+                <div className="absolute left-0 z-10 mt-2 grid min-w-56 gap-1 rounded border border-slate-700 bg-slate-950 p-2 shadow-xl">
                   <Link to={`/edit/${poll.id}`} className={`rounded px-3 py-2 text-left ${canEditPolls ? "hover:bg-slate-800" : "pointer-events-none text-slate-500"}`}>{t("admin.polls.card.editPoll")}</Link>
                   <button onClick={() => copyShareLink(poll)} className="rounded px-3 py-2 text-left hover:bg-slate-800">{t("admin.polls.card.copyVotingLink")}</button>
                   <Link to={`/vote/${poll.id}`} className="rounded px-3 py-2 text-left hover:bg-slate-800">{t("admin.polls.card.openVotePage")}</Link>
-                  <button onClick={() => { setShowQR(showQR === poll.id ? null : poll.id); if (workspaceUserId) { localStorage.setItem(`ivote_qr_shared_${workspaceUserId}`, "true"); setQrShared(true); } }} className="rounded px-3 py-2 text-left hover:bg-slate-800">
-                    {showQR === poll.id ? t("admin.polls.card.hideQr") : t("admin.polls.card.openQrTools")}
-                  </button>
-                  <button onClick={() => reuseQR(poll)} disabled={!canReuseQr} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">{t("admin.polls.card.assignExistingQr")}</button>
                   <button onClick={() => copyEmbedWidgetSnippet(poll)} className="rounded px-3 py-2 text-left hover:bg-slate-800">{t("admin.polls.card.copyWidgetEmbed")}</button>
                   <button onClick={() => copyTrustBadgeSnippet(poll)} className="rounded px-3 py-2 text-left hover:bg-slate-800">{t("admin.polls.card.copyTrustBadgeEmbed")}</button>
                   <button onClick={() => closePoll(poll)} disabled={!canClosePolls} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">{isClosed ? t("admin.polls.card.reopenPoll") : t("admin.polls.card.closePoll")}</button>
@@ -3496,174 +2978,6 @@ export default function Admin() {
                 </div>
               </details>
             </div>
-
-            {reuseQrPoll && String(reuseQrPoll.id) === String(poll.id) && (
-              <div className="mt-4 border border-purple-400 rounded p-3 bg-gray-900">
-                <p className="mb-2 font-semibold">{t("admin.polls.card.reuseQrFrom", { id: reuseQrPoll.id })}</p>
-                <div className="flex flex-col sm:flex-row gap-3 items-center">
-                  <select
-                    value={reuseQrTargetId}
-                    onChange={(event) => setReuseQrTargetId(event.target.value)}
-                    className="text-black rounded p-2 min-w-[220px]"
-                  >
-                    {polls
-                      .filter((pollItem) => String(pollItem.id) !== String(poll.id))
-                      .map((pollItem) => (
-                        <option key={pollItem.id} value={String(pollItem.id)}>
-                          #{pollItem.id} - {pollItem.question}
-                        </option>
-                      ))}
-                  </select>
-                  <button onClick={confirmReuseQR} className="bg-purple-600 text-white px-3 py-2 rounded font-semibold">
-                    {t("admin.polls.card.assignQr")}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setReuseQrPoll(null);
-                      setReuseQrTargetId("");
-                    }}
-                    className="bg-gray-700 text-white px-3 py-2 rounded font-semibold"
-                  >
-                    {t("admin.polls.card.cancel")}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {showQR === poll.id && (
-              <div className="mt-4">
-                <div
-                  className="mx-auto flex max-w-sm flex-col items-center rounded-lg p-6 text-center"
-                  style={{
-                    background: generatedPosterImage
-                      ? `url("${generatedPosterImage}") center / cover no-repeat, ${generateAiQrStyle(qrStyleSeed, qrStylePreset).background}`
-                      : generateAiQrStyle(qrStyleSeed, qrStylePreset).background,
-                    boxShadow: generateAiQrStyle(qrStyleSeed, qrStylePreset).shadow,
-                    borderRadius: getQrPrintFormatConfig().shape === "round" ? "50%" : getQrPrintFormatConfig().shape === "ticket" ? "18px 18px 4px 4px" : undefined
-                  }}
-                >
-                  {workspaceProfile.logoUrl && (
-                    <img
-                      src={workspaceProfile.logoUrl}
-                      alt={`${workspaceProfile.companyName || "Workspace"} logo`}
-                      className="mb-3 max-h-10 max-w-32 object-contain"
-                    />
-                  )}
-                  <p className="mb-3 text-sm font-bold text-slate-900">{workspaceProfile.companyName || "Godwit"}</p>
-                  <div className="rounded-lg bg-white p-3 shadow-sm">
-                    <img
-                      ref={qrRef}
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(poll.stable_short_url || poll.short_url || `${window.location.origin}/vote/${poll.id}`)}`}
-                      alt="QR Code"
-                      className="h-40 w-40"
-                    />
-                  </div>
-                  <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-700">{t("admin.polls.card.scanToVote")}</p>
-                  <div className="mt-3 flex items-center justify-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600">
-                    <img src="/favicon.svg" alt="" aria-hidden="true" className="h-4 w-4 rounded-full" />
-                    <span>{t("admin.polls.card.madeWithGodwit", { host: window.location.host })}</span>
-                  </div>
-                </div>
-                {(poll.stable_short_url || poll.short_url) && (
-                  <p
-                    className="text-blue-400 underline cursor-pointer text-center mt-3"
-                    onClick={() => navigator.clipboard.writeText(poll.stable_short_url || poll.short_url)}
-                  >
-                    {poll.stable_short_url || poll.short_url}
-                  </p>
-                )}
-                <p className="mt-3 text-center text-xs text-slate-500">
-                  {t("admin.polls.card.untrackedQrNote")}{" "}
-                  <button type="button" onClick={() => setActiveTab("engagement")} className="font-semibold text-teal-300 underline">{t("admin.nav.engagement")}</button> {t("admin.polls.card.instead")}
-                </p>
-                <div className="mt-4 grid md:grid-cols-2 gap-3 items-end">
-                  <div>
-                    <label className="block text-sm font-semibold mb-2">{t("admin.polls.card.printFormat")}</label>
-                    <select
-                      value={qrPrintFormat}
-                      onChange={(event) => setQrPrintFormat(event.target.value)}
-                      className="border p-2 rounded text-black w-full"
-                    >
-                      <option value="letter">{t("admin.polls.card.formats.letter")}</option>
-                      <option value="a4">{t("admin.polls.card.formats.a4")}</option>
-                      <option value="a5">{t("admin.polls.card.formats.a5")}</option>
-                      <option value="a6">{t("admin.polls.card.formats.a6")}</option>
-                      <option value="a3">{t("admin.polls.card.formats.a3")}</option>
-                      <option value="postcard">{t("admin.polls.card.formats.postcard")}</option>
-                      <option value="beerHolder">{t("admin.polls.card.formats.beerHolder")}</option>
-                      <option value="ticket">{t("admin.polls.card.formats.ticket")}</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold mb-2">{t("admin.polls.card.visualStyle")}</label>
-                    <select
-                      value={qrStylePreset}
-                      onChange={(event) => setQrStylePreset(event.target.value)}
-                      className="border p-2 rounded text-black w-full"
-                    >
-                      <option value="brand">{t("admin.polls.card.styles.brand")}</option>
-                      <option value="celebration">{t("admin.polls.card.styles.celebration")}</option>
-                      <option value="fresh">{t("admin.polls.card.styles.fresh")}</option>
-                      <option value="premium">{t("admin.polls.card.styles.premium")}</option>
-                    </select>
-                  </div>
-                  <div>
-                    <button
-                      onClick={() => setQrStyleSeed((prev) => prev + 1)}
-                      className="bg-fuchsia-600 text-white px-4 py-2 rounded font-semibold w-full"
-                    >
-                      {t("admin.polls.card.tryAnotherStyle")}
-                    </button>
-                    <p className="mt-2 text-xs text-slate-400">{t("admin.polls.card.previewNote")}</p>
-                  </div>
-                </div>
-                <div className="mt-4 border border-slate-700 rounded p-4">
-                  <label className="block text-sm font-semibold mb-2">{t("admin.polls.card.aiPosterTitle")}</label>
-                  <p className="mb-3 text-xs text-slate-400">{t("admin.polls.card.aiPosterHint")}</p>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <input
-                      type="text"
-                      value={aiImagePrompt}
-                      onChange={(event) => setAiImagePrompt(event.target.value)}
-                      maxLength={280}
-                      className="min-w-0 flex-1 border p-2 rounded text-black"
-                      placeholder={t("admin.polls.card.aiPosterPlaceholder")}
-                    />
-                    <button
-                      onClick={() => generatePosterImage(poll)}
-                      disabled={imageGenerationStatus === "generating"}
-                      className="bg-violet-600 text-white px-4 py-2 rounded font-semibold disabled:opacity-60"
-                    >
-                      {imageGenerationStatus === "generating" ? t("admin.polls.card.creatingImage") : t("admin.polls.card.generateImage")}
-                    </button>
-                  </div>
-                  {imageGenerationError && <p className="mt-2 text-sm text-red-400">{imageGenerationError}</p>}
-                  {imageGenerationStatus === "ready" && (
-                    <div className="mt-3 flex items-center justify-between gap-3 text-sm text-emerald-300">
-                      <span>{t("admin.polls.card.aiBackgroundReady")}</span>
-                      <button
-                        onClick={() => {
-                          setGeneratedPosterImage("");
-                          setImageGenerationStatus("idle");
-                        }}
-                        className="text-slate-300 underline"
-                      >
-                        {t("admin.polls.card.removeImage")}
-                      </button>
-                    </div>
-                  )}
-                </div>
-                <div className="flex gap-3 mt-4 justify-center flex-wrap">
-                  <button onClick={() => downloadQR(poll.id)} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">
-                    {t("admin.polls.card.downloadQr")}
-                  </button>
-
-                  <button onClick={() => printQR(poll)} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold">
-                    {t("admin.polls.card.printQr")}
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
          );
        })}

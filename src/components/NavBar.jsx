@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabase";
-import { loadWorkspaceProfile } from "../lib/workspaceProfile";
 import godwitMark from "../assets/godwit-mark.svg";
 import LanguageSwitcher from "./LanguageSwitcher";
 
@@ -18,37 +17,17 @@ export default function NavBar() {
   const displayUser = isPreview ? null : user;
   const [menuOpen, setMenuOpen] = useState(false);
   const [installPrompt, setInstallPrompt] = useState(null);
-  const [workspace, setWorkspace] = useState({
-    companyName: "Godwit",
-    primaryColor: "#2563eb",
-    accentColor: "#0f172a"
-  });
 
   useEffect(() => {
     async function loadUser() {
       const { data } = await supabase.auth.getUser();
-      const nextUser = data.user;
-      setUser(nextUser);
-
-      if (nextUser?.id) {
-        try {
-          setWorkspace(await loadWorkspaceProfile());
-        } catch (error) {
-          console.error(error);
-        }
-      }
+      setUser(data.user);
     }
 
     loadUser();
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      const nextUser = session?.user || null;
-      setUser(nextUser);
-      if (nextUser?.id) {
-        loadWorkspaceProfile().then(setWorkspace).catch(console.error);
-      } else {
-        setWorkspace({ companyName: "Godwit", primaryColor: "#2563eb", accentColor: "#0f172a" });
-      }
+      setUser(session?.user || null);
     });
 
     return () => listener.subscription.unsubscribe();
@@ -94,7 +73,7 @@ export default function NavBar() {
       <div className="site-nav-bar">
         <Link to="/" onClick={closeMenu} className="site-nav-brand">
           <img src={godwitMark} alt="" className="site-nav-brand-mark" width="28" height="28" />
-          <span>{workspace.companyName}</span>
+          <span>Godwit</span>
         </Link>
         <div className="site-nav-actions">
           {displayUser && <Link to="/essentials" onClick={closeMenu} className="site-nav-primary">{t("nav.quickStart")}</Link>}

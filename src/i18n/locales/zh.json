@@ -35,16 +35,12 @@
     "outcomesEyebrow": "不断累积的反馈价值",
     "outcomesTitle": "在每次回复后建立更牢固的联系。",
     "outcomes": {
-      "reusableTitle": "可重复使用的二维码位置",
-      "reusableDetail": "在更换当前投票的同时,保留同一张已打印的二维码。",
       "conversionTitle": "活动转化率",
       "conversionDetail": "比较扫码次数与完成的投票数,了解互动发生在哪里。",
       "growthTitle": "基于同意的市场增长",
       "growthDetail": "只有在明确同意后,才邀请投票者分享邮箱以接收活动资讯和优惠。",
       "publicTitle": "更多公开反馈",
       "publicDetail": "将精选的回复引导至 Google、Tripadvisor 或其他点评平台,并可附带可选的优惠券或折扣码。",
-      "connectionTitle": "顾客关系",
-      "connectionDetail": "立即奖励邮箱订阅,并在发放第二重奖励前核实外部点评。",
       "donationsTitle": "内置捐赠功能",
       "donationsDetail": "同一个二维码还可以为您的场所收取小费或捐赠，通过 Stripe 安全处理。"
     },

@@ -35,16 +35,12 @@
     "outcomesEyebrow": "Des retours qui s'accumulent",
     "outcomesTitle": "Construisez une relation plus forte après chaque réponse.",
     "outcomes": {
-      "reusableTitle": "Codes QR réutilisables",
-      "reusableDetail": "Gardez le même code QR imprimé tout en changeant le sondage actif.",
       "conversionTitle": "Conversion de campagne",
       "conversionDetail": "Comparez les scans aux votes complétés pour voir où se situe l'engagement.",
       "growthTitle": "Croissance basée sur le consentement",
       "growthDetail": "Invitez les votants à partager leur email pour des actualités et offres uniquement après un consentement clair.",
       "publicTitle": "Plus d'avis publics",
       "publicDetail": "Envoyez les réponses sélectionnées vers Google, Tripadvisor ou une autre plateforme d'avis avec un bon ou un code de réduction optionnel.",
-      "connectionTitle": "Relation client",
-      "connectionDetail": "Récompensez immédiatement les inscriptions par email et vérifiez les avis externes avant de libérer le second avantage.",
       "donationsTitle": "Dons integres",
       "donationsDetail": "Le meme code QR peut aussi collecter des pourboires ou des dons pour votre etablissement, traites en toute securite via Stripe."
     },

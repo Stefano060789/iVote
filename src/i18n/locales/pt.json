@@ -35,16 +35,12 @@
     "outcomesEyebrow": "Feedback que se acumula",
     "outcomesTitle": "Construa uma conexão mais forte após cada resposta.",
     "outcomes": {
-      "reusableTitle": "Códigos QR reutilizáveis",
-      "reusableDetail": "Mantenha o mesmo código QR impresso enquanto muda a enquete ativa.",
       "conversionTitle": "Conversão de campanha",
       "conversionDetail": "Compare escaneamentos com votos concluídos para ver onde o engajamento acontece.",
       "growthTitle": "Crescimento baseado em consentimento",
       "growthDetail": "Convide os votantes a compartilhar o email para novidades e ofertas somente após consentimento claro.",
       "publicTitle": "Mais feedback público",
       "publicDetail": "Envie respostas selecionadas para Google, Tripadvisor ou outra plataforma de avaliações com um voucher ou código de desconto opcional.",
-      "connectionTitle": "Conexão com o cliente",
-      "connectionDetail": "Recompense inscrições por email imediatamente e verifique avaliações externas antes de liberar o segundo benefício.",
       "donationsTitle": "Doacoes integradas",
       "donationsDetail": "O mesmo codigo QR tambem pode receber gorjetas ou doacoes para o seu estabelecimento, processadas com seguranca pelo Stripe."
     },

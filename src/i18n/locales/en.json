@@ -34,16 +34,12 @@
     "outcomesEyebrow": "Feedback that compounds",
     "outcomesTitle": "Build a stronger connection after every response.",
     "outcomes": {
-      "reusableTitle": "Reusable QR locations",
-      "reusableDetail": "Keep the same printed QR code while changing the active poll.",
       "conversionTitle": "Campaign conversion",
       "conversionDetail": "Compare scans with completed votes to see where engagement happens.",
       "growthTitle": "Permission-based market growth",
       "growthDetail": "Invite voters to share their email for event news and offers only after clear consent.",
       "publicTitle": "More public feedback",
       "publicDetail": "Send selected responses to Google, Tripadvisor, or another review platform with an optional voucher or discount code.",
-      "connectionTitle": "Customer connection",
-      "connectionDetail": "Reward email opt-ins immediately and verify external review claims before releasing the second benefit.",
       "donationsTitle": "Built-in donations",
       "donationsDetail": "The same QR code can also collect tips or donations for your venue, processed securely through Stripe."
     },
