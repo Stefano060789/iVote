@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { getPollBranding } from "../lib/pollBranding";
 import { reassignManagedCampaignPoll, resolveManagedQrToken } from "../lib/qrManage";
@@ -9,6 +9,12 @@ import { accessibilityTagIcon, accessibilityTagLabel } from "../lib/accessibilit
 export default function QrRedirect() {
   const navigate = useNavigate();
   const { token } = useParams();
+  const [searchParams] = useSearchParams();
+  // Set by the "preview what a scanner sees" iframe in the QR creation wizard, which is
+  // embedded on the same authenticated admin page - without this flag, getUser() would still
+  // find the logged-in admin session and show the owner's "manage this QR code" view instead
+  // of what an actual anonymous visitor sees.
+  const isPreview = searchParams.get("preview") === "1";
   const [portal, setPortal] = useState(null);
   const [menu, setMenu] = useState(null);
   const [manage, setManage] = useState(null);
@@ -20,7 +26,7 @@ export default function QrRedirect() {
         data: { user }
       } = await supabase.auth.getUser();
 
-      if (user) {
+      if (user && !isPreview) {
         const managed = await resolveManagedQrToken(token);
         if (managed) {
           setManage(managed);
@@ -79,7 +85,7 @@ export default function QrRedirect() {
     }
 
     resolveQr();
-  }, [navigate, token]);
+  }, [navigate, token, isPreview]);
 
   async function changeAssignedPoll(nextPollId) {
     if (!manage || !nextPollId) return;
