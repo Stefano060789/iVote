@@ -515,6 +515,8 @@
         "paused": "In pausa",
         "rotating": "A rotazione",
         "copyLink": "Copia link",
+        "qrAlt": "Codice QR per {{name}}",
+        "scanToView": "Scansiona per vedere",
         "changePoll": "Cambia sondaggio:",
         "orRotate": "Oppure ruota:",
         "noRotation": "Nessuna rotazione",

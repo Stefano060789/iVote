@@ -487,6 +487,8 @@
         "paused": "Paused",
         "copyLink": "Copy link",
         "delete": "Delete",
+        "qrAlt": "QR code for {{name}}",
+        "scanToView": "Scan to view",
         "confirmDelete": "Delete the QR code \"{{name}}\"? This removes it and everything on its menu (polls links, info cards, donation, reward). This can't be undone.",
         "changePoll": "Change poll:",
         "summaryPoll": "poll",

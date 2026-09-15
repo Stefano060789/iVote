@@ -515,6 +515,8 @@
         "paused": "已暂停",
         "rotating": "轮换中",
         "copyLink": "复制链接",
+        "qrAlt": "{{name}} 的二维码",
+        "scanToView": "扫码查看",
         "changePoll": "更改投票：",
         "orRotate": "或轮换：",
         "noRotation": "不轮换",

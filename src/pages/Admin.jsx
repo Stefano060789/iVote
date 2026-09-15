@@ -1552,6 +1552,113 @@ export default function Admin() {
     printWindow.print();
   }
 
+  // QR campaigns (the multi-item menu QR codes) previously only offered a "copy link" text
+  // URL, with no actual QR image, download, or print option - unlike the older single-poll
+  // QR cards above, which have all three. These two functions bring campaigns up to the same
+  // level, reusing the same api.qrserver.com image source and branded print-poster layout,
+  // but without needing a persistent ref (multiple campaigns can be listed at once, so each
+  // builds its own QR image URL directly instead of sharing one ref).
+  function getCampaignQrImageUrl(url, size = 300) {
+    return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(url)}`;
+  }
+
+  function downloadCampaignQr(campaign, url) {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.drawImage(img, 0, 0);
+      const link = document.createElement("a");
+      link.download = `${(campaign.name || "qr-campaign").replace(/[^a-z0-9-]+/gi, "-").toLowerCase()}-qr.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    };
+    img.onerror = () => console.error("Unable to load QR image for download.");
+    img.src = getCampaignQrImageUrl(url, 600);
+  }
+
+  function printCampaignQr(campaign, url) {
+    const formatConfig = getQrPrintFormatConfig("a4");
+    const generatedStyle = generateAiQrStyle(1, "brand");
+    const logoMarkup = workspaceProfile.logoUrl
+      ? `<img src="${workspaceProfile.logoUrl}" alt="Brand logo" style="max-height: 56px; max-width: 160px; object-fit: contain; margin-right: 16px;" />`
+      : "";
+    const companyName = (workspaceProfile.companyName || "Godwit").replace(/[<>&"']/g, "");
+    const campaignName = (campaign?.name || "QR code").replace(/[<>&"']/g, "");
+
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      console.error("Unable to open print window.");
+      return;
+    }
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>${t("admin.polls.card.printQr")}</title>
+          <style>
+            @page { size: ${formatConfig.size}; margin: ${formatConfig.margin}; }
+            body {
+              margin: 0;
+              background: #f8fafc;
+              font-family: Arial, sans-serif;
+              color: #0f172a;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .page {
+              width: ${formatConfig.cssSize};
+              min-height: ${formatConfig.cssSize};
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+              background: ${generatedStyle.background};
+              border-radius: 20px;
+              box-shadow: ${generatedStyle.shadow};
+              padding: 36px;
+              box-sizing: border-box;
+            }
+            .header { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 18px; }
+            .brand { font-size: 28px; font-weight: 700; letter-spacing: 0.04em; color: #0f172a; }
+            .qr-box { background: rgba(255,255,255,0.92); border-radius: 18px; padding: 18px; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12); }
+            .qr-box img { display: block; width: 260px; height: 260px; object-fit: contain; }
+            .title { margin-top: 18px; font-size: 20px; font-weight: 700; text-align: center; max-width: 620px; }
+            .subtitle { margin-top: 8px; font-size: 14px; text-align: center; letter-spacing: 0.08em; text-transform: uppercase; color: #334155; }
+            .godwit-footer { margin-top: 22px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 10px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #475569; }
+            .godwit-footer img { display: block; width: 16px; height: 16px; border-radius: 50%; }
+          </style>
+        </head>
+        <body>
+          <div class="page">
+            <div class="header">
+              ${logoMarkup}
+              <div class="brand">${companyName}</div>
+            </div>
+            <div class="qr-box">
+              <img src="${getCampaignQrImageUrl(url, 600)}" alt="QR code" />
+            </div>
+            <div class="subtitle">${t("admin.engagement.campaigns.scanToView")}</div>
+            <div class="title">${campaignName}</div>
+            <div class="godwit-footer">
+              <img src="${window.location.origin}/favicon.svg" alt="" />
+              <span>${t("admin.polls.card.madeWithGodwit", { host: window.location.host })}</span>
+            </div>
+          </div>
+        </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  }
+
   if (loading) return <p className="text-center p-6">Loading polls...</p>;
 
   const auditEntries = auditLog.slice(0, 5);
@@ -2100,6 +2207,22 @@ export default function Admin() {
                     </div>
                     <button onClick={() => navigator.clipboard.writeText(url)} className="shrink-0 bg-slate-700 text-white px-3 py-2 rounded font-semibold">{t("admin.engagement.campaigns.copyLink")}</button>
                     <button onClick={() => handleDeleteQrCampaign(campaign.id, campaign.name)} className="shrink-0 bg-red-700 text-white px-3 py-2 rounded font-semibold">{t("admin.engagement.campaigns.delete")}</button>
+                  </div>
+
+                  <div className="mt-2 flex items-center gap-3">
+                    <img
+                      src={getCampaignQrImageUrl(url, 120)}
+                      alt={t("admin.engagement.campaigns.qrAlt", { name: campaign.name })}
+                      className="h-16 w-16 rounded border border-slate-700 bg-white p-1"
+                    />
+                    <div className="flex flex-wrap gap-2">
+                      <button onClick={() => downloadCampaignQr(campaign, url)} className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm font-semibold">
+                        {t("admin.polls.card.downloadQr")}
+                      </button>
+                      <button onClick={() => printCampaignQr(campaign, url)} className="bg-green-600 text-white px-3 py-1.5 rounded text-sm font-semibold">
+                        {t("admin.polls.card.printQr")}
+                      </button>
+                    </div>
                   </div>
 
                   {(() => {

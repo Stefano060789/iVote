@@ -515,6 +515,8 @@
         "paused": "متوقف مؤقتًا",
         "rotating": "بالتدوير",
         "copyLink": "نسخ الرابط",
+        "qrAlt": "رمز QR لـ {{name}}",
+        "scanToView": "امسح للعرض",
         "changePoll": "تغيير الاستطلاع:",
         "orRotate": "أو دوّر:",
         "noRotation": "بلا تدوير",
