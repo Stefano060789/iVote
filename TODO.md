@@ -21,9 +21,16 @@ items as you address them.
      reverse charge) is already wired behind that flag in `api/create-checkout-session.js`, so
      no further code change is needed.
 
-- [ ] **Admin account 2FA/MFA** (Supabase Auth supports TOTP) - not built yet. Separate from
-  the Stripe phone-only-2FA item below (that one is about Godwit's own platform Stripe
-  account; this one is about admins logging into Godwit itself).
+- [ ] **Admin account 2FA/MFA - code shipped 2026-09-15, one Supabase setting to confirm.**
+  `Account.jsx` now has a "Two-factor authentication" section to enroll/remove a TOTP
+  authenticator app (Supabase Auth's `auth.mfa` API - no new backend endpoint needed), and
+  `Login.jsx` prompts for the 6-digit code after password sign-in if the account has a
+  verified factor. Enrollment is opt-in per admin, not enforced for everyone yet. **Before
+  this works**, confirm TOTP is turned on in Supabase Dashboard -> Authentication -> Providers
+  -> Multi-Factor Authentication (should be on by default, but verify) - then actually enroll
+  your own admin account and do a real sign-in test end to end. Separate from the Stripe
+  phone-only-2FA item below (that one is about Godwit's own platform Stripe account; this one
+  is about admins logging into Godwit itself).
 
 - [ ] **Geo-gating prize draws / donations by jurisdiction.** Voters already see a full
   eligibility disclaimer and must give explicit consent per entry (`vote.prizeDrawDisclaimer`
