@@ -44,12 +44,6 @@ items as you address them.
   under Settings -> Security (`.github/dependabot.yml` only covers scheduled version-update
   PRs, which is a separate toggle).
 
-- [ ] Stripe account verification currently relies on phone number only (SMS). Add a stronger
-  second identification factor for the live account - e.g. government ID verification
-  (Stripe Identity), authenticator-app 2FA instead of/in addition to SMS, and/or a recovery
-  method - to reduce the risk of the account being taken over via SIM-swap or phone number
-  compromise. Check Stripe Dashboard -> Settings -> Security for available options.
-
 - [ ] **Buy a custom domain and point it at Vercel.** Production currently runs on Vercel's
   default `i-vote-one.vercel.app` subdomain - fine for testing, not for a real pilot venue
   (looks unfinished, and the legacy "i-vote" name doesn't match the "Godwit" brand everywhere
@@ -109,8 +103,13 @@ items as you address them.
   end-to-end on production: enrolled with Authy, logged out, signed back in with password,
   got prompted for the code, verified, reached `/admin`. Supabase's Enrollment/Challenge/Verify
   APIs were already enabled by default - no dashboard setting needed. Separate from the Stripe
-  phone-only-2FA item below (that one is about Godwit's own platform Stripe account; this one
-  is about admins logging into Godwit itself, and remains open).
+  account 2FA item below (that one is about Godwit's own platform Stripe account; this one is
+  about admins logging into Godwit itself).
+- [x] **Stripe platform account 2FA upgraded beyond SMS (2026-09-15).** Added an authenticator
+  app as a second factor in Stripe Dashboard -> Settings -> Security, reducing the risk of the
+  account being taken over via SIM-swap or phone number compromise. This is about Godwit's own
+  Stripe account login, separate from the admin MFA item above (which is about Godwit users
+  logging into Godwit itself).
 
 ## Internationalization
 
