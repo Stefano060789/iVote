@@ -10,6 +10,12 @@ export default function NavBar() {
   const location = useLocation();
   const { t } = useTranslation();
   const [user, setUser] = useState(null);
+  // The QR wizard's "preview what a scanner sees" iframe shares the parent admin page's
+  // logged-in session, so this nav would otherwise show "Quick start"/"Dashboard" (the
+  // operator's own links) instead of what an actual anonymous visitor sees. Force the
+  // logged-out nav in that case without touching the real session.
+  const isPreview = new URLSearchParams(location.search).get("preview") === "1";
+  const displayUser = isPreview ? null : user;
   const [menuOpen, setMenuOpen] = useState(false);
   const [installPrompt, setInstallPrompt] = useState(null);
   const [workspace, setWorkspace] = useState({
@@ -91,8 +97,8 @@ export default function NavBar() {
           <span>{workspace.companyName}</span>
         </Link>
         <div className="site-nav-actions">
-          {user && <Link to="/essentials" onClick={closeMenu} className="site-nav-primary">{t("nav.quickStart")}</Link>}
-          {user && (
+          {displayUser && <Link to="/essentials" onClick={closeMenu} className="site-nav-primary">{t("nav.quickStart")}</Link>}
+          {displayUser && (
             <Link
               to="/admin"
               onClick={closeMenu}
@@ -101,7 +107,7 @@ export default function NavBar() {
             >
               {t("nav.dashboard")}
             </Link>
-          )}          {!user && <Link to="/register" onClick={closeMenu} className="site-nav-primary">{t("nav.getStarted")}</Link>}
+          )}          {!displayUser && <Link to="/register" onClick={closeMenu} className="site-nav-primary">{t("nav.getStarted")}</Link>}
           <LanguageSwitcher className="site-nav-lang" />
           <button
             type="button"
@@ -122,10 +128,10 @@ export default function NavBar() {
 
       <div id="site-navigation" className={`site-nav-links ${menuOpen ? "is-open" : ""}`}>
         <Link to="/support" onClick={closeMenu}>{t("nav.support")}</Link>
-        {!user && <>
+        {!displayUser && <>
           <Link to="/login" onClick={closeMenu}>{t("nav.signIn")}</Link>
         </>}
-        {user && <>
+        {displayUser && <>
           {installPrompt && <button type="button" onClick={installApp}>{t("nav.install")}</button>}
           <Link to="/admin/billing" onClick={closeMenu}>{t("nav.billing")}</Link>
           <Link to="/admin/moderation" onClick={closeMenu}>{t("nav.moderation")}</Link>
