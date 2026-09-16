@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabase";
 import { isPollClosed } from "../lib/pollMeta";
 
@@ -9,6 +10,7 @@ import { isPollClosed } from "../lib/pollMeta";
 // richer options (language switcher, leaving a private message, opting in by email) still live
 // on the full /vote/:pollId page, reachable via the "More options" link below the answers.
 export default function InlinePollVote({ item, branding }) {
+  const { t } = useTranslation();
   const [poll, setPoll] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState([]);
@@ -107,7 +109,11 @@ export default function InlinePollVote({ item, branding }) {
     return (
       <div className="qr-portal-menu-item qr-portal-menu-poll qr-portal-poll-done" style={{ borderColor: branding.primaryColor }}>
         <span className="qr-portal-menu-item-title">{poll.question}</span>
-        <p className="qr-portal-poll-thanks">{duplicate ? "You've already answered this one — thanks!" : "Thanks for voting!"}</p>
+        <p className="qr-portal-poll-thanks">{duplicate ? t("vote.alreadyAnsweredInline") : t("vote.thanksInline")}</p>
+        <div className="qr-portal-learn">
+          <p>{t("vote.learnFromGodwit")}</p>
+          <Link to="/" className="qr-portal-learn-link">{t("vote.seeGodwitFeatures")}</Link>
+        </div>
       </div>
     );
   }

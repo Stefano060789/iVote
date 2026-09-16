@@ -17,6 +17,12 @@
   --gold: #f2c744;
   --gold-soft: #fbe9ae;
   --gold-deep: #c9971e;
+  --action-primary: #0f766e;
+  --action-primary-hover: #0b5f59;
+  --action-accent: #c9971e;
+  --action-accent-hover: #b58416;
+  --action-on-dark: #ffffff;
+  --action-danger: #b91c1c;
   font-family: "Trebuchet MS", "Segoe UI", sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -255,7 +261,7 @@ textarea {
   min-height: 44px;
   border: 0;
   border-radius: 6px;
-  color: #ffffff;
+  color: var(--action-on-dark);
   font: inherit;
   font-weight: 800;
   cursor: pointer;
@@ -284,6 +290,36 @@ textarea {
   color: #15803d;
   font-weight: 700;
   font-size: 0.92rem;
+}
+
+.qr-portal-learn {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #d6e2de;
+}
+
+.qr-portal-learn p {
+  margin: 0 0 8px !important;
+  color: #46625e;
+  font-size: 0.82rem;
+}
+
+.qr-portal-learn-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 6px;
+  background: var(--action-primary);
+  color: var(--action-on-dark);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.qr-portal-learn-link:hover {
+  background: var(--action-primary-hover);
 }
 
 .qr-portal-poll-closed {
@@ -737,13 +773,13 @@ textarea {
 .workspace-page .bg-teal-400,
 .workspace-page .bg-amber-400,
 .workspace-page .bg-amber-500 {
-  background: var(--gold) !important;
-  color: var(--navy-deep) !important;
+  background: var(--action-accent) !important;
+  color: #173b3a !important;
 }
 
 .workspace-page .bg-blue-600 {
-  background: var(--gold) !important;
-  color: var(--navy-deep) !important;
+  background: var(--action-accent) !important;
+  color: #173b3a !important;
 }
 
 /* Secondary/utility actions (create-a-thing buttons that aren't the single primary CTA of
@@ -756,8 +792,8 @@ textarea {
 .workspace-page .bg-fuchsia-600,
 .workspace-page .bg-purple-600,
 .workspace-page .bg-sky-500 {
-  background: var(--teal) !important;
-  color: #ffffff !important;
+  background: var(--action-primary) !important;
+  color: var(--action-on-dark) !important;
 }
 
 .workspace-page .bg-red-600 {
@@ -1240,13 +1276,13 @@ textarea {
 }
 
 :root:not([data-theme="dark"]) .site-nav-primary {
-  background: #0f766e;
+  background: var(--action-primary);
   color: #ffffff;
 }
 
 :root:not([data-theme="dark"]) .site-nav-primary:hover,
 :root:not([data-theme="dark"]) .site-nav-dashboard:hover {
-  background: #0b5f59;
+  background: var(--action-primary-hover);
   color: #ffffff;
 }
 
@@ -1311,14 +1347,24 @@ textarea {
 
 :root:not([data-theme="dark"]) .landing-primary-action,
 :root:not([data-theme="dark"]) .landing-actions .landing-admin-action {
-  background: #c9971e;
+  background: var(--action-accent);
   color: #173b3a;
+}
+
+:root:not([data-theme="dark"]) .landing-admin-actions .landing-primary-action {
+  background: var(--action-primary);
+  color: var(--action-on-dark);
 }
 
 :root:not([data-theme="dark"]) .landing-primary-action:hover,
 :root:not([data-theme="dark"]) .landing-actions .landing-admin-action:hover {
-  background: #b58416;
+  background: var(--action-accent-hover);
   color: #173b3a;
+}
+
+:root:not([data-theme="dark"]) .landing-admin-actions .landing-primary-action:hover {
+  background: var(--action-primary-hover);
+  color: var(--action-on-dark);
 }
 
 :root:not([data-theme="dark"]) .landing-section,
@@ -1352,12 +1398,12 @@ textarea {
 }
 
 :root:not([data-theme="dark"]) .landing-admin-action {
-  background: #0f766e;
+  background: var(--action-primary);
   color: #ffffff;
 }
 
 :root:not([data-theme="dark"]) .landing-admin-action:hover {
-  background: #0b5f59;
+  background: var(--action-primary-hover);
   color: #ffffff;
 }
 
