@@ -76,7 +76,7 @@ export default function NavBar() {
           <span>Godwit</span>
         </Link>
         <div className="site-nav-actions">
-          {displayUser && <Link to="/essentials" onClick={closeMenu} className="site-nav-primary">{t("nav.quickStart")}</Link>}
+          {displayUser && <Link to="/essentials" onClick={closeMenu} className="site-nav-primary site-nav-quickstart">{t("nav.quickStart")}</Link>}
           {displayUser && (
             <Link
               to="/admin"
@@ -86,7 +86,8 @@ export default function NavBar() {
             >
               {t("nav.dashboard")}
             </Link>
-          )}          {!displayUser && <Link to="/register" onClick={closeMenu} className="site-nav-primary">{t("nav.getStarted")}</Link>}
+          )}
+          {!displayUser && <Link to="/register" onClick={closeMenu} className="site-nav-primary">{t("nav.getStarted")}</Link>}
           <LanguageSwitcher className="site-nav-lang" />
           <button
             type="button"
@@ -106,6 +107,10 @@ export default function NavBar() {
       </div>
 
       <div id="site-navigation" className={`site-nav-links ${menuOpen ? "is-open" : ""}`}>
+        {/* Mirrors the top bar's "Quick start" link, which is hidden at narrow widths (see
+            .site-nav-quickstart's media query) to keep the brand logo from being squeezed out -
+            kept reachable here so it's never lost on a phone. */}
+        {displayUser && <Link to="/essentials" onClick={closeMenu} className="site-nav-links-quickstart">{t("nav.quickStart")}</Link>}
         <Link to="/support" onClick={closeMenu}>{t("nav.support")}</Link>
         {!displayUser && <>
           <Link to="/login" onClick={closeMenu}>{t("nav.signIn")}</Link>

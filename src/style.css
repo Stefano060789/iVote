@@ -385,6 +385,7 @@ textarea {
   align-items: center;
   gap: 10px;
   min-width: 0;
+  flex-shrink: 0;
   overflow: hidden;
   color: #ffffff;
   font-size: 1.05rem;
@@ -1041,6 +1042,10 @@ textarea {
   font-size: 0.92rem;
 }
 
+.site-nav-links-quickstart {
+  display: none;
+}
+
 @media (max-width: 720px) {
   .site-nav-bar,
   .site-nav-links {
@@ -1089,7 +1094,23 @@ textarea {
     padding: 0 10px;
     font-size: 0.82rem;
   }
+}
 
+/* Below ~480px (a normal phone in portrait), the "Quick start" pill plus Dashboard pill plus
+   language dropdown plus menu button no longer fit next to the brand logo - the flex layout
+   would otherwise crush the logo down to zero width to make room. Drop the pill here and rely
+   on the equivalent link already mirrored into the hamburger menu instead. */
+@media (max-width: 480px) {
+  .site-nav-quickstart {
+    display: none;
+  }
+
+  .site-nav-links-quickstart {
+    display: block;
+  }
+}
+
+@media (max-width: 720px) {
   .landing-hero {
     min-height: 0;
     flex-direction: column;
