@@ -1370,6 +1370,11 @@ export default function Admin() {
     { key: "settings", icon: "\u2699\ufe0f", bird: flockMemberForTab("settings"), label: t("admin.quickActions.settings.label"), description: t("admin.quickActions.settings.description"), onSelect: () => setActiveTab("settings") }
   ];
 
+  function openConnectionSetup(tab, sectionId) {
+    setActiveTab(tab);
+    window.setTimeout(() => document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+  }
+
   return (
     <div className="workspace-page max-w-3xl mx-auto p-6">
       <div className="mb-6 text-center">
@@ -1550,7 +1555,7 @@ export default function Admin() {
             <span className="text-2xl font-bold text-amber-300">3</span>
             <h3 className="mt-2 text-lg font-bold">{t("admin.connection.step3.title")}</h3>
             <p className="mt-2 text-sm text-slate-400">{t("admin.connection.step3.body")}</p>
-            <button onClick={() => setActiveTab("feedback")} className="mt-4 rounded bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950">{t("admin.connection.step3.cta")}</button>
+            <button onClick={() => openConnectionSetup("settings", "review-platform-settings")} className="mt-4 rounded bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950">{t("admin.connection.step3.cta")}</button>
           </article>
         </div>
 
@@ -1585,6 +1590,7 @@ export default function Admin() {
 
         <div className="rounded border border-slate-700 bg-gray-900 p-5">
           <h2 className="text-xl font-bold">{t("admin.connection.benefits.title")}</h2>
+          <p className="mt-2 text-sm text-slate-400">{t("admin.connection.benefits.intro")}</p>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <article className="rounded-lg border border-sky-700/60 bg-sky-950/20 p-4">
               <h3 className="font-bold text-sky-300">{t("admin.connection.benefits.emailTitle")}</h3>
@@ -2307,7 +2313,7 @@ export default function Admin() {
 
 
       {activeTab === "feedback" && (
-      <details className="mb-6 border rounded bg-gray-900">
+      <details id="donation-settings" className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.feedback.moderation.title")}</summary>
         <div className="px-4 pb-4">
           <p className="mb-3 text-sm text-slate-400">{t("admin.feedback.moderation.subtitle")}</p>
@@ -2585,7 +2591,7 @@ export default function Admin() {
           </button>
         </div>
 
-        <details className="mt-6 border-t border-slate-700 pt-4" open>
+        <details id="review-platform-settings" className="mt-6 border-t border-slate-700 pt-4" open>
           <summary className="cursor-pointer text-lg font-bold">{t("admin.settings.workspace.reviewPlatforms.title")}</summary>
           <div className="mt-3 space-y-3">
             <p className="text-sm text-slate-400">{t("admin.settings.workspace.reviewPlatforms.subtitle")}</p>

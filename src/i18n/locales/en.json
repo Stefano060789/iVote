@@ -16,6 +16,7 @@
     "getStarted": "Get started"
   },
   "benefits": {
+    "intro": "These are two separate customer choices. An email benefit is for people who consent to follow-up; a public review is optional feedback for everyone. Do not exchange a benefit for a positive rating.",
     "title": "Two separate ways to build loyalty",
     "emailTitle": "When someone shares their email",
     "emailBody": "You can send the updates or offers you described when asking for consent, and download the consented list with timestamps. This is private follow-up and never depends on a positive vote.",
@@ -391,9 +392,9 @@
       "title": "Turn one QR scan into an ongoing relationship.",
       "subtitle": "Use this page as your checklist. Ask for an email only with clear consent, invite selected voters to leave honest public feedback, and release benefits according to your configured rules.",
       "step1": {
-        "title": "Configure the offer",
-        "body": "Configure Google, Tripadvisor, or another honest review destination in Settings, then choose which links to add when creating a QR code. Every visitor sees the same selected review links - never gate them by sentiment.",
-        "cta": "Configure a QR code"
+        "title": "Configure the offer in the poll",
+        "body": "The offer shown after voting is configured when you create or edit the poll. You can give an opted-in voter a voucher or discount after they share their email and consent to follow-up.",
+        "cta": "Create or edit a poll"
       },
       "step2": {
         "title": "Collect permission",
@@ -401,9 +402,9 @@
         "cta": "Jump to email settings"
       },
       "step3": {
-        "title": "Verify and reward",
-        "body": "Check pending claims in the review queue. Approve the benefit only after confirming the voter left honest feedback on the selected platform.",
-        "cta": "Open review claims"
+        "title": "Set up public review destinations",
+        "body": "Save your Google, Tripadvisor, or other review-page links in Settings. Add selected links to a QR code so every visitor can leave honest feedback. Never gate these links by sentiment.",
+        "cta": "Configure review sites"
       },
       "whatCustomerSees": {
         "title": "What the customer sees",
@@ -422,6 +423,14 @@
         "legalNote": "Use this list only for the purpose you explained when collecting consent. Check your privacy notice, retention policy, and applicable GDPR/local rules before importing or contacting anyone.",
         "lockedTitle": "Download your consented email list",
         "lockedDescription": "Export the people who explicitly opted in to follow-up, with their consent timestamp."
+      },
+      "benefits": {
+        "title": "Keep the two benefits separate",
+        "intro": "An email benefit is offered only to voters who share their email and consent to follow-up. A public review is optional feedback for everyone. Never exchange a reward for a positive rating.",
+        "emailTitle": "Benefit for sharing an email",
+        "emailBody": "Configure this in Create or Edit Poll under After voting. Choose a voucher or discount code, then show it only after the voter opts in with a clear consent purpose.",
+        "reviewTitle": "Public review on Google, Tripadvisor, or another site",
+        "reviewBody": "Save the review-page location in Settings, then select the destination when building a QR code. Show the same review option to everyone and invite honest feedback, positive or negative."
       },
       "messageBodyPlaceholder": "Email message body",
       "emailDeliveryNote": "Automatic delivery uses Resend, an email-sending service. Your server needs RESEND_API_KEY (the private Resend credential) and REPORT_FROM_EMAIL (a verified sender address), configured in the deployment settings. This is the same setup used for weekly reports.",
