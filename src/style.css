@@ -1224,6 +1224,152 @@ textarea {
   display: none;
 }
 
+/* The light landing page uses a warmer editorial palette instead of the
+   product's dark navy brand surfaces. Dark mode keeps the original contrast. */
+:root:not([data-theme="dark"]) .site-nav {
+  background: #f3efe5;
+  color: #173b3a;
+  box-shadow: inset 0 -1px 0 rgba(15, 118, 110, 0.18);
+}
+
+:root:not([data-theme="dark"]) .site-nav-brand,
+:root:not([data-theme="dark"]) .site-nav-actions a,
+:root:not([data-theme="dark"]) .site-nav-actions button,
+:root:not([data-theme="dark"]) .site-nav-toggle {
+  color: #173b3a;
+}
+
+:root:not([data-theme="dark"]) .site-nav-primary {
+  background: #0f766e;
+  color: #ffffff;
+}
+
+:root:not([data-theme="dark"]) .site-nav-primary:hover,
+:root:not([data-theme="dark"]) .site-nav-dashboard:hover {
+  background: #0b5f59;
+  color: #ffffff;
+}
+
+:root:not([data-theme="dark"]) .site-nav-dashboard {
+  border-color: rgba(15, 118, 110, 0.28);
+  color: #0f5f5a;
+}
+
+:root:not([data-theme="dark"]) .site-nav-lang,
+:root:not([data-theme="dark"]) .site-nav-theme {
+  border-color: rgba(23, 59, 58, 0.22);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+:root:not([data-theme="dark"]) .site-nav-links {
+  border-color: rgba(23, 59, 58, 0.16);
+  background: #fffdf8;
+  box-shadow: 0 14px 28px rgba(23, 59, 58, 0.16);
+}
+
+:root:not([data-theme="dark"]) .site-nav-links a,
+:root:not([data-theme="dark"]) .site-nav-links button {
+  color: #173b3a;
+}
+
+:root:not([data-theme="dark"]) .site-nav-links a:hover,
+:root:not([data-theme="dark"]) .site-nav-links button:hover {
+  background: #e5f0e9;
+}
+
+:root:not([data-theme="dark"]) .landing-page {
+  color: #173b3a;
+  background: #f8f5ed;
+}
+
+:root:not([data-theme="dark"]) .landing-hero {
+  background:
+    radial-gradient(720px 520px at 88% 12%, rgba(203, 151, 30, 0.18), transparent 62%),
+    linear-gradient(145deg, #f8f5ed 0%, #e5f0e9 58%, #d9ebe5 100%);
+}
+
+:root:not([data-theme="dark"]) .landing-hero h1,
+:root:not([data-theme="dark"]) .landing-section h2,
+:root:not([data-theme="dark"]) .landing-outcomes h2,
+:root:not([data-theme="dark"]) .landing-final h2 {
+  color: #173b3a;
+}
+
+:root:not([data-theme="dark"]) .landing-lede,
+:root:not([data-theme="dark"]) .landing-note {
+  color: #46625e;
+}
+
+:root:not([data-theme="dark"]) .landing-secondary-action {
+  border-color: rgba(15, 118, 110, 0.45);
+  color: #0f5f5a;
+}
+
+:root:not([data-theme="dark"]) .landing-secondary-action:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+:root:not([data-theme="dark"]) .landing-primary-action,
+:root:not([data-theme="dark"]) .landing-actions .landing-admin-action {
+  background: #c9971e;
+  color: #173b3a;
+}
+
+:root:not([data-theme="dark"]) .landing-primary-action:hover,
+:root:not([data-theme="dark"]) .landing-actions .landing-admin-action:hover {
+  background: #b58416;
+  color: #173b3a;
+}
+
+:root:not([data-theme="dark"]) .landing-section,
+:root:not([data-theme="dark"]) .landing-flock {
+  background: #173b3a;
+  color: #f8f5ed;
+}
+
+:root:not([data-theme="dark"]) .landing-step p,
+:root:not([data-theme="dark"]) .landing-outcomes li span,
+:root:not([data-theme="dark"]) .landing-flock-lede,
+:root:not([data-theme="dark"]) .landing-flock-card p:not(.landing-flock-role) {
+  color: #b9d0c7;
+}
+
+:root:not([data-theme="dark"]) .landing-outcomes {
+  background: #2d635d;
+}
+
+:root:not([data-theme="dark"]) .landing-outcomes li {
+  border-bottom-color: rgba(248, 245, 237, 0.28);
+}
+
+:root:not([data-theme="dark"]) .landing-final {
+  background: #fffdf8;
+  color: #173b3a;
+}
+
+:root:not([data-theme="dark"]) .landing-final-copy {
+  color: #46625e;
+}
+
+:root:not([data-theme="dark"]) .landing-admin-action {
+  background: #0f766e;
+  color: #ffffff;
+}
+
+:root:not([data-theme="dark"]) .landing-admin-action:hover {
+  background: #0b5f59;
+  color: #ffffff;
+}
+
+:root:not([data-theme="dark"]) .landing-flock-card {
+  border-color: rgba(242, 199, 68, 0.32);
+  background: linear-gradient(160deg, rgba(242, 199, 68, 0.12), rgba(255, 255, 255, 0.03) 60%);
+}
+
+:root:not([data-theme="dark"]) .landing-flock-card h3 {
+  color: #f8f5ed;
+}
+
 @media (max-width: 720px) {
   .site-nav-bar,
   .site-nav-links {
