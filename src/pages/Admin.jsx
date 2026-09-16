@@ -1029,6 +1029,46 @@ export default function Admin() {
     setAuditLog(readAuditLog());
   }
 
+  async function exportConsentedEmailCsv() {
+    if (!workspaceUserId) return;
+    const { data: leadRows, error } = await supabase
+      .from("voter_leads")
+      .select("email, consented_at")
+      .eq("workspace_id", workspaceUserId)
+      .order("consented_at", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      alert(`Unable to export consented emails: ${error.message}`);
+      return;
+    }
+
+    const latestByEmail = new Map();
+    (leadRows ?? []).forEach((row) => {
+      const email = String(row.email || "").trim().toLowerCase();
+      if (email && !latestByEmail.has(email)) {
+        latestByEmail.set(email, row.consented_at || "");
+      }
+    });
+
+    const rows = [
+      ["email", "consented_at"],
+      ...Array.from(latestByEmail.entries()).map(([email, consentedAt]) => [email, consentedAt])
+    ];
+    const csv = rows
+      .map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "consented-email-list.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+    appendAuditLog("export_consented_email_list", { count: latestByEmail.size });
+    setAuditLog(readAuditLog());
+  }
+
   function copyShareLink(poll) {
     const shareLink = poll.stable_short_url || poll.short_url || `${window.location.origin}/vote/${poll.id}`;
     navigator.clipboard.writeText(shareLink);
@@ -1559,6 +1599,25 @@ export default function Admin() {
             <p><strong>{t("admin.connection.whatCustomerSees.shareHonestlyLabel")}</strong> {t("admin.connection.whatCustomerSees.shareHonestlyBody")}</p>
           </div>
           <p className="mt-4 text-xs text-slate-500">{t("admin.connection.whatCustomerSees.disclaimer")}</p>
+        </div>
+
+        <div className="rounded border border-slate-700 bg-gray-900 p-5">
+          <h2 className="text-xl font-bold">{t("admin.connection.emailList.title")}</h2>
+          <p className="mt-2 text-sm text-slate-400">{t("admin.connection.emailList.description")}</p>
+          {entitlements.leadCapture ? (
+            <>
+              <button onClick={exportConsentedEmailCsv} className="mt-4 rounded bg-teal-500 px-4 py-2 font-semibold text-slate-950">
+                {t("admin.connection.emailList.downloadButton")}
+              </button>
+              <p className="mt-3 text-xs text-amber-300">{t("admin.connection.emailList.legalNote")}</p>
+            </>
+          ) : (
+            <LockedFeature
+              feature="leadCapture"
+              title={t("admin.connection.emailList.lockedTitle")}
+              description={t("admin.connection.emailList.lockedDescription")}
+            />
+          )}
         </div>
 
         <div id="nurture-settings">

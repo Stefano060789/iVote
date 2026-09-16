@@ -373,8 +373,8 @@
       "subtitle": "Use this page as your checklist. Ask for an email only with clear consent, invite selected voters to leave honest public feedback, and release benefits according to your configured rules.",
       "step1": {
         "title": "Configure the offer",
-        "body": "Add Google, Tripadvisor, or another honest review destination when creating a poll, and set the benefit voters unlock for voting. Every voter sees the same review link regardless of their answer - gating it by sentiment would break Google/Tripadvisor's rules.",
-        "cta": "Create a configured poll"
+        "body": "Configure Google, Tripadvisor, or another honest review destination in Settings, then choose which links to add when creating a QR code. Every visitor sees the same selected review links - never gate them by sentiment.",
+        "cta": "Configure a QR code"
       },
       "step2": {
         "title": "Collect permission",
@@ -396,8 +396,16 @@
         "shareHonestlyBody": "Every voter, whatever they answered, receives your review links and can submit a verification claim.",
         "disclaimer": "Do not require or script a positive review. Benefits should be offered transparently and review requests should invite honest feedback."
       },
+      "emailList": {
+        "title": "Consented email list",
+        "description": "Download only the email addresses people voluntarily shared after choosing follow-up. Anonymous voters are never included.",
+        "downloadButton": "Download consented email list (CSV)",
+        "legalNote": "Use this list only for the purpose you explained when collecting consent. Check your privacy notice, retention policy, and applicable GDPR/local rules before importing or contacting anyone.",
+        "lockedTitle": "Download your consented email list",
+        "lockedDescription": "Export the people who explicitly opted in to follow-up, with their consent timestamp."
+      },
       "messageBodyPlaceholder": "Email message body",
-      "emailDeliveryNote": "Delivery requires the RESEND_API_KEY and REPORT_FROM_EMAIL server settings, same as weekly reports.",
+      "emailDeliveryNote": "Automatic delivery uses Resend, an email-sending service. Your server needs RESEND_API_KEY (the private Resend credential) and REPORT_FROM_EMAIL (a verified sender address), configured in the deployment settings. This is the same setup used for weekly reports.",
       "emailAutomations": {
         "eyebrow": "Follow-up emails",
         "description": "Two independent, opt-in email automations - set up either, both, or neither. Both only ever reach voters who explicitly left their email and consented; voting itself always stays anonymous."
