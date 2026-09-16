@@ -364,6 +364,14 @@ export default function EditPoll() {
       )}
 
         <div className="mt-5 border-t border-slate-600 pt-4">
+          {!entitlements.emailBenefits ? (
+            <LockedFeature
+              feature="emailBenefits"
+              title="Offer a benefit when a voter shares their email"
+              description="Collect an email only with clear consent, then provide a voucher or discount code."
+            />
+          ) : (
+          <>
           <p className="font-semibold">Reward if email is shared</p>
           <p className="mt-1 text-xs text-slate-400">Give a voter who explicitly shares their email and consents to follow-up a voucher or online discount code. Voting remains anonymous unless they opt in.</p>
           <select value={emailBenefitType} onChange={(event) => setEmailBenefitType(event.target.value)} className="mt-3 w-full border p-2 rounded text-black">
@@ -373,6 +381,8 @@ export default function EditPoll() {
             <input value={emailBenefitValue} onChange={(event) => setEmailBenefitValue(event.target.value)} className="border p-2 rounded text-black" placeholder="Voucher or discount code" />
             <input type="url" value={emailBenefitUrl} onChange={(event) => setEmailBenefitUrl(event.target.value)} className="border p-2 rounded text-black" placeholder="Redemption link (optional)" />
           </div>}
+          </>
+          )}
         </div>
 
       {entitlements.prizeDraws ? (

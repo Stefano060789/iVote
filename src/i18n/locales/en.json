@@ -184,19 +184,21 @@
     "currentTag": "(current)",
     "paymentsNote": "Payments are securely handled by Stripe. Prices and limits are launch proposals and can be changed in Stripe and this page.",
     "plans": {
-      "free": { "name": "Free", "description": "Try the feedback loop at a single venue." },
-      "starter": { "name": "Starter", "description": "Run feedback professionally, with your own branding and exports." },
-      "growth": { "name": "Growth", "description": "Turn feedback into repeat business with automation and integrations." }
+      "free": { "name": "Free", "description": "Start with one active QR code, three active polls, and the essential feedback loop." },
+      "starter": { "name": "Starter", "description": "Add email-sharing benefits, public review invitations, exports, reports, and professional feedback tools." },
+      "growth": { "name": "Growth", "description": "Scale with more polls and QR codes, prize draws, automation, reputation monitoring, webhooks, and API access." }
     },
     "rows": {
       "pollLimit": "Active poll limit",
-      "campaignLimit": "Active QR campaigns",
+      "campaignLimit": "Active QR",
       "seatLimit": "Team seats",
       "donations": "Donations",
       "csvExport": "CSV export",
       "auditLog": "Activity / audit log",
       "weeklyReport": "Weekly email reports",
       "rewardMessage": "Post-vote rewards",
+      "emailBenefits": "Benefits when voters share email",
+      "publicReviewLinks": "Optional public review invitations",
       "leadCapture": "Lead capture (manual)",
       "redemptionTracking": "Reward redemption tracking",
       "prizeDraws": "Prize draws / raffles",

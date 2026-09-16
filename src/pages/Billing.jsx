@@ -21,6 +21,8 @@ const COMPARISON_ROWS = [
   { rowKey: "auditLog" },
   { rowKey: "weeklyReport" },
   { rowKey: "rewardMessage" },
+  { rowKey: "emailBenefits" },
+  { rowKey: "publicReviewLinks" },
   { rowKey: "leadCapture" },
   { rowKey: "redemptionTracking" },
   { rowKey: "prizeDraws" },

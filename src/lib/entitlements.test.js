@@ -7,9 +7,9 @@ describe("getEntitlements", () => {
     expect(getEntitlements("not-a-real-plan")).toEqual(PLAN_FEATURES.free);
   });
 
-  it("free plan has no campaigns, no seats beyond the owner, and no automation", () => {
+  it("free plan has one QR campaign, no seats beyond the owner, and no automation", () => {
     const free = getEntitlements("free");
-    expect(free.campaignLimit).toBe(0);
+    expect(free.campaignLimit).toBe(1);
     expect(free.seatLimit).toBe(1);
     expect(free.automatedNurture).toBe(false);
     expect(free.webhooks).toBe(false);

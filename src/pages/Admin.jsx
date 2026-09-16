@@ -2347,7 +2347,7 @@ export default function Admin() {
 
 
       {activeTab === "feedback" && (
-      <details id="donation-settings" className="mb-6 border rounded bg-gray-900">
+      <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.feedback.moderation.title")}</summary>
         <div className="px-4 pb-4">
           <p className="mb-3 text-sm text-slate-400">{t("admin.feedback.moderation.subtitle")}</p>
@@ -2454,7 +2454,7 @@ export default function Admin() {
 
       {activeTab === "settings" && (
       <>
-      <details className="mb-6 border rounded bg-gray-900">
+      <details id="donation-settings" className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.donations.title")}</summary>
         <div className="px-4 pb-4 space-y-3">
           <p className="text-sm text-slate-400">
@@ -2533,6 +2533,54 @@ export default function Admin() {
           </p>
         </div>
       </details>
+      <details id="review-platform-settings" className="mb-6 border rounded bg-gray-900" open>
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.settings.workspace.reviewPlatforms.title")}</summary>
+        <div className="px-4 pb-4">
+          {!entitlements.publicReviewLinks && (
+            <LockedFeature
+              feature="publicReviewLinks"
+              title="Invite voters to leave a public review"
+              description="Starter and Growth workspaces can add optional links to Google, Tripadvisor, or another review site."
+            />
+          )}
+          {entitlements.publicReviewLinks && <>
+          <p className="mb-3 text-sm text-slate-400">{t("admin.settings.workspace.reviewPlatforms.subtitle")}</p>
+          {(workspaceProfile.reviewPlatforms || []).map((platform, index) => (
+            <div key={`${platform.url}-${index}`} className="mb-3 grid gap-3 sm:grid-cols-2">
+              <input
+                value={platform.name}
+                onChange={(event) => setWorkspaceProfile((current) => ({
+                  ...current,
+                  reviewPlatforms: current.reviewPlatforms.map((item, itemIndex) => itemIndex === index ? { ...item, name: event.target.value } : item)
+                }))}
+                className="border p-2 rounded text-black"
+                placeholder={t("admin.settings.workspace.reviewPlatforms.namePlaceholder")}
+              />
+              <input
+                type="url"
+                value={platform.url}
+                onChange={(event) => setWorkspaceProfile((current) => ({
+                  ...current,
+                  reviewPlatforms: current.reviewPlatforms.map((item, itemIndex) => itemIndex === index ? { ...item, url: event.target.value } : item)
+                }))}
+                className="border p-2 rounded text-black"
+                placeholder={t("admin.settings.workspace.reviewPlatforms.urlPlaceholder")}
+              />
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => setWorkspaceProfile((current) => ({ ...current, reviewPlatforms: [...(current.reviewPlatforms || []), { name: "", url: "" }] }))}
+            className="rounded border border-slate-600 px-3 py-2 text-sm font-semibold"
+          >
+            {t("admin.settings.workspace.reviewPlatforms.addButton")}
+          </button>
+          <button onClick={saveWorkspaceSettings} disabled={!permission.canManageWorkspace} className="ml-2 rounded bg-blue-600 px-4 py-2 font-semibold text-white disabled:bg-gray-600 disabled:text-gray-300">
+            {t("admin.settings.workspace.reviewPlatforms.saveButton")}
+          </button>
+          </>}
+        </div>
+      </details>
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.settings.workspace.title")}</summary>
         <div className="px-4 pb-4">
@@ -2585,26 +2633,6 @@ export default function Admin() {
               placeholder={t("admin.settings.workspace.autoDeletePlaceholder")}
             />
           </label>
-          <label className="block font-semibold">
-            {t("admin.settings.workspace.buttonColorLabel")}
-            <span className="mt-1 block text-xs font-normal text-slate-400">{t("admin.settings.workspace.buttonColorHint")}</span>
-            <input
-              type="color"
-              value={workspaceProfile.primaryColor}
-              onChange={(event) => setWorkspaceProfile((current) => ({ ...current, primaryColor: event.target.value }))}
-              className="w-full border p-1 rounded mt-1 h-11"
-            />
-          </label>
-          <label className="block font-semibold">
-            {t("admin.settings.workspace.backgroundColorLabel")}
-            <span className="mt-1 block text-xs font-normal text-slate-400">{t("admin.settings.workspace.backgroundColorHint")}</span>
-            <input
-              type="color"
-              value={workspaceProfile.accentColor}
-              onChange={(event) => setWorkspaceProfile((current) => ({ ...current, accentColor: event.target.value }))}
-              className="w-full border p-1 rounded mt-1 h-11"
-            />
-          </label>
         </div>
 
         {!entitlements.webhooks && (
@@ -2624,46 +2652,6 @@ export default function Admin() {
             {t("admin.settings.workspace.saveButton")}
           </button>
         </div>
-
-        <details id="review-platform-settings" className="mt-6 border-t border-slate-700 pt-4" open>
-          <summary className="cursor-pointer text-lg font-bold">{t("admin.settings.workspace.reviewPlatforms.title")}</summary>
-          <div className="mt-3 space-y-3">
-            <p className="text-sm text-slate-400">{t("admin.settings.workspace.reviewPlatforms.subtitle")}</p>
-            {(workspaceProfile.reviewPlatforms || []).map((platform, index) => (
-              <div key={`${platform.url}-${index}`} className="grid gap-3 sm:grid-cols-2">
-                <input
-                  value={platform.name}
-                  onChange={(event) => setWorkspaceProfile((current) => ({
-                    ...current,
-                    reviewPlatforms: current.reviewPlatforms.map((item, itemIndex) => itemIndex === index ? { ...item, name: event.target.value } : item)
-                  }))}
-                  className="border p-2 rounded text-black"
-                  placeholder={t("admin.settings.workspace.reviewPlatforms.namePlaceholder")}
-                />
-                <input
-                  type="url"
-                  value={platform.url}
-                  onChange={(event) => setWorkspaceProfile((current) => ({
-                    ...current,
-                    reviewPlatforms: current.reviewPlatforms.map((item, itemIndex) => itemIndex === index ? { ...item, url: event.target.value } : item)
-                  }))}
-                  className="border p-2 rounded text-black"
-                  placeholder={t("admin.settings.workspace.reviewPlatforms.urlPlaceholder")}
-                />
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={() => setWorkspaceProfile((current) => ({ ...current, reviewPlatforms: [...(current.reviewPlatforms || []), { name: "", url: "" }] }))}
-              className="rounded border border-slate-600 px-3 py-2 text-sm font-semibold"
-            >
-              {t("admin.settings.workspace.reviewPlatforms.addButton")}
-            </button>
-            <button onClick={saveWorkspaceSettings} disabled={!permission.canManageWorkspace} className="ml-2 rounded bg-blue-600 px-4 py-2 font-semibold text-white disabled:bg-gray-600 disabled:text-gray-300">
-              {t("admin.settings.workspace.reviewPlatforms.saveButton")}
-            </button>
-          </div>
-        </details>
 
         <div className="mt-6 border-t border-slate-700 pt-4">
           <p className="font-semibold">{t("admin.settings.googleBusiness.title")}</p>
