@@ -777,9 +777,58 @@ textarea {
   color: #173b3a !important;
 }
 
+.app-page .bg-amber-400,
+.app-page .bg-amber-500,
+.workspace-page .bg-amber-400,
+.workspace-page .bg-amber-500 {
+  color: #173b3a !important;
+}
+
 .workspace-page .bg-blue-600 {
   background: var(--action-accent) !important;
   color: #173b3a !important;
+}
+
+.workspace-page .linked-qr-code-button {
+  color: #173b3a !important;
+}
+
+.workspace-create-poll-button {
+  align-self: flex-start;
+  min-width: 151px;
+}
+
+:root:not([data-theme="dark"]) .qr-wizard-modal {
+  border-color: #cbd5c4 !important;
+  background: #fffdf8 !important;
+  color: #173b3a !important;
+  box-shadow: 0 18px 48px rgba(66, 71, 53, 0.2);
+}
+
+:root:not([data-theme="dark"]) .qr-wizard-modal [class*="text-[#f4f7fb]"],
+:root:not([data-theme="dark"]) .qr-wizard-modal [class*="text-[#dbe3f0]"] {
+  color: #173b3a !important;
+}
+
+:root:not([data-theme="dark"]) .qr-wizard-modal [class*="text-[#93a3c2]"] {
+  color: #5f6c65 !important;
+}
+
+:root:not([data-theme="dark"]) .qr-wizard-modal [class*="text-[#8fa0c2]"] {
+  color: #5f6c65 !important;
+}
+
+.qr-wizard-input {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto !important;
+}
+
+:root:not([data-theme="dark"]) .qr-wizard-input {
+  border-color: #cbd5c4 !important;
+  background: #ffffff !important;
+  color: #173b3a !important;
+  caret-color: #173b3a;
 }
 
 /* Secondary/utility actions (create-a-thing buttons that aren't the single primary CTA of
@@ -1297,6 +1346,10 @@ textarea {
   background: rgba(255, 255, 255, 0.5);
 }
 
+:root:not([data-theme="dark"]) .site-nav-lang {
+  color: #173b3a;
+}
+
 :root:not([data-theme="dark"]) .site-nav-links {
   border-color: rgba(23, 59, 58, 0.16);
   background: #fffdf8;
@@ -1325,10 +1378,16 @@ textarea {
 }
 
 :root:not([data-theme="dark"]) .landing-hero h1,
-:root:not([data-theme="dark"]) .landing-section h2,
 :root:not([data-theme="dark"]) .landing-outcomes h2,
 :root:not([data-theme="dark"]) .landing-final h2 {
   color: #173b3a;
+}
+
+:root:not([data-theme="dark"]) .landing-section h2,
+:root:not([data-theme="dark"]) .landing-section h3,
+:root:not([data-theme="dark"]) .landing-outcomes h2,
+:root:not([data-theme="dark"]) .landing-outcomes li strong {
+  color: #f8f5ed;
 }
 
 :root:not([data-theme="dark"]) .landing-lede,
@@ -1377,7 +1436,7 @@ textarea {
 :root:not([data-theme="dark"]) .landing-outcomes li span,
 :root:not([data-theme="dark"]) .landing-flock-lede,
 :root:not([data-theme="dark"]) .landing-flock-card p:not(.landing-flock-role) {
-  color: #b9d0c7;
+  color: #d7e7df;
 }
 
 :root:not([data-theme="dark"]) .landing-outcomes {

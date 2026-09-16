@@ -1727,7 +1727,7 @@ export default function Admin() {
             <h2 className="text-xl font-bold">{t("admin.polls.title")}</h2>
             <p className="mt-1 mb-3 text-sm text-slate-400">{t("admin.polls.subtitle")}</p>
           </div>
-          <Link to="/create" className="w-full shrink-0 rounded bg-teal-500 px-4 py-2 text-center font-semibold text-slate-950 sm:w-auto">
+          <Link to="/create" className="workspace-create-poll-button shrink-0 rounded bg-teal-500 px-4 py-2.5 text-center font-semibold text-slate-950">
             {t("admin.polls.createNew")}
           </Link>
         </div>
@@ -1804,7 +1804,7 @@ export default function Admin() {
 
           {qrWizardOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-              <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-[#24345c] bg-[#0b1a33] p-5 text-[#e7ecf5]">
+              <div className="qr-wizard-modal max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-[#24345c] bg-[#0b1a33] p-5 text-[#e7ecf5]">
                 <div className="mb-4 flex items-center justify-between">
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#f2c744]">
                     {t("admin.engagement.wizard.stepOf", { step: qrWizardStep, total: 5 })}
@@ -1817,15 +1817,15 @@ export default function Admin() {
                     <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step1Title")}</h3>
                     <label className="block text-sm font-semibold text-[#dbe3f0]">
                       {t("admin.engagement.campaigns.nameLabel")}
-                      <input value={newCampaignName} onChange={(event) => setNewCampaignName(event.target.value)} className="mt-1 w-full border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.namePlaceholder")} />
+                      <input value={newCampaignName} onChange={(event) => setNewCampaignName(event.target.value)} className="qr-wizard-input mt-1 w-full border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.namePlaceholder")} />
                     </label>
                     <label className="block text-sm font-semibold text-[#dbe3f0]">
                       {t("admin.engagement.campaigns.placementLabel")}
-                      <input value={newCampaignPlacement} onChange={(event) => setNewCampaignPlacement(event.target.value)} className="mt-1 w-full border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.placementPlaceholder")} />
+                      <input value={newCampaignPlacement} onChange={(event) => setNewCampaignPlacement(event.target.value)} className="qr-wizard-input mt-1 w-full border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.placementPlaceholder")} />
                     </label>
                     <p className="text-xs text-[#93a3c2]">{t("admin.engagement.items.sectionInfoHint")}</p>
-                    <input value={itemTitle} onChange={(event) => setItemTitle(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.infoTitlePlaceholder")} />
-                    <textarea value={itemBody} onChange={(event) => setItemBody(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.infoBodyPlaceholder")} rows="3" />
+                    <input value={itemTitle} onChange={(event) => setItemTitle(event.target.value)} className="qr-wizard-input w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.infoTitlePlaceholder")} />
+                    <textarea value={itemBody} onChange={(event) => setItemBody(event.target.value)} className="qr-wizard-input w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.infoBodyPlaceholder")} rows="3" />
                     <button onClick={handleCreateCampaignFromWizard} className="w-full rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">
                       {t("admin.engagement.wizard.createAndContinue")}
                     </button>
@@ -1836,7 +1836,7 @@ export default function Admin() {
                   <div className="space-y-3">
                     <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step2Title")}</h3>
                     <div className="flex gap-2">
-                      <select value={itemPollId} onChange={(event) => setItemPollId(event.target.value)} className="flex-1 border p-2 rounded text-black">
+                      <select value={itemPollId} onChange={(event) => setItemPollId(event.target.value)} className="qr-wizard-input flex-1 border p-2 rounded text-black">
                         <option value="">{t("admin.engagement.items.addPollOption")}</option>
                         {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
                       </select>
@@ -1874,6 +1874,29 @@ export default function Admin() {
                         ))}
                       </div>
                     )}
+                    <div className="space-y-2 rounded border border-[#2c3f66] bg-[#182742] p-3">
+                      <p className="text-sm font-semibold text-[#f4f7fb]">{t("admin.engagement.items.voterBenefitsTitle")}</p>
+                      <p className="text-xs text-[#93a3c2]">{t("admin.engagement.items.voterBenefitsHint")}</p>
+                      {itemsForCampaign(qrWizardCampaign.id)
+                        .filter((item) => item.item_type === "poll")
+                        .map((item) => {
+                          const poll = polls.find((candidate) => String(candidate.id) === String(item.poll_id));
+                          const hasEmailBenefit = poll?.email_benefit_type && poll.email_benefit_type !== "none";
+                          return (
+                            <div key={item.id} className="rounded border border-[#385277] bg-[#10203a] p-2 text-xs">
+                              <p className="font-semibold text-[#f4f7fb]">{poll?.question || t("admin.engagement.items.unknownPoll")}</p>
+                              <p className="mt-1 text-[#dbe3f0]">
+                                {hasEmailBenefit
+                                  ? t("admin.engagement.items.emailBenefitConfigured", { benefit: poll.email_benefit_type === "voucher" ? t("thankYou.voucher") : t("thankYou.discountCode") })
+                                  : t("admin.engagement.items.emailBenefitNotConfigured")}
+                              </p>
+                            </div>
+                          );
+                        })}
+                      {itemsForCampaign(qrWizardCampaign.id).filter((item) => item.item_type === "poll").length === 0 && (
+                        <p className="text-xs text-[#93a3c2]">{t("admin.engagement.items.addPollForBenefits")}</p>
+                      )}
+                    </div>
                     <p className="text-xs text-[#93a3c2]">{t("admin.engagement.items.reviewSitesSelectionNote")}</p>
                     <div className="flex gap-2">
                       <button onClick={() => setQrWizardStep(2)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
@@ -1977,6 +2000,12 @@ export default function Admin() {
                       className="h-16 w-16 rounded border border-slate-700 bg-white p-1"
                     />
                     <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => window.open(`${url}?preview=1`, "_blank", "noopener,noreferrer")}
+                        className="bg-violet-600 text-white px-3 py-1.5 rounded text-sm font-semibold"
+                      >
+                        {t("admin.engagement.campaigns.viewVisitorExperience")}
+                      </button>
                       <button onClick={() => downloadCampaignQr(campaign, url)} className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm font-semibold">
                         {t("admin.polls.card.downloadQr")}
                       </button>
@@ -2022,7 +2051,7 @@ export default function Admin() {
                     );
                   })()}
 
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                  {false && <div className="mt-2 flex flex-wrap items-center gap-2">
                     <label className="text-xs text-slate-400">{t("admin.engagement.campaigns.changePoll")}</label>
                     <select
                       value={campaign.poll_id ? String(campaign.poll_id) : ""}
@@ -2032,9 +2061,9 @@ export default function Admin() {
                       <option value="">{t("admin.engagement.scanner.choosePoll")}</option>
                       {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
                     </select>
-                  </div>
+                  </div>}
 
-                  <details className="mt-3 rounded border border-slate-700">
+                  {false && <details className="mt-3 rounded border border-slate-700">
                     <summary className="cursor-pointer p-2 text-sm font-semibold">
                       {t("admin.engagement.campaigns.itemsOnQr", { count: itemsForCampaign(campaign.id).length })}
                     </summary>
@@ -2233,7 +2262,7 @@ export default function Admin() {
 
                       </div>
                     </div>
-                  </details>
+                  </details>}
                 </div>
               );
             })}
@@ -2917,7 +2946,7 @@ export default function Admin() {
                         key={`${qrCode.kind}-${qrCode.id}`}
                         type="button"
                         onClick={() => setActiveTab("engagement")}
-                        className="rounded-full border border-teal-700 bg-teal-950/40 px-3 py-1 text-xs font-semibold text-teal-300"
+                        className="linked-qr-code-button rounded-full border border-teal-700 bg-teal-950/40 px-3 py-1 text-xs font-semibold text-teal-300"
                         title={t("admin.polls.card.tokenTitle", { token: qrCode.token })}
                       >
                         {"🔗"} {qrCode.name}
