@@ -141,8 +141,8 @@
     "tellOthersBody": "选择一个平台留下真实评价，无论好评还是差评——完全自愿。",
     "reviewOn": "在 {{name}} 上评价",
     "negativeFollowUp": "感谢您的坦诚反馈。负责此投票的团队会直接看到，并会在需要时与您联系。",
-    "footerTagline": "Godwit 帮助商家将简单的二维码扫描转化为有用的反馈。",
-    "learnAbout": "了解 Godwit",
+    "footerTagline": "Godwit 可以将任何二维码扫描转化为反馈、评价和忠诚度——就像这家一样。",
+    "learnAbout": "也想为您自己的业务实现这一切吗？",
     "defaultReviewPlatform": "评价平台"
   },
   "billing": {

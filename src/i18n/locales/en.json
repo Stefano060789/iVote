@@ -141,8 +141,8 @@
     "tellOthersBody": "Choose a platform and leave honest feedback, positive or not — it's entirely optional.",
     "reviewOn": "Review on {{name}}",
     "negativeFollowUp": "Thanks for the honest feedback. The team running this poll will see it directly and follow up if needed.",
-    "footerTagline": "Godwit helps venues turn simple QR scans into useful feedback.",
-    "learnAbout": "Learn about Godwit",
+    "footerTagline": "Godwit turns any QR scan into feedback, reviews, and loyalty — for businesses just like this one.",
+    "learnAbout": "Want this for your own business?",
     "defaultReviewPlatform": "Review platform"
   },
   "billing": {

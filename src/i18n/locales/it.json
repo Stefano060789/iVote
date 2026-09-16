@@ -141,8 +141,8 @@
     "tellOthersBody": "Scegli una piattaforma e lascia un feedback sincero, positivo o no: è del tutto facoltativo.",
     "reviewOn": "Recensisci su {{name}}",
     "negativeFollowUp": "Grazie per la sincerità. Il team che gestisce questo sondaggio lo vedrà direttamente e ti risponderà se necessario.",
-    "footerTagline": "Godwit aiuta i locali a trasformare semplici scansioni QR in feedback utili.",
-    "learnAbout": "Scopri Godwit",
+    "footerTagline": "Godwit trasforma qualsiasi scansione QR in feedback, recensioni e fidelizzazione — per attività come questa.",
+    "learnAbout": "Vuoi lo stesso per la tua attività?",
     "defaultReviewPlatform": "Piattaforma di recensioni"
   },
   "billing": {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabase";
 
@@ -89,9 +89,17 @@ export default function ThankYou() {
       )}
 
 
-      <div className="mt-8 border-t border-slate-700 pt-5">
+      <div className="mt-8 rounded border border-amber-600 bg-slate-900 p-5 text-center">
         <p className="text-sm text-slate-300">{t("thankYou.footerTagline")}</p>
-        <Link to="/" className="mt-3 inline-block text-sm font-semibold text-teal-300 underline">{t("thankYou.learnAbout")}</Link>
+        <p className="mt-3 font-semibold text-amber-200">{t("thankYou.learnAbout")}</p>
+        <a
+          href="https://hellogodwit.com"
+          target="_blank"
+          rel="noreferrer"
+          className="mt-2 inline-block rounded bg-amber-400 px-4 py-2 font-semibold text-slate-950"
+        >
+          hellogodwit.com
+        </a>
       </div>
     </main>
   );

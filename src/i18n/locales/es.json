@@ -141,8 +141,8 @@
     "tellOthersBody": "Elige una plataforma y deja un comentario sincero, positivo o no: es totalmente opcional.",
     "reviewOn": "Opina en {{name}}",
     "negativeFollowUp": "Gracias por tu sinceridad. El equipo que gestiona esta encuesta lo verá directamente y te contactará si es necesario.",
-    "footerTagline": "Godwit ayuda a los negocios a convertir simples escaneos QR en comentarios útiles.",
-    "learnAbout": "Conoce Godwit",
+    "footerTagline": "Godwit convierte cualquier escaneo QR en comentarios, reseñas y fidelización — para negocios como este.",
+    "learnAbout": "¿Quieres esto para tu propio negocio?",
     "defaultReviewPlatform": "Plataforma de reseñas"
   },
   "billing": {

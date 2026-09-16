@@ -141,8 +141,8 @@
     "tellOthersBody": "Choisissez une plateforme et laissez un avis sincère, positif ou non : c'est entièrement facultatif.",
     "reviewOn": "Laisser un avis sur {{name}}",
     "negativeFollowUp": "Merci pour votre franchise. L'équipe qui gère ce sondage le verra directement et vous recontactera si besoin.",
-    "footerTagline": "Godwit aide les établissements à transformer de simples scans QR en retours utiles.",
-    "learnAbout": "En savoir plus sur Godwit",
+    "footerTagline": "Godwit transforme chaque scan QR en avis, retours et fidélité — pour des établissements comme celui-ci.",
+    "learnAbout": "Vous voulez la même chose pour votre établissement ?",
     "defaultReviewPlatform": "Plateforme d'avis"
   },
   "billing": {
