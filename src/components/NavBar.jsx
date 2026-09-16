@@ -130,14 +130,12 @@ export default function NavBar() {
             .site-nav-quickstart's media query) to keep the brand logo from being squeezed out -
             kept reachable here so it's never lost on a phone. */}
         {displayUser && <Link to="/essentials" onClick={closeMenu} className="site-nav-links-quickstart">{t("nav.quickStart")}</Link>}
-        <Link to="/support" onClick={closeMenu}>{t("nav.support")}</Link>
         {!displayUser && <>
           <Link to="/login" onClick={closeMenu}>{t("nav.signIn")}</Link>
         </>}
         {displayUser && <>
           {installPrompt && <button type="button" onClick={installApp}>{t("nav.install")}</button>}
           <Link to="/admin/billing" onClick={closeMenu}>{t("nav.billing")}</Link>
-          <Link to="/admin?tab=feedback" onClick={closeMenu}>{t("nav.moderation")}</Link>
           <Link to="/feedback" onClick={closeMenu}>{t("nav.shareFeedback")}</Link>
           <Link to="/account" onClick={closeMenu}>{t("nav.account")}</Link>
           <button type="button" onClick={signOut}>{t("nav.signOut")}</button>
