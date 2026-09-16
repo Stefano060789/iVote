@@ -10,6 +10,8 @@
     "account": "Account",
     "signOut": "Sign out",
     "menu": "Menu",
+    "lightTheme": "Use light theme",
+    "darkTheme": "Use dark theme",
     "dashboard": "Dashboard",
     "getStarted": "Get started"
   },
@@ -475,6 +477,8 @@
         "description": "Set a name and placement below to create a QR code, then build what it shows: an info card, one or more polls, a donation ask, and a reward or prize — in that order, per QR code.",
         "tip": "Tip: open a printed QR code while signed in to see its name and poll, and change them directly.",
         "namePlaceholder": "Lobby poster, receipt, table tent",
+        "nameLabel": "QR code name",
+        "placementLabel": "Placement",
         "createButton": "Create QR code",
         "placementPlaceholder": "Placement label: lobby, receipt, table",
         "customizeWelcome": "Customize the QR welcome screen",

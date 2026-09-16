@@ -436,28 +436,6 @@ export default function Admin() {
     ));
   }
 
-  async function handleAddReviewItemsFromWizard() {
-    if (!qrWizardCampaign) return;
-    const selected = (workspaceProfile.reviewPlatforms || []).filter((platform) => selectedQrReviewPlatforms.includes(platform.url));
-    if (selected.length === 0) return;
-    try {
-      const newItems = [];
-      for (const platform of selected) {
-        const item = await addQrCampaignInfoItem(qrWizardCampaign.id, {
-          title: `${platform.name} reviews`,
-          body: `Share your experience on ${platform.name}.`,
-          linkUrl: platform.url,
-          linkLabel: `Open ${platform.name}`
-        });
-        newItems.push(item);
-      }
-      setQrCampaignItems((current) => [...current, ...newItems]);
-      setSelectedQrReviewPlatforms([]);
-    } catch (error) {
-      alert(error.message);
-    }
-  }
-
   // Guided QR creation wizard - replaces the old flat "name + poll + placement + variant, all
   // at once" form. Walks through the same underlying steps (create -> info -> polls ->
   // donation -> reward/prize -> print) one at a time, reusing the exact same handlers as the
@@ -530,22 +508,11 @@ export default function Admin() {
     }
   }
 
-  async function handleAddInfoItemFromWizard() {
-    if (!qrWizardCampaign) return;
-    await handleAddInfoItem(qrWizardCampaign.id);
-  }
-
-  // Catches a typed-but-not-submitted info card: if someone fills in the title/message and
-  // hits Next without clicking "Add info card" first, add it for them instead of silently
-  // dropping what they typed.
   async function handleAddPollItemFromWizard() {
     if (!qrWizardCampaign) return;
     await handleAddPollItem(qrWizardCampaign.id);
   }
 
-  // Same idea as handleContinueFromInfoStep: if a poll is chosen in the dropdown but
-  // "Add poll" was never clicked, add it now instead of silently dropping the selection
-  // when the user moves on to step 4.
   async function handleContinueFromPollStep() {
     if (qrWizardCampaign && itemPollId) {
       await handleAddPollItem(qrWizardCampaign.id);
@@ -1704,6 +1671,60 @@ export default function Admin() {
           </details>
           </div>
         </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <details className="rounded border border-slate-700 bg-gray-900" open>
+            <summary className="cursor-pointer p-4 text-lg font-bold">{t("admin.engagement.redemptions.title")}</summary>
+            <div className="px-4 pb-4">
+              {entitlements.redemptionTracking ? (
+                <>
+                  <p className="mb-3 text-sm text-slate-400">{t("admin.engagement.redemptions.subtitle")}</p>
+                  <div className="flex flex-col gap-3 sm:flex-row">
+                    <input value={redeemCode} onChange={(event) => setRedeemCode(event.target.value)} className="flex-1 border p-2 rounded text-black" placeholder={t("admin.engagement.redemptions.codePlaceholder")} />
+                    <button onClick={handleRedeemCode} className="bg-teal-500 text-slate-950 px-4 py-2 rounded font-semibold">{t("admin.engagement.redemptions.markRedeemed")}</button>
+                  </div>
+                  {redeemMessage && <p className="mt-3 text-sm text-amber-300">{redeemMessage}</p>}
+                  <div className="mt-4 space-y-2 text-sm">
+                    {polls.filter((poll) => poll.reward_code).length === 0 ? (
+                      <p className="text-gray-400">{t("admin.engagement.redemptions.noCodes")}</p>
+                    ) : polls.filter((poll) => poll.reward_code).map((poll) => (
+                      <div key={poll.id} className="flex items-center justify-between gap-3 border-b border-gray-700 py-1">
+                        <span className="min-w-0">#{poll.id} - {poll.question} · {t("admin.engagement.redemptions.codeLabel", { code: poll.reward_code })}</span>
+                        <span className="shrink-0 whitespace-nowrap text-teal-300">{t("admin.engagement.redemptions.redeemedCount", { count: poll.reward_redeemed_count || 0 })}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <LockedFeature feature="redemptionTracking" title={t("admin.engagement.redemptions.lockedTitle")} description={t("admin.engagement.redemptions.lockedDescription")} />
+              )}
+            </div>
+          </details>
+          <details className="rounded border border-slate-700 bg-gray-900" open>
+            <summary className="cursor-pointer p-4 text-lg font-bold">{t("admin.engagement.prizeDraws.title")}</summary>
+            <div className="px-4 pb-4">
+              {entitlements.prizeDraws ? (
+                <>
+                  <p className="mb-3 text-sm text-slate-400">{t("admin.engagement.prizeDraws.subtitle")}</p>
+                  <div className="space-y-2 text-sm">
+                    {polls.filter((poll) => poll.raffle_enabled).length === 0 ? (
+                      <p className="text-gray-400">{t("admin.engagement.prizeDraws.noDraws")}</p>
+                    ) : polls.filter((poll) => poll.raffle_enabled).map((poll) => (
+                      <div key={poll.id} className="border-b border-gray-700 py-2">
+                        <div className="flex items-center justify-between gap-3">
+                          <span>#{poll.id} - {poll.question} · {t("admin.engagement.prizeDraws.prizeLabel", { prize: poll.raffle_prize || t("admin.engagement.prizeDraws.notSet") })}</span>
+                          <button onClick={() => pickRaffleWinner(poll.id)} className="shrink-0 bg-amber-500 text-slate-950 px-3 py-1.5 rounded font-semibold">{t("admin.engagement.prizeDraws.pickWinner")}</button>
+                        </div>
+                        {poll.raffle_winner_email && <p className="mt-1 text-xs text-amber-300">{t("admin.engagement.prizeDraws.winner", { email: poll.raffle_winner_email, date: new Date(poll.raffle_winner_picked_at).toLocaleString() })}</p>}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <LockedFeature feature="prizeDraws" title={t("admin.engagement.prizeDraws.lockedTitle")} description={t("admin.engagement.prizeDraws.lockedDescription")} />
+              )}
+            </div>
+          </details>
+        </div>
       </section>
       )}
 
@@ -1803,8 +1824,14 @@ export default function Admin() {
                 {qrWizardStep === 1 && (
                   <div className="space-y-3">
                     <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step1Title")}</h3>
-                    <input value={newCampaignName} onChange={(event) => setNewCampaignName(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.namePlaceholder")} />
-                    <input value={newCampaignPlacement} onChange={(event) => setNewCampaignPlacement(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.placementPlaceholder")} />
+                    <label className="block text-sm font-semibold text-[#dbe3f0]">
+                      {t("admin.engagement.campaigns.nameLabel")}
+                      <input value={newCampaignName} onChange={(event) => setNewCampaignName(event.target.value)} className="mt-1 w-full border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.namePlaceholder")} />
+                    </label>
+                    <label className="block text-sm font-semibold text-[#dbe3f0]">
+                      {t("admin.engagement.campaigns.placementLabel")}
+                      <input value={newCampaignPlacement} onChange={(event) => setNewCampaignPlacement(event.target.value)} className="mt-1 w-full border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.placementPlaceholder")} />
+                    </label>
                     <p className="text-xs text-[#93a3c2]">{t("admin.engagement.items.sectionInfoHint")}</p>
                     <input value={itemTitle} onChange={(event) => setItemTitle(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.infoTitlePlaceholder")} />
                     <textarea value={itemBody} onChange={(event) => setItemBody(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.infoBodyPlaceholder")} rows="3" />
@@ -2274,72 +2301,6 @@ export default function Admin() {
           <div className="mt-6 border-t border-slate-800 pt-4">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">{t("admin.engagement.campaigns.advancedTitle")}</p>
             <p className="mb-3 text-xs text-slate-500">{t("admin.engagement.campaigns.advancedDescription")}</p>
-      <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.redemptions.title")}</summary>
-        <div className="px-4 pb-4">
-          {entitlements.redemptionTracking ? (
-          <>
-          <p className="mb-3 text-sm text-slate-400">{t("admin.engagement.redemptions.subtitle")}</p>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <input value={redeemCode} onChange={(event) => setRedeemCode(event.target.value)} className="flex-1 border p-2 rounded text-black" placeholder={t("admin.engagement.redemptions.codePlaceholder")} />
-            <button onClick={handleRedeemCode} className="bg-teal-500 text-slate-950 px-4 py-2 rounded font-semibold">{t("admin.engagement.redemptions.markRedeemed")}</button>
-          </div>
-          {redeemMessage && <p className="mt-3 text-sm text-amber-300">{redeemMessage}</p>}
-          <div className="mt-4 space-y-2 text-sm">
-            {polls.filter((poll) => poll.reward_code).length === 0 ? (
-              <p className="text-gray-400">{t("admin.engagement.redemptions.noCodes")}</p>
-            ) : (
-              polls.filter((poll) => poll.reward_code).map((poll) => (
-                <div key={poll.id} className="flex items-center justify-between gap-3 border-b border-gray-700 py-1">
-                  <span className="min-w-0">#{poll.id} - {poll.question} · {t("admin.engagement.redemptions.codeLabel", { code: poll.reward_code })}</span>
-                  <span className="shrink-0 whitespace-nowrap text-teal-300">{t("admin.engagement.redemptions.redeemedCount", { count: poll.reward_redeemed_count || 0 })}</span>
-                </div>
-              ))
-            )}
-          </div>
-          </>
-          ) : (
-            <LockedFeature
-              feature="redemptionTracking"
-              title={t("admin.engagement.redemptions.lockedTitle")}
-              description={t("admin.engagement.redemptions.lockedDescription")}
-            />
-          )}
-        </div>
-      </details>
-      <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.prizeDraws.title")}</summary>
-        <div className="px-4 pb-4">
-          {entitlements.prizeDraws ? (
-          <>
-          <p className="mb-3 text-sm text-slate-400">{t("admin.engagement.prizeDraws.subtitle")}</p>
-          <div className="space-y-2 text-sm">
-            {polls.filter((poll) => poll.raffle_enabled).length === 0 ? (
-              <p className="text-gray-400">{t("admin.engagement.prizeDraws.noDraws")}</p>
-            ) : (
-              polls.filter((poll) => poll.raffle_enabled).map((poll) => (
-                <div key={poll.id} className="border-b border-gray-700 py-2">
-                  <div className="flex items-center justify-between gap-3">
-                    <span>#{poll.id} - {poll.question} · {t("admin.engagement.prizeDraws.prizeLabel", { prize: poll.raffle_prize || t("admin.engagement.prizeDraws.notSet") })}</span>
-                    <button onClick={() => pickRaffleWinner(poll.id)} className="shrink-0 bg-amber-500 text-slate-950 px-3 py-1.5 rounded font-semibold">{t("admin.engagement.prizeDraws.pickWinner")}</button>
-                  </div>
-                  {poll.raffle_winner_email && (
-                    <p className="mt-1 text-xs text-amber-300">{t("admin.engagement.prizeDraws.winner", { email: poll.raffle_winner_email, date: new Date(poll.raffle_winner_picked_at).toLocaleString() })}</p>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
-          </>
-          ) : (
-            <LockedFeature
-              feature="prizeDraws"
-              title={t("admin.engagement.prizeDraws.lockedTitle")}
-              description={t("admin.engagement.prizeDraws.lockedDescription")}
-            />
-          )}
-        </div>
-      </details>
           </div>
         </div>
       </details>
