@@ -72,7 +72,7 @@ export async function loadWorkspaceProfile() {
 
   const { data: workspace, error } = await supabase
     .from("workspaces")
-    .select("id, name, logo_url, primary_color, accent_color, webhook_url, vote_retention_days, google_place_id")
+    .select("id, name, logo_url, primary_color, accent_color, webhook_url, vote_retention_days, google_place_id, review_platforms")
     .eq("id", workspaceId)
     .single();
 
@@ -92,6 +92,7 @@ export async function loadWorkspaceProfile() {
     webhookUrl: workspace.webhook_url || "",
     voteRetentionDays: workspace.vote_retention_days || "",
     googlePlaceId: workspace.google_place_id || "",
+    reviewPlatforms: Array.isArray(workspace.review_platforms) ? workspace.review_platforms : [],
     role,
     plan
   };
@@ -135,7 +136,12 @@ export async function saveWorkspaceProfile(workspaceId, patch = {}) {
       accent_color: next.accentColor,
       webhook_url: patch.webhookUrl?.trim() || null,
       vote_retention_days: patch.voteRetentionDays ? Number(patch.voteRetentionDays) : null,
-      google_place_id: patch.googlePlaceId?.trim() || null
+      google_place_id: patch.googlePlaceId?.trim() || null,
+      review_platforms: Array.isArray(patch.reviewPlatforms)
+        ? patch.reviewPlatforms
+          .filter((platform) => platform?.name?.trim() && platform?.url?.trim())
+          .map((platform) => ({ name: platform.name.trim(), url: platform.url.trim() }))
+        : []
     })
     .eq("id", workspaceId);
 

@@ -75,6 +75,7 @@ export default function Admin() {
     accentColor: "#172b2b",
     webhookUrl: "",
     googlePlaceId: "",
+    reviewPlatforms: [],
     role: "owner",
     plan: "free"
   });
@@ -154,6 +155,7 @@ export default function Admin() {
   const [newUpdatePollId, setNewUpdatePollId] = useState("");
   const [apiKeys, setApiKeys] = useState([]);
   const [newApiKeyLabel, setNewApiKeyLabel] = useState("");
+  const [selectedQrReviewPlatforms, setSelectedQrReviewPlatforms] = useState([]);
 
   function getPollStatusInfo(poll) {
     const meta = readPollMeta(poll.id);
@@ -425,6 +427,34 @@ export default function Admin() {
       console.error(error);
       alert(error.message || "Unable to save workspace settings.");
     }
+
+    function toggleQrReviewPlatform(url) {
+      setSelectedQrReviewPlatforms((current) => (
+        current.includes(url) ? current.filter((item) => item !== url) : [...current, url]
+      ));
+    }
+
+    async function handleAddReviewItemsFromWizard() {
+      if (!qrWizardCampaign) return;
+      const selected = (workspaceProfile.reviewPlatforms || []).filter((platform) => selectedQrReviewPlatforms.includes(platform.url));
+      if (selected.length === 0) return;
+      try {
+        const newItems = [];
+        for (const platform of selected) {
+          const item = await addQrCampaignInfoItem(qrWizardCampaign.id, {
+            title: `${platform.name} reviews`,
+            body: `Share your experience on ${platform.name}.`,
+            linkUrl: platform.url,
+            linkLabel: `Open ${platform.name}`
+          });
+          newItems.push(item);
+        }
+        setQrCampaignItems((current) => [...current, ...newItems]);
+        setSelectedQrReviewPlatforms([]);
+      } catch (error) {
+        alert(error.message);
+      }
+    }
   }
 
   // Guided QR creation wizard - replaces the old flat "name + poll + placement + variant, all
@@ -435,6 +465,7 @@ export default function Admin() {
   function openQrWizard() {
     setQrWizardCampaign(null);
     setQrWizardStep(1);
+    setSelectedQrReviewPlatforms([]);
     setQrWizardOpen(true);
   }
 
@@ -478,6 +509,7 @@ export default function Admin() {
     if (qrWizardCampaign && itemTitle.trim()) {
       await handleAddInfoItem(qrWizardCampaign.id);
     }
+    await handleAddReviewItemsFromWizard();
     setQrWizardStep(3);
   }
 
@@ -1704,6 +1736,29 @@ export default function Admin() {
                     <button onClick={handleAddInfoItemFromWizard} className="w-full rounded bg-[#0f766e] px-4 py-2 font-semibold text-[#f8fafc] hover:bg-[#0d6259]">
                       {t("admin.engagement.items.addInfoCard")}
                     </button>
+                    <div className="border-t border-[#24345c] pt-3">
+                      <p className="font-semibold text-[#f4f7fb]">{t("admin.engagement.items.reviewSitesTitle")}</p>
+                      <p className="mt-1 text-xs text-[#93a3c2]">{t("admin.engagement.items.reviewSitesHint")}</p>
+                      {(workspaceProfile.reviewPlatforms || []).length === 0 ? (
+                        <p className="mt-2 text-xs text-amber-300">{t("admin.engagement.items.reviewSitesEmpty")}</p>
+                      ) : (
+                        <div className="mt-2 space-y-2">
+                          {workspaceProfile.reviewPlatforms.map((platform) => (
+                            <label key={platform.url} className="flex items-center gap-2 text-sm text-[#dbe3f0]">
+                              <input
+                                type="checkbox"
+                                checked={selectedQrReviewPlatforms.includes(platform.url)}
+                                onChange={() => toggleQrReviewPlatform(platform.url)}
+                              />
+                              <span>{platform.name}</span>
+                            </label>
+                          ))}
+                          <button onClick={handleAddReviewItemsFromWizard} className="w-full rounded bg-[#0f766e] px-4 py-2 font-semibold text-[#f8fafc] hover:bg-[#0d6259]">
+                            {t("admin.engagement.items.addReviewSites")}
+                          </button>
+                        </div>
+                      )}
+                    </div>
                     <div className="flex gap-2">
                       <button onClick={() => setQrWizardStep(1)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
                       <button onClick={handleContinueFromInfoStep} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
@@ -2565,6 +2620,46 @@ export default function Admin() {
             {t("admin.settings.workspace.saveButton")}
           </button>
         </div>
+
+        <details className="mt-6 border-t border-slate-700 pt-4" open>
+          <summary className="cursor-pointer text-lg font-bold">{t("admin.settings.workspace.reviewPlatforms.title")}</summary>
+          <div className="mt-3 space-y-3">
+            <p className="text-sm text-slate-400">{t("admin.settings.workspace.reviewPlatforms.subtitle")}</p>
+            {(workspaceProfile.reviewPlatforms || []).map((platform, index) => (
+              <div key={`${platform.url}-${index}`} className="grid gap-3 sm:grid-cols-2">
+                <input
+                  value={platform.name}
+                  onChange={(event) => setWorkspaceProfile((current) => ({
+                    ...current,
+                    reviewPlatforms: current.reviewPlatforms.map((item, itemIndex) => itemIndex === index ? { ...item, name: event.target.value } : item)
+                  }))}
+                  className="border p-2 rounded text-black"
+                  placeholder={t("admin.settings.workspace.reviewPlatforms.namePlaceholder")}
+                />
+                <input
+                  type="url"
+                  value={platform.url}
+                  onChange={(event) => setWorkspaceProfile((current) => ({
+                    ...current,
+                    reviewPlatforms: current.reviewPlatforms.map((item, itemIndex) => itemIndex === index ? { ...item, url: event.target.value } : item)
+                  }))}
+                  className="border p-2 rounded text-black"
+                  placeholder={t("admin.settings.workspace.reviewPlatforms.urlPlaceholder")}
+                />
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setWorkspaceProfile((current) => ({ ...current, reviewPlatforms: [...(current.reviewPlatforms || []), { name: "", url: "" }] }))}
+              className="rounded border border-slate-600 px-3 py-2 text-sm font-semibold"
+            >
+              {t("admin.settings.workspace.reviewPlatforms.addButton")}
+            </button>
+            <button onClick={saveWorkspaceSettings} disabled={!permission.canManageWorkspace} className="ml-2 rounded bg-blue-600 px-4 py-2 font-semibold text-white disabled:bg-gray-600 disabled:text-gray-300">
+              {t("admin.settings.workspace.reviewPlatforms.saveButton")}
+            </button>
+          </div>
+        </details>
 
         <div className="mt-6 border-t border-slate-700 pt-4">
           <p className="font-semibold">{t("admin.settings.googleBusiness.title")}</p>
