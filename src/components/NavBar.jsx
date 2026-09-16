@@ -118,7 +118,7 @@ export default function NavBar() {
         {displayUser && <>
           {installPrompt && <button type="button" onClick={installApp}>{t("nav.install")}</button>}
           <Link to="/admin/billing" onClick={closeMenu}>{t("nav.billing")}</Link>
-          <Link to="/admin/moderation" onClick={closeMenu}>{t("nav.moderation")}</Link>
+          <Link to="/admin?tab=feedback" onClick={closeMenu}>{t("nav.moderation")}</Link>
           <Link to="/feedback" onClick={closeMenu}>{t("nav.shareFeedback")}</Link>
           <Link to="/account" onClick={closeMenu}>{t("nav.account")}</Link>
           <button type="button" onClick={signOut}>{t("nav.signOut")}</button>

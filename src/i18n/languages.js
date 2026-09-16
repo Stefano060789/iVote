@@ -3,11 +3,6 @@
 // LanguageSwitcher component picks this list up automatically.
 export const SUPPORTED_LANGUAGES = [
   { code: "en", label: "English" },
-  { code: "zh", label: "中文" },
-  { code: "es", label: "Español" },
-  { code: "fr", label: "Français" },
-  { code: "ar", label: "العربية", dir: "rtl" },
-  { code: "pt", label: "Português" },
   { code: "de", label: "Deutsch" },
   { code: "it", label: "Italiano" }
 ];

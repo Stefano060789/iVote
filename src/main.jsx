@@ -1,6 +1,6 @@
 import React, { Suspense, lazy } from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 
 import NavBar from "./components/NavBar";
@@ -27,7 +27,6 @@ const Landing = lazy(() => import("./pages/Landing"));
 const Account = lazy(() => import("./pages/Account"));
 const Legal = lazy(() => import("./pages/Legal"));
 const Support = lazy(() => import("./pages/Support"));
-const Moderation = lazy(() => import("./pages/Moderation"));
 const ProductFeedback = lazy(() => import("./pages/ProductFeedback"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const Essentials = lazy(() => import("./pages/Essentials"));
@@ -74,7 +73,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/analytics" element={<AdminAnalytics />} />
         <Route path="/admin/billing" element={<Billing />} />
-        <Route path="/admin/moderation" element={<Moderation />} />
+        {/* Content moderation moved into the Admin dashboard's Feedback tab (Redshank's area,
+            since it already "catches trouble early") - redirect old bookmarks/links there. */}
+        <Route path="/admin/moderation" element={<Navigate to="/admin?tab=feedback" replace />} />
         <Route path="/edit/:pollId" element={<EditPoll />} />
         <Route path="/account" element={<Account />} />
         <Route path="/privacy" element={<Legal kind="privacy" />} />

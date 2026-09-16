@@ -137,6 +137,8 @@ export default function Admin() {
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskAlertId, setNewTaskAlertId] = useState("");
   const [organizerMessages, setOrganizerMessages] = useState([]);
+  const [contentReports, setContentReports] = useState([]);
+  const [moderationMessage, setModerationMessage] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
   const [scanLookupValue, setScanLookupValue] = useState("");
   const [scanResult, setScanResult] = useState(null);
@@ -232,18 +234,20 @@ export default function Admin() {
         setTeamMembers(await readWorkspaceMembers(profile.id));
         setQrCampaigns(await loadQrCampaigns());
         setQrCampaignItems(await loadQrCampaignItems());
-        const [rulesResult, alertsResult, tasksResult, reportsResult, messagesResult] = await Promise.all([
+        const [rulesResult, alertsResult, tasksResult, reportsResult, messagesResult, contentReportsResult] = await Promise.all([
           supabase.from("feedback_alert_rules").select("*").order("created_at", { ascending: false }),
           supabase.from("feedback_alerts").select("*").order("created_at", { ascending: false }).limit(30),
           supabase.from("feedback_recovery_tasks").select("*").order("created_at", { ascending: false }).limit(30),
           supabase.from("weekly_report_settings").select("recipient_email, is_enabled").eq("workspace_id", profile.id).maybeSingle(),
-          supabase.from("organizer_messages").select("*").order("created_at", { ascending: false }).limit(30)
+          supabase.from("organizer_messages").select("*").order("created_at", { ascending: false }).limit(30),
+          supabase.from("content_reports").select("*").order("created_at", { ascending: false })
         ]);
         if (!rulesResult.error) setAlertRules(rulesResult.data || []);
         if (!alertsResult.error) setFeedbackAlerts(alertsResult.data || []);
         if (!tasksResult.error) setRecoveryTasks(tasksResult.data || []);
         if (!reportsResult.error && reportsResult.data) setReportSettings(reportsResult.data);
         if (!messagesResult.error) setOrganizerMessages(messagesResult.data || []);
+        if (!contentReportsResult.error) setContentReports(contentReportsResult.data || []);
 
         setNurtureSettings(await loadLeadNurtureSettings(profile.id));
         setWinbackSettings(await loadWinbackSettings(profile.id));
@@ -1039,6 +1043,32 @@ export default function Admin() {
     const { error } = await supabase.from("workspace_updates").delete().eq("id", id);
     if (error) return alert(error.message);
     setWorkspaceUpdates((current) => current.filter((item) => item.id !== id));
+  }
+
+  // Moved here from the standalone /admin/moderation page (now redirects to this tab) - content
+  // moderation naturally belongs with the rest of Redshank's "catch trouble early" duties.
+  async function reviewContentReport(report, status) {
+    if (status === "hidden") {
+      const { error } = await supabase
+        .from("user_answers")
+        .update({ is_hidden: true })
+        .eq("poll_id", report.poll_id)
+        .eq("answer", report.reported_answer);
+      if (error) {
+        setModerationMessage(error.message);
+        return;
+      }
+    }
+    const { error } = await supabase
+      .from("content_reports")
+      .update({ status, reviewed_at: new Date().toISOString() })
+      .eq("id", report.id);
+    if (error) {
+      setModerationMessage(error.message);
+      return;
+    }
+    setModerationMessage(t("admin.feedback.moderation.reportUpdated"));
+    setContentReports((current) => current.map((item) => (item.id === report.id ? { ...item, status } : item)));
   }
 
   function getQrPrintFormatConfig(format = qrPrintFormat) {
@@ -2250,6 +2280,30 @@ export default function Admin() {
               <p>{message.message}</p>
               <p className="mt-2 text-xs text-slate-400">{t("admin.engagement.locations.pollNumber", { id: message.poll_id })} · {new Date(message.created_at).toLocaleString()}</p>
               {message.reply_email && <a className="mt-2 inline-block text-sm text-teal-300 underline" href={`mailto:${message.reply_email}`}>{t("admin.feedback.messages.replyToVoter")}</a>}
+            </article>
+          ))}</div>}
+        </div>
+      </details>
+      )}
+
+
+      {activeTab === "feedback" && (
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.feedback.moderation.title")}</summary>
+        <div className="px-4 pb-4">
+          <p className="mb-3 text-sm text-slate-400">{t("admin.feedback.moderation.subtitle")}</p>
+          {moderationMessage && <output className="mb-3 block text-sm text-teal-300">{moderationMessage}</output>}
+          {contentReports.length === 0 ? <p className="text-sm text-slate-400">{t("admin.feedback.moderation.noReports")}</p> : <div className="space-y-3">{contentReports.map((report) => (
+            <article key={report.id} className="rounded border border-slate-700 p-3">
+              <p className="font-semibold">{report.reported_answer}</p>
+              <p className="mt-1 text-sm text-slate-400">{t("admin.feedback.moderation.pollLabel", { id: report.poll_id })} · {report.reason} · {report.status}</p>
+              {report.status === "open" && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button onClick={() => reviewContentReport(report, "hidden")} className="rounded bg-red-700 px-3 py-2 text-white">{t("admin.feedback.moderation.hideAnswer")}</button>
+                  <button onClick={() => reviewContentReport(report, "reviewed")} className="rounded border px-3 py-2">{t("admin.feedback.moderation.markReviewed")}</button>
+                  <button onClick={() => reviewContentReport(report, "dismissed")} className="rounded border px-3 py-2">{t("admin.feedback.moderation.dismiss")}</button>
+                </div>
+              )}
             </article>
           ))}</div>}
         </div>

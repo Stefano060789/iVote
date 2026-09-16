@@ -580,6 +580,16 @@
         "noMessages": "No voter messages yet.",
         "replyToVoter": "Reply to voter"
       },
+      "moderation": {
+        "title": "Content moderation",
+        "subtitle": "Review reported user-submitted answers. Hiding removes the answer from the public voting view without deleting the report.",
+        "noReports": "No reports to review.",
+        "pollLabel": "Poll #{{id}}",
+        "hideAnswer": "Hide answer",
+        "markReviewed": "Mark reviewed",
+        "dismiss": "Dismiss",
+        "reportUpdated": "Report updated."
+      },
       "sentiment": {
         "title": "Answer sentiment (AI)",
         "subtitle": "Free-text answers voters add are automatically classified once an OpenAI key is configured.",
