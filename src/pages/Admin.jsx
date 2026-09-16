@@ -1895,7 +1895,7 @@ export default function Admin() {
                       </p>
                       <p className="truncate text-xs text-blue-300">{url}</p>
                     </div>
-                    <button onClick={() => navigator.clipboard.writeText(url)} className="shrink-0 rounded bg-[#0f766e] px-3 py-2 font-semibold text-white hover:bg-[#0d6259]">{t("admin.engagement.campaigns.copyLink")}</button>
+                    <button onClick={() => navigator.clipboard.writeText(url)} className="shrink-0 rounded bg-[#0f766e] px-3 py-2 font-semibold text-[#f8fafc] hover:bg-[#0d6259]">{t("admin.engagement.campaigns.copyLink")}</button>
                     <button onClick={() => handleDeleteQrCampaign(campaign.id, campaign.name)} className="shrink-0 rounded border border-[#c0392b] bg-white px-3 py-2 font-semibold text-[#c0392b] hover:bg-[#fdeceb]">{t("admin.engagement.campaigns.delete")}</button>
                   </div>
 
