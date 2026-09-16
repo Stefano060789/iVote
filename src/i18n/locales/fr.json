@@ -182,8 +182,8 @@
       }
     },
     "rows": {
-      "pollLimit": "Limite de sondages",
-      "campaignLimit": "Campagnes QR suivies",
+      "pollLimit": "Limite de sondages actifs",
+      "campaignLimit": "Campagnes QR actives",
       "seatLimit": "Places d'équipe",
       "donations": "Dons",
       "csvExport": "Export CSV",

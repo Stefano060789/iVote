@@ -182,8 +182,8 @@
       }
     },
     "rows": {
-      "pollLimit": "投票数量上限",
-      "campaignLimit": "可跟踪的二维码活动",
+      "pollLimit": "有效投票数量上限",
+      "campaignLimit": "有效二维码活动",
       "seatLimit": "团队席位数",
       "donations": "捐赠",
       "csvExport": "CSV 导出",

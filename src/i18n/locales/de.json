@@ -182,8 +182,8 @@
       }
     },
     "rows": {
-      "pollLimit": "Umfragen-Limit",
-      "campaignLimit": "Nachverfolgte QR-Kampagnen",
+      "pollLimit": "Aktive Umfragen (Limit)",
+      "campaignLimit": "Aktive QR-Kampagnen",
       "seatLimit": "Team-Plätze",
       "donations": "Spenden",
       "csvExport": "CSV-Export",

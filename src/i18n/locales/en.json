@@ -175,8 +175,8 @@
       "growth": { "name": "Growth", "description": "Turn feedback into repeat business with automation and integrations." }
     },
     "rows": {
-      "pollLimit": "Poll limit",
-      "campaignLimit": "Tracked QR campaigns",
+      "pollLimit": "Active poll limit",
+      "campaignLimit": "Active QR campaigns",
       "seatLimit": "Team seats",
       "donations": "Donations",
       "csvExport": "CSV export",

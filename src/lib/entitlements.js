@@ -1,6 +1,9 @@
 // Single source of truth for what each billing plan unlocks. Keep this in sync with the
-// database enforcement in supabase/20260913_plan_entitlements.sql - the UI hides/locks
-// features based on this file, but the database is what actually rejects disallowed writes.
+// database enforcement in supabase/20260913_plan_entitlements.sql (and
+// supabase/20260924_active_only_plan_limits.sql) - the UI hides/locks features based on this
+// file, but the database is what actually rejects disallowed writes. pollLimit/campaignLimit
+// only count currently active polls/QR codes, not the lifetime total - closing an old poll or
+// pausing an old QR code frees up quota for a new one.
 
 export const PLANS = ["free", "starter", "growth"];
 

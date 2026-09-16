@@ -182,8 +182,8 @@
       }
     },
     "rows": {
-      "pollLimit": "حد الاستطلاعات",
-      "campaignLimit": "حملات رمز QR المتتبَّعة",
+      "pollLimit": "حد الاستطلاعات النشطة",
+      "campaignLimit": "حملات QR النشطة",
       "seatLimit": "مقاعد الفريق",
       "donations": "التبرعات",
       "csvExport": "تصدير CSV",
