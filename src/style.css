@@ -467,8 +467,134 @@ textarea {
   color: var(--navy-deep);
 }
 
+.site-nav-theme {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  background: transparent;
+  color: #ffffff;
+  font-size: 1.05rem;
+  cursor: pointer;
+}
+
 .app-page {
   color: var(--ink);
+}
+
+/* The light theme is the default. Dark mode is intentionally layered below the
+   existing component styles so brand colors and semantic status colors remain intact. */
+[data-theme="dark"] {
+  --ink: #e7ecf5;
+  --muted: #a9b6cb;
+  --canvas: #081326;
+  --surface: #101f38;
+  --line: #2c4165;
+  color-scheme: dark;
+}
+
+[data-theme="dark"] body {
+  background:
+    radial-gradient(circle at 15% 0%, rgba(15, 118, 110, 0.18), transparent 34rem),
+    var(--canvas);
+  color: var(--ink);
+}
+
+[data-theme="dark"] .app-page,
+[data-theme="dark"] .workspace-page {
+  background: transparent;
+  color: var(--ink);
+  box-shadow: none;
+}
+
+[data-theme="dark"] .workspace-page input,
+[data-theme="dark"] .workspace-page textarea,
+[data-theme="dark"] .workspace-page select,
+[data-theme="dark"] .app-page input,
+[data-theme="dark"] .app-page textarea,
+[data-theme="dark"] .app-page select,
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background: #10223e !important;
+  border-color: #385277 !important;
+  color: #edf3fb !important;
+  box-shadow: 0 2px 8px rgba(2, 8, 23, 0.2);
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: #8fa0bb;
+}
+
+[data-theme="dark"] .workspace-page .bg-slate-900,
+[data-theme="dark"] .workspace-page .bg-gray-900,
+[data-theme="dark"] .workspace-page [class*="bg-slate-950"],
+[data-theme="dark"] .workspace-page [class*="bg-gray-900"],
+[data-theme="dark"] .workspace-page .bg-gray-800,
+[data-theme="dark"] .app-page .bg-slate-900,
+[data-theme="dark"] [class*="bg-white"],
+[data-theme="dark"] [class*="bg-gray-50"] {
+  background: #10203a !important;
+  color: #e7ecf5 !important;
+}
+
+[data-theme="dark"] [class*="border-slate-"],
+[data-theme="dark"] [class*="border-gray-"],
+[data-theme="dark"] [class*="border-white"] {
+  border-color: #2c4165 !important;
+}
+
+[data-theme="dark"] .workspace-page .text-slate-400,
+[data-theme="dark"] .workspace-page .text-slate-300,
+[data-theme="dark"] .workspace-page .text-slate-200,
+[data-theme="dark"] .workspace-page .text-slate-100,
+[data-theme="dark"] .workspace-page [class*="text-gray-"],
+[data-theme="dark"] .app-page .text-slate-400,
+[data-theme="dark"] .app-page .text-slate-300,
+[data-theme="dark"] .app-page .text-slate-200 {
+  color: #a9b6cb !important;
+}
+
+[data-theme="dark"] .workspace-page .text-white,
+[data-theme="dark"] .app-page .text-white {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .workspace-page .bg-amber-950\/40,
+[data-theme="dark"] .workspace-page .bg-amber-950\/60,
+[data-theme="dark"] .workspace-page [class*="bg-amber-950"] {
+  background: rgba(120, 78, 9, 0.28) !important;
+}
+
+[data-theme="dark"] .site-nav {
+  background: rgba(7, 16, 33, 0.92);
+  backdrop-filter: blur(14px);
+}
+
+[data-theme="dark"] .qr-portal {
+  background: var(--canvas);
+}
+
+[data-theme="dark"] .qr-portal-card,
+[data-theme="dark"] .qr-portal-menu-item {
+  background: #10203a;
+  border-color: #2c4165;
+  color: #e7ecf5;
+  box-shadow: 0 18px 48px rgba(2, 6, 23, 0.38);
+}
+
+[data-theme="dark"] .qr-portal-card p,
+[data-theme="dark"] .qr-portal-menu-item-body,
+[data-theme="dark"] .qr-portal-menu-item-tag {
+  color: #a9b6cb;
+}
+
+[data-theme="dark"] .qr-portal-menu-item-title {
+  color: #f8fafc;
 }
 
 /* Dashboard: recolored to the Godwit navy/gold brand palette (rather than the

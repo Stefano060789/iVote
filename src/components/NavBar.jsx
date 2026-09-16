@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabase";
 import godwitMark from "../assets/godwit-mark.svg";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { applyTheme, readTheme, THEME_EVENT } from "../lib/theme";
 
 export default function NavBar() {
   const location = useLocation();
@@ -17,6 +18,15 @@ export default function NavBar() {
   const displayUser = isPreview ? null : user;
   const [menuOpen, setMenuOpen] = useState(false);
   const [installPrompt, setInstallPrompt] = useState(null);
+  const [theme, setTheme] = useState(() => readTheme());
+
+  useEffect(() => {
+    function handleThemeChange(event) {
+      setTheme(event.detail || readTheme());
+    }
+    window.addEventListener(THEME_EVENT, handleThemeChange);
+    return () => window.removeEventListener(THEME_EVENT, handleThemeChange);
+  }, []);
 
   useEffect(() => {
     async function loadUser() {
@@ -89,6 +99,15 @@ export default function NavBar() {
           )}
           {!displayUser && <Link to="/register" onClick={closeMenu} className="site-nav-primary">{t("nav.getStarted")}</Link>}
           <LanguageSwitcher className="site-nav-lang" />
+          <button
+            type="button"
+            className="site-nav-theme"
+            onClick={() => setTheme(applyTheme(theme === "dark" ? "light" : "dark"))}
+            aria-label={theme === "dark" ? t("nav.lightTheme") : t("nav.darkTheme")}
+            title={theme === "dark" ? t("nav.lightTheme") : t("nav.darkTheme")}
+          >
+            {theme === "dark" ? "☀" : "◐"}
+          </button>
           <button
             type="button"
             className="site-nav-toggle"

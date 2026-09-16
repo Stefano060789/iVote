@@ -32,6 +32,9 @@ const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const Essentials = lazy(() => import("./pages/Essentials"));
 
 import "./style.css";
+import { applyTheme, readTheme } from "./lib/theme";
+
+applyTheme(readTheme());
 
 function initSentry() {
   if (import.meta.env.VITE_SENTRY_DSN) {

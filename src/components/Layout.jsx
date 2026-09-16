@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import CookieConsent from "./CookieConsent";
 import { COOKIE_CONSENT_EVENT, getCookieConsent } from "../lib/cookieConsent";
+import { applyTheme, readTheme } from "../lib/theme";
 
 // `theme="app"` (default) is the neutral teal/cream style used for voter-facing pages (Vote,
 // Results, Thank You, Unsubscribe...). `theme="workspace"` switches to the same navy/gold
@@ -14,6 +15,7 @@ export default function Layout({ children, theme = "app" }) {
   const [bannerVisible, setBannerVisible] = useState(() => !getCookieConsent());
 
   useEffect(() => {
+    applyTheme(readTheme());
     function handleConsentChange() {
       setBannerVisible(!getCookieConsent());
     }
