@@ -1,6 +1,7 @@
 -- Prize draw admin-side safeguards, prompted by an external legal review (see
--- marketing/Godwit-Feature-Overview.md, Section 12, question 4). Voters already see a full
--- eligibility disclaimer and give explicit per-entry consent before their email is captured
+-- marketing/feature-docs/Godwit-Feature-Overview.md, Section 12, question 4). Voters already
+-- see a full eligibility disclaimer and give explicit per-entry consent before their email is
+-- captured
 -- (see vote.prizeDrawDisclaimer / vote.prizeDrawConsent in en.json) - but until now nothing
 -- required the *admin* enabling the feature to confirm they had checked their own local
 -- promotional/sweepstakes-law obligations, and no audit trail existed proving who was actually

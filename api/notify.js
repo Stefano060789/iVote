@@ -1,5 +1,5 @@
 // Two related "send a notification email via Resend" flows share this one endpoint (the
-// project is already at Vercel Hobby's 12-serverless-function ceiling - see TODO.md - so new
+// project is already at Vercel Hobby's 12-serverless-function ceiling - see docs/TODO.md - so new
 // responsibilities get folded into an existing file rather than adding a 13th):
 //   - "content_report" (default, original behavior, called from Vote.jsx): notify a workspace's
 //     configured report recipient that a voter flagged an answer for moderation review.

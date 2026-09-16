@@ -24,7 +24,7 @@ const TRANSLATION_LANGUAGES = [
 // Kill switch: the translation call below uses Google's unofficial, unsupported "gtx" endpoint
 // (there is no official-API key wiring yet). Set VITE_ENABLE_TRANSLATION=false to hide the
 // language switcher instantly, without a code change, if that endpoint gets rate-limited or
-// blocked. See TODO.md for the plan to move to the official Google Cloud Translation API.
+// blocked. See docs/TODO.md for the plan to move to the official Google Cloud Translation API.
 const TRANSLATION_ENABLED = import.meta.env.VITE_ENABLE_TRANSLATION !== "false";
 const TRANSLATION_TIMEOUT_MS = 5000;
 
@@ -56,7 +56,7 @@ export default function Vote() {
   const [messageReplyEmailError, setMessageReplyEmailError] = useState("");
   // Basic bot friction: a hidden field real visitors never fill in, plus a minimum time
   // on the page before a submission is accepted. This is not a substitute for real
-  // rate limiting (see TODO.md) but stops the most naive scripted submissions for free.
+  // rate limiting (see docs/TODO.md) but stops the most naive scripted submissions for free.
   const [honeypot, setHoneypot] = useState("");
   const pageOpenedAtRef = useRef(Date.now());
   const MIN_DWELL_MS = 1200;

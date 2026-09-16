@@ -1,6 +1,6 @@
 // This one endpoint now handles four related "create something Stripe-hosted" flows,
 // dispatched by request.body.mode, rather than adding new files - the project is already at
-// Vercel Hobby's 12-serverless-function ceiling (see TODO.md).
+// Vercel Hobby's 12-serverless-function ceiling (see docs/TODO.md).
 //   - "subscription" (default, original behavior): workspace plan checkout.
 //   - "connect-onboarding": creates (or resumes) a Stripe Connect Express account for the
 //     workspace and returns a hosted onboarding link. Requires an authenticated owner/editor.
@@ -98,7 +98,7 @@ const FREE_TRIAL_DAYS = 90;
 // but it errors out if the Stripe account hasn't finished the one-time "add an origin address /
 // enable Stripe Tax" setup in the Dashboard (Settings -> Tax). Gate it behind an env var so
 // checkout keeps working today, and flip it on only once that Dashboard setup is done - see
-// TODO.md's "External legal review" section for the full VAT walkthrough.
+// docs/TODO.md's "External legal review" section for the full VAT walkthrough.
 const STRIPE_TAX_ENABLED = process.env.STRIPE_TAX_ENABLED === "1";
 
 async function hasUsedTrialBefore(headers, workspaceId) {

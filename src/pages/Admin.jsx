@@ -341,7 +341,7 @@ export default function Admin() {
       .catch((error) => console.error("Stripe status refresh failed", error));
   }, [workspaceUserId, location.search]);
 
-  // Lightweight usage instrumentation (see TODO.md "Product" section): log which tabs get
+  // Lightweight usage instrumentation (see docs/TODO.md "Product" section): log which tabs get
   // opened at all, so future work can be prioritized by real usage instead of guesswork. Fire
   // once per activeTab change; silently do nothing until the workspace has resolved.
   useEffect(() => {

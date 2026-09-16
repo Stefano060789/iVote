@@ -1,8 +1,8 @@
 version: 2
 updates:
   # Keep npm dependencies patched against known vulnerabilities. Prompted by an external legal/
-  # security review (see marketing/Godwit-Feature-Overview.md, Section 9) that recommended
-  # ongoing dependency scanning rather than a one-time audit.
+  # security review (see marketing/feature-docs/Godwit-Feature-Overview.md, Section 9) that
+  # recommended ongoing dependency scanning rather than a one-time audit.
   - package-ecosystem: "npm"
     directory: "/"
     schedule:

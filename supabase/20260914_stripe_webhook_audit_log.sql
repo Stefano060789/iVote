@@ -1,5 +1,6 @@
 -- Stripe webhook audit trail + true idempotency, prompted by an external legal review (see
--- marketing/Godwit-Feature-Overview.md, Section 9 / Section 12). Before this migration, retries
+-- marketing/feature-docs/Godwit-Feature-Overview.md, Section 9 / Section 12). Before this
+-- migration, retries
 -- from Stripe were only "accidentally" safe because every write in api/stripe-webhook.js used a
 -- natural-key upsert (workspace_id, stripe_checkout_session_id, stripe_account_id) - replaying
 -- the same event just re-wrote the same row. This table makes that explicit and auditable: every

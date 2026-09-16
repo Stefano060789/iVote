@@ -1,4 +1,4 @@
--- Churn/usage instrumentation (see TODO.md "Product" section): the dashboard showed raw vote
+-- Churn/usage instrumentation (see docs/TODO.md "Product" section): the dashboard showed raw vote
 -- counts, but nothing tracked whether a workspace owner was actually *using* the product -
 -- logging into /admin, opening results, switching tabs. This adds the minimum needed to answer
 -- that before making pricing/retention decisions, without building a whole internal "God mode"

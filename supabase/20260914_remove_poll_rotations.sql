@@ -1,5 +1,5 @@
 -- Remove the poll-rotation feature entirely, per explicit operator request (simplification
--- pass following a feature-gap audit - see TODO.md). The UI for creating/managing rotations
+-- pass following a feature-gap audit - see docs/TODO.md). The UI for creating/managing rotations
 -- and assigning one to a QR code was already removed from Admin.jsx; this finishes the job on
 -- the database side.
 

@@ -1,5 +1,5 @@
 -- Remove the legacy "Simple QR codes (older, single-poll)" system entirely, per explicit
--- operator request (simplification pass following a feature-gap audit - see TODO.md).
+-- operator request (simplification pass following a feature-gap audit - see docs/TODO.md).
 -- qr_campaigns fully supersedes it (same single-poll capability, plus multi-item menus,
 -- placement/variant tracking, and a welcome portal). The admin UI for creating/managing
 -- qr_locations, and the poll-card cross-link display's location branch, were already removed
