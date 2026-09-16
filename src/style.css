@@ -597,6 +597,49 @@ textarea {
   color: #f8fafc;
 }
 
+/* Light theme: warm paper, sage accents, and subtle depth instead of a flat blue
+   canvas. The palette keeps the gold/teal brand accents crisp and editorial. */
+:root:not([data-theme="dark"]) body {
+  background:
+    radial-gradient(circle at 8% -8%, rgba(242, 199, 68, 0.2), transparent 28rem),
+    radial-gradient(circle at 92% 8%, rgba(15, 118, 110, 0.11), transparent 32rem),
+    #f7f5ef;
+}
+
+:root:not([data-theme="dark"]) .app-page,
+:root:not([data-theme="dark"]) .workspace-page {
+  background: rgba(255, 253, 248, 0.86);
+  border: 1px solid rgba(138, 151, 133, 0.18);
+  box-shadow: 0 14px 40px rgba(66, 71, 53, 0.08);
+}
+
+:root:not([data-theme="dark"]) .workspace-page .bg-gray-900,
+:root:not([data-theme="dark"]) .workspace-page .bg-slate-900 {
+  background: #fffdf8 !important;
+  border-color: rgba(138, 151, 133, 0.28) !important;
+  box-shadow: 0 8px 24px rgba(66, 71, 53, 0.06);
+}
+
+:root:not([data-theme="dark"]) .workspace-page .bg-gray-800 {
+  background: #f0f1e9 !important;
+}
+
+:root:not([data-theme="dark"]) .workspace-page input,
+:root:not([data-theme="dark"]) .workspace-page textarea,
+:root:not([data-theme="dark"]) .workspace-page select,
+:root:not([data-theme="dark"]) .app-page input,
+:root:not([data-theme="dark"]) .app-page textarea,
+:root:not([data-theme="dark"]) .app-page select {
+  background: #fffefb !important;
+  border-color: #cbd5c4 !important;
+}
+
+:root:not([data-theme="dark"]) .workspace-page .text-slate-400,
+:root:not([data-theme="dark"]) .workspace-page .text-slate-300,
+:root:not([data-theme="dark"]) .workspace-page .text-slate-200 {
+  color: #5f6c65 !important;
+}
+
 /* Dashboard: recolored to the Godwit navy/gold brand palette (rather than the
    generic teal/cream theme .app-page keeps for voter-facing pages). Structure and contrast
    pairs are unchanged from the original light-theme overrides below - only the hues shift. */

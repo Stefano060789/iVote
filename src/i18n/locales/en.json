@@ -15,6 +15,13 @@
     "dashboard": "Dashboard",
     "getStarted": "Get started"
   },
+  "benefits": {
+    "title": "Two separate ways to build loyalty",
+    "emailTitle": "When someone shares their email",
+    "emailBody": "You can send the updates or offers you described when asking for consent, and download the consented list with timestamps. This is private follow-up and never depends on a positive vote.",
+    "reviewTitle": "When someone leaves a Google or other public review",
+    "reviewBody": "You build public trust through an honest review on the selected platform. Show the same review links to everyone and never ask for a positive rating or gate a benefit by sentiment."
+  },
   "landing": {
     "eyebrow": "QR feedback for real-world spaces",
     "title": "Turn every physical location into a measurable feedback channel.",
@@ -513,8 +520,10 @@
         "createAndContinue": "Create and continue",
         "step2Title": "2. Add one or more polls (optional)",
         "pollsAddedSoFar": "{{count}} poll(s) added so far",
-        "step4Title": "4. Add a reward or prize (optional)",
-        "step5Title": "5. Print your QR code",
+        "step3Title": "3. Choose public review links (optional)",
+        "step4Title": "4. Add a donation option (optional)",
+        "step5Title": "5. Add a reward or prize (optional)",
+        "step6Title": "6. Print your QR code",
         "previewTitle": "Preview: what a scanner will see",
         "back": "Back",
         "next": "Next",
@@ -547,6 +556,7 @@
         "reviewSitesTitle": "Review sites",
         "reviewSitesHint": "Choose saved review destinations to add as cards to this QR code.",
         "reviewSitesEmpty": "Add your Google, Tripadvisor, or other review links in Settings first.",
+        "reviewSitesSelectionNote": "These links are shown to every visitor and invite honest public feedback. They are separate from optional email follow-up.",
         "addReviewSites": "Add selected review sites",
         "addDonationOption": "Add donation option",
         "enableDonationsNote": "Set up and enable donations in Settings to add a donation option to this QR code.",
