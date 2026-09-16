@@ -830,6 +830,17 @@ textarea {
   min-width: 220px;
   min-height: 52px;
   box-sizing: border-box;
+  /* This is the hero's own CTA when a signed-in visitor lands here (replacing
+     Create workspace/Login), sitting on the hero's dark navy gradient - the
+     shared .landing-admin-action navy-on-navy styling is invisible there, so
+     give it the same gold treatment as .landing-primary-action instead. */
+  background: var(--gold);
+  color: var(--navy-deep);
+}
+
+.landing-actions .landing-admin-action:hover {
+  background: var(--gold-deep);
+  color: var(--navy-deep);
 }
 
 .landing-note {
