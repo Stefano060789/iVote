@@ -544,6 +544,8 @@
         "step4Title": "4. Add a donation option (optional)",
         "step5Title": "5. Print your QR code",
         "previewTitle": "Preview: what a scanner will see",
+        "customerContentTitle": "What the visitor will see",
+        "customerContentHint": "This welcome information appears on the QR page before the visitor reaches the polls. The QR name and placement are for your workspace only.",
         "back": "Back",
         "next": "Next",
         "finish": "Finish"

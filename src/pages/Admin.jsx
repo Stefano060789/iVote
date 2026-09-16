@@ -1722,12 +1722,12 @@ export default function Admin() {
       {activeTab === "polls" && (
       <>
       <div className="mb-6">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-xl font-bold">{t("admin.polls.title")}</h2>
             <p className="mt-1 mb-3 text-sm text-slate-400">{t("admin.polls.subtitle")}</p>
           </div>
-          <Link to="/create" className="workspace-create-poll-button shrink-0 rounded bg-teal-500 px-4 py-2.5 text-center font-semibold text-slate-950">
+          <Link to="/create" className="workspace-create-poll-button shrink-0 self-start rounded bg-teal-500 px-4 py-2.5 text-center font-semibold text-slate-950">
             {t("admin.polls.createNew")}
           </Link>
         </div>
@@ -1823,9 +1823,14 @@ export default function Admin() {
                       {t("admin.engagement.campaigns.placementLabel")}
                       <input value={newCampaignPlacement} onChange={(event) => setNewCampaignPlacement(event.target.value)} className="qr-wizard-input mt-1 w-full border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.placementPlaceholder")} />
                     </label>
-                    <p className="text-xs text-[#93a3c2]">{t("admin.engagement.items.sectionInfoHint")}</p>
-                    <input value={itemTitle} onChange={(event) => setItemTitle(event.target.value)} className="qr-wizard-input w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.infoTitlePlaceholder")} />
-                    <textarea value={itemBody} onChange={(event) => setItemBody(event.target.value)} className="qr-wizard-input w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.infoBodyPlaceholder")} rows="3" />
+                    <div className="qr-wizard-customer-content rounded-lg border border-[#cbd5c4] bg-[#f0f1e9] p-3">
+                      <p className="text-sm font-semibold text-[#173b3a]">{t("admin.engagement.wizard.customerContentTitle")}</p>
+                      <p className="mt-1 text-xs text-[#607170]">{t("admin.engagement.wizard.customerContentHint")}</p>
+                      <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-[#607170]">{t("admin.engagement.items.sectionInfo")}</p>
+                      <p className="mt-1 text-xs text-[#607170]">{t("admin.engagement.items.sectionInfoHint")}</p>
+                      <input value={itemTitle} onChange={(event) => setItemTitle(event.target.value)} className="qr-wizard-input mt-2 w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.infoTitlePlaceholder")} />
+                      <textarea value={itemBody} onChange={(event) => setItemBody(event.target.value)} className="qr-wizard-input mt-2 w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.infoBodyPlaceholder")} rows="3" />
+                    </div>
                     <button onClick={handleCreateCampaignFromWizard} className="w-full rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">
                       {t("admin.engagement.wizard.createAndContinue")}
                     </button>
