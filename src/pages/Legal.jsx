@@ -224,7 +224,7 @@ export default function Legal({ kind }) {
       <article className="mx-auto max-w-3xl space-y-5 p-2 sm:p-6">
         <h1 className="text-3xl font-bold">{title}</h1>
         <p className="text-xs text-slate-400">Last updated: {LAST_UPDATED}</p>
-        <p className="rounded border border-slate-700 bg-slate-900/60 p-3 text-xs text-slate-400">
+        <p className="rounded border border-slate-700 bg-slate-900 p-3 text-xs text-slate-400">
           This page is only available in English. If you use Godwit's interface in another language, note that
           this English version is the sole official text and governs in the event of any conflict, ambiguity, or
           translation discrepancy.

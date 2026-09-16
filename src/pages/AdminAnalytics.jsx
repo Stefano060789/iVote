@@ -362,14 +362,14 @@ export default function AdminAnalytics() {
         <h2 className="text-xl font-bold mb-3">Top Polls</h2>
         <div className="space-y-2 text-sm">
           {analytics.sortedPollRows.slice(0, 10).map((row) => (
-            <div key={row.id} className="flex justify-between border-b border-gray-700 pb-2">
-              <div>
+            <div key={row.id} className="flex justify-between gap-3 border-b border-gray-700 pb-2">
+              <div className="min-w-0">
                 <p className="font-semibold">{row.question}</p>
                 <p className="text-gray-400">
                   {row.status} • {row.templateKey} {row.locationName ? `• ${row.locationName}` : ""}
                 </p>
               </div>
-              <p className="font-bold">{row.voteCount} votes</p>
+              <p className="shrink-0 whitespace-nowrap font-bold">{row.voteCount} votes</p>
             </div>
           ))}
         </div>

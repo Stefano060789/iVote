@@ -1612,9 +1612,9 @@ export default function Admin() {
             <p className="mb-3 text-sm text-slate-400">{t("admin.polls.locationsOverview.subtitle")}</p>
             <div className="space-y-2 text-sm">
               {locationStats.map((location) => (
-                <div key={location.name} className="flex items-center justify-between border-b border-gray-700 py-1">
-                  <span>{location.name} ({location.polls} {location.polls === 1 ? t("admin.polls.locationsOverview.poll") : t("admin.polls.locationsOverview.polls")})</span>
-                  <span className="font-semibold text-teal-300">{location.votes} {t("admin.polls.locationsOverview.votes")}</span>
+                <div key={location.name} className="flex items-center justify-between gap-3 border-b border-gray-700 py-1">
+                  <span className="min-w-0">{location.name} ({location.polls} {location.polls === 1 ? t("admin.polls.locationsOverview.poll") : t("admin.polls.locationsOverview.polls")})</span>
+                  <span className="shrink-0 whitespace-nowrap font-semibold text-teal-300">{location.votes} {t("admin.polls.locationsOverview.votes")}</span>
                 </div>
               ))}
             </div>
@@ -2137,9 +2137,9 @@ export default function Admin() {
               <p className="text-gray-400">{t("admin.engagement.redemptions.noCodes")}</p>
             ) : (
               polls.filter((poll) => poll.reward_code).map((poll) => (
-                <div key={poll.id} className="flex items-center justify-between border-b border-gray-700 py-1">
-                  <span>#{poll.id} - {poll.question} · {t("admin.engagement.redemptions.codeLabel", { code: poll.reward_code })}</span>
-                  <span className="text-teal-300">{t("admin.engagement.redemptions.redeemedCount", { count: poll.reward_redeemed_count || 0 })}</span>
+                <div key={poll.id} className="flex items-center justify-between gap-3 border-b border-gray-700 py-1">
+                  <span className="min-w-0">#{poll.id} - {poll.question} · {t("admin.engagement.redemptions.codeLabel", { code: poll.reward_code })}</span>
+                  <span className="shrink-0 whitespace-nowrap text-teal-300">{t("admin.engagement.redemptions.redeemedCount", { count: poll.reward_redeemed_count || 0 })}</span>
                 </div>
               ))
             )}

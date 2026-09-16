@@ -67,7 +67,7 @@ export default function Essentials() {
 
         <div className="rounded-lg border border-slate-700 bg-slate-900 p-5 text-center">
           <p className="text-sm text-slate-300">
-            <span className="mr-1 inline-flex align-middle"><FlockAvatar bird={ROBIN} size={20} /></span> Once you're in your dashboard, open the <strong className="text-white">Overview</strong> tab -
+            <span className="mr-1 inline-flex align-middle"><FlockAvatar bird={ROBIN} size={20} /></span> Once you're in your dashboard, open the <strong className="text-white">First Guide</strong> tab -
             Robin is waiting there with a tailored checklist based on what you're using Godwit for (an artist, a
             cafe, a museum, a hotel...).
           </p>

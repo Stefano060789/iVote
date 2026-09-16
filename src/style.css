@@ -555,6 +555,15 @@ textarea {
   color: #16233f !important;
 }
 
+/* Amber/warning callout boxes use Tailwind's opacity-suffixed utilities (bg-amber-950/40, /60,
+   /10) which were meant to sit on the old dark theme - at low opacity over the new light
+   workspace canvas they blend into a muddy tan that's nearly the same tone as the already-darkened
+   amber text color above, making these boxes unreadable. Give them the same plain light-card
+   background used elsewhere instead. */
+.workspace-page [class*="bg-amber-950"] {
+  background: var(--surface) !important;
+}
+
 .workspace-page .bg-teal-500,
 .workspace-page .bg-teal-400,
 .workspace-page .bg-amber-400,
