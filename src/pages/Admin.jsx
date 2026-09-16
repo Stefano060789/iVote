@@ -428,32 +428,33 @@ export default function Admin() {
       alert(error.message || "Unable to save workspace settings.");
     }
 
-    function toggleQrReviewPlatform(url) {
-      setSelectedQrReviewPlatforms((current) => (
-        current.includes(url) ? current.filter((item) => item !== url) : [...current, url]
-      ));
-    }
+  }
 
-    async function handleAddReviewItemsFromWizard() {
-      if (!qrWizardCampaign) return;
-      const selected = (workspaceProfile.reviewPlatforms || []).filter((platform) => selectedQrReviewPlatforms.includes(platform.url));
-      if (selected.length === 0) return;
-      try {
-        const newItems = [];
-        for (const platform of selected) {
-          const item = await addQrCampaignInfoItem(qrWizardCampaign.id, {
-            title: `${platform.name} reviews`,
-            body: `Share your experience on ${platform.name}.`,
-            linkUrl: platform.url,
-            linkLabel: `Open ${platform.name}`
-          });
-          newItems.push(item);
-        }
-        setQrCampaignItems((current) => [...current, ...newItems]);
-        setSelectedQrReviewPlatforms([]);
-      } catch (error) {
-        alert(error.message);
+  function toggleQrReviewPlatform(url) {
+    setSelectedQrReviewPlatforms((current) => (
+      current.includes(url) ? current.filter((item) => item !== url) : [...current, url]
+    ));
+  }
+
+  async function handleAddReviewItemsFromWizard() {
+    if (!qrWizardCampaign) return;
+    const selected = (workspaceProfile.reviewPlatforms || []).filter((platform) => selectedQrReviewPlatforms.includes(platform.url));
+    if (selected.length === 0) return;
+    try {
+      const newItems = [];
+      for (const platform of selected) {
+        const item = await addQrCampaignInfoItem(qrWizardCampaign.id, {
+          title: `${platform.name} reviews`,
+          body: `Share your experience on ${platform.name}.`,
+          linkUrl: platform.url,
+          linkLabel: `Open ${platform.name}`
+        });
+        newItems.push(item);
       }
+      setQrCampaignItems((current) => [...current, ...newItems]);
+      setSelectedQrReviewPlatforms([]);
+    } catch (error) {
+      alert(error.message);
     }
   }
 
@@ -488,8 +489,40 @@ export default function Admin() {
       });
       setQrCampaigns((current) => [campaign, ...current]);
       setQrWizardCampaign(campaign);
+      if (itemTitle.trim()) {
+        const infoItem = await addQrCampaignInfoItem(campaign.id, {
+          title: itemTitle,
+          body: itemBody,
+          linkUrl: itemLinkUrl,
+          linkLabel: itemLinkLabel,
+          imageUrl: itemImageUrl,
+          accessibilityTags: itemAccessibilityTags
+        });
+        setQrCampaignItems((current) => [...current, infoItem]);
+      }
+      const selectedReviewSites = (workspaceProfile.reviewPlatforms || [])
+        .filter((platform) => selectedQrReviewPlatforms.includes(platform.url));
+      if (selectedReviewSites.length > 0) {
+        const reviewItems = [];
+        for (const platform of selectedReviewSites) {
+          reviewItems.push(await addQrCampaignInfoItem(campaign.id, {
+            title: `${platform.name} reviews`,
+            body: `Share your experience on ${platform.name}.`,
+            linkUrl: platform.url,
+            linkLabel: `Open ${platform.name}`
+          }));
+        }
+        setQrCampaignItems((current) => [...current, ...reviewItems]);
+      }
       setNewCampaignName("");
       setNewCampaignPlacement("");
+      setItemTitle("");
+      setItemBody("");
+      setItemLinkUrl("");
+      setItemLinkLabel("");
+      setItemImageUrl("");
+      setItemAccessibilityTags([]);
+      setSelectedQrReviewPlatforms([]);
       setQrWizardStep(2);
     } catch (error) {
       console.error(error);
@@ -505,14 +538,6 @@ export default function Admin() {
   // Catches a typed-but-not-submitted info card: if someone fills in the title/message and
   // hits Next without clicking "Add info card" first, add it for them instead of silently
   // dropping what they typed.
-  async function handleContinueFromInfoStep() {
-    if (qrWizardCampaign && itemTitle.trim()) {
-      await handleAddInfoItem(qrWizardCampaign.id);
-    }
-    await handleAddReviewItemsFromWizard();
-    setQrWizardStep(3);
-  }
-
   async function handleAddPollItemFromWizard() {
     if (!qrWizardCampaign) return;
     await handleAddPollItem(qrWizardCampaign.id);
@@ -525,7 +550,7 @@ export default function Admin() {
     if (qrWizardCampaign && itemPollId) {
       await handleAddPollItem(qrWizardCampaign.id);
     }
-    setQrWizardStep(4);
+    setQrWizardStep(3);
   }
 
   async function handleAddRewardItemFromWizard() {
@@ -539,7 +564,7 @@ export default function Admin() {
     if (qrWizardCampaign && itemRewardTitle.trim()) {
       await handleAddRewardItem(qrWizardCampaign.id);
     }
-    setQrWizardStep(6);
+    setQrWizardStep(5);
   }
 
   async function handleAddDonationItemFromWizard() {
@@ -1770,7 +1795,7 @@ export default function Admin() {
               <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-[#24345c] bg-[#0b1a33] p-5 text-[#e7ecf5]">
                 <div className="mb-4 flex items-center justify-between">
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#f2c744]">
-                    {t("admin.engagement.wizard.stepOf", { step: qrWizardStep, total: 6 })}
+                    {t("admin.engagement.wizard.stepOf", { step: qrWizardStep, total: 5 })}
                   </p>
                   <button onClick={closeQrWizard} className="text-[#8fa0c2] hover:text-[#ffffff]">✕</button>
                 </div>
@@ -1780,21 +1805,9 @@ export default function Admin() {
                     <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step1Title")}</h3>
                     <input value={newCampaignName} onChange={(event) => setNewCampaignName(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.namePlaceholder")} />
                     <input value={newCampaignPlacement} onChange={(event) => setNewCampaignPlacement(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.placementPlaceholder")} />
-                    <button onClick={handleCreateCampaignFromWizard} className="w-full rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">
-                      {t("admin.engagement.wizard.createAndContinue")}
-                    </button>
-                  </div>
-                )}
-
-                {qrWizardStep === 2 && qrWizardCampaign && (
-                  <div className="space-y-3">
-                    <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step2Title")}</h3>
                     <p className="text-xs text-[#93a3c2]">{t("admin.engagement.items.sectionInfoHint")}</p>
                     <input value={itemTitle} onChange={(event) => setItemTitle(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.infoTitlePlaceholder")} />
                     <textarea value={itemBody} onChange={(event) => setItemBody(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.infoBodyPlaceholder")} rows="3" />
-                    <button onClick={handleAddInfoItemFromWizard} className="w-full rounded bg-[#0f766e] px-4 py-2 font-semibold text-[#f8fafc] hover:bg-[#0d6259]">
-                      {t("admin.engagement.items.addInfoCard")}
-                    </button>
                     <div className="border-t border-[#24345c] pt-3">
                       <p className="font-semibold text-[#f4f7fb]">{t("admin.engagement.items.reviewSitesTitle")}</p>
                       <p className="mt-1 text-xs text-[#93a3c2]">{t("admin.engagement.items.reviewSitesHint")}</p>
@@ -1812,22 +1825,18 @@ export default function Admin() {
                               <span>{platform.name}</span>
                             </label>
                           ))}
-                          <button onClick={handleAddReviewItemsFromWizard} className="w-full rounded bg-[#0f766e] px-4 py-2 font-semibold text-[#f8fafc] hover:bg-[#0d6259]">
-                            {t("admin.engagement.items.addReviewSites")}
-                          </button>
                         </div>
                       )}
                     </div>
-                    <div className="flex gap-2">
-                      <button onClick={() => setQrWizardStep(1)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
-                      <button onClick={handleContinueFromInfoStep} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
-                    </div>
+                    <button onClick={handleCreateCampaignFromWizard} className="w-full rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">
+                      {t("admin.engagement.wizard.createAndContinue")}
+                    </button>
                   </div>
                 )}
 
-                {qrWizardStep === 3 && qrWizardCampaign && (
+                {qrWizardStep === 2 && qrWizardCampaign && (
                   <div className="space-y-3">
-                    <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step3Title")}</h3>
+                    <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step2Title")}</h3>
                     <div className="flex gap-2">
                       <select value={itemPollId} onChange={(event) => setItemPollId(event.target.value)} className="flex-1 border p-2 rounded text-black">
                         <option value="">{t("admin.engagement.items.addPollOption")}</option>
@@ -1847,9 +1856,9 @@ export default function Admin() {
                   </div>
                 )}
 
-                {qrWizardStep === 4 && qrWizardCampaign && (
+                {qrWizardStep === 3 && qrWizardCampaign && (
                   <div className="space-y-3">
-                    <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step4Title")}</h3>
+                    <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step3Title")}</h3>
                     <p className="text-xs text-[#93a3c2]">{t("admin.engagement.items.sectionDonationHint")}</p>
                     {donationSettings.is_enabled ? (
                       <button onClick={handleAddDonationItemFromWizard} className="w-full rounded bg-[#0f766e] px-4 py-2 font-semibold text-[#f8fafc] hover:bg-[#0d6259]">
@@ -1861,15 +1870,15 @@ export default function Admin() {
                       </p>
                     )}
                     <div className="flex gap-2">
-                      <button onClick={() => setQrWizardStep(3)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
-                      <button onClick={() => setQrWizardStep(5)} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
+                      <button onClick={() => setQrWizardStep(2)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
+                      <button onClick={() => setQrWizardStep(4)} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
                     </div>
                   </div>
                 )}
 
-                {qrWizardStep === 5 && qrWizardCampaign && (
+                {qrWizardStep === 4 && qrWizardCampaign && (
                   <div className="space-y-3">
-                    <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step5Title")}</h3>
+                    <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step4Title")}</h3>
                     <input value={itemRewardTitle} onChange={(event) => setItemRewardTitle(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.rewardTitlePlaceholder")} />
                     <textarea value={itemRewardBody} onChange={(event) => setItemRewardBody(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.rewardBodyPlaceholder")} rows="2" />
                     <input value={itemRewardCode} onChange={(event) => setItemRewardCode(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.rewardCodePlaceholder")} />
@@ -1881,17 +1890,17 @@ export default function Admin() {
                       {t("admin.engagement.items.addRewardOption")}
                     </button>
                     <div className="flex gap-2">
-                      <button onClick={() => setQrWizardStep(4)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
+                      <button onClick={() => setQrWizardStep(3)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
                       <button onClick={handleContinueFromRewardStep} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
                     </div>
                   </div>
                 )}
 
-                {qrWizardStep === 6 && qrWizardCampaign && (() => {
+                {qrWizardStep === 5 && qrWizardCampaign && (() => {
                   const wizardUrl = `${window.location.origin}/qr/${qrWizardCampaign.token}`;
                   return (
                     <div className="space-y-3 text-center">
-                      <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step6Title")}</h3>
+                      <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step5Title")}</h3>
                       <div className="flex justify-center">
                         <img src={getCampaignQrImageUrl(wizardUrl, 220)} alt={t("admin.engagement.campaigns.qrAlt", { name: qrWizardCampaign.name })} className="h-40 w-40 rounded border border-[#24345c] bg-white p-2" />
                       </div>
@@ -1926,7 +1935,7 @@ export default function Admin() {
                       </div>
 
                       <div className="flex gap-2">
-                        <button onClick={() => setQrWizardStep(5)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
+                        <button onClick={() => setQrWizardStep(4)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
                         <button onClick={closeQrWizard} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.finish")}</button>
                       </div>
                     </div>
