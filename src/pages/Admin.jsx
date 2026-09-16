@@ -146,7 +146,6 @@ export default function Admin() {
   const [totalVotesCount, setTotalVotesCount] = useState(0);
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
   const [qrShared, setQrShared] = useState(false);
-  const [flockGuideOpen, setFlockGuideOpen] = useState(false);
   const [personaKey, setPersonaKey] = useState(null);
   const [weeklyInsight, setWeeklyInsight] = useState(null);
   const [voteTrend, setVoteTrend] = useState(null);
@@ -271,7 +270,6 @@ export default function Admin() {
 
         setOnboardingDismissed(localStorage.getItem(`ivote_onboarding_dismissed_${profile.id}`) === "true");
         setQrShared(localStorage.getItem(`ivote_qr_shared_${profile.id}`) === "true");
-        setFlockGuideOpen(localStorage.getItem(`ivote_flock_guide_open_${profile.id}`) === "true");
         setPersonaKey(localStorage.getItem(`ivote_persona_${profile.id}`) || null);
 
         const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
@@ -1037,12 +1035,6 @@ export default function Admin() {
     setOnboardingDismissed(true);
   }
 
-  function toggleFlockGuide() {
-    const next = !flockGuideOpen;
-    setFlockGuideOpen(next);
-    if (workspaceUserId) localStorage.setItem(`ivote_flock_guide_open_${workspaceUserId}`, String(next));
-  }
-
   function choosePersona(key) {
     setPersonaKey(key);
     if (workspaceUserId) localStorage.setItem(`ivote_persona_${workspaceUserId}`, key);
@@ -1351,6 +1343,92 @@ export default function Admin() {
 
       {activeTab === "overview" && (
       <>
+      <div className="mb-6 rounded border border-teal-700 bg-slate-900 p-4">
+        <div className="flex items-center gap-2">
+          <FlockAvatar bird={flockMemberForTab("overview")} size={32} />
+          <span className="text-lg font-bold">{t("admin.overview.robinGuideTitle")}</span>
+        </div>
+
+        {!onboardingDismissed && (
+          <div className="mt-3 rounded border border-slate-700 bg-slate-950 p-3">
+            <div className="flex items-start justify-between gap-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{t("admin.overview.firstSteps.heading")}</p>
+              <button onClick={dismissOnboarding} className="text-xs text-slate-400 underline">{t("admin.overview.firstSteps.dismiss")}</button>
+            </div>
+            <p className="mt-1 text-xs text-slate-400">
+              {t("admin.overview.firstSteps.newHerePrefix")} <Link to="/essentials" className="underline">{t("admin.overview.firstSteps.readGuide")}</Link> - {t("admin.overview.firstSteps.newHereSuffix")}
+            </p>
+            <div className="mt-3 space-y-2 text-sm">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className={polls.length > 0 ? "text-emerald-300" : "text-slate-300"}>{polls.length > 0 ? "\u2713" : "\u25cb"} {t("admin.overview.firstSteps.createFirstPoll")}</p>
+                {polls.length === 0 && <Link to="/create" className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">{t("admin.overview.firstSteps.createPollCta")}</Link>}
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className={qrShared ? "text-emerald-300" : "text-slate-300"}>{qrShared ? "\u2713" : "\u25cb"} {t("admin.overview.firstSteps.shareQr")}</p>
+                {!qrShared && polls.length > 0 && <button onClick={() => setActiveTab("polls")} className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">{t("admin.overview.firstSteps.goToPolls")}</button>}
+              </div>
+              <p className={totalVotesCount > 0 ? "text-emerald-300" : "text-slate-300"}>{totalVotesCount > 0 ? "\u2713" : "\u25cb"} {t("admin.overview.firstSteps.getFirstVote")}</p>
+            </div>
+          </div>
+        )}
+
+        {!personaKey ? (
+          <>
+            <p className="mt-3 text-sm text-slate-400">{t("admin.overview.personaPrompt")}</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              {PERSONAS.map((persona) => (
+                <button
+                  key={persona.key}
+                  type="button"
+                  onClick={() => choosePersona(persona.key)}
+                  className="rounded border border-slate-700 bg-gray-900 p-3 text-left transition hover:border-teal-500"
+                >
+                  <span className="text-xl" aria-hidden="true">{persona.icon}</span>
+                  <p className="mt-1 font-bold">{persona.label}</p>
+                  <p className="mt-1 text-xs text-slate-400">{persona.pitch}</p>
+                </button>
+              ))}
+            </div>
+          </>
+        ) : (
+          (() => {
+            const persona = findPersona(personaKey);
+            if (!persona) return null;
+            return (
+              <>
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm text-slate-400">
+                    <span aria-hidden="true">{persona.icon}</span> {t("admin.overview.guideFor")} <strong className="text-slate-200">{persona.label.toLowerCase()}</strong>
+                  </p>
+                  <button onClick={changePersona} className="text-xs text-slate-400 underline">{t("admin.overview.chooseDifferentPath")}</button>
+                </div>
+                <div className="mt-3 space-y-2">
+                  {persona.steps.map((step, index) => {
+                    const isLocked = step.feature && !entitlements[step.feature];
+                    return (
+                    <div key={step.title} className="flex flex-wrap items-center justify-between gap-2 rounded border border-slate-700 bg-gray-900 p-3">
+                      <div className="min-w-0">
+                        <p className="font-semibold">{index + 1}. {step.title}</p>
+                        <p className="mt-1 text-xs text-slate-400">{step.detail}</p>
+                        {isLocked && (
+                          <p className="mt-1.5 text-xs font-semibold uppercase tracking-wide text-amber-300">
+                            🔒 {t("admin.overview.availableOn", { plan: minPlanLabelFor(step.feature) })}
+                            {" · "}
+                            <Link to="/admin/billing" className="underline">{t("admin.overview.upgrade")}</Link>
+                          </p>
+                        )}
+                      </div>
+                      <button onClick={() => goToPersonaStep(step)} className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">{t("admin.overview.go")}</button>
+                    </div>
+                    );
+                  })}
+                </div>
+              </>
+            );
+          })()
+        )}
+      </div>
+
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {quickActions.map((action) => (
           <button
@@ -1450,118 +1528,6 @@ export default function Admin() {
           </p>
         </div>
       )}
-
-      <div className="mb-6 rounded border border-teal-700 bg-slate-900 p-4">
-        <div className="flex items-center gap-2">
-          <FlockAvatar bird={flockMemberForTab("overview")} size={32} />
-          <span className="text-lg font-bold">{t("admin.overview.robinGuideTitle")}</span>
-        </div>
-
-        {!onboardingDismissed && (
-          <div className="mt-3 rounded border border-slate-700 bg-slate-950 p-3">
-            <div className="flex items-start justify-between gap-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{t("admin.overview.firstSteps.heading")}</p>
-              <button onClick={dismissOnboarding} className="text-xs text-slate-400 underline">{t("admin.overview.firstSteps.dismiss")}</button>
-            </div>
-            <p className="mt-1 text-xs text-slate-400">
-              {t("admin.overview.firstSteps.newHerePrefix")} <Link to="/essentials" className="underline">{t("admin.overview.firstSteps.readGuide")}</Link> - {t("admin.overview.firstSteps.newHereSuffix")}
-            </p>
-            <div className="mt-3 space-y-2 text-sm">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className={polls.length > 0 ? "text-emerald-300" : "text-slate-300"}>{polls.length > 0 ? "\u2713" : "\u25cb"} {t("admin.overview.firstSteps.createFirstPoll")}</p>
-                {polls.length === 0 && <Link to="/create" className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">{t("admin.overview.firstSteps.createPollCta")}</Link>}
-              </div>
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className={qrShared ? "text-emerald-300" : "text-slate-300"}>{qrShared ? "\u2713" : "\u25cb"} {t("admin.overview.firstSteps.shareQr")}</p>
-                {!qrShared && polls.length > 0 && <button onClick={() => setActiveTab("polls")} className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">{t("admin.overview.firstSteps.goToPolls")}</button>}
-              </div>
-              <p className={totalVotesCount > 0 ? "text-emerald-300" : "text-slate-300"}>{totalVotesCount > 0 ? "\u2713" : "\u25cb"} {t("admin.overview.firstSteps.getFirstVote")}</p>
-            </div>
-          </div>
-        )}
-
-        {!personaKey ? (
-          <>
-            <p className="mt-3 text-sm text-slate-400">{t("admin.overview.personaPrompt")}</p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              {PERSONAS.map((persona) => (
-                <button
-                  key={persona.key}
-                  type="button"
-                  onClick={() => choosePersona(persona.key)}
-                  className="rounded border border-slate-700 bg-gray-900 p-3 text-left transition hover:border-teal-500"
-                >
-                  <span className="text-xl" aria-hidden="true">{persona.icon}</span>
-                  <p className="mt-1 font-bold">{persona.label}</p>
-                  <p className="mt-1 text-xs text-slate-400">{persona.pitch}</p>
-                </button>
-              ))}
-            </div>
-          </>
-        ) : (
-          (() => {
-            const persona = findPersona(personaKey);
-            if (!persona) return null;
-            return (
-              <>
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-sm text-slate-400">
-                    <span aria-hidden="true">{persona.icon}</span> {t("admin.overview.guideFor")} <strong className="text-slate-200">{persona.label.toLowerCase()}</strong>
-                  </p>
-                  <button onClick={changePersona} className="text-xs text-slate-400 underline">{t("admin.overview.chooseDifferentPath")}</button>
-                </div>
-                <div className="mt-3 space-y-2">
-                  {persona.steps.map((step, index) => {
-                    const isLocked = step.feature && !entitlements[step.feature];
-                    return (
-                    <div key={step.title} className="flex flex-wrap items-center justify-between gap-2 rounded border border-slate-700 bg-gray-900 p-3">
-                      <div className="min-w-0">
-                        <p className="font-semibold">{index + 1}. {step.title}</p>
-                        <p className="mt-1 text-xs text-slate-400">{step.detail}</p>
-                        {isLocked && (
-                          <p className="mt-1.5 text-xs font-semibold uppercase tracking-wide text-amber-300">
-                            🔒 {t("admin.overview.availableOn", { plan: minPlanLabelFor(step.feature) })}
-                            {" · "}
-                            <Link to="/admin/billing" className="underline">{t("admin.overview.upgrade")}</Link>
-                          </p>
-                        )}
-                      </div>
-                      <button onClick={() => goToPersonaStep(step)} className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">{t("admin.overview.go")}</button>
-                    </div>
-                    );
-                  })}
-                </div>
-              </>
-            );
-          })()
-        )}
-      </div>
-
-      <div className="mb-6 rounded border border-slate-700 bg-slate-900 p-4">
-        <button type="button" onClick={toggleFlockGuide} className="flex w-full items-center justify-between gap-3 text-left">
-          <span>
-            <span className="text-lg font-bold">{t("admin.overview.meetFlock.title")}</span>
-            <span className="ml-2 text-xs text-slate-400">{t("admin.overview.meetFlock.subtitle")}</span>
-          </span>
-          <span className="text-slate-400" aria-hidden="true">{flockGuideOpen ? "\u25b2" : "\u25bc"}</span>
-        </button>
-        {flockGuideOpen && (
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {FLOCK.map((bird) => (
-              <button
-                key={bird.key}
-                type="button"
-                onClick={() => (bird.tab ? setActiveTab(bird.tab) : navigate(bird.route))}
-                className="rounded border border-slate-700 bg-gray-900 p-3 text-left transition hover:border-teal-500"
-              >
-                <FlockAvatar bird={bird} size={56} />
-                <p className="mt-1 font-bold">{bird.name} <span className="font-normal text-slate-400">&middot; {bird.role}</span></p>
-                <p className="mt-1 text-xs text-slate-400">{bird.detail}</p>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
 
       <details className="mb-2 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-lg font-bold">{t("admin.overview.whatsNew.title")}</summary>

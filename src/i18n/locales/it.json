@@ -283,10 +283,6 @@
       "availableOn": "Disponibile con il piano {{plan}}",
       "upgrade": "Passa a un piano superiore",
       "go": "Vai",
-      "meetFlock": {
-        "title": "Conosci il tuo stormo",
-        "subtitle": "Sette specialisti, ognuno responsabile di una parte di Godwit"
-      },
       "whatsNew": {
         "title": "Novità di Godwit",
         "item1Title": "Sondaggi a rotazione, instradamento intelligente delle recensioni, avvisi di anomalie",

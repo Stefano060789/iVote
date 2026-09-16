@@ -283,10 +283,6 @@
       "availableOn": "Disponible en el plan {{plan}}",
       "upgrade": "Mejorar plan",
       "go": "Ir",
-      "meetFlock": {
-        "title": "Conoce a tu bandada",
-        "subtitle": "Siete especialistas, cada uno a cargo de una parte de Godwit"
-      },
       "whatsNew": {
         "title": "Novedades en Godwit",
         "item1Title": "Encuestas rotativas, enrutamiento inteligente de reseñas, alertas de anomalías",

@@ -283,10 +283,6 @@
       "availableOn": "{{plan}}套餐可用",
       "upgrade": "升级",
       "go": "前往",
-      "meetFlock": {
-        "title": "认识您的鸟群团队",
-        "subtitle": "七位专家，各自负责 Godwit 的一部分"
-      },
       "whatsNew": {
         "title": "Godwit 的最新功能",
         "item1Title": "轮换投票、智能评价路由、异常提醒",

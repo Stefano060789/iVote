@@ -283,10 +283,6 @@
       "availableOn": "Disponible avec l'offre {{plan}}",
       "upgrade": "Mettre à niveau",
       "go": "Aller",
-      "meetFlock": {
-        "title": "Découvrez votre équipe d'oiseaux",
-        "subtitle": "Sept spécialistes, chacun couvrant une partie de Godwit"
-      },
       "whatsNew": {
         "title": "Nouveautés de Godwit",
         "item1Title": "Sondages tournants, routage intelligent des avis, alertes d'anomalies",

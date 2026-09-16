@@ -264,10 +264,6 @@
       "availableOn": "Available on {{plan}}",
       "upgrade": "Upgrade",
       "go": "Go",
-      "meetFlock": {
-        "title": "Meet your flock",
-        "subtitle": "Seven specialists, each covering one part of Godwit"
-      },
       "whatsNew": {
         "title": "What's new in Godwit",
         "item1Title": "Rotating polls, smart review routing, anomaly alerts",

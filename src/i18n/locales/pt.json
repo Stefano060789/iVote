@@ -283,10 +283,6 @@
       "availableOn": "Disponível no plano {{plan}}",
       "upgrade": "Fazer upgrade",
       "go": "Ir",
-      "meetFlock": {
-        "title": "Conheça seu bando",
-        "subtitle": "Sete especialistas, cada um cuidando de uma parte do Godwit"
-      },
       "whatsNew": {
         "title": "Novidades no Godwit",
         "item1Title": "Enquetes rotativas, roteamento inteligente de avaliações, alertas de anomalias",
