@@ -204,7 +204,7 @@
     "dashboardSubtitle": "Todo lo que necesitas para gestionar el feedback QR, guiado en un solo lugar.",
     "onDuty": "{{name}} está de guardia aquí — {{role}}.",
     "nav": {
-      "overview": "Resumen",
+      "overview": "Primera guía",
       "polls": "Encuestas",
       "engagement": "Códigos QR",
       "connection": "Conexión con clientes",
@@ -546,7 +546,7 @@
         "accessibilityLegend": "Accesibilidad (opcional: se muestra como insignias a los visitantes)",
         "addInfoCard": "Añadir tarjeta informativa",
         "addDonationOption": "Añadir opción de donación",
-        "enableDonationsNote": "Configura y activa las donaciones en el panel de Donaciones de abajo para añadir una opción de donación a este código QR."
+        "enableDonationsNote": "Configura y activa las donaciones en Configuración para añadir una opción de donación a este código QR."
       },
       "rotations": {
         "title": "Rotaciones de encuestas",

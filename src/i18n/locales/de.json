@@ -204,7 +204,7 @@
     "dashboardSubtitle": "Alles, was Sie für QR-Feedback brauchen, geführt an einem Ort.",
     "onDuty": "{{name}} ist hier zuständig — {{role}}.",
     "nav": {
-      "overview": "Übersicht",
+      "overview": "Erste Anleitung",
       "polls": "Umfragen",
       "engagement": "QR-Codes",
       "connection": "Kundenbindung",
@@ -546,7 +546,7 @@
         "accessibilityLegend": "Barrierefreiheit (optional - wird Besuchern als Abzeichen angezeigt)",
         "addInfoCard": "Infokarte hinzufügen",
         "addDonationOption": "Spendenoption hinzufügen",
-        "enableDonationsNote": "Richten Sie im Spenden-Bereich unten Spenden ein und aktivieren Sie sie, um diesem QR-Code eine Spendenoption hinzuzufügen."
+        "enableDonationsNote": "Richten Sie Spenden in den Einstellungen ein und aktivieren Sie sie, um diesem QR-Code eine Spendenoption hinzuzufügen."
       },
       "rotations": {
         "title": "Umfrage-Rotationen",

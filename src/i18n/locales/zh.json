@@ -204,7 +204,7 @@
     "dashboardSubtitle": "运营二维码反馈所需的一切，都在这一个地方引导完成。",
     "onDuty": "{{name}} 正在此值班 — {{role}}。",
     "nav": {
-      "overview": "概览",
+      "overview": "新手指南",
       "polls": "投票",
       "engagement": "二维码",
       "connection": "客户关系",
@@ -546,7 +546,7 @@
         "accessibilityLegend": "无障碍信息（可选 - 会以徽章形式向访客显示）",
         "addInfoCard": "添加信息卡",
         "addDonationOption": "添加捐赠选项",
-        "enableDonationsNote": "请先在下方的“捐赠”面板中设置并启用捐赠，才能为此二维码添加捐赠选项。"
+        "enableDonationsNote": "请先在“设置”中设置并启用捐赠，才能为此二维码添加捐赠选项。"
       },
       "rotations": {
         "title": "投票轮换",

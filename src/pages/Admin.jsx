@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { supabase, supabaseUrl, supabaseAnonKey } from "../lib/supabase";
+import { supabase } from "../lib/supabase";
 import { appendAuditLog, readAuditLog, readPollMeta, savePollMeta, isPollClosed } from "../lib/pollMeta";
 import { createQrCampaign, loadQrCampaigns } from "../lib/qrCampaigns";
 import {
@@ -101,8 +101,6 @@ export default function Admin() {
   const [itemRewardLinkLabel, setItemRewardLinkLabel] = useState("");
   const [newCampaignName, setNewCampaignName] = useState("");
   const [newCampaignPlacement, setNewCampaignPlacement] = useState("");
-  const [newCampaignPortalTitle, setNewCampaignPortalTitle] = useState("");
-  const [newCampaignPortalMessage, setNewCampaignPortalMessage] = useState("");
   const [qrWizardOpen, setQrWizardOpen] = useState(false);
   const [qrWizardStep, setQrWizardStep] = useState(1);
   const [qrWizardCampaign, setQrWizardCampaign] = useState(null);
@@ -457,8 +455,6 @@ export default function Admin() {
       setQrWizardCampaign(campaign);
       setNewCampaignName("");
       setNewCampaignPlacement("");
-      setNewCampaignPortalTitle("");
-      setNewCampaignPortalMessage("");
       setQrWizardStep(2);
     } catch (error) {
       console.error(error);
@@ -471,38 +467,14 @@ export default function Admin() {
     await handleAddInfoItem(qrWizardCampaign.id);
   }
 
-  // Step 2's "customize the welcome screen" fields save straight to the campaign (not an
-  // item), so they're applied silently when moving to step 3 instead of needing their own
-  // button - nothing to save just means the welcome text stays at its default. This also
-  // catches a typed-but-not-submitted info card: if someone fills in the title/message and
+  // Catches a typed-but-not-submitted info card: if someone fills in the title/message and
   // hits Next without clicking "Add info card" first, add it for them instead of silently
   // dropping what they typed.
-  async function handleSaveWelcomeAndContinue() {
-    if (!qrWizardCampaign) {
-      setQrWizardStep(3);
-      return;
-    }
-    if (itemTitle.trim()) {
+  async function handleContinueFromInfoStep() {
+    if (qrWizardCampaign && itemTitle.trim()) {
       await handleAddInfoItem(qrWizardCampaign.id);
     }
-    const portalTitle = newCampaignPortalTitle.trim() || null;
-    const portalMessage = newCampaignPortalMessage.trim() || null;
-    if (portalTitle === (qrWizardCampaign.portal_title ?? null) && portalMessage === (qrWizardCampaign.portal_message ?? null)) {
-      setQrWizardStep(3);
-      return;
-    }
-    try {
-      const { error } = await supabase
-        .from("qr_campaigns")
-        .update({ portal_title: portalTitle, portal_message: portalMessage })
-        .eq("id", qrWizardCampaign.id);
-      if (error) throw error;
-      setQrCampaigns((current) => current.map((item) => (item.id === qrWizardCampaign.id ? { ...item, portal_title: portalTitle, portal_message: portalMessage } : item)));
-      setQrWizardCampaign((current) => (current ? { ...current, portal_title: portalTitle, portal_message: portalMessage } : current));
-      setQrWizardStep(3);
-    } catch (error) {
-      alert(error.message || "Unable to save the welcome message.");
-    }
+    setQrWizardStep(3);
   }
 
   async function handleAddPollItemFromWizard() {
@@ -510,7 +482,7 @@ export default function Admin() {
     await handleAddPollItem(qrWizardCampaign.id);
   }
 
-  // Same idea as handleSaveWelcomeAndContinue: if a poll is chosen in the dropdown but
+  // Same idea as handleContinueFromInfoStep: if a poll is chosen in the dropdown but
   // "Add poll" was never clicked, add it now instead of silently dropping the selection
   // when the user moves on to step 4.
   async function handleContinueFromPollStep() {
@@ -646,7 +618,7 @@ export default function Admin() {
 
   async function handleAddDonationItem(campaignId) {
     if (!donationSettings.is_enabled) {
-      alert("Set up and enable donation settings first, in the Donations panel below.");
+      alert("Set up and enable donation settings first, in Settings.");
       return;
     }
     try {
@@ -1069,18 +1041,6 @@ export default function Admin() {
     setWorkspaceUpdates((current) => current.filter((item) => item.id !== id));
   }
 
-  function copyEmbedWidgetSnippet(poll) {
-    const snippet = `<script src="${window.location.origin}/widget.js" data-poll-id="${poll.id}" data-origin="${window.location.origin}" data-label="Give Feedback" data-color="${workspaceProfile.primaryColor || "#0d9488"}"></script>`;
-    navigator.clipboard.writeText(snippet);
-    alert("Embed code copied. Paste it before </body> on your website.");
-  }
-
-  function copyTrustBadgeSnippet(poll) {
-    const snippet = `<script src="${window.location.origin}/trust-badge.js" data-poll-id="${poll.id}" data-origin="${window.location.origin}" data-supabase-url="${supabaseUrl}" data-supabase-anon-key="${supabaseAnonKey}"></script>`;
-    navigator.clipboard.writeText(snippet);
-    alert("Trust badge embed code copied. Paste it anywhere on your website.");
-  }
-
   function getQrPrintFormatConfig(format = qrPrintFormat) {
     const formatMap = {
       letter: { label: "Letter", size: "8.5in 11in", cssSize: "820px 1050px", margin: "0.5in" },
@@ -1332,7 +1292,7 @@ export default function Admin() {
         })}
       </div>
       <p className="mb-1 text-center text-sm text-slate-400">{adminTabDescriptions[activeTab]}</p>
-      {flockMemberForTab(activeTab) && (
+      {activeTab !== "overview" && flockMemberForTab(activeTab) && (
         <p className="mb-6 flex items-center justify-center gap-2 text-xs text-slate-500">
           <FlockAvatar bird={flockMemberForTab(activeTab)} size={28} />
           <span>
@@ -1448,38 +1408,6 @@ export default function Admin() {
         ))}
       </div>
 
-      {donationSettings.is_enabled && donationSettings.stripe_charges_enabled ? (
-        <div className="mb-6 rounded border border-amber-600 bg-gradient-to-r from-amber-950/40 to-slate-900 p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-amber-300">💛 {t("admin.overview.donations.eyebrow")}</p>
-              <p className="mt-1 text-2xl font-bold">
-                {new Intl.NumberFormat(undefined, { style: "currency", currency: donationSettings.currency || "EUR" }).format(donationStats.totalRaised)}
-              </p>
-              <p className="mt-1 text-sm text-slate-300">
-                {t("admin.overview.donations.raisedPrefix")} {donationStats.count} {donationStats.count === 1 ? t("admin.overview.donations.donationSingular") : t("admin.overview.donations.donationPlural")}
-              </p>
-            </div>
-            <button type="button" onClick={() => setActiveTab("engagement")} className="shrink-0 rounded bg-amber-500 px-4 py-2 font-semibold text-slate-950">
-              {t("admin.overview.donations.manageCta")}
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="mb-6 rounded border border-amber-600 bg-amber-950/20 p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-amber-300">💛 {t("admin.overview.donations.eyebrow")}</p>
-              <p className="mt-1 font-bold">{t("admin.overview.donations.setupTitle")}</p>
-              <p className="mt-1 max-w-xl text-sm text-slate-300">{t("admin.overview.donations.setupBody")}</p>
-            </div>
-            <button type="button" onClick={() => setActiveTab("engagement")} className="shrink-0 rounded bg-amber-500 px-4 py-2 font-semibold text-slate-950">
-              {t("admin.overview.donations.setupCta")}
-            </button>
-          </div>
-        </div>
-      )}
-
       <div className="mb-6 grid grid-cols-2 md:grid-cols-5 gap-3">
         <div className="border rounded p-3 bg-gray-900">
           <p className="text-gray-400 text-sm">{t("admin.overview.stats.totalPolls")}</p>
@@ -1529,15 +1457,6 @@ export default function Admin() {
         </div>
       )}
 
-      <details className="mb-2 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-lg font-bold">{t("admin.overview.whatsNew.title")}</summary>
-        <div className="px-4 pb-4 space-y-2 text-sm text-slate-300">
-          <p><span className="font-semibold text-teal-300">{t("admin.overview.whatsNew.item1Title")}</span> - {t("admin.overview.whatsNew.item1Body")}</p>
-          <p><span className="font-semibold text-teal-300">{t("admin.overview.whatsNew.item2Title")}</span> - {t("admin.overview.whatsNew.item2Body")}</p>
-          <p><span className="font-semibold text-teal-300">{t("admin.overview.whatsNew.item3Title")}</span> - {t("admin.overview.whatsNew.item3Body")}</p>
-          <p><span className="font-semibold text-teal-300">{t("admin.overview.whatsNew.item4Title")}</span> - {t("admin.overview.whatsNew.item4Body")}</p>
-        </div>
-      </details>
       </>
       )}
 
@@ -1755,16 +1674,9 @@ export default function Admin() {
                     <button onClick={handleAddInfoItemFromWizard} className="w-full rounded bg-[#0f766e] px-4 py-2 font-semibold text-[#f8fafc] hover:bg-[#0d6259]">
                       {t("admin.engagement.items.addInfoCard")}
                     </button>
-                    <details className="rounded border border-[#24345c]">
-                      <summary className="cursor-pointer p-3 text-sm font-semibold text-[#e7ecf5]">{t("admin.engagement.campaigns.customizeWelcome")}</summary>
-                      <div className="grid gap-3 px-3 pb-3">
-                        <input value={newCampaignPortalTitle} onChange={(event) => setNewCampaignPortalTitle(event.target.value)} maxLength={120} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.welcomeHeadlinePlaceholder")} />
-                        <textarea value={newCampaignPortalMessage} onChange={(event) => setNewCampaignPortalMessage(event.target.value)} maxLength={280} className="border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.welcomeMessagePlaceholder")} rows="3" />
-                      </div>
-                    </details>
                     <div className="flex gap-2">
                       <button onClick={() => setQrWizardStep(1)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
-                      <button onClick={handleSaveWelcomeAndContinue} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
+                      <button onClick={handleContinueFromInfoStep} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
                     </div>
                   </div>
                 )}
@@ -2210,85 +2122,6 @@ export default function Admin() {
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">{t("admin.engagement.campaigns.advancedTitle")}</p>
             <p className="mb-3 text-xs text-slate-500">{t("admin.engagement.campaigns.advancedDescription")}</p>
       <details className="mb-6 border rounded bg-gray-900">
-        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.donations.title")}</summary>
-        <div className="px-4 pb-4 space-y-3">
-          <p className="text-sm text-slate-400">
-            {t("admin.engagement.donations.description")}
-          </p>
-
-          <div className="rounded border border-slate-700 bg-slate-950 p-4">
-            {donationSettings.stripe_charges_enabled ? (
-              <p className="text-sm font-semibold text-green-400">✓ {t("admin.engagement.donations.stripeConnected")}</p>
-            ) : donationSettings.stripe_account_id ? (
-              <p className="text-sm font-semibold text-amber-300">{t("admin.engagement.donations.stripeStarted")}</p>
-            ) : (
-              <>
-                <p className="text-sm text-slate-400">{t("admin.engagement.donations.stripeNotConnected")}</p>
-                <p className="mt-2 text-xs text-slate-500">{t("admin.engagement.donations.beforeYouConnect")}</p>
-              </>
-            )}
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button onClick={connectStripeHandler} disabled={stripeConnectBusy} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
-                {donationSettings.stripe_account_id ? t("admin.engagement.donations.continueSetup") : t("admin.engagement.donations.connectStripe")}
-              </button>
-              {donationSettings.stripe_account_id && (
-                <button onClick={refreshStripeStatusHandler} disabled={stripeConnectBusy} className="bg-slate-700 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
-                  {t("admin.engagement.donations.refreshStatus")}
-                </button>
-              )}
-            </div>
-            {stripeConnectError && <p className="mt-2 text-xs font-semibold text-red-400">{stripeConnectError}</p>}
-          </div>
-
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={donationSettings.is_enabled}
-              disabled={!donationSettings.stripe_charges_enabled}
-              onChange={(event) => setDonationSettings((current) => ({ ...current, is_enabled: event.target.checked }))}
-            />
-            <span>{t("admin.engagement.donations.acceptDonations")}{!donationSettings.stripe_charges_enabled && ` ${t("admin.engagement.donations.connectFirst")}`}</span>
-          </label>
-
-          <div className="grid gap-3 md:grid-cols-2">
-            <label className="block font-semibold">
-              {t("admin.engagement.donations.currency")}
-              <input
-                value={donationSettings.currency || "EUR"}
-                onChange={(event) => setDonationSettings((current) => ({ ...current, currency: event.target.value }))}
-                maxLength={3}
-                className="mt-1 w-full border p-2 rounded text-black uppercase"
-                placeholder="EUR"
-              />
-            </label>
-            <label className="block font-semibold">
-              {t("admin.engagement.donations.suggestedAmount")}
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={donationSettings.suggested_amount || ""}
-                onChange={(event) => setDonationSettings((current) => ({ ...current, suggested_amount: event.target.value }))}
-                className="mt-1 w-full border p-2 rounded text-black"
-                placeholder="5.00"
-              />
-            </label>
-          </div>
-          <textarea
-            value={donationSettings.message || ""}
-            onChange={(event) => setDonationSettings((current) => ({ ...current, message: event.target.value }))}
-            maxLength={300}
-            rows="2"
-            className="w-full border p-2 rounded text-black"
-            placeholder={t("admin.engagement.donations.messagePlaceholder")}
-          />
-          <button onClick={saveDonationSettingsHandler} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">{t("admin.engagement.donations.saveButton")}</button>
-          <p className="text-xs text-slate-500">
-            {t("admin.engagement.donations.feeNote")}
-          </p>
-        </div>
-      </details>
-      <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.redemptions.title")}</summary>
         <div className="px-4 pb-4">
           {entitlements.redemptionTracking ? (
@@ -2508,6 +2341,85 @@ export default function Admin() {
 
       {activeTab === "settings" && (
       <>
+      <details className="mb-6 border rounded bg-gray-900">
+        <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.donations.title")}</summary>
+        <div className="px-4 pb-4 space-y-3">
+          <p className="text-sm text-slate-400">
+            {t("admin.engagement.donations.description")}
+          </p>
+
+          <div className="rounded border border-slate-700 bg-slate-950 p-4">
+            {donationSettings.stripe_charges_enabled ? (
+              <p className="text-sm font-semibold text-green-400">✓ {t("admin.engagement.donations.stripeConnected")}</p>
+            ) : donationSettings.stripe_account_id ? (
+              <p className="text-sm font-semibold text-amber-300">{t("admin.engagement.donations.stripeStarted")}</p>
+            ) : (
+              <>
+                <p className="text-sm text-slate-400">{t("admin.engagement.donations.stripeNotConnected")}</p>
+                <p className="mt-2 text-xs text-slate-500">{t("admin.engagement.donations.beforeYouConnect")}</p>
+              </>
+            )}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button onClick={connectStripeHandler} disabled={stripeConnectBusy} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
+                {donationSettings.stripe_account_id ? t("admin.engagement.donations.continueSetup") : t("admin.engagement.donations.connectStripe")}
+              </button>
+              {donationSettings.stripe_account_id && (
+                <button onClick={refreshStripeStatusHandler} disabled={stripeConnectBusy} className="bg-slate-700 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
+                  {t("admin.engagement.donations.refreshStatus")}
+                </button>
+              )}
+            </div>
+            {stripeConnectError && <p className="mt-2 text-xs font-semibold text-red-400">{stripeConnectError}</p>}
+          </div>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={donationSettings.is_enabled}
+              disabled={!donationSettings.stripe_charges_enabled}
+              onChange={(event) => setDonationSettings((current) => ({ ...current, is_enabled: event.target.checked }))}
+            />
+            <span>{t("admin.engagement.donations.acceptDonations")}{!donationSettings.stripe_charges_enabled && ` ${t("admin.engagement.donations.connectFirst")}`}</span>
+          </label>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            <label className="block font-semibold">
+              {t("admin.engagement.donations.currency")}
+              <input
+                value={donationSettings.currency || "EUR"}
+                onChange={(event) => setDonationSettings((current) => ({ ...current, currency: event.target.value }))}
+                maxLength={3}
+                className="mt-1 w-full border p-2 rounded text-black uppercase"
+                placeholder="EUR"
+              />
+            </label>
+            <label className="block font-semibold">
+              {t("admin.engagement.donations.suggestedAmount")}
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={donationSettings.suggested_amount || ""}
+                onChange={(event) => setDonationSettings((current) => ({ ...current, suggested_amount: event.target.value }))}
+                className="mt-1 w-full border p-2 rounded text-black"
+                placeholder="5.00"
+              />
+            </label>
+          </div>
+          <textarea
+            value={donationSettings.message || ""}
+            onChange={(event) => setDonationSettings((current) => ({ ...current, message: event.target.value }))}
+            maxLength={300}
+            rows="2"
+            className="w-full border p-2 rounded text-black"
+            placeholder={t("admin.engagement.donations.messagePlaceholder")}
+          />
+          <button onClick={saveDonationSettingsHandler} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">{t("admin.engagement.donations.saveButton")}</button>
+          <p className="text-xs text-slate-500">
+            {t("admin.engagement.donations.feeNote")}
+          </p>
+        </div>
+      </details>
       <details className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.settings.workspace.title")}</summary>
         <div className="px-4 pb-4">
@@ -2937,8 +2849,6 @@ export default function Admin() {
                   <Link to={`/edit/${poll.id}`} className={`rounded px-3 py-2 text-left ${canEditPolls ? "hover:bg-slate-800" : "pointer-events-none text-slate-500"}`}>{t("admin.polls.card.editPoll")}</Link>
                   <button onClick={() => copyShareLink(poll)} className="rounded px-3 py-2 text-left hover:bg-slate-800">{t("admin.polls.card.copyVotingLink")}</button>
                   <Link to={`/vote/${poll.id}`} className="rounded px-3 py-2 text-left hover:bg-slate-800">{t("admin.polls.card.openVotePage")}</Link>
-                  <button onClick={() => copyEmbedWidgetSnippet(poll)} className="rounded px-3 py-2 text-left hover:bg-slate-800">{t("admin.polls.card.copyWidgetEmbed")}</button>
-                  <button onClick={() => copyTrustBadgeSnippet(poll)} className="rounded px-3 py-2 text-left hover:bg-slate-800">{t("admin.polls.card.copyTrustBadgeEmbed")}</button>
                   <button onClick={() => closePoll(poll)} disabled={!canClosePolls} className="rounded px-3 py-2 text-left hover:bg-slate-800 disabled:text-slate-500">{isClosed ? t("admin.polls.card.reopenPoll") : t("admin.polls.card.closePoll")}</button>
                   <button onClick={() => deletePoll(poll.id)} disabled={!canDeletePolls} className="rounded px-3 py-2 text-left text-red-300 hover:bg-red-950 disabled:text-slate-500">{t("admin.polls.card.deletePoll")}</button>
                 </div>

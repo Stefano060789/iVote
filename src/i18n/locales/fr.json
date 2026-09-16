@@ -204,7 +204,7 @@
     "dashboardSubtitle": "Tout ce qu'il faut pour gérer les retours QR, guidé au même endroit.",
     "onDuty": "{{name}} est de service ici — {{role}}.",
     "nav": {
-      "overview": "Aperçu",
+      "overview": "Premier guide",
       "polls": "Sondages",
       "engagement": "Codes QR",
       "connection": "Relation client",
@@ -546,7 +546,7 @@
         "accessibilityLegend": "Accessibilité (facultatif - affichée sous forme de badges pour les visiteurs)",
         "addInfoCard": "Ajouter une fiche d'information",
         "addDonationOption": "Ajouter une option de don",
-        "enableDonationsNote": "Configurez et activez les dons dans le panneau Dons ci-dessous pour ajouter une option de don à ce code QR."
+        "enableDonationsNote": "Configurez et activez les dons dans les paramètres pour ajouter une option de don à ce code QR."
       },
       "rotations": {
         "title": "Rotations de sondages",

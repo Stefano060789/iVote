@@ -197,7 +197,7 @@
     "dashboardSubtitle": "Everything you need to run QR feedback, guided in one place.",
     "onDuty": "{{name}} is on duty here — {{role}}.",
     "nav": {
-      "overview": "Overview",
+      "overview": "First Guide",
       "polls": "Polls",
       "engagement": "QR codes",
       "connection": "Customer connection",
@@ -493,7 +493,7 @@
         "itemsOnQr": "Manage what's on this QR code ({{count}})",
         "itemsHint": "Add one or more polls, info cards, and a donation ask here to turn this QR code into a menu: scanning it will show everything listed below at once, instead of going straight to a single poll.",
         "advancedTitle": "More QR tools",
-        "advancedDescription": "Connect Stripe for donations, track reward redemptions, or run prize draws — all optional, and all related to the QR codes above."
+        "advancedDescription": "Track reward redemptions or run prize draws — all optional, and all related to the QR codes above. Donations are set up in Settings."
       },
       "wizard": {
         "stepOf": "Step {{step}} of {{total}}",
@@ -535,7 +535,7 @@
         "accessibilityLegend": "Accessibility (optional - shown as badges to visitors)",
         "addInfoCard": "Add info card",
         "addDonationOption": "Add donation option",
-        "enableDonationsNote": "Set up and enable donations in the Donations panel below to add a donation option to this QR code.",
+        "enableDonationsNote": "Set up and enable donations in Settings to add a donation option to this QR code.",
         "rewardTitlePlaceholder": "Reward or prize title: Free coffee, Win a gift card...",
         "rewardBodyPlaceholder": "Details or terms (optional)",
         "rewardCodePlaceholder": "Redemption code to show staff (optional)",

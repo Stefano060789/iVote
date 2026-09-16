@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase";
 import { getPollBranding } from "../lib/pollBranding";
 import { reassignManagedCampaignPoll, resolveManagedQrToken } from "../lib/qrManage";
 import DonationCard from "../components/DonationCard";
+import InlinePollVote from "../components/InlinePollVote";
 import { accessibilityTagIcon, accessibilityTagLabel } from "../lib/accessibilityTags";
 
 export default function QrRedirect() {
@@ -154,18 +155,7 @@ export default function QrRedirect() {
           <div className="qr-portal-menu-list">
             {items.map((item) => {
               if (item.item_type === "poll") {
-                return (
-                  <button
-                    key={item.item_id}
-                    type="button"
-                    className="qr-portal-menu-item"
-                    onClick={() => navigate(`/vote/${item.poll_id}?campaign=${item.campaign_id}`)}
-                    style={{ borderColor: branding.primaryColor }}
-                  >
-                    <span className="qr-portal-menu-item-title">{item.poll_question}</span>
-                    <span className="qr-portal-menu-item-cta" style={{ color: branding.primaryColor }}>Share feedback →</span>
-                  </button>
-                );
+                return <InlinePollVote key={item.item_id} item={item} branding={branding} />;
               }
               if (item.item_type === "donation") {
                 return <DonationCard key={item.item_id} item={item} campaignToken={token} />;
