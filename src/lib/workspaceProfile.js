@@ -70,11 +70,21 @@ export async function loadWorkspaceProfile() {
     throw new Error(`Unable to open workspace: ${workspaceError?.message || "No workspace found."}`);
   }
 
-  const { data: workspace, error } = await supabase
+  let { data: workspace, error } = await supabase
     .from("workspaces")
     .select("id, name, logo_url, primary_color, accent_color, webhook_url, vote_retention_days, google_place_id, review_platforms")
     .eq("id", workspaceId)
     .single();
+
+  // Keep existing workspaces usable while a deployment is waiting for the additive
+  // review-platforms migration. The feature remains empty until that column exists.
+  if (error?.code === "42703" || error?.message?.includes("review_platforms")) {
+    ({ data: workspace, error } = await supabase
+      .from("workspaces")
+      .select("id, name, logo_url, primary_color, accent_color, webhook_url, vote_retention_days, google_place_id")
+      .eq("id", workspaceId)
+      .single());
+  }
 
   if (error || !workspace) {
     throw new Error(`Unable to load workspace: ${error?.message || "No workspace found."}`);
@@ -127,25 +137,37 @@ export async function saveWorkspaceProfile(workspaceId, patch = {}) {
   profiles[key] = next;
   writeAllProfiles(profiles);
 
+  const { reviewPlatforms, ...workspacePatch } = {
+    name: next.companyName,
+    logo_url: next.logoUrl || null,
+    primary_color: next.primaryColor,
+    accent_color: next.accentColor,
+    webhook_url: patch.webhookUrl?.trim() || null,
+    vote_retention_days: patch.voteRetentionDays ? Number(patch.voteRetentionDays) : null,
+    google_place_id: patch.googlePlaceId?.trim() || null,
+    reviewPlatforms: Array.isArray(patch.reviewPlatforms)
+      ? patch.reviewPlatforms
+        .filter((platform) => platform?.name?.trim() && platform?.url?.trim())
+        .map((platform) => ({ name: platform.name.trim(), url: platform.url.trim() }))
+      : []
+  };
+
   const { error } = await supabase
     .from("workspaces")
-    .update({
-      name: next.companyName,
-      logo_url: next.logoUrl || null,
-      primary_color: next.primaryColor,
-      accent_color: next.accentColor,
-      webhook_url: patch.webhookUrl?.trim() || null,
-      vote_retention_days: patch.voteRetentionDays ? Number(patch.voteRetentionDays) : null,
-      google_place_id: patch.googlePlaceId?.trim() || null,
-      review_platforms: Array.isArray(patch.reviewPlatforms)
-        ? patch.reviewPlatforms
-          .filter((platform) => platform?.name?.trim() && platform?.url?.trim())
-          .map((platform) => ({ name: platform.name.trim(), url: platform.url.trim() }))
-        : []
-    })
+    .update(workspacePatch)
     .eq("id", workspaceId);
 
   if (error) throw new Error(`Unable to save workspace settings: ${error.message}`);
+
+  const { error: reviewPlatformsError } = await supabase
+    .from("workspaces")
+    .update({ review_platforms: reviewPlatforms })
+    .eq("id", workspaceId);
+  if (reviewPlatformsError && (reviewPlatformsError.code === "42703" || reviewPlatformsError.message?.includes("review_platforms"))) {
+    throw new Error("Workspace settings saved, but review sites are unavailable until the review-platforms database migration is applied.");
+  }
+  if (reviewPlatformsError) throw new Error(`Unable to save review sites: ${reviewPlatformsError.message}`);
+
   return next;
 }
 
