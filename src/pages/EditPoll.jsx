@@ -323,7 +323,7 @@ export default function EditPoll() {
       />
 
       <h2 className="text-xl font-bold mb-3">After voting (optional)</h2>
-      <p className="mb-3 text-sm text-slate-400">This only appears to someone who actually completes this poll - different from a QR code's own "Reward &amp; Prize" item (set in the QR codes tab), which shows to every scanner regardless of voting.</p>
+      <p className="mb-3 text-sm text-slate-400">Choose what happens after this poll. An email benefit is shown only after a voter explicitly shares their email and consents to follow-up. Public review links are a separate invitation to leave honest feedback on Google, Tripadvisor, or another platform; they must remain optional and cannot be tied to a positive answer.</p>
 
       {entitlements.rewardMessage ? (
       <>
@@ -364,8 +364,8 @@ export default function EditPoll() {
       )}
 
         <div className="mt-5 border-t border-slate-600 pt-4">
-          <p className="font-semibold">Email opt-in benefit</p>
-          <p className="mt-1 text-xs text-slate-400">Give an opted-in voter a voucher or online discount code.</p>
+          <p className="font-semibold">Reward if email is shared</p>
+          <p className="mt-1 text-xs text-slate-400">Give a voter who explicitly shares their email and consents to follow-up a voucher or online discount code. Voting remains anonymous unless they opt in.</p>
           <select value={emailBenefitType} onChange={(event) => setEmailBenefitType(event.target.value)} className="mt-3 w-full border p-2 rounded text-black">
             <option value="none">No email benefit</option><option value="voucher">Voucher</option><option value="discount_code">Discount code</option>
           </select>

@@ -438,7 +438,7 @@ export default function Admin() {
 
   // Guided QR creation wizard - replaces the old flat "name + poll + placement + variant, all
   // at once" form. Walks through the same underlying steps (create -> info -> polls ->
-  // donation -> reward/prize -> print) one at a time, reusing the exact same handlers as the
+  // reviews -> donation -> print) one at a time, reusing the exact same handlers as the
   // "edit an existing QR code's items" accordion below, so there's only one code path per
   // action, not two.
   function openQrWizard() {
@@ -538,7 +538,7 @@ export default function Admin() {
     if (qrWizardCampaign && itemRewardTitle.trim()) {
       await handleAddRewardItem(qrWizardCampaign.id);
     }
-    setQrWizardStep(6);
+    setQrWizardStep(5);
   }
 
   async function handleAddDonationItemFromWizard() {
@@ -1488,6 +1488,19 @@ export default function Admin() {
             );
           })()
         )}
+
+        <div className="mt-4 rounded border border-slate-700 bg-gray-900 p-3">
+          <p className="text-sm font-semibold">{t("admin.overview.setupLinks.title")}</p>
+          <p className="mt-1 text-xs text-slate-400">{t("admin.overview.setupLinks.body")}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button onClick={() => setActiveTab("engagement")} className="rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">
+              {t("admin.overview.setupLinks.donations")}
+            </button>
+            <button onClick={() => setActiveTab("settings")} className="rounded border border-teal-500 px-3 py-1.5 text-xs font-semibold text-teal-300">
+              {t("admin.overview.setupLinks.reviews")}
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -1508,55 +1521,6 @@ export default function Admin() {
           </button>
         ))}
       </div>
-
-      <div className="mb-6 grid grid-cols-2 md:grid-cols-5 gap-3">
-        <div className="border rounded p-3 bg-gray-900">
-          <p className="text-gray-400 text-sm">{t("admin.overview.stats.totalPolls")}</p>
-          <p className="text-2xl font-bold">{analytics.total}</p>
-        </div>
-        <div className="border rounded p-3 bg-gray-900">
-          <p className="text-gray-400 text-sm">{t("admin.overview.stats.active")}</p>
-          <p className="text-2xl font-bold text-green-400">{analytics.active}</p>
-        </div>
-        <div className="border rounded p-3 bg-gray-900">
-          <p className="text-gray-400 text-sm">{t("admin.overview.stats.closed")}</p>
-          <p className="text-2xl font-bold text-red-400">{analytics.closed}</p>
-        </div>
-        <div className="border rounded p-3 bg-gray-900">
-          <p className="text-gray-400 text-sm">{t("admin.overview.stats.scheduled")}</p>
-          <p className="text-2xl font-bold text-yellow-400">{analytics.scheduled}</p>
-        </div>
-        <div className="border rounded p-3 bg-gray-900">
-          <p className="text-gray-400 text-sm">{t("admin.overview.stats.locations")}</p>
-          <p className="text-2xl font-bold text-blue-400">{analytics.withLocation}</p>
-        </div>
-        {voteTrend && voteTrend.lastWeek > 0 && (
-          <div className="border rounded p-3 bg-gray-900">
-            <p className="text-gray-400 text-sm">{t("admin.overview.stats.votesThisWeek")}</p>
-            <p className={`text-2xl font-bold ${voteTrend.thisWeek >= voteTrend.lastWeek ? "text-emerald-400" : "text-red-400"}`}>
-              {voteTrend.thisWeek} {voteTrend.thisWeek >= voteTrend.lastWeek ? "\u25b2" : "\u25bc"} {Math.abs(Math.round(((voteTrend.thisWeek - voteTrend.lastWeek) / voteTrend.lastWeek) * 100))}%
-            </p>
-          </div>
-        )}
-      </div>
-
-      {weeklyInsight && (
-        <div className="mb-6 rounded border border-indigo-700 bg-slate-900 p-4">
-          <p className="text-sm font-semibold text-indigo-300">{t("admin.overview.weeklyInsightTitle")}</p>
-          <p className="mt-1 text-sm text-slate-200">
-            {t("admin.overview.weeklyInsightBody", { answer: weeklyInsight.answer, count: weeklyInsight.count, totalVotes: weeklyInsight.totalVotes, countLabel: weeklyInsight.count === 1 ? t("admin.overview.time") : t("admin.overview.times") })}
-          </p>
-        </div>
-      )}
-
-      {templateBenchmark && templateBenchmark.industryScore !== null && templateBenchmark.sampleSize >= 3 && (
-        <div className="mb-6 rounded border border-emerald-700 bg-slate-900 p-4">
-          <p className="text-sm font-semibold text-emerald-300">{t("admin.overview.benchmarkTitle")}</p>
-          <p className="mt-1 text-sm text-slate-200">
-            {t("admin.overview.benchmarkBody", { templateKey: templateBenchmark.templateKey, ownScore: templateBenchmark.ownScore, industryScore: templateBenchmark.industryScore, sampleSize: templateBenchmark.sampleSize })}
-          </p>
-        </div>
-      )}
 
       </>
       )}
@@ -1837,7 +1801,7 @@ export default function Admin() {
               <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-[#24345c] bg-[#0b1a33] p-5 text-[#e7ecf5]">
                 <div className="mb-4 flex items-center justify-between">
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#f2c744]">
-                    {t("admin.engagement.wizard.stepOf", { step: qrWizardStep, total: 6 })}
+                    {t("admin.engagement.wizard.stepOf", { step: qrWizardStep, total: 5 })}
                   </p>
                   <button onClick={closeQrWizard} className="text-[#8fa0c2] hover:text-[#ffffff]">✕</button>
                 </div>
@@ -1932,31 +1896,11 @@ export default function Admin() {
                   </div>
                 )}
 
-                {qrWizardStep === 5 && qrWizardCampaign && (
-                  <div className="space-y-3">
-                    <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step5Title")}</h3>
-                    <input value={itemRewardTitle} onChange={(event) => setItemRewardTitle(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.rewardTitlePlaceholder")} />
-                    <textarea value={itemRewardBody} onChange={(event) => setItemRewardBody(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.rewardBodyPlaceholder")} rows="2" />
-                    <input value={itemRewardCode} onChange={(event) => setItemRewardCode(event.target.value)} className="w-full border p-2 rounded text-black" placeholder={t("admin.engagement.items.rewardCodePlaceholder")} />
-                    <div className="grid grid-cols-2 gap-3">
-                      <input value={itemRewardLinkUrl} onChange={(event) => setItemRewardLinkUrl(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.items.linkUrlPlaceholder")} />
-                      <input value={itemRewardLinkLabel} onChange={(event) => setItemRewardLinkLabel(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.engagement.items.linkLabelPlaceholder")} />
-                    </div>
-                    <button onClick={handleAddRewardItemFromWizard} className="w-full rounded bg-[#0f766e] px-4 py-2 font-semibold text-[#f8fafc] hover:bg-[#0d6259]">
-                      {t("admin.engagement.items.addRewardOption")}
-                    </button>
-                    <div className="flex gap-2">
-                      <button onClick={() => setQrWizardStep(4)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
-                      <button onClick={handleContinueFromRewardStep} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
-                    </div>
-                  </div>
-                )}
-
-                {qrWizardStep === 6 && qrWizardCampaign && (() => {
+                {qrWizardStep === 5 && qrWizardCampaign && (() => {
                   const wizardUrl = `${window.location.origin}/qr/${qrWizardCampaign.token}`;
                   return (
                     <div className="space-y-3 text-center">
-                      <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step6Title")}</h3>
+                      <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step5Title")}</h3>
                       <div className="flex justify-center">
                         <img src={getCampaignQrImageUrl(wizardUrl, 220)} alt={t("admin.engagement.campaigns.qrAlt", { name: qrWizardCampaign.name })} className="h-40 w-40 rounded border border-[#24345c] bg-white p-2" />
                       </div>
@@ -1991,7 +1935,7 @@ export default function Admin() {
                       </div>
 
                       <div className="flex gap-2">
-                        <button onClick={() => setQrWizardStep(5)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
+                        <button onClick={() => setQrWizardStep(4)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
                         <button onClick={closeQrWizard} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.finish")}</button>
                       </div>
                     </div>
@@ -2281,44 +2225,6 @@ export default function Admin() {
                           );
                         })()}
 
-                        <div className="mt-2 grid gap-2 md:grid-cols-2">
-                          <input
-                            value={itemFormCampaignId === campaign.id ? itemRewardTitle : ""}
-                            onChange={(event) => { setItemFormCampaignId(campaign.id); setItemRewardTitle(event.target.value); }}
-                            maxLength={120}
-                            className="border p-2 rounded text-black"
-                            placeholder={t("admin.engagement.items.rewardTitlePlaceholder")}
-                          />
-                          <input
-                            value={itemFormCampaignId === campaign.id ? itemRewardCode : ""}
-                            onChange={(event) => { setItemFormCampaignId(campaign.id); setItemRewardCode(event.target.value); }}
-                            maxLength={60}
-                            className="border p-2 rounded text-black"
-                            placeholder={t("admin.engagement.items.rewardCodePlaceholder")}
-                          />
-                          <textarea
-                            value={itemFormCampaignId === campaign.id ? itemRewardBody : ""}
-                            onChange={(event) => { setItemFormCampaignId(campaign.id); setItemRewardBody(event.target.value); }}
-                            maxLength={2000}
-                            rows="2"
-                            className="border p-2 rounded text-black md:col-span-2"
-                            placeholder={t("admin.engagement.items.rewardBodyPlaceholder")}
-                          />
-                          <input
-                            value={itemFormCampaignId === campaign.id ? itemRewardLinkUrl : ""}
-                            onChange={(event) => { setItemFormCampaignId(campaign.id); setItemRewardLinkUrl(event.target.value); }}
-                            className="border p-2 rounded text-black"
-                            placeholder={t("admin.engagement.items.linkUrlPlaceholder")}
-                          />
-                          <input
-                            value={itemFormCampaignId === campaign.id ? itemRewardLinkLabel : ""}
-                            onChange={(event) => { setItemFormCampaignId(campaign.id); setItemRewardLinkLabel(event.target.value); }}
-                            maxLength={60}
-                            className="border p-2 rounded text-black"
-                            placeholder={t("admin.engagement.items.linkLabelPlaceholder")}
-                          />
-                          <button type="button" onClick={() => handleAddRewardItem(campaign.id)} className="md:col-span-2 bg-fuchsia-600 text-white px-3 py-2 rounded font-semibold">{t("admin.engagement.items.addRewardOption")}</button>
-                        </div>
                       </div>
                     </div>
                   </details>

@@ -277,6 +277,12 @@
       "availableOn": "Available on {{plan}}",
       "upgrade": "Upgrade",
       "go": "Go",
+      "setupLinks": {
+        "title": "Set up optional connections",
+        "body": "Donations and public review destinations are configured outside the First Guide, but you can open their setup directly here.",
+        "donations": "Set up donations",
+        "reviews": "Set up review sites"
+      },
       "whatsNew": {
         "title": "What's new in Godwit",
         "item1Title": "Rotating polls, smart review routing, anomaly alerts",
@@ -485,7 +491,7 @@
       },
       "campaigns": {
         "title": "Create QR code",
-        "description": "Set a name and placement below to create a QR code, then build what it shows: an info card, one or more polls, a donation ask, and a reward or prize — in that order, per QR code.",
+        "description": "Set a name and placement below to create a QR code, then build what it shows: an info card, one or more polls, public review links, and an optional donation ask.",
         "tip": "Tip: open a printed QR code while signed in to see its name and poll, and change them directly.",
         "namePlaceholder": "Lobby poster, receipt, table tent",
         "nameLabel": "QR code name",
@@ -516,7 +522,7 @@
         "itemsOnQr": "Manage what's on this QR code ({{count}})",
         "itemsHint": "Add one or more polls, info cards, and a donation ask here to turn this QR code into a menu: scanning it will show everything listed below at once, instead of going straight to a single poll.",
         "advancedTitle": "More QR tools",
-        "advancedDescription": "Track reward redemptions or run prize draws — all optional, and all related to the QR codes above. Donations are set up in Settings."
+        "advancedDescription": "Track rewards configured after voting or run prize draws — all optional and managed as part of customer connection. Donations are set up in Settings."
       },
       "wizard": {
         "stepOf": "Step {{step}} of {{total}}",
@@ -526,8 +532,7 @@
         "pollsAddedSoFar": "{{count}} poll(s) added so far",
         "step3Title": "3. Choose public review links (optional)",
         "step4Title": "4. Add a donation option (optional)",
-        "step5Title": "5. Add a reward or prize (optional)",
-        "step6Title": "6. Print your QR code",
+        "step5Title": "5. Print your QR code",
         "previewTitle": "Preview: what a scanner will see",
         "back": "Back",
         "next": "Next",
@@ -567,8 +572,7 @@
         "rewardTitlePlaceholder": "Reward or prize title: Free coffee, Win a gift card...",
         "rewardBodyPlaceholder": "Details or terms (optional)",
         "rewardCodePlaceholder": "Redemption code to show staff (optional)",
-        "rewardCodeLabel": "code {{code}}",
-        "addRewardOption": "Add reward or prize"
+        "rewardCodeLabel": "code {{code}}"
       },
       "redemptions": {
         "title": "Reward redemptions",

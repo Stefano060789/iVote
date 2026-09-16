@@ -342,7 +342,7 @@ export default function CreatePoll() {
         <details className="mb-6 border border-slate-700 rounded">
           <summary className="cursor-pointer p-3 font-semibold">After voting (optional)</summary>
           <div className="px-3 pb-3">
-            <p className="mb-3 text-sm text-slate-400">Show a thank-you reward and/or ask happy voters to leave a public review. This only appears to someone who actually completes this poll - different from a QR code's own "Reward & Prize" item (set in the QR codes tab), which shows to every scanner regardless of voting.</p>
+            <p className="mb-3 text-sm text-slate-400">Choose what happens after this poll. An email benefit is shown only after a voter explicitly shares their email and consents to follow-up. Public review links are a separate invitation to leave honest feedback on Google, Tripadvisor, or another platform; they must remain optional and cannot be tied to a positive answer.</p>
             {entitlements.rewardMessage ? (
             <>
             <label className="block mb-2 font-semibold">Reward message</label>
@@ -380,8 +380,8 @@ export default function CreatePoll() {
               </div>
             )}
             <div className="mt-5 border-t border-slate-600 pt-4">
-              <p className="font-semibold">Email opt-in benefit</p>
-              <p className="mt-1 text-xs text-slate-400">Give an opted-in voter a voucher or online discount code. Their email is stored only after explicit consent.</p>
+              <p className="font-semibold">Reward if email is shared</p>
+              <p className="mt-1 text-xs text-slate-400">Give a voter who explicitly shares their email and consents to follow-up a voucher or online discount code. Voting remains anonymous unless they opt in.</p>
               <select value={emailBenefitType} onChange={(event) => setEmailBenefitType(event.target.value)} className="mt-3 w-full border p-2 rounded text-black">
                 <option value="none">No email benefit</option>
                 <option value="voucher">Voucher</option>
