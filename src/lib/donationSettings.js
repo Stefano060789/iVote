@@ -1,11 +1,22 @@
 import { supabase } from "./supabase";
 
+function isMissingCategoryColumn(error) {
+  return error?.code === "42703" || error?.message?.includes("donation_settings.category");
+}
+
 export async function loadDonationSettings(workspaceId) {
-  const { data, error } = await supabase
+  const query = supabase
     .from("donation_settings")
     .select("is_enabled, category, currency, suggested_amount, message, stripe_account_id, stripe_onboarding_complete, stripe_charges_enabled, stripe_payouts_enabled")
-    .eq("workspace_id", workspaceId)
-    .maybeSingle();
+    .eq("workspace_id", workspaceId);
+  let { data, error } = await query.maybeSingle();
+  if (isMissingCategoryColumn(error)) {
+    ({ data, error } = await supabase
+      .from("donation_settings")
+      .select("is_enabled, currency, suggested_amount, message, stripe_account_id, stripe_onboarding_complete, stripe_charges_enabled, stripe_payouts_enabled")
+      .eq("workspace_id", workspaceId)
+      .maybeSingle());
+  }
   if (error) throw new Error(`Unable to load donation settings: ${error.message}`);
   return data ?? {
     is_enabled: false,
@@ -24,17 +35,23 @@ export async function loadDonationSettings(workspaceId) {
 // ever written server-side (by the onboarding/status-refresh endpoints and the account.updated
 // webhook), never from a plain form submit.
 export async function saveDonationSettings(workspaceId, settings) {
-  const { error } = await supabase
+  const values = {
+    workspace_id: workspaceId,
+    is_enabled: Boolean(settings.is_enabled),
+    category: ["tip", "contribution", "donation"].includes(settings.category) ? settings.category : "contribution",
+    currency: (settings.currency || "EUR").trim().toUpperCase(),
+    suggested_amount: settings.suggested_amount ? Number(settings.suggested_amount) : null,
+    message: settings.message?.trim() || null,
+    updated_at: new Date().toISOString()
+  };
+  let { error } = await supabase
     .from("donation_settings")
-    .upsert({
-      workspace_id: workspaceId,
-      is_enabled: Boolean(settings.is_enabled),
-      category: ["tip", "contribution", "donation"].includes(settings.category) ? settings.category : "contribution",
-      currency: (settings.currency || "EUR").trim().toUpperCase(),
-      suggested_amount: settings.suggested_amount ? Number(settings.suggested_amount) : null,
-      message: settings.message?.trim() || null,
-      updated_at: new Date().toISOString()
-    });
+    .upsert(values);
+  if (isMissingCategoryColumn(error)) {
+    const legacyValues = { ...values };
+    delete legacyValues.category;
+    ({ error } = await supabase.from("donation_settings").upsert(legacyValues));
+  }
   if (error) throw new Error(`Unable to save donation settings: ${error.message}`);
 }
 
