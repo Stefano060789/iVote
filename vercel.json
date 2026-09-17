@@ -15,6 +15,14 @@
     {
       "path": "/api/cron?job=send-winback-emails",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron?job=stripe-reconciliation",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron?job=process-dsar",
+      "schedule": "30 3 * * *"
     }
   ],
   "rewrites": [

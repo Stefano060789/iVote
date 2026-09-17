@@ -1203,12 +1203,23 @@ export default function Admin() {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
+      const framePadding = 42;
+      const footerHeight = 54;
       const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
+      canvas.width = img.naturalWidth + framePadding * 2;
+      canvas.height = img.naturalHeight + framePadding * 2 + footerHeight;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      ctx.drawImage(img, 0, 0);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = "#0b1a33";
+      ctx.lineWidth = 18;
+      ctx.strokeRect(9, 9, canvas.width - 18, canvas.height - 18);
+      ctx.drawImage(img, framePadding, framePadding);
+      ctx.fillStyle = "#0b1a33";
+      ctx.font = "700 22px Arial, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("hellogodwit.com", canvas.width / 2, canvas.height - 18);
       const link = document.createElement("a");
       link.download = `${(campaign.name || "qr-campaign").replace(/[^a-z0-9-]+/gi, "-").toLowerCase()}-qr.png`;
       link.href = canvas.toDataURL("image/png");
@@ -1263,8 +1274,9 @@ export default function Admin() {
             }
             .header { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 18px; }
             .brand { font-size: 28px; font-weight: 700; letter-spacing: 0.04em; color: #0f172a; }
-            .qr-box { background: rgba(255,255,255,0.92); border-radius: 18px; padding: 18px; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12); }
+            .qr-box { position: relative; background: #fff; border: 12px solid #0b1a33; border-radius: 18px; padding: 18px 18px 44px; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12); }
             .qr-box img { display: block; width: 260px; height: 260px; object-fit: contain; }
+            .qr-mark { position: absolute; right: 0; bottom: 8px; left: 0; color: #0b1a33; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-align: center; }
             .title { margin-top: 18px; font-size: 20px; font-weight: 700; text-align: center; max-width: 620px; }
             .subtitle { margin-top: 8px; font-size: 14px; text-align: center; letter-spacing: 0.08em; text-transform: uppercase; color: #334155; }
             .godwit-footer { margin-top: 22px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 10px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #475569; }
@@ -1279,6 +1291,7 @@ export default function Admin() {
             </div>
             <div class="qr-box">
               <img src="${getCampaignQrImageUrl(url, 600)}" alt="QR code" />
+              <div class="qr-mark">hellogodwit.com</div>
             </div>
             <div class="subtitle">${t("admin.engagement.campaigns.scanToView")}</div>
             <div class="title">${campaignName}</div>
@@ -1561,10 +1574,28 @@ export default function Admin() {
 
         <div className="rounded border border-slate-700 bg-gray-900 p-5">
           <h2 className="text-xl font-bold">{t("admin.connection.whatCustomerSees.title")}</h2>
-          <div className="mt-3 grid gap-3 text-sm text-slate-300 md:grid-cols-3">
-            <p><strong>{t("admin.connection.whatCustomerSees.voteLabel")}</strong> {t("admin.connection.whatCustomerSees.voteBody")}</p>
-            <p><strong>{t("admin.connection.whatCustomerSees.stayConnectedLabel")}</strong> {t("admin.connection.whatCustomerSees.stayConnectedBody")}</p>
-            <p><strong>{t("admin.connection.whatCustomerSees.shareHonestlyLabel")}</strong> {t("admin.connection.whatCustomerSees.shareHonestlyBody")}</p>
+          <div className="customer-connection-journey mt-4" aria-label={t("admin.connection.whatCustomerSees.title")}>
+            <article className="customer-connection-step">
+              <span className="customer-connection-step-number" aria-hidden="true">1</span>
+              <div className="min-w-0">
+                <p className="customer-connection-step-label">{t("admin.connection.whatCustomerSees.voteLabel")}</p>
+                <p className="customer-connection-step-body">{t("admin.connection.whatCustomerSees.voteBody")}</p>
+              </div>
+            </article>
+            <article className="customer-connection-step">
+              <span className="customer-connection-step-number" aria-hidden="true">2</span>
+              <div className="min-w-0">
+                <p className="customer-connection-step-label">{t("admin.connection.whatCustomerSees.stayConnectedLabel")}</p>
+                <p className="customer-connection-step-body">{t("admin.connection.whatCustomerSees.stayConnectedBody")}</p>
+              </div>
+            </article>
+            <article className="customer-connection-step">
+              <span className="customer-connection-step-number" aria-hidden="true">3</span>
+              <div className="min-w-0">
+                <p className="customer-connection-step-label">{t("admin.connection.whatCustomerSees.shareHonestlyLabel")}</p>
+                <p className="customer-connection-step-body">{t("admin.connection.whatCustomerSees.shareHonestlyBody")}</p>
+              </div>
+            </article>
           </div>
           <p className="mt-4 text-xs text-slate-500">{t("admin.connection.whatCustomerSees.disclaimer")}</p>
         </div>

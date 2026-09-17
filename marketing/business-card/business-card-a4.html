@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Godwit — A4 Business Card Sheet</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    :root {
+      --paper: #f8f5ed;
+      --sage: #e5f0e9;
+      --teal: #0f766e;
+      --deep-green: #123b36;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      margin: 0;
+      min-width: 210mm;
+      min-height: 297mm;
+      background: #edf2ee;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+
+    .print-hint {
+      margin: 8mm auto;
+      max-width: 176mm;
+      color: #315c55;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .sheet {
+      width: 210mm;
+      min-height: 297mm;
+      padding: 5mm 17.5mm;
+      display: grid;
+      grid-template-columns: repeat(2, 85mm);
+      grid-template-rows: repeat(5, 55mm);
+      gap: 3mm 5mm;
+      align-content: start;
+      background: #ffffff;
+    }
+
+    .card {
+      width: 85mm;
+      height: 55mm;
+      padding: 5mm 6mm;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      gap: 3.5mm;
+      color: var(--deep-green);
+      border: 0.35mm solid rgba(15, 118, 110, 0.28);
+      border-radius: 4mm;
+      background:
+        radial-gradient(42mm 30mm at 92% 8%, rgba(203, 151, 30, 0.18), transparent 62%),
+        linear-gradient(145deg, var(--paper) 0%, var(--sage) 58%, #d9ebe5 100%);
+      box-shadow: 0 1mm 3mm rgba(18, 59, 54, 0.16);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 0.8mm;
+      background: var(--teal);
+    }
+
+    .left-col {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding-top: 1mm;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 2.2mm;
+    }
+
+    .brand-row img {
+      width: 12mm;
+      height: 12mm;
+      flex-shrink: 0;
+    }
+
+    .wordmark {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--deep-green);
+      letter-spacing: 0.3px;
+      line-height: 1;
+    }
+
+    .tagline {
+      margin: 0.8mm 0 0;
+      color: #416b64;
+      font-size: 8px;
+      line-height: 1.3;
+    }
+
+    .benefit-headline {
+      max-width: 45mm;
+      margin: 2mm 0 0.8mm;
+      color: var(--deep-green);
+      font-size: 8.5px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .benefits {
+      max-width: 45mm;
+      margin: 0 0 2mm;
+      color: #315c55;
+      font-size: 8px;
+      line-height: 1.4;
+    }
+
+    .benefits .kw {
+      color: var(--teal);
+      font-weight: 700;
+    }
+
+    .divider {
+      width: 8mm;
+      height: 0.5mm;
+      margin-bottom: 1.6mm;
+      border-radius: 1mm;
+      background: var(--teal);
+    }
+
+    .contact {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5mm;
+    }
+
+    .name {
+      color: var(--deep-green);
+      font-size: 9.5px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .role {
+      margin-top: 0.6mm;
+      color: var(--teal);
+      font-size: 7px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    .right-col {
+      width: 22mm;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.6mm;
+    }
+
+    .qr-wrap {
+      flex-shrink: 0;
+      padding: 1.6mm;
+      line-height: 0;
+      border-radius: 2mm;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(18, 59, 54, 0.2);
+    }
+
+    .qr-wrap img {
+      display: block;
+      width: 20mm;
+      height: 20mm;
+    }
+
+    .qr-caption,
+    .website {
+      color: var(--deep-green);
+      text-align: center;
+    }
+
+    .qr-caption {
+      font-size: 6.5px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .website {
+      font-size: 8px;
+      font-weight: 700;
+    }
+
+    @media print {
+      html,
+      body {
+        width: 210mm;
+        height: 297mm;
+        min-width: 0;
+        min-height: 0;
+        background: #ffffff;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+
+      .print-hint {
+        display: none;
+      }
+
+      .sheet {
+        page-break-after: avoid;
+        break-after: avoid;
+        box-shadow: none;
+      }
+
+      .card {
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <p class="print-hint">
+    A4 print sheet: 20 cards on 2 pages, 2 columns × 5 rows per page. Print at 100% scale,
+    disable printer margins, and enable background graphics. Cut along the gaps between cards.
+  </p>
+
+  <main class="sheet">
+    <script>
+      const cardMarkup = `
+        <article class="card">
+          <div class="left-col">
+            <div>
+              <div class="brand-row">
+                <img src="../../src/assets/godwit-mark.svg" alt="Godwit mark" />
+                <span class="wordmark">Godwit</span>
+              </div>
+              <p class="tagline">QR feedback for real-world spaces.</p>
+            </div>
+            <div>
+              <p class="benefit-headline">A better connection with every customer.</p>
+              <p class="benefits">One scan for more <span class="kw">feedback</span>, <span class="kw">loyalty</span> &amp; <span class="kw">venue support</span>.</p>
+            </div>
+            <div class="contact">
+              <div class="divider"></div>
+              <span class="name">Stefano Bonomi</span>
+              <span class="name">Mariia Obloh</span>
+              <span class="role">Co-Founders</span>
+            </div>
+          </div>
+          <div class="right-col">
+            <div class="qr-wrap">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&amp;margin=0&amp;data=https%3A%2F%2Fhellogodwit.com" alt="QR code to Godwit" />
+            </div>
+            <span class="qr-caption">Scan to explore</span>
+            <span class="website">hellogodwit.com</span>
+          </div>
+        </article>`;
+
+      const firstSheet = document.querySelector(".sheet");
+      const secondSheet = firstSheet.cloneNode(false);
+      firstSheet.insertAdjacentHTML("beforeend", cardMarkup.repeat(10));
+      secondSheet.insertAdjacentHTML("beforeend", cardMarkup.repeat(10));
+      firstSheet.insertAdjacentElement("afterend", secondSheet);
+    </script>
+  </main>
+</body>
+</html>

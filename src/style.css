@@ -845,6 +845,67 @@ textarea {
   color: #607170;
 }
 
+.customer-connection-journey {
+  display: grid;
+  gap: 10px;
+}
+
+.customer-connection-step {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 12px;
+  background: rgba(15, 118, 110, 0.08);
+}
+
+.customer-connection-step-number {
+  display: grid;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--action-primary);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.customer-connection-step-label {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.customer-connection-step-body {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+@media (min-width: 720px) {
+  .customer-connection-journey {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  .customer-connection-step:not(:last-child)::after {
+    position: absolute;
+    top: 27px;
+    right: -25px;
+    width: 24px;
+    height: 2px;
+    background: var(--line);
+    content: "";
+  }
+}
+
 :root:not([data-theme="dark"]) .qr-wizard-modal [class*="bg-[#182742]"] {
   color: #173b3a !important;
 }

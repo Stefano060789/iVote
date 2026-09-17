@@ -14,13 +14,17 @@ import { runWeeklyReport } from "../lib/cron/weeklyReportJob.js";
 import { runAnomalyCheck } from "../lib/cron/anomalyCheckJob.js";
 import { runPurgeOldVotes } from "../lib/cron/purgeOldVotesJob.js";
 import { runSendWinbackEmails } from "../lib/cron/sendWinbackEmailsJob.js";
+import { runStripeReconciliation } from "../lib/cron/stripeReconciliationJob.js";
+import { runDsarProcessing } from "../lib/cron/dsarJob.js";
 import { captureError } from "../lib/errorReporting.js";
 
 const JOBS = {
   "weekly-report": { run: runWeeklyReport, methods: ["GET"] },
   "check-anomalies": { run: runAnomalyCheck, methods: ["GET", "POST"] },
   "purge-old-votes": { run: runPurgeOldVotes, methods: ["GET", "POST"] },
-  "send-winback-emails": { run: runSendWinbackEmails, methods: ["GET"] }
+  "send-winback-emails": { run: runSendWinbackEmails, methods: ["GET"] },
+  "stripe-reconciliation": { run: runStripeReconciliation, methods: ["GET"] },
+  "process-dsar": { run: runDsarProcessing, methods: ["GET"] }
 };
 
 export default async function handler(request, response) {

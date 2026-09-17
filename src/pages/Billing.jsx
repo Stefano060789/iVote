@@ -47,6 +47,8 @@ export default function Billing() {
   const [error, setError] = useState("");
   const [currentPlan, setCurrentPlan] = useState("");
   const [trialEligible, setTrialEligible] = useState(false);
+  const [trialEndsAt, setTrialEndsAt] = useState("");
+  const [trialDaysRemaining, setTrialDaysRemaining] = useState(null);
   const [termsAcknowledged, setTermsAcknowledged] = useState(false);
   const checkoutState = searchParams.get("checkout");
   const trialJustStarted = checkoutState === "success" && searchParams.get("trial") === "1";
@@ -63,16 +65,34 @@ export default function Billing() {
         // the same rule api/create-checkout-session.js uses to grant the trial.
         const { data: subscriptionRows } = await supabase
           .from("workspace_subscriptions")
-          .select("workspace_id")
+          .select("workspace_id,status,current_period_end")
           .eq("workspace_id", profile.id)
           .limit(1);
         setTrialEligible(!subscriptionRows || subscriptionRows.length === 0);
+        const trialSubscription = subscriptionRows?.find((row) => row.status === "trialing" && row.current_period_end);
+        setTrialEndsAt(trialSubscription?.current_period_end || "");
       } catch (profileError) {
         console.error(profileError);
       }
     }
     loadCurrentPlan();
   }, []);
+
+  useEffect(() => {
+    if (!trialEndsAt) {
+      setTrialDaysRemaining(null);
+      return undefined;
+    }
+
+    function updateTrialCountdown() {
+      const millisecondsRemaining = new Date(trialEndsAt).getTime() - Date.now();
+      setTrialDaysRemaining(Math.max(0, Math.ceil(millisecondsRemaining / 86400000)));
+    }
+
+    updateTrialCountdown();
+    const timer = window.setInterval(updateTrialCountdown, 60000);
+    return () => window.clearInterval(timer);
+  }, [trialEndsAt]);
 
   async function startCheckout(plan) {
     if (plan.key === "free") return;
@@ -108,6 +128,11 @@ export default function Billing() {
         <h1 className="text-3xl font-bold text-center">{t("billing.title")}</h1>
         <p className="mt-2 text-center text-sm text-slate-400">{t("billing.subtitle")}</p>
         {trialEligible && <p className="mt-1 text-center text-sm font-semibold text-amber-300">{t("billing.trialBanner")}</p>}
+        {trialDaysRemaining !== null && (
+          <p className="mx-auto mt-3 max-w-xl rounded-lg border border-amber-400/40 bg-amber-400/10 px-4 py-3 text-center text-sm font-semibold text-amber-200">
+            {t("billing.trialCountdown", { count: trialDaysRemaining })}
+          </p>
+        )}
         {currentPlan && <p className="mt-2 text-center text-sm text-teal-300">{t("billing.currentPlanNotice", { plan: planLabel(currentPlan) })}</p>}
         {trialJustStarted && <p className="mt-5 text-center text-emerald-400">{t("billing.trialStarted")}</p>}
         {checkoutState === "success" && !trialJustStarted && <p className="mt-5 text-center text-emerald-400">{t("billing.checkoutSuccess")}</p>}
@@ -141,6 +166,11 @@ export default function Billing() {
                   <p className="mt-1 inline-block rounded-full bg-amber-400/15 px-2.5 py-0.5 text-xs font-bold text-amber-300">{t("billing.freeTrialBadge")}</p>
                 )}
                 <p className="mt-2 min-h-12 text-sm text-slate-300">{t(`billing.plans.${plan.key}.description`)}</p>
+                {offersTrial && (
+                  <p className="mt-2 text-xs leading-relaxed text-slate-400">
+                    {t("billing.trialDisclosure", { amount: plan.amount, plan: planName })}
+                  </p>
+                )}
                 <button
                   onClick={() => startCheckout(plan)}
                   disabled={Boolean(loadingPlan) || plan.key === "free" || isCurrent || !termsAcknowledged}

@@ -108,19 +108,21 @@ items as you address them.
   for sourcing/delivering the prize and its tax treatment, with Godwit only as the technology
   provider; (3) start with a low-value prize (a free coffee, small venue voucher), not cash.
 
-- [ ] **Nightly Stripe reconciliation job** (compare `donations`/`workspace_subscriptions`
-  against the Stripe API for drift) - a real, buildable feature, just not built yet. Worth
-  doing before scaling donation volume.
+- [x] **Nightly Stripe reconciliation job** (compare `donations`/`workspace_subscriptions`
+  against the Stripe API for drift). It runs through the consolidated `/api/cron` function at
+  03:00 UTC, stores each result in `stripe_reconciliation_runs`, and can email mismatches to
+  `RECONCILIATION_ALERT_EMAIL`.
 
-- [ ] **Fully automated DSAR export/delete.** `Account.jsx`'s "Request data export" / "Request
-  account deletion" buttons currently just log a request into `privacy_requests` for manual
-  handling - there's no admin UI to view that queue yet, and no automated export across every
-  table touching a given voter's data. Fine for a small team handling requests within the GDPR
-  one-month window by hand today; revisit if request volume grows.
+- [x] **Automated DSAR export/delete.** The consolidated `/api/cron` function processes up to 25
+  requested privacy actions nightly at 03:30 UTC. Exports are emailed as JSON attachments;
+  deletion removes the owned workspace data, account memberships, opted-in voter records,
+  donor email addresses, and the Supabase Auth account. Failed requests are marked rejected
+  with an error for follow-up.
 
 - [ ] GitHub repo settings: turn on **Dependabot alerts** and **Dependabot security updates**
-  under Settings -> Security (`.github/dependabot.yml` only covers scheduled version-update
-  PRs, which is a separate toggle).
+  under Settings -> Security. `.github/dependabot.yml` is already configured for npm and GitHub
+  Actions updates; these two security toggles are repository settings and cannot be enabled by a
+  repository file alone.
 
 - [ ] **Buy a custom domain and point it at Vercel.** Production currently runs on Vercel's
   default `i-vote-one.vercel.app` subdomain - fine for testing, not for a real pilot venue
@@ -144,11 +146,9 @@ items as you address them.
   Once bought: add it in Vercel -> Settings -> Domains, update `APP_URL`, and update any
   hardcoded links (emails, Stripe Checkout success/cancel URLs, QR short-link generation).
 
-- **Still true and worth remembering**: the project sits at exactly 12/12 Vercel serverless
-  API functions with zero headroom (Hobby plan). Before adding any new `api/*.js` file,
-  consolidate an existing one first (e.g. `notify-content-report.js` +
-  `dispatch-webhook.js` could merge into one action-dispatched function) or upgrade to
-  Vercel Pro.
+- [x] **Vercel function budget respected.** The repository still has exactly 12 files directly
+  under `api/`. Stripe reconciliation and DSAR processing were added under `lib/cron/` and
+  routed through the existing `/api/cron` function, so no new Vercel function was created.
 
 ## Resolved legal-review items (2026-09-14)
 

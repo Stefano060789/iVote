@@ -14,10 +14,13 @@
   }
 
   :root {
-    --navy: #0b1a33;
-    --navy-deep: #071021;
+    --paper: #fffdf8;
+    --sage: #e5f0e9;
+    --teal: #0f766e;
+    --teal-soft: #d9f3ed;
+    --deep-green: #123b36;
     --gold: #f2c744;
-    --gold-soft: #fbe9ae;
+    --gold-soft: #fff1b8;
     --gold-deep: #c9971e;
   }
 
@@ -26,7 +29,7 @@
   body {
     margin: 0;
     padding: 24px;
-    background: #e2e8f0; /* just a neutral backdrop while viewing on screen, not printed */
+    background: #edf2ee; /* just a neutral backdrop while viewing on screen, not printed */
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
@@ -42,8 +45,11 @@
   .card {
     width: 85mm;
     height: 55mm;
-    background: linear-gradient(155deg, var(--navy-deep) 0%, var(--navy) 100%);
-    color: #ffffff;
+    background:
+      radial-gradient(42mm 30mm at 92% 8%, rgba(203, 151, 30, 0.18), transparent 62%),
+      linear-gradient(145deg, #f8f5ed 0%, #e5f0e9 58%, #d9ebe5 100%);
+    color: var(--deep-green);
+    border: 0.35mm solid rgba(15, 118, 110, 0.28);
     border-radius: 4mm;
     padding: 5mm 6mm;
     display: flex;
@@ -52,18 +58,18 @@
     gap: 3.5mm;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 4px 18px rgba(18, 59, 54, 0.16);
   }
 
-  /* Thin gold accent rule along the top edge - a small, deliberate touch of polish. */
+  /* Clean teal accent rule along the top edge. */
   .card::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 1.2mm;
-    background: linear-gradient(90deg, var(--gold-deep), var(--gold) 45%, var(--gold-soft));
+    height: 0.8mm;
+    background: var(--teal);
   }
 
   .left-col {
@@ -78,12 +84,12 @@
   .brand-row {
     display: flex;
     align-items: center;
-    gap: 2.6mm;
+    gap: 2.2mm;
   }
 
   .brand-row img {
-    width: 8.5mm;
-    height: 8.5mm;
+    width: 12mm;
+    height: 12mm;
     flex-shrink: 0;
   }
 
@@ -91,14 +97,14 @@
     font-family: Georgia, "Times New Roman", serif;
     font-size: 18px;
     font-weight: 700;
-    color: var(--gold);
+    color: var(--deep-green);
     letter-spacing: 0.3px;
     line-height: 1;
   }
 
   .tagline {
     font-size: 8px;
-    color: #93a4bf;
+    color: #416b64;
     margin-top: 0.8mm;
     line-height: 1.3;
   }
@@ -106,7 +112,7 @@
   .benefit-headline {
     font-size: 8.5px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--deep-green);
     line-height: 1.3;
     max-width: 45mm;
     margin: 2mm 0 0.8mm;
@@ -115,20 +121,20 @@
   .benefits {
     font-size: 8px;
     line-height: 1.4;
-    color: #dbe4f2;
+    color: #315c55;
     margin: 0 0 2mm;
     max-width: 45mm;
   }
 
   .benefits .kw {
-    color: var(--gold);
+    color: var(--teal);
     font-weight: 700;
   }
 
   .divider {
     width: 8mm;
     height: 0.5mm;
-    background: var(--gold-deep);
+    background: var(--teal);
     border-radius: 1mm;
     margin-bottom: 1.6mm;
   }
@@ -142,13 +148,13 @@
   .name {
     font-size: 9.5px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--deep-green);
     line-height: 1.25;
   }
 
   .role {
     font-size: 7px;
-    color: var(--gold-soft);
+    color: var(--teal);
     text-transform: uppercase;
     letter-spacing: 0.4px;
     margin-top: 0.6mm;
@@ -156,7 +162,7 @@
 
   .website {
     font-size: 8px;
-    color: var(--gold);
+    color: var(--deep-green);
     font-weight: 700;
     text-align: center;
   }
@@ -177,7 +183,7 @@
     padding: 1.6mm;
     flex-shrink: 0;
     line-height: 0;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 6px rgba(18, 59, 54, 0.2);
   }
 
   .qr-wrap img {
@@ -191,16 +197,51 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--gold-soft);
+    color: var(--deep-green);
     text-align: center;
+  }
+
+  @media print {
+    @page {
+      size: 85mm 55mm;
+      margin: 0;
+    }
+
+    html,
+    body {
+      width: 85mm;
+      height: 55mm;
+      margin: 0;
+      padding: 0;
+      background: transparent;
+    }
+
+    body {
+      display: block;
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+
+    .print-hint {
+      display: none;
+    }
+
+    .card {
+      width: 85mm;
+      height: 55mm;
+      margin: 0;
+      border-radius: 0;
+      box-shadow: none;
+      break-after: page;
+      page-break-after: always;
+    }
   }
 </style>
 </head>
 <body>
   <p class="print-hint">
-    Preview at actual size below. To print: File → Print → set paper size to match (85mm × 55mm)
-    or export as PDF at 100% scale, not "fit to page". hellogodwit.com is live and connected to
-    Vercel — this card is ready to print as-is.
+    Screen preview only. For printing, choose 85 × 55 mm, scale 100%, disable margins and enable
+    background graphics. The QR code links to hellogodwit.com.
   </p>
 
   <div class="card">
@@ -216,7 +257,7 @@
       <p class="benefit-headline">A better connection with every customer.</p>
       <p class="benefits">
         One scan for more <span class="kw">feedback</span>, <span class="kw">loyalty</span>
-        &amp; <span class="kw">donations</span>.
+        &amp; <span class="kw">venue support</span>.
       </p>
 
       <div class="contact">

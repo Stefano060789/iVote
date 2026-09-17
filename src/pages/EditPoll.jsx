@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabase";
 import { savePollMeta, readPollMeta } from "../lib/pollMeta";
 import { POLL_TEMPLATES, getTemplateByKey } from "../lib/pollTemplates";
@@ -9,6 +10,7 @@ import { getEntitlements } from "../lib/entitlements";
 import LockedFeature from "../components/LockedFeature";
 
 export default function EditPoll() {
+  const { t } = useTranslation();
   const { pollId } = useParams();
   const navigate = useNavigate();
 
@@ -142,7 +144,7 @@ export default function EditPoll() {
     if (!question.trim() || cleanedAnswers.length === 0) return;
 
     if (raffleEnabled && !raffleAcknowledged) {
-      alert("Confirm the prize draw eligibility rules checkbox before you can turn on a prize draw.");
+      alert(t("admin.pollForm.errors.confirmPrizeRules"));
       return;
     }
 
@@ -193,9 +195,9 @@ export default function EditPoll() {
 
   return (
     <div className="workspace-page max-w-xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center">Edit Poll</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">{t("admin.pollForm.editTitle")}</h1>
 
-      <label className="block mb-2 font-semibold">Template</label>
+      <label className="block mb-2 font-semibold">{t("admin.pollForm.template")}</label>
       <select
         value={templateKey}
         onChange={(e) => applyTemplate(e.target.value)}
@@ -208,14 +210,14 @@ export default function EditPoll() {
         ))}
       </select>
 
-      <label className="block mb-2 font-semibold">Question</label>
+      <label className="block mb-2 font-semibold">{t("admin.pollForm.question")}</label>
       <input
         value={question}
         onChange={(e) => setQuestion(e.target.value)}
         className="w-full border p-2 rounded mb-4 text-black"
       />
 
-      <label className="block mb-2 font-semibold">Answers</label>
+      <label className="block mb-2 font-semibold">{t("admin.pollForm.answers")}</label>
       <div className="space-y-2 mb-4">
         {answers.map((answer, index) => (
           <input
@@ -224,26 +226,26 @@ export default function EditPoll() {
             value={answer}
             onChange={(e) => updateAnswer(index, e.target.value)}
             className="w-full border p-2 rounded text-black"
-            placeholder={`Answer ${index + 1}`}
+            placeholder={t("admin.pollForm.answerPlaceholder", { number: index + 1 })}
           />
         ))}
       </div>
 
       {answers.length >= 10 && (
-        <p className="text-red-600 text-sm mb-4">Maximum of 10 answers reached.</p>
+        <p className="text-red-600 text-sm mb-4">{t("admin.pollForm.maxAnswers")}</p>
       )}
 
       <details className="mb-4 border border-slate-700 rounded">
-        <summary className="cursor-pointer p-3 font-semibold">Response options</summary>
+        <summary className="cursor-pointer p-3 font-semibold">{t("admin.pollForm.responseOptions")}</summary>
         <div className="px-3 pb-3">
-          <p className="mb-3 text-sm text-slate-400">Choose how people can respond to this poll.</p>
+          <p className="mb-3 text-sm text-slate-400">{t("admin.pollForm.responseOptionsHint")}</p>
           <label className="flex items-center gap-2 mb-3">
             <input
               type="checkbox"
               checked={multipleChoice}
               onChange={(e) => setMultipleChoice(e.target.checked)}
             />
-            <span>Allow more than one answer</span>
+            <span>{t("admin.pollForm.multipleAnswers")}</span>
           </label>
           <label className="flex items-center gap-2">
             <input
@@ -251,42 +253,42 @@ export default function EditPoll() {
               checked={allowUserAnswers}
               onChange={(e) => setAllowUserAnswers(e.target.checked)}
             />
-            <span>Let people add their own answer</span>
+            <span>{t("admin.pollForm.customAnswers")}</span>
           </label>
         </div>
       </details>
 
-      <label className="block mb-2 font-semibold">QR location name</label>
+      <label className="block mb-2 font-semibold">{t("admin.pollForm.qrLocation")}</label>
       <input
        value={locationName}
        onChange={(e) => setLocationName(e.target.value)}
        className="w-full border p-2 rounded mb-4 text-black"
-       placeholder="Entrance, Table 1, Bar"
+       placeholder={t("admin.pollForm.qrLocationPlaceholder")}
       />
 
-      <h2 className="text-xl font-bold mb-3">Branding</h2>
+      <h2 className="text-xl font-bold mb-3">{t("admin.pollForm.branding")}</h2>
 
-      <label className="block mb-2 font-semibold">Customer/Brand name</label>
+      <label className="block mb-2 font-semibold">{t("admin.pollForm.brandName")}</label>
       <input
         value={brandName}
         onChange={(e) => setBrandName(e.target.value)}
         className="w-full border p-2 rounded mb-4 text-black"
-        placeholder="Acme Events"
+        placeholder={t("admin.pollForm.brandNamePlaceholder")}
       />
 
-      <label className="block mb-2 font-semibold">Brand logo URL (optional)</label>
+      <label className="block mb-2 font-semibold">{t("admin.pollForm.brandLogo")}</label>
       <input
         type="url"
         value={brandLogoUrl}
         onChange={(e) => setBrandLogoUrl(e.target.value)}
         className="w-full border p-2 rounded mb-4 text-black"
-        placeholder="https://example.com/logo.png"
+        placeholder={t("admin.pollForm.brandLogoPlaceholder")}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
         <label className="block font-semibold">
-          Button and link color
-          <span className="mt-1 block text-xs font-normal text-slate-400">Used for actions people can click.</span>
+          {t("admin.pollForm.buttonColor")}
+          <span className="mt-1 block text-xs font-normal text-slate-400">{t("admin.pollForm.buttonColorHint")}</span>
           <input
             type="color"
             value={brandPrimaryColor}
@@ -295,8 +297,8 @@ export default function EditPoll() {
           />
         </label>
         <label className="block font-semibold">
-          Page background color
-          <span className="mt-1 block text-xs font-normal text-slate-400">Used behind the poll and QR page.</span>
+          {t("admin.pollForm.backgroundColor")}
+          <span className="mt-1 block text-xs font-normal text-slate-400">{t("admin.pollForm.backgroundColorHint")}</span>
           <input
             type="color"
             value={brandAccentColor}
@@ -306,7 +308,7 @@ export default function EditPoll() {
         </label>
       </div>
 
-      <label className="block mb-2 font-semibold">Starts at</label>
+      <label className="block mb-2 font-semibold">{t("admin.pollForm.startsAt")}</label>
       <input
        type="datetime-local"
        value={startsAt}
@@ -314,7 +316,7 @@ export default function EditPoll() {
        className="w-full border p-2 rounded mb-4 text-black"
       />
 
-      <label className="block mb-2 font-semibold">Ends at</label>
+      <label className="block mb-2 font-semibold">{t("admin.pollForm.endsAt")}</label>
       <input
        type="datetime-local"
        value={expiresAt}
@@ -322,18 +324,18 @@ export default function EditPoll() {
        className="w-full border p-2 rounded mb-4 text-black"
       />
 
-      <h2 className="text-xl font-bold mb-3">After voting (optional)</h2>
-      <p className="mb-3 text-sm text-slate-400">Choose what happens after this poll. An email benefit is shown only after a voter explicitly shares their email and consents to follow-up. Public review links are a separate invitation to leave honest feedback on Google, Tripadvisor, or another platform; they must remain optional and cannot be tied to a positive answer.</p>
+      <h2 className="text-xl font-bold mb-3">{t("admin.pollForm.afterVoting")}</h2>
+      <p className="mb-3 text-sm text-slate-400">{t("admin.pollForm.afterVotingHint")}</p>
 
       {entitlements.rewardMessage ? (
       <>
-      <label className="block mb-2 font-semibold">Reward message</label>
+      <label className="block mb-2 font-semibold">{t("admin.pollForm.rewardMessage")}</label>
       <input
         type="text"
         value={rewardMessage}
         onChange={(e) => setRewardMessage(e.target.value)}
         className="w-full border p-2 rounded mb-4 text-black"
-        placeholder="Enjoy 10% off your next visit!"
+        placeholder={t("admin.pollForm.rewardMessagePlaceholder")}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
@@ -342,14 +344,14 @@ export default function EditPoll() {
           value={rewardCode}
           onChange={(e) => setRewardCode(e.target.value)}
           className="w-full border p-2 rounded text-black"
-          placeholder="Discount code (optional)"
+          placeholder={t("admin.pollForm.discountCode")}
         />
         <input
           type="url"
           value={rewardUrl}
           onChange={(e) => setRewardUrl(e.target.value)}
           className="w-full border p-2 rounded text-black"
-          placeholder="Link to redeem (optional)"
+          placeholder={t("admin.pollForm.redemptionLink")}
         />
       </div>
       </>
@@ -372,14 +374,14 @@ export default function EditPoll() {
             />
           ) : (
           <>
-          <p className="font-semibold">Reward if email is shared</p>
-          <p className="mt-1 text-xs text-slate-400">Give a voter who explicitly shares their email and consents to follow-up a voucher or online discount code. Voting remains anonymous unless they opt in.</p>
+          <p className="font-semibold">{t("admin.pollForm.emailBenefitTitle")}</p>
+          <p className="mt-1 text-xs text-slate-400">{t("admin.pollForm.emailBenefitBody")}</p>
           <select value={emailBenefitType} onChange={(event) => setEmailBenefitType(event.target.value)} className="mt-3 w-full border p-2 rounded text-black">
-            <option value="none">No email benefit</option><option value="voucher">Voucher</option><option value="discount_code">Discount code</option>
+            <option value="none">{t("admin.pollForm.noEmailBenefit")}</option><option value="voucher">{t("admin.pollForm.voucher")}</option><option value="discount_code">{t("admin.pollForm.discountCodeShort")}</option>
           </select>
           {emailBenefitType !== "none" && <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-            <input value={emailBenefitValue} onChange={(event) => setEmailBenefitValue(event.target.value)} className="border p-2 rounded text-black" placeholder="Voucher or discount code" />
-            <input type="url" value={emailBenefitUrl} onChange={(event) => setEmailBenefitUrl(event.target.value)} className="border p-2 rounded text-black" placeholder="Redemption link (optional)" />
+            <input value={emailBenefitValue} onChange={(event) => setEmailBenefitValue(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.pollForm.voucherOrCode")} />
+            <input type="url" value={emailBenefitUrl} onChange={(event) => setEmailBenefitUrl(event.target.value)} className="border p-2 rounded text-black" placeholder={t("admin.pollForm.redemptionLink")} />
           </div>}
           </>
           )}
@@ -393,7 +395,7 @@ export default function EditPoll() {
           checked={raffleEnabled}
           onChange={(e) => setRaffleEnabled(e.target.checked)}
         />
-        <span className="font-semibold">Run a prize draw for this poll</span>
+        <span className="font-semibold">{t("admin.pollForm.prizeDraw")}</span>
       </label>
       {raffleEnabled && (
         <>
@@ -402,7 +404,7 @@ export default function EditPoll() {
             value={rafflePrize}
             onChange={(e) => setRafflePrize(e.target.value)}
             className="w-full border p-2 rounded mb-1 text-black"
-            placeholder="Prize: a free dessert, a $50 voucher..."
+            placeholder={t("admin.pollForm.prizePlaceholder")}
           />
           <p className="mb-2 text-xs text-slate-400">
             Voters will see official rules automatically: no purchase necessary, 18+ and locally eligible only, one entry per person, winner picked at random, void where prohibited.
@@ -412,7 +414,7 @@ export default function EditPoll() {
             value={raffleRulesUrl}
             onChange={(e) => setRaffleRulesUrl(e.target.value)}
             className="w-full border p-2 rounded mb-2 text-black"
-            placeholder="Link to your own full official rules (optional)"
+            placeholder={t("admin.pollForm.officialRulesLink")}
           />
           <label className="mb-4 flex items-start gap-2 text-xs">
             <input
@@ -421,7 +423,7 @@ export default function EditPoll() {
               onChange={(e) => setRaffleAcknowledged(e.target.checked)}
               className="mt-0.5"
             />
-            <span>I confirm I've checked the promotional/sweepstakes law requirements that apply to this prize draw where I operate (registration, disclosures, or restrictions can apply above certain prize values).</span>
+            <span>{t("admin.pollForm.prizeAcknowledgement")}</span>
           </label>
         </>
       )}
@@ -437,8 +439,8 @@ export default function EditPoll() {
       )}
 
       <div className="mt-1 mb-4 border-t border-slate-600 pt-4">
-        <p className="font-semibold">Returning customer bonus</p>
-        <p className="mt-1 text-xs text-slate-400">Show an extra thank-you once a voter who left their email crosses this many visits. No account or sign-up is ever required to vote.</p>
+        <p className="font-semibold">{t("admin.pollForm.returningCustomer")}</p>
+        <p className="mt-1 text-xs text-slate-400">{t("admin.pollForm.returningCustomerBody")}</p>
         <input
           type="number"
           min="2"
@@ -446,7 +448,7 @@ export default function EditPoll() {
           value={loyaltyVisitThreshold}
           onChange={(e) => setLoyaltyVisitThreshold(e.target.value)}
           className="mt-3 w-full border p-2 rounded text-black"
-          placeholder="Visit number that unlocks the bonus, e.g. 3"
+          placeholder={t("admin.pollForm.visitThreshold")}
         />
         {String(loyaltyVisitThreshold).trim() && <>
           <input
@@ -454,7 +456,7 @@ export default function EditPoll() {
             value={loyaltyBenefitMessage}
             onChange={(e) => setLoyaltyBenefitMessage(e.target.value)}
             className="mt-3 w-full border p-2 rounded text-black"
-            placeholder="Welcome back message: Thanks for being a regular!"
+            placeholder={t("admin.pollForm.welcomeBack")}
           />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
             <input
@@ -462,14 +464,14 @@ export default function EditPoll() {
               value={loyaltyBenefitCode}
               onChange={(e) => setLoyaltyBenefitCode(e.target.value)}
               className="border p-2 rounded text-black"
-              placeholder="Bonus code (optional)"
+              placeholder={t("admin.pollForm.bonusCode")}
             />
             <input
               type="url"
               value={loyaltyBenefitUrl}
               onChange={(e) => setLoyaltyBenefitUrl(e.target.value)}
               className="border p-2 rounded text-black"
-              placeholder="Redemption link (optional)"
+              placeholder={t("admin.pollForm.redemptionLink")}
             />
           </div>
         </>}
