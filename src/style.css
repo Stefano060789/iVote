@@ -1162,13 +1162,15 @@ textarea {
 
 .landing-hero h1 {
   font-size: clamp(2.5rem, 5vw, 4.75rem);
+  color: #fff8e8;
 }
 
 .landing-lede {
   max-width: 600px;
   margin: 24px 0;
-  color: #cbd5e1;
+  color: #e5e7eb;
   font-size: 1.15rem;
+  line-height: 1.65;
 }
 
 .landing-actions {
@@ -1189,10 +1191,13 @@ textarea {
   justify-content: center;
   min-height: 52px;
   padding: 0 20px;
-  border-radius: 6px;
+  border-radius: 10px;
   font-weight: 700;
+  letter-spacing: 0.01em;
   text-decoration: none;
   box-sizing: border-box;
+  box-shadow: 0 10px 24px rgba(7, 16, 33, 0.2);
+  transition: transform 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .landing-primary-action {
@@ -1201,8 +1206,9 @@ textarea {
 }
 
 .landing-secondary-action {
-  color: #f8fafc;
-  border: 1px solid rgba(248, 250, 252, 0.7);
+  color: var(--navy-deep);
+  border: 1px solid #fff8e8;
+  background: #fff8e8;
 }
 
 .landing-actions .landing-admin-action {
@@ -1220,6 +1226,18 @@ textarea {
 
 .landing-actions .landing-admin-action:hover {
   background: var(--gold-deep);
+  color: var(--navy-deep);
+}
+
+.landing-primary-action:hover,
+.landing-secondary-action:hover,
+.landing-actions .landing-admin-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(7, 16, 33, 0.28);
+}
+
+.landing-secondary-action:hover {
+  background: #f4e8c8;
   color: var(--navy-deep);
 }
 
@@ -1515,12 +1533,14 @@ textarea {
 }
 
 :root:not([data-theme="dark"]) .landing-secondary-action {
-  border-color: rgba(15, 118, 110, 0.45);
-  color: #0f5f5a;
+  border-color: #0f766e;
+  background: #0f766e;
+  color: #fffdf8;
 }
 
 :root:not([data-theme="dark"]) .landing-secondary-action:hover {
-  background: rgba(255, 255, 255, 0.55);
+  background: #0b5f59;
+  color: #fffdf8;
 }
 
 :root:not([data-theme="dark"]) .landing-primary-action,
