@@ -1113,6 +1113,7 @@ textarea {
 }
 
 .landing-hero {
+  position: relative;
   min-height: 620px;
   display: flex;
   align-items: center;
@@ -1124,12 +1125,34 @@ textarea {
   overflow: hidden;
 }
 
+.landing-hero::before {
+  position: absolute;
+  inset: 24px;
+  border: 1px solid rgba(255, 248, 232, 0.18);
+  pointer-events: none;
+  content: "";
+}
+
+.landing-hero::after {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 248, 232, 0.12) 0.7px, transparent 0.7px);
+  background-size: 7px 7px;
+  opacity: 0.12;
+  pointer-events: none;
+  content: "";
+}
+
 .landing-hero-content {
+  position: relative;
+  z-index: 1;
   max-width: 640px;
   flex: 1 1 420px;
 }
 
 .landing-hero-visual {
+  position: relative;
+  z-index: 1;
   flex: 1 1 320px;
   display: flex;
   justify-content: center;
@@ -1151,6 +1174,16 @@ textarea {
   text-transform: uppercase;
 }
 
+.landing-eyebrow::before {
+  display: inline-block;
+  width: 34px;
+  height: 1px;
+  margin: 0 10px 0 0;
+  vertical-align: middle;
+  background: currentColor;
+  content: "";
+}
+
 .landing-hero h1,
 .landing-section h2,
 .landing-outcomes h2,
@@ -1163,6 +1196,8 @@ textarea {
 .landing-hero h1 {
   font-size: clamp(2.5rem, 5vw, 4.75rem);
   color: #fff8e8;
+  max-width: 10ch;
+  text-wrap: balance;
 }
 
 .landing-lede {
@@ -1191,7 +1226,7 @@ textarea {
   justify-content: center;
   min-height: 52px;
   padding: 0 20px;
-  border-radius: 10px;
+  border-radius: 2px;
   font-weight: 700;
   letter-spacing: 0.01em;
   text-decoration: none;
@@ -1201,14 +1236,23 @@ textarea {
 }
 
 .landing-primary-action {
+  position: relative;
   color: var(--navy-deep);
   background: var(--gold);
+  clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px));
 }
 
 .landing-secondary-action {
   color: var(--navy-deep);
   border: 1px solid #fff8e8;
   background: #fff8e8;
+}
+
+.landing-primary-action::after {
+  margin-left: 10px;
+  content: "→";
+  font-size: 1.15em;
+  line-height: 1;
 }
 
 .landing-actions .landing-admin-action {
@@ -1239,6 +1283,12 @@ textarea {
 .landing-secondary-action:hover {
   background: #f4e8c8;
   color: var(--navy-deep);
+}
+
+.landing-primary-action:focus-visible,
+.landing-secondary-action:focus-visible {
+  outline-color: #fff8e8;
+  outline-offset: 5px;
 }
 
 .landing-note {
@@ -1692,6 +1742,10 @@ textarea {
     gap: 32px;
   }
 
+  .landing-hero::before {
+    inset: 12px;
+  }
+
   .landing-hero-content {
     max-width: none;
   }
@@ -1702,6 +1756,10 @@ textarea {
 
   .landing-hero-visual img {
     width: min(100%, 280px);
+  }
+
+  .landing-hero h1 {
+    max-width: none;
   }
 
   .landing-steps,
