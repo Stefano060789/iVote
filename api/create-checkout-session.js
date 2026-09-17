@@ -323,7 +323,7 @@ async function handleDonationCheckout(request, response) {
       success_url: `${appUrl}/qr/${encodeURIComponent(campaignToken)}?donation=success`,
       cancel_url: `${appUrl}/qr/${encodeURIComponent(campaignToken)}?donation=cancelled`,
       "line_items[0][price_data][currency]": currency,
-      "line_items[0][price_data][product_data][name]": `Donation to ${workspaceName}`,
+      "line_items[0][price_data][product_data][name]": `${target.category === "tip" ? "Tip" : target.category === "donation" ? "Charitable donation" : "Voluntary contribution"} to ${workspaceName}`,
       "line_items[0][price_data][unit_amount]": String(amountMinorUnits),
       "line_items[0][quantity]": "1",
       "payment_intent_data[application_fee_amount]": String(applicationFeeMinorUnits),
@@ -332,6 +332,7 @@ async function handleDonationCheckout(request, response) {
       "metadata[workspace_id]": target.workspace_id,
       "metadata[campaign_id]": String(target.campaign_id),
       "metadata[item_id]": String(itemId),
+      "metadata[category]": target.category || "contribution",
       "metadata[application_fee_amount]": String(applicationFeeMinorUnits),
       "metadata[currency]": currency
     });

@@ -15,6 +15,21 @@
     "dashboard": "Dashboard",
     "getStarted": "Get started"
   },
+  "donationCategories": {
+    "tip": "Tip",
+    "contribution": "Voluntary contribution",
+    "donation": "Charitable donation"
+  },
+  "donationCard": {
+    "defaultTitle": "{{category}} to this venue",
+    "amountRequired": "Enter an amount to continue.",
+    "paymentFailed": "Unable to start the payment.",
+    "amount": "Amount",
+    "amountLabel": "{{category}} amount",
+    "redirecting": "Redirecting to Stripe...",
+    "payButton": "{{category}}",
+    "disclaimer": "Payments are securely processed by Stripe. The venue selected this category: {{category}}. The venue is responsible for the legal classification, receipt, refunds, and any tax treatment. Godwit is the technology platform and keeps a 9% platform fee; 91% goes to the venue. This payment is not automatically tax-deductible. Godwit never sees or stores your card details."
+  },
   "benefits": {
     "intro": "These are two separate customer choices. An email benefit is for people who consent to follow-up; a public review is optional feedback for everyone. Do not exchange a benefit for a positive rating.",
     "title": "Two separate ways to build loyalty",
@@ -578,6 +593,13 @@
         "messagePlaceholder": "Optional message shown with the support-payment option",
         "saveButton": "Save venue-support settings",
         "feeNote": "Stripe processes the payment. This is a voluntary payment to the venue, not a charitable donation and not tax-deductible. Godwit never sees or stores card details. Of each payment, 9% is a Godwit platform fee and 91% transfers to your connected Stripe account."
+        ,"categoryTitle": "Choose the payment category",
+        "categoryHelp": "Select the wording that best matches your legal and commercial situation. Godwit does not determine the legal classification.",
+        "categoryLabel": "Shown to visitors",
+        "categoryTip": "Tip",
+        "categoryContribution": "Voluntary contribution / venue support",
+        "categoryDonation": "Charitable donation (only if legally eligible)",
+        "categoryDisclaimer": "For commercial venues and artists, Tip or Voluntary contribution is usually safer wording. Use Charitable donation only after confirming the recipient's legal status, receipt rules, and tax treatment with an adviser."
       },
       "locations": {
         "pollNumber": "poll #{{id}}",

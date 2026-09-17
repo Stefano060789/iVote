@@ -116,6 +116,7 @@ export default function Admin() {
   const [winbackSettings, setWinbackSettings] = useState({ is_enabled: false, days_since_last_visit: 30, subject: "", message: "" });
   const [donationSettings, setDonationSettings] = useState({
     is_enabled: false,
+    category: "contribution",
     currency: "EUR",
     suggested_amount: "",
     message: "",
@@ -2503,6 +2504,23 @@ export default function Admin() {
           <p className="text-sm text-slate-400">
             {t("admin.engagement.donations.description")}
           </p>
+          <div className="rounded border border-amber-700 bg-amber-950/20 p-3 text-sm">
+            <p className="font-semibold text-amber-200">{t("admin.engagement.donations.categoryTitle")}</p>
+            <p className="mt-1 text-xs text-slate-300">{t("admin.engagement.donations.categoryHelp")}</p>
+            <label className="mt-3 block font-semibold">
+              {t("admin.engagement.donations.categoryLabel")}
+              <select
+                value={donationSettings.category || "contribution"}
+                onChange={(event) => setDonationSettings((current) => ({ ...current, category: event.target.value }))}
+                className="mt-1 w-full border p-2 rounded text-black"
+              >
+                <option value="tip">{t("admin.engagement.donations.categoryTip")}</option>
+                <option value="contribution">{t("admin.engagement.donations.categoryContribution")}</option>
+                <option value="donation">{t("admin.engagement.donations.categoryDonation")}</option>
+              </select>
+            </label>
+            <p className="mt-2 text-xs text-slate-400">{t("admin.engagement.donations.categoryDisclaimer")}</p>
+          </div>
 
           <div className="rounded border border-slate-700 bg-slate-950 p-4">
             {donationSettings.stripe_charges_enabled ? (

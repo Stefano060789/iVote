@@ -5,6 +5,16 @@ is not listed here anymore - check git history / commit messages for the full st
 anything that used to be tracked here and is now done. Check this file periodically and clear
 items as you address them.
 
+## Payment wording and legal classification
+
+- [x] Let each venue choose **Tip**, **Voluntary contribution**, or **Charitable donation**
+  for QR payments.
+- [x] Show the selected category and a responsibility disclaimer on the public payment card.
+- [x] Carry the category into the Stripe Checkout product name and metadata.
+- [ ] Confirm the category, receipts, refunds, tax treatment, and charitable eligibility with a
+  qualified adviser before launch. Godwit provides the technology platform; the venue remains
+  responsible for the classification.
+
 ## Open action items (needs you, not code)
 
 - [ ] **Register an Austrian business (Gewerbeanmeldung + Finanzamt Steuernummer) - the real

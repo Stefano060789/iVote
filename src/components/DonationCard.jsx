@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { startDonationCheckout } from "../lib/donationCheckout";
 
 // Renders one venue-support QR-campaign item: an amount field and a support button that redirects
@@ -6,6 +7,9 @@ import { startDonationCheckout } from "../lib/donationCheckout";
 // the venue's own connected Stripe account, and a 9% platform fee stays with Godwit - which is
 // why the fee is disclosed here rather than only in the Terms (donors should know before they pay).
 export default function DonationCard({ item, campaignToken }) {
+  const { t } = useTranslation();
+  const category = item.donation_category || "contribution";
+  const categoryLabel = t(`donationCategories.${category}`);
   const suggested = item.donation_suggested_amount ? Number(item.donation_suggested_amount) : null;
   const [amount, setAmount] = useState(suggested ? String(suggested) : "");
   const [status, setStatus] = useState("idle");
@@ -14,7 +18,7 @@ export default function DonationCard({ item, campaignToken }) {
   async function handleDonate() {
     const numericAmount = Number(amount);
     if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-      setError("Enter an amount to support this venue.");
+      setError(t("donationCard.amountRequired"));
       return;
     }
     setError("");
@@ -23,14 +27,14 @@ export default function DonationCard({ item, campaignToken }) {
       const url = await startDonationCheckout({ campaignToken, itemId: item.item_id, amount: numericAmount });
       window.location.assign(url);
     } catch (checkoutError) {
-      setError(checkoutError.message || "Unable to start the payment.");
+      setError(checkoutError.message || t("donationCard.paymentFailed"));
       setStatus("idle");
     }
   }
 
   return (
     <div className="qr-portal-menu-item qr-portal-menu-donation">
-      <span className="qr-portal-menu-item-title">{item.title || "Support this venue"}</span>
+      <span className="qr-portal-menu-item-title">{item.title || t("donationCard.defaultTitle", { category: categoryLabel })}</span>
       {(item.body || item.donation_message) && (
         <p className="qr-portal-menu-item-body">{item.body || item.donation_message}</p>
       )}
@@ -43,22 +47,20 @@ export default function DonationCard({ item, campaignToken }) {
           step="0.01"
           value={amount}
           onChange={(event) => setAmount(event.target.value)}
-          placeholder="Amount"
+          placeholder={t("donationCard.amount")}
           className="qr-donation-amount-input"
-          aria-label="Support amount"
+          aria-label={t("donationCard.amountLabel", { category: categoryLabel })}
         />
       </div>
 
       {error && <p className="qr-donation-error">{error}</p>}
 
       <button type="button" onClick={handleDonate} disabled={status === "loading"} className="qr-donation-button">
-        {status === "loading" ? "Redirecting to Stripe…" : "Support this venue"}
+        {status === "loading" ? t("donationCard.redirecting") : t("donationCard.payButton", { category: categoryLabel })}
       </button>
 
       <p className="qr-donation-disclaimer">
-        Payments are securely processed by Stripe. This is a voluntary payment to the venue, not a charitable
-        donation and not tax-deductible. Of each payment, 91% goes directly to this venue and 9% is a Godwit
-        platform fee. Godwit never sees or stores your card details.
+        {t("donationCard.disclaimer", { category: categoryLabel })}
       </p>
     </div>
   );

@@ -3,12 +3,13 @@ import { supabase } from "./supabase";
 export async function loadDonationSettings(workspaceId) {
   const { data, error } = await supabase
     .from("donation_settings")
-    .select("is_enabled, currency, suggested_amount, message, stripe_account_id, stripe_onboarding_complete, stripe_charges_enabled, stripe_payouts_enabled")
+    .select("is_enabled, category, currency, suggested_amount, message, stripe_account_id, stripe_onboarding_complete, stripe_charges_enabled, stripe_payouts_enabled")
     .eq("workspace_id", workspaceId)
     .maybeSingle();
   if (error) throw new Error(`Unable to load donation settings: ${error.message}`);
   return data ?? {
     is_enabled: false,
+    category: "contribution",
     currency: "EUR",
     suggested_amount: "",
     message: "",
@@ -28,6 +29,7 @@ export async function saveDonationSettings(workspaceId, settings) {
     .upsert({
       workspace_id: workspaceId,
       is_enabled: Boolean(settings.is_enabled),
+      category: ["tip", "contribution", "donation"].includes(settings.category) ? settings.category : "contribution",
       currency: (settings.currency || "EUR").trim().toUpperCase(),
       suggested_amount: settings.suggested_amount ? Number(settings.suggested_amount) : null,
       message: settings.message?.trim() || null,
@@ -63,4 +65,3 @@ export async function startStripeConnectOnboarding() {
 export async function refreshStripeConnectStatus() {
   return callCheckoutEndpoint({ mode: "connect-status" });
 }
-
