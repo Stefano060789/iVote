@@ -1,78 +1,80 @@
-# Godwit — Next Steps for WKO
+# Godwit — WKO appointment tomorrow
 
-## Current situation
+## Bring
 
-- Godwit is an Austrian SaaS product and has not launched yet; no venue is signed.
-- Stefano is employed and ASVG-insured in Austria and will travel to Malaysia for nine months from 2026-09-22 on an approved business trip.
-- Austrian tax residency is expected to remain unchanged.
-- Stefano has ID Austria and a trusted partner in Austria who can help with remote filings.
-- Revenue will be subscriptions plus a 9% platform commission on venue-support payments. The remaining payment amount is passed to the venue.
-- Mariia is Ukrainian, unemployed, and receiving AMS support. She will **not register the business or Gewerbe now** because she must not risk losing her AMS benefit.
+- ID and **ID Austria**
+- Phone/laptop with the Godwit demo: **https://hellogodwit.com**
+- One-page description of the product and business model
+- This question list, plus pen/notebook
+- Details of the planned nine-month Malaysia business trip and work permit
 
-## WKO questions — Austria
+## Situation to explain
 
-### Payment wording and venue responsibility
+- Godwit is an Austrian QR-feedback SaaS product; it has not launched and has no signed venue.
+- Planned revenue: software subscriptions plus a **9% platform commission** on payments processed
+  for venues. The remaining amount goes to the venue through Stripe Connect.
+- Stefano is employed and ASVG-insured in Austria, has ID Austria, and expects Austrian tax
+  residency to continue.
+- Mariia receives AMS support and will not register or operate the business now.
+- Registration is not being completed tomorrow; this is a fact-finding meeting.
 
-- For bars, artists, galleries, and commercial museums, should the public wording say “Support this venue” or “Leave a tip” instead of “Donation”?
-- When is a QR payment legally a tip, support payment, purchase, service payment, or charitable donation?
-- Can Godwit use one payment system for all these purposes while showing different wording chosen by the venue?
-- Who must issue the invoice, receipt, refund, or charitable donation receipt: the venue or Godwit?
-- Is it safe to say that a commercial venue-support payment is not tax-deductible?
-- Is the venue responsible for VAT, consumer rights, refunds, and complaints when it receives the payment?
-- Is Godwit’s 9% platform fee calculated on the gross payment or after Stripe fees?
-- Does the Stripe Connect flow make Godwit responsible for chargebacks, negative balances, refunds, or payment compliance?
-- What extra information must a registered charity or non-profit museum provide before it may use a “charitable donation” option?
-- Can Godwit offer charitable donations in Austria first and add Italy later after a separate Italian review?
+## Questions for WKO
 
-### Business classification and timing
+### 1. Business registration
 
-1. Is Godwit a Gewerbe or Neue Selbständige activity?
-2. Can Stefano start as a small side business while keeping his main job?
-3. Should he register now, even without a signed customer, or wait?
-4. What SVS income limit applies, and what happens if he goes over it?
-5. Does NeuFöG apply? Can we complete the paperwork before he leaves Austria?
-6. For VAT, do we count only subscriptions and the 9% commission? Is the donation money passed to charities excluded?
-7. What is the current small-business VAT limit?
-8. Can one broad software/SaaS business registration also cover future apps?
-9. Can you recommend a tax adviser who knows small software companies?
+1. Is Godwit a **Gewerbe** or **Neue Selbständige** activity?
+2. Which exact Gewerbe wording fits a small software/SaaS platform?
+3. Should Stefano register before the first customer, or only when revenue begins?
+4. Can he operate it as a side business while employed and ASVG-insured?
+5. Does **NeuFöG** apply, and what documents/deadlines are required?
+6. Can registration and later filings be handled online with ID Austria while abroad?
+7. What SVS obligations or income thresholds apply?
 
-### Ownership and Mariia
+### 2. Revenue, VAT, and payments
 
-10. Could Mariia lose AMS support if she helps Godwit without payment?
-11. What work, if any, may Mariia do while receiving AMS support?
-12. Is it safest for Stefano to be the only registered owner now?
-13. Can we write a private agreement about Mariia’s future share without registering her now?
-14. If Godwit grows, should we later create a GesbR or GmbH?
+8. For VAT and turnover, are only subscriptions and Godwit’s 9% commission counted?
+9. Is the venue’s remaining payment amount treated as pass-through money?
+10. What small-business VAT rule and threshold apply?
+11. Who issues the invoice, receipt, refund, and handles chargebacks: Godwit or the venue?
+12. Is the Stripe Connect structure and 9% application fee acceptable for this model?
+13. Is the commission calculated on the gross payment or after Stripe fees?
 
-### Malaysia while operating from Austria
+### 3. Payment wording
 
-15. Stefano will live in Malaysia for about nine months with a work permit from his main employer. May he also run his Austrian Godwit business?
-16. Does he need written permission from his employer or Malaysian immigration?
-17. Are sales calls, customer meetings, onboarding, support, or software work considered work under that permit?
-18. Can the Austrian company sell Godwit to Malaysian venues without opening a Malaysian company?
-19. Could staying nine months in Malaysia create personal tax or company tax problems there?
-20. How does the Austria–Malaysia tax treaty apply to Stefano and the Austrian company?
-21. Do Malaysian digital-service tax, registration, or e-invoice rules apply?
-22. Can the Austrian company send invoices to Malaysian customers in EUR or MYR?
-23. Would a Malaysian sales partner be easier than creating a Malaysian company?
-24. Which payment is easiest for small venues: invoice, bank transfer, DuitNow, FPX, or a local payment provider?
-25. What privacy rules apply to voter emails and feedback collected in Malaysia?
-26. What consent and privacy wording must Godwit use when data is stored outside Malaysia?
-27. Are optional honest review invitations and email rewards allowed if they are not linked to good ratings?
+14. For commercial venues, should the QR option be called **Tip**, **Voluntary contribution**,
+    or **Support payment** rather than “Donation”?
+15. When may a payment legally be called a **charitable donation**?
+16. What proof is required before a registered charity/non-profit can use that wording?
+17. Who is responsible for VAT, consumer rights, refunds, receipts, and tax treatment?
+18. Can the venue choose the wording while Godwit remains only the technology platform?
 
-## Proposed Malaysia pilot
+### 4. Mariia and future ownership
 
-- Austrian company; no Malaysian registration initially.
-- Limited **Founding Venue Pilot**: three months free, no card required.
-- One venue, one active QR code, and three active polls.
-- Start with 10–20 small venues such as cafés, restaurants, salons, guesthouses, and attractions.
-- Use invoice or bank transfer first; add a local payment gateway only after demand is proven.
-- No automatic charge at the end of the pilot; explain the paid plan before expiry.
+19. Could unpaid help affect Mariia’s AMS support?
+20. What work, if any, may she do safely while receiving AMS support?
+21. Is Stefano the only registered owner for now the safest structure?
+22. What should be reviewed before adding a co-owner or forming a GesbR/GmbH?
 
-## After WKO
+### 5. Malaysia
 
-1. Confirm the classification, Mariia’s AMS-safe boundaries, and Malaysia work-permit rules.
-2. Ask a tax adviser to confirm VAT, SVS, commission/pass-through treatment, and Malaysia exposure.
-3. Register via usp.gv.at/FinanzOnline with ID Austria when the timing is confirmed.
-4. Launch the limited pilot only after permitted business activity is confirmed.
-5. Keep a written record of customer contracts, invoices, consent, data location, and pilot terms.
+23. May Stefano operate this Austrian side business while in Malaysia on his employer’s
+    work permit?
+24. Does he need written permission from his employer or Malaysian immigration?
+25. Could nine months there create personal/company tax, registration, or digital-service-tax
+    obligations?
+26. Which adviser should confirm the Austria–Malaysia tax treaty and privacy rules?
+
+## Ask WKO for
+
+- The recommended Gewerbe description and timing
+- A written link/checklist for online registration
+- A referral to a Steuerberater experienced with SaaS, Stripe Connect, and Austria–Malaysia
+  situations
+- Clear boundaries for Mariia’s AMS situation
+
+## After the appointment
+
+1. Write down the adviser’s name, date, and answers.
+2. Confirm tax/VAT/Stripe details with a Steuerberater before launch.
+3. Confirm Malaysia work-permit and tax rules before operating there.
+4. Register only when the timing and permitted activity are clear.
