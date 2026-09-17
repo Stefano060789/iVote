@@ -1835,12 +1835,24 @@ export default function Admin() {
 
           {qrWizardOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-              <div className="qr-wizard-modal max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-[#24345c] bg-[#0b1a33] p-5 text-[#e7ecf5]">
+              <div
+                className="qr-wizard-modal max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border border-[#24345c] bg-[#0b1a33] p-5 text-[#e7ecf5]"
+                role="dialog"
+                aria-modal="true"
+                aria-label={t(`admin.engagement.wizard.step${qrWizardStep}Title`)}
+              >
                 <div className="mb-4 flex items-center justify-between">
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#f2c744]">
                     {t("admin.engagement.wizard.stepOf", { step: qrWizardStep, total: 5 })}
                   </p>
-                  <button onClick={closeQrWizard} className="text-[#8fa0c2] hover:text-[#ffffff]">✕</button>
+                  <button
+                    type="button"
+                    onClick={closeQrWizard}
+                    className="text-[#8fa0c2] hover:text-[#ffffff]"
+                    aria-label={t("common.close", "Close")}
+                  >
+                    ✕
+                  </button>
                 </div>
 
                 {qrWizardStep === 1 && (

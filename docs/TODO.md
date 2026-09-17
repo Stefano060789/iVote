@@ -124,10 +124,8 @@ items as you address them.
   Actions updates; these two security toggles are repository settings and cannot be enabled by a
   repository file alone.
 
-- [ ] **Buy a custom domain and point it at Vercel.** Production currently runs on Vercel's
-  default `i-vote-one.vercel.app` subdomain - fine for testing, not for a real pilot venue
-  (looks unfinished, and the legacy "i-vote" name doesn't match the "Godwit" brand everywhere
-  else).
+- [x] **Custom domain configured.** `hellogodwit.com` is configured in Vercel and is now the
+  production domain.
   **Availability checked 2026-09-14 (via RDAP - re-verify before buying, in case something
   changes):**
   - Taken: `godwit.com` (registered since 1999), `godwit.app` (registered **July 2026**,
@@ -142,20 +140,38 @@ items as you address them.
     possibly another company or project actively building something under a similar "Godwit"
     name right now. Worth a quick trademark/name-collision gut-check before investing more
     marketing spend into the "Godwit" name, though nothing confirmed either way.
-  - Decision paused 2026-09-14 pending the operator's input - not yet purchased.
-  Once bought: add it in Vercel -> Settings -> Domains, update `APP_URL`, and update any
-  hardcoded links (emails, Stripe Checkout success/cancel URLs, QR short-link generation).
+  - Decision completed 2026-09-17: use `hellogodwit.com`.
+  - Verify `APP_URL` and any hardcoded links (emails, Stripe Checkout success/cancel URLs, QR
+    short-link generation) remain aligned with the Vercel domain after deployment.
 
 - [x] **Vercel function budget respected.** The repository still has exactly 12 files directly
   under `api/`. Stripe reconciliation and DSAR processing were added under `lib/cron/` and
   routed through the existing `/api/cron` function, so no new Vercel function was created.
 
+## Recently completed product-quality checks
+
+- [x] **Customer Connection and Feedback workflow smoke-tested (2026-09-17).** Confirmed that
+  the deployed Admin sections open correctly, show the Flamingo and Redshank guidance, explain
+  consent-based email follow-up, keep public reviews optional and honest, and expose moderation,
+  recovery, sentiment, and “We heard you” tools. The phone-sized browser check showed a clear,
+  readable layout with useful visual hierarchy.
+- [x] **OpenAI sentiment classification verified (2026-09-17).** The deployed
+  `/api/classify-sentiment` endpoint correctly rejects unsupported methods and malformed input,
+  returns a safe unclassified result for an unknown answer, and the actual OpenAI branch was
+  exercised locally with mocked external services. Positive sentiment parsing and the Supabase
+  update path both behaved as expected. No fake production feedback was created.
+- [x] **Light/dark palette and flock character system refined (2026-09-17).** Added the
+  Sunlit Meadow light direction, Evening Marsh dark direction, atmospheric flock backgrounds,
+  and distinct emotional accent colors for Robin, Tern, Flamingo, Magpie, Redshank, Owl, and
+  Waxwing. The choices are documented in `docs/BRAND_STYLE.md`.
+
 ## Resolved legal-review items (2026-09-14)
 
 - [x] **Signed DPAs with each subprocessor.** Stripe, Supabase, Vercel, and Resend DPAs
   downloaded and saved to the local `dpa/` folder (gitignored - operator recordkeeping, not a
-  product asset) for GDPR Art. 30 records. OpenAI's DPA still needs saving once its API key is
-  activated (currently unused - see AI features below).
+  product asset) for GDPR Art. 30 records. **OpenAI's DPA still needs to be saved** now that
+  the sentiment-classification API key is active; keep it as an operator record, not a product
+  asset.
 - [x] **Data residency confirmed.** Supabase project runs in AWS `eu-west-2` (London, UK) - not
   technically EU/EEA post-Brexit, but the UK has a standing EU adequacy decision (data flows
   from the EU to the UK are treated the same as intra-EU transfers, no extra Standard
@@ -191,10 +207,10 @@ items as you address them.
 
 ## Internationalization
 
-- [ ] **Still hardcoded English**: `CreatePoll.jsx`, `EditPoll.jsx`. Lower priority than
-  Vote/ThankYou since these are used by the workspace owner/admin, not the general public -
-  but follow the existing pattern (`useTranslation()` + `t("key")`, new keys added to *every*
-  `src/i18n/locales/*.json` file) to extend further.
+- [x] **Remaining hardcoded English in `CreatePoll.jsx` and `EditPoll.jsx` removed.** Reused
+  existing `admin.pollForm` keys and added the missing locked-feature and save labels to the
+  English translations; other locales safely fall back to English until their corresponding
+  copy is translated.
 - [ ] **Add Russian and Ukrainian.** Follow the existing pattern: new
   `src/i18n/locales/ru.json` / `uk.json` (Ukrainian uses `dir: "ltr"` like the rest, no RTL
   needed), add both to `SUPPORTED_LANGUAGES` in `src/i18n/languages.js` and to the `resources`
@@ -213,14 +229,15 @@ items as you address them.
 
 ## Pilot readiness — needs an account/dashboard action, not just code
 
-- [ ] **Migrate translation off the unofficial Google endpoint.** `Vote.jsx` calls the free,
-  unsupported `translate.googleapis.com/translate_a/single?client=gtx...` endpoint (no SLA,
-  can be rate-limited/blocked without notice). A kill switch
-  (`VITE_ENABLE_TRANSLATION=false`), timeout, and fallback message are in place, but the
-  real fix is the official, paid Google Cloud Translation API.
+- [x] **Translation moved to the official Google Cloud Translation API.** `Vote.jsx` now calls
+  the server-side `/api/notify` translation branch, which uses the official Cloud Translation
+  Basic v2 API and keeps `GOOGLE_TRANSLATE_API_KEY` out of the browser bundle. The existing
+  kill switch, timeout, and fallback message remain in place. Configure the API key in Vercel
+  and enable the Cloud Translation API in Google Cloud before using it in production.
 - [ ] **Vercel's own real-time anomaly alerting ("Observability Plus")** remains gated behind a
   Vercel Pro upgrade - unrelated to Sentry (already fully wired up), a separate paid-plan
   decision.
-- [ ] Full WCAG audit not done - color contrast and keyboard-navigation order weren't
-  reviewed on the public voting flow. Revisit if that becomes a real requirement (e.g. a
-  museum client asks for a conformance statement).
+- [x] **WCAG 2.2 AA engineering audit completed (2026-09-17).** Added visible keyboard focus,
+  QR wizard dialog semantics, reduced-motion support, and fixed the QR wizard contrast issue.
+  The scope and remaining specialist/manual checks are documented in
+  `docs/ACCESSIBILITY_AUDIT.md`; this is not a legal certification.

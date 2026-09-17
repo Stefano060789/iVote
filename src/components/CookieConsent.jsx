@@ -16,7 +16,11 @@ export default function CookieConsent() {
   }
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-700 bg-slate-950/98 p-4 text-sm text-slate-200 shadow-2xl">
+    <div
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-700 bg-slate-950/98 p-4 text-sm text-slate-200 shadow-2xl"
+      role="region"
+      aria-label="Cookie preferences"
+    >
       <div className="mx-auto flex max-w-3xl flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-slate-300">
           We use optional error-reporting cookies to catch bugs. Voting works the same whether or not you accept them.{" "}

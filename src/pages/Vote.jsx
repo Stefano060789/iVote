@@ -21,10 +21,8 @@ const TRANSLATION_LANGUAGES = [
   { value: "zh-CN", label: "中文 (简体)" }
 ];
 
-// Kill switch: the translation call below uses Google's unofficial, unsupported "gtx" endpoint
-// (there is no official-API key wiring yet). Set VITE_ENABLE_TRANSLATION=false to hide the
-// language switcher instantly, without a code change, if that endpoint gets rate-limited or
-// blocked. See docs/TODO.md for the plan to move to the official Google Cloud Translation API.
+// Kill switch for the official server-side Google Cloud Translation proxy. Set
+// VITE_ENABLE_TRANSLATION=false to hide the language switcher without a code change.
 const TRANSLATION_ENABLED = import.meta.env.VITE_ENABLE_TRANSLATION !== "false";
 const TRANSLATION_TIMEOUT_MS = 5000;
 
@@ -306,8 +304,13 @@ export default function Vote() {
     let response;
     try {
       response = await fetch(
-        `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(targetLanguage)}&dt=t&q=${encodeURIComponent(normalizedText)}`,
-        { signal: controller.signal }
+        "/api/notify",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "translate", text: normalizedText, targetLanguage }),
+          signal: controller.signal
+        }
       );
     } catch (fetchError) {
       if (fetchError.name === "AbortError") {
@@ -323,9 +326,7 @@ export default function Vote() {
     }
 
     const data = await response.json();
-    const translated = Array.isArray(data?.[0])
-      ? data[0].map((item) => item?.[0] ?? "").join("").trim()
-      : "";
+    const translated = String(data?.translatedText || "").trim();
 
     if (!translated) {
       throw new Error(t("vote.translationUnavailable"));

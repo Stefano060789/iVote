@@ -359,8 +359,8 @@ export default function EditPoll() {
         <div className="mb-4">
           <LockedFeature
             feature="rewardMessage"
-            title="Show a thank-you reward after voting"
-            description="Give every voter a message, discount code, or redemption link right after they submit."
+            title={t("admin.pollForm.rewardLockedTitle")}
+            description={t("admin.pollForm.rewardLockedBody")}
           />
         </div>
       )}
@@ -369,8 +369,8 @@ export default function EditPoll() {
           {!entitlements.emailBenefits ? (
             <LockedFeature
               feature="emailBenefits"
-              title="Offer a benefit when a voter shares their email"
-              description="Collect an email only with clear consent, then provide a voucher or discount code."
+              title={t("admin.pollForm.emailBenefitLockedTitle")}
+              description={t("admin.pollForm.emailBenefitLockedBody")}
             />
           ) : (
           <>
@@ -407,7 +407,7 @@ export default function EditPoll() {
             placeholder={t("admin.pollForm.prizePlaceholder")}
           />
           <p className="mb-2 text-xs text-slate-400">
-            Voters will see official rules automatically: no purchase necessary, 18+ and locally eligible only, one entry per person, winner picked at random, void where prohibited.
+            {t("admin.pollForm.prizeRulesHint")}
           </p>
           <input
             type="url"
@@ -432,8 +432,8 @@ export default function EditPoll() {
         <div className="mb-4">
           <LockedFeature
             feature="prizeDraws"
-            title="Run a prize draw for this poll"
-            description="Let voters enter a raffle with their email for a chance to win, then pick a winner at random from the dashboard."
+            title={t("admin.pollForm.prizeDraw")}
+            description={t("admin.pollForm.prizeLockedBody")}
           />
         </div>
       )}
@@ -481,7 +481,7 @@ export default function EditPoll() {
         onClick={updatePoll}
         className="bg-blue-600 text-white px-4 py-2 rounded font-semibold"
       >
-        Save Changes
+        {t("admin.pollForm.saveChanges")}
       </button>
     </div>
   );

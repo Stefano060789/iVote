@@ -259,6 +259,8 @@
       "rewardLockedBody": "Give every voter a message, discount code, or redemption link right after they submit.",
       "emailBenefitTitle": "Reward if email is shared",
       "emailBenefitBody": "Give a voter who explicitly shares their email and consents to follow-up a voucher or online discount code. Voting remains anonymous unless they opt in.",
+      "emailBenefitLockedTitle": "Offer a benefit when a voter shares their email",
+      "emailBenefitLockedBody": "Collect an email only with clear consent, then provide a voucher or discount code.",
       "noEmailBenefit": "No email benefit",
       "voucher": "Voucher",
       "discountCodeShort": "Discount code",
@@ -284,6 +286,7 @@
       "createAnother": "Create another poll",
       "goToQr": "Go to QR codes",
       "managePoll": "Manage this poll in workspace",
+      "saveChanges": "Save changes",
       "errors": {
         "restrictedQuestion": "The question contains political, religious, or sexual content.",
         "confirmPrizeRules": "Confirm the prize draw eligibility rules checkbox before you can turn on a prize draw.",

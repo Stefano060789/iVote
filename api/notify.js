@@ -6,6 +6,8 @@
 //   - "contact": the public Support page's message form. Sends to SUPPORT_TO_EMAIL, a
 //     server-only env var (never bundled into the client, unlike the old VITE_SUPPORT_EMAIL it
 //     replaces) so the operator's inbox address is never visible in the page source.
+//   - "translate": official Google Cloud Translation Basic API proxy. This stays here to respect
+//     Vercel's 12-function Hobby limit instead of adding another serverless function.
 import { captureError } from "../lib/errorReporting.js";
 
 async function supabaseGet(path) {
@@ -95,6 +97,48 @@ async function handleContentReport(request, response) {
   }
 }
 
+const TRANSLATION_LANGUAGE_PATTERN = /^[a-z]{2,3}(?:-[A-Z]{2})?$/;
+
+async function handleTranslation(request, response) {
+  const text = String(request.body?.text || "").trim();
+  const targetLanguage = String(request.body?.targetLanguage || "").trim();
+  const apiKey = process.env.GOOGLE_TRANSLATE_API_KEY;
+
+  if (!text || text.length > 1000 || !TRANSLATION_LANGUAGE_PATTERN.test(targetLanguage)) {
+    return response.status(400).json({ error: "A valid text and target language are required." });
+  }
+  if (!apiKey) {
+    return response.status(503).json({ error: "Translation is not configured." });
+  }
+
+  try {
+    const translationResponse = await fetch(
+      `https://translation.googleapis.com/language/translate/v2?key=${encodeURIComponent(apiKey)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          q: text,
+          target: targetLanguage,
+          format: "text"
+        })
+      }
+    );
+
+    if (!translationResponse.ok) {
+      throw new Error(`Google Translation request failed (${translationResponse.status}).`);
+    }
+
+    const payload = await translationResponse.json();
+    const translatedText = String(payload?.data?.translations?.[0]?.translatedText || "").trim();
+    if (!translatedText) throw new Error("Google Translation returned no text.");
+    return response.status(200).json({ translatedText });
+  } catch (error) {
+    captureError("Translation request failed", error);
+    return response.status(502).json({ error: "Translation is temporarily unavailable." });
+  }
+}
+
 export default async function handler(request, response) {
   if (request.method !== "POST") {
     response.setHeader("Allow", "POST");
@@ -102,5 +146,6 @@ export default async function handler(request, response) {
   }
 
   if (request.body?.type === "contact") return handleContactMessage(request, response);
+  if (request.body?.type === "translate") return handleTranslation(request, response);
   return handleContentReport(request, response);
 }

@@ -733,6 +733,24 @@ textarea {
   border-color: var(--gold-deep) !important;
 }
 
+/* Keep keyboard focus visible on links, buttons, and custom controls without changing
+   the existing pointer-focused form styling. */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 3px solid var(--focus-ring, #f2c744);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 .app-page input[type="color"],
 .workspace-page input[type="color"] {
   min-height: 44px;
@@ -778,7 +796,7 @@ textarea {
 .workspace-page .bg-amber-400,
 .workspace-page .bg-amber-500 {
   background: var(--action-accent) !important;
-  color: #173b3a !important;
+  color: #f4f7fb !important;
 }
 
 .app-page .bg-amber-400,
@@ -911,7 +929,7 @@ textarea {
 }
 
 :root:not([data-theme="dark"]) .qr-wizard-modal [class*="bg-[#182742]"] {
-  color: #173b3a !important;
+  color: #f4f7fb !important;
 }
 
 /* Secondary/utility actions (create-a-thing buttons that aren't the single primary CTA of

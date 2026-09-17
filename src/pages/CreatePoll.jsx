@@ -385,8 +385,8 @@ export default function CreatePoll() {
               {!entitlements.emailBenefits ? (
                 <LockedFeature
                   feature="emailBenefits"
-                  title="Offer a benefit when a voter shares their email"
-                  description="Collect an email only with clear consent, then provide a voucher or discount code."
+                  title={t("admin.pollForm.emailBenefitLockedTitle")}
+                  description={t("admin.pollForm.emailBenefitLockedBody")}
                 />
               ) : (
               <>
@@ -424,7 +424,7 @@ export default function CreatePoll() {
                   placeholder={t("admin.pollForm.prizePlaceholder")}
                 />
                 <p className="mt-2 text-xs text-slate-400">
-                  Voters will see official rules automatically: no purchase necessary, 18+ and locally eligible only, one entry per person, winner picked at random, void where prohibited. Check your local sweepstakes/prize-draw rules if the prize has significant value.
+                  {t("admin.pollForm.prizeRulesHint")}
                 </p>
                 <input
                   type="url"
@@ -449,8 +449,8 @@ export default function CreatePoll() {
               <div className="mt-4">
                 <LockedFeature
                   feature="prizeDraws"
-                  title="Run a prize draw for this poll"
-                  description="Let voters enter a raffle with their email for a chance to win, then pick a winner at random from the dashboard."
+                  title={t("admin.pollForm.prizeDraw")}
+                  description={t("admin.pollForm.prizeLockedBody")}
                 />
               </div>
             )}
@@ -499,7 +499,7 @@ export default function CreatePoll() {
           onClick={createPoll}
           className="w-full bg-blue-600 text-white p-3 rounded font-semibold"
         >
-          Create Poll
+          {t("admin.pollForm.createButton")}
         </button>
 
         {pollId && (
@@ -507,13 +507,13 @@ export default function CreatePoll() {
             <h2 className="text-xl font-bold mb-4">{t("admin.pollForm.createdTitle")}</h2>
             {assignedCampaignName && (
               <p className="mb-4 rounded border border-teal-700 bg-teal-950 p-2 text-sm text-teal-200">
-                Assigned to QR code "{assignedCampaignName}".
+                {t("admin.pollForm.assignedToQr", { name: assignedCampaignName })}
               </p>
             )}
-            <p className="mb-4">Poll ID: {pollId}</p>
+            <p className="mb-4">{t("admin.pollForm.pollId", { id: pollId })}</p>
 
             <p className="text-white mt-4">
-              Share link:{" "}
+              {t("admin.pollForm.shareLink")}:{" "}
               <span
                 className="text-blue-400 underline cursor-pointer"
                 onClick={() => navigator.clipboard.writeText(`${window.location.origin}/vote/${pollId}`)}
@@ -524,7 +524,7 @@ export default function CreatePoll() {
                 onClick={() => navigator.clipboard.writeText(`${window.location.origin}/vote/${pollId}`)}
                 className="ml-2 bg-blue-600 text-white px-2 py-1 rounded"
               >
-                Copy
+                {t("admin.pollForm.copy")}
               </button>
             </p>
 
@@ -535,13 +535,13 @@ export default function CreatePoll() {
                 onClick={() => { window.location.href = "/create"; }}
                 className="inline-flex items-center justify-center rounded bg-slate-100 px-4 py-2 font-semibold text-slate-900"
               >
-                Create another poll
+                {t("admin.pollForm.createAnother")}
               </button>
               <Link
                 to="/admin?tab=engagement"
                 className="inline-flex items-center justify-center rounded bg-amber-400 px-4 py-2 font-semibold text-slate-950"
               >
-                Go to QR codes
+                {t("admin.pollForm.goToQr")}
               </Link>
             </div>
 
@@ -550,7 +550,7 @@ export default function CreatePoll() {
                 to={`/admin?poll=${pollId}`}
                 className="inline-flex items-center justify-center rounded border border-slate-500 px-4 py-2 font-semibold text-slate-100"
               >
-                Manage this poll in workspace
+                {t("admin.pollForm.managePoll")}
               </Link>
             </div>
           </div>
