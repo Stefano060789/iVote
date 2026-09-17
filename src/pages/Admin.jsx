@@ -1896,7 +1896,7 @@ export default function Admin() {
                       {t("admin.engagement.wizard.pollsAddedSoFar", { count: itemsForCampaign(qrWizardCampaign.id).filter((item) => item.item_type === "poll").length })}
                     </p>
                     <div className="flex gap-2">
-                      <button onClick={() => setQrWizardStep(1)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
+                      <button onClick={() => setQrWizardStep(1)} className="qr-wizard-back-button flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
                       <button onClick={handleContinueFromPollStep} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
                     </div>
                   </div>
@@ -1922,7 +1922,7 @@ export default function Admin() {
                         ))}
                       </div>
                     )}
-                    <div className="space-y-2 rounded border border-[#2c3f66] bg-[#182742] p-3">
+                    <div className="qr-wizard-benefits space-y-2 rounded border border-[#2c3f66] bg-[#182742] p-3">
                       <p className="text-sm font-semibold text-[#f4f7fb]">{t("admin.engagement.items.voterBenefitsTitle")}</p>
                       <p className="text-xs text-[#93a3c2]">{t("admin.engagement.items.voterBenefitsHint")}</p>
                       {itemsForCampaign(qrWizardCampaign.id)
@@ -1947,7 +1947,7 @@ export default function Admin() {
                     </div>
                     <p className="text-xs text-[#93a3c2]">{t("admin.engagement.items.reviewSitesSelectionNote")}</p>
                     <div className="flex gap-2">
-                      <button onClick={() => setQrWizardStep(2)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
+                      <button onClick={() => setQrWizardStep(2)} className="qr-wizard-back-button flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
                       <button onClick={handleContinueFromReviewStep} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
                     </div>
                   </div>
@@ -1967,7 +1967,7 @@ export default function Admin() {
                       </p>
                     )}
                     <div className="flex gap-2">
-                      <button onClick={() => setQrWizardStep(3)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
+                      <button onClick={() => setQrWizardStep(3)} className="qr-wizard-back-button flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
                       <button onClick={() => setQrWizardStep(5)} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
                     </div>
                   </div>
@@ -2012,7 +2012,7 @@ export default function Admin() {
                       </div>
 
                       <div className="flex gap-2">
-                        <button onClick={() => setQrWizardStep(4)} className="flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
+                        <button onClick={() => setQrWizardStep(4)} className="qr-wizard-back-button flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
                         <button onClick={closeQrWizard} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.finish")}</button>
                       </div>
                     </div>

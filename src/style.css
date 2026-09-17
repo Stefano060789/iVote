@@ -928,8 +928,23 @@ textarea {
   }
 }
 
-:root:not([data-theme="dark"]) .qr-wizard-modal [class*="bg-[#182742]"] {
+:root:not([data-theme="dark"]) .qr-wizard-modal .qr-wizard-back-button {
   color: #f4f7fb !important;
+}
+
+:root:not([data-theme="dark"]) .qr-wizard-modal .qr-wizard-benefits {
+  color: #f4f7fb !important;
+}
+
+:root:not([data-theme="dark"]) .qr-wizard-modal .qr-wizard-benefits [class*="text-teal-"],
+:root:not([data-theme="dark"]) .qr-wizard-modal .qr-wizard-benefits [class*="text-sky-"],
+:root:not([data-theme="dark"]) .qr-wizard-modal .qr-wizard-benefits [class*="text-slate-"] {
+  color: #dbe3f0 !important;
+}
+
+:root:not([data-theme="dark"]) .qr-wizard-modal .qr-wizard-benefits [class*="text-teal-"],
+:root:not([data-theme="dark"]) .qr-wizard-modal .qr-wizard-benefits h3 {
+  color: #f2c744 !important;
 }
 
 /* Secondary/utility actions (create-a-thing buttons that aren't the single primary CTA of
