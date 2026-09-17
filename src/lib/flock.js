@@ -29,6 +29,8 @@ export const FLOCK = [
     detail: "Walks new workspaces through their first poll, first QR code, and first vote — no manual required.",
     icon: "\ud83d\udc26",
     image: robinImage,
+    color: "#e76f51",
+    colorDeep: "#b94f3a",
     tab: "overview"
   },
   {
@@ -38,6 +40,8 @@ export const FLOCK = [
     detail: "Keeps every poll light enough for a busy counter or doorway — one scan, one question, one honest answer.",
     icon: "\ud83d\udd4a\ufe0f",
     image: ternImage,
+    color: "#4ea5d9",
+    colorDeep: "#2f719e",
     tab: "polls"
   },
   {
@@ -47,6 +51,8 @@ export const FLOCK = [
     detail: "Shapes what guests see right after they vote: the review invite, the reward, and the thank-you moment.",
     icon: "\ud83e\udda9",
     image: flamingoImage,
+    color: "#e9789a",
+    colorDeep: "#b94d70",
     tab: "connection"
   },
   {
@@ -56,6 +62,8 @@ export const FLOCK = [
     detail: "Builds each QR code as a menu: one or more polls, an info card, and a donation ask, plus rotations and prize draws.",
     icon: "\u2728",
     image: magpieImage,
+    color: "#8b78d6",
+    colorDeep: "#5c4ca4",
     tab: "engagement"
   },
   {
@@ -65,6 +73,8 @@ export const FLOCK = [
     detail: "Routes low-score feedback to a private message before it ever reaches Google, Booking, or Tripadvisor.",
     icon: "\ud83d\udea8",
     image: redshankImage,
+    color: "#d95d39",
+    colorDeep: "#9e3e27",
     tab: "feedback"
   },
   {
@@ -74,6 +84,8 @@ export const FLOCK = [
     detail: "Keeps an eye on your brand, your team's access, your plan, and the developer API.",
     icon: "\ud83e\udd89",
     image: owlImage,
+    color: "#a78bfa",
+    colorDeep: "#6d55b8",
     tab: "settings"
   },
   {
@@ -83,6 +95,8 @@ export const FLOCK = [
     detail: "Pulls trends from every poll and QR location into one dashboard, so nothing gets missed.",
     icon: "\ud83d\udcca",
     image: waxwingImage,
+    color: "#e9b44c",
+    colorDeep: "#b7771e",
     tab: null,
     route: "/admin/analytics"
   }

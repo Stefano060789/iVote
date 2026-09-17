@@ -23,6 +23,8 @@
   --action-accent-hover: #b58416;
   --action-on-dark: #ffffff;
   --action-danger: #b91c1c;
+  --flock-bg: #214b46;
+  --flock-bg-soft: #2d635d;
   font-family: "Trebuchet MS", "Segoe UI", sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -529,6 +531,8 @@ textarea {
   --canvas: #081326;
   --surface: #101f38;
   --line: #2c4165;
+  --flock-bg: #071a2d;
+  --flock-bg-soft: #102d46;
   color-scheme: dark;
 }
 
@@ -1318,7 +1322,10 @@ textarea {
 
 .landing-flock {
   padding: 84px max(24px, calc((100vw - 1120px) / 2));
-  background: var(--navy-deep);
+  background:
+    radial-gradient(780px 360px at 12% 0%, rgba(78, 165, 217, 0.16), transparent 68%),
+    radial-gradient(640px 420px at 92% 100%, rgba(139, 120, 214, 0.14), transparent 68%),
+    var(--flock-bg);
 }
 
 .landing-flock-lede {
@@ -1507,7 +1514,10 @@ textarea {
 
 :root:not([data-theme="dark"]) .landing-section,
 :root:not([data-theme="dark"]) .landing-flock {
-  background: #173b3a;
+  background:
+    radial-gradient(720px 380px at 8% 0%, rgba(242, 199, 68, 0.18), transparent 68%),
+    radial-gradient(620px 420px at 94% 100%, rgba(78, 165, 217, 0.12), transparent 68%),
+    var(--flock-bg);
   color: #f8f5ed;
 }
 
@@ -1547,7 +1557,7 @@ textarea {
 
 :root:not([data-theme="dark"]) .landing-flock-card {
   border-color: rgba(242, 199, 68, 0.32);
-  background: linear-gradient(160deg, rgba(242, 199, 68, 0.12), rgba(255, 255, 255, 0.03) 60%);
+  background: linear-gradient(160deg, rgba(242, 199, 68, 0.14), rgba(255, 255, 255, 0.05) 60%);
 }
 
 :root:not([data-theme="dark"]) .landing-flock-card h3 {

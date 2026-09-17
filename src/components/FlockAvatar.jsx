@@ -25,7 +25,9 @@ export default function FlockAvatar({ bird, size = 40, className = "" }) {
         width: size,
         height: size,
         borderRadius: "9999px",
-        background: "linear-gradient(160deg, #12274a, #071021)",
+        background: bird.color
+          ? `linear-gradient(145deg, ${bird.color}, ${bird.colorDeep || bird.color})`
+          : "linear-gradient(160deg, #12274a, #071021)",
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
