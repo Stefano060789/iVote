@@ -8,12 +8,10 @@ const LAST_UPDATED = "13 September 2026";
 // specific to you and can't be inferred from the codebase.
 const OPERATOR_NAME = "Stefano Bonomi";
 const OPERATOR_ADDRESS = "Hausergasse 37/3, Villach, Austria";
-const SUPPORT_EMAIL = import.meta.env.VITE_SUPPORT_EMAIL;
+const SUPPORT_EMAIL = import.meta.env.VITE_SUPPORT_EMAIL || "contact@hellogodwit.com";
 
 function ContactEmail() {
-  return SUPPORT_EMAIL
-    ? <a className="text-blue-300 underline" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
-    : <span className="italic text-amber-300">(set VITE_SUPPORT_EMAIL, then this will show your support address)</span>;
+  return <a className="text-blue-300 underline" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>;
 }
 
 function OperatorNotice() {

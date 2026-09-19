@@ -1,0 +1,48 @@
+{
+  "nav": {
+    "quickStart": "Hitri začetek",
+    "support": "Podpora",
+    "signIn": "Prijava",
+    "install": "Namesti Godwit",
+    "billing": "Obračunavanje",
+    "moderation": "Moderiranje",
+    "shareFeedback": "Pošlji povratne informacije",
+    "account": "Račun",
+    "signOut": "Odjava",
+    "menu": "Meni",
+    "lightTheme": "Uporabi svetlo temo",
+    "darkTheme": "Uporabi temno temo",
+    "dashboard": "Nadzorna plošča",
+    "getStarted": "Začni"
+  },
+  "landing": {
+    "eyebrow": "Povratne informacije prek kode QR za resnične prostore",
+    "title": "Vsak fizični prostor spremenite v merljiv kanal za povratne informacije.",
+    "lede": "Godwit pomaga prizoriščem preprost optični bralnik QR spremeniti v povratne informacije, vpogled v kampanje in nadaljnjo komunikacijo na podlagi dovoljenja.",
+    "workspaceDashboard": "Nadzorna plošča",
+    "createWorkspace": "Začnite z Godwit",
+    "workspaceLogin": "Prijavite se v Godwit",
+    "note": "Narejeno za lokale, dogodke, gostinstvo, trgovine, umetnike, ustvarjalce in ekipe na terenu.",
+    "howItWorksEyebrow": "Preprost krog",
+    "howItWorksTitle": "Od kode QR do boljše odločitve.",
+    "finalEyebrow": "Ste pripravljeni izmeriti odziv?",
+    "finalTitle": "Zaženite svojo prvo kampanjo povratnih informacij prek kode QR.",
+    "finalCopy": "Nastavite delovni prostor, ustvarite kampanjo in spremenite odzive strank v naslednjo odločitev.",
+    "openDashboard": "Odpri nadzorno ploščo"
+  },
+  "vote": {
+    "loading": "Nalaganje ankete...",
+    "notFound": "Anketa ni bila najdena.",
+    "alreadyVotedTitle": "Glasovali ste že",
+    "alreadyVotedBody": "Hvala! Vaš glas je bil že zabeležen.",
+    "notStartedTitle": "Ta anketa še ni odprta",
+    "expiredTitle": "Ta anketa je potekla",
+    "submittedTitle": "Hvala za vaš glas!",
+    "submittedBody": "Vaš glas je bil zabeležen.",
+    "language": "Jezik",
+    "originalOnly": "Samo izvirnik",
+    "translating": "Prevajanje vsebine ankete...",
+    "submitAnswer": "Pošlji odgovor",
+    "submitVote": "Oddaj glas"
+  }
+}

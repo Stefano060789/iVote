@@ -34,7 +34,14 @@ export default function Support() {
     <Layout theme="workspace">
       <div className="mx-auto max-w-xl space-y-4 p-2 sm:p-6">
         <h1 className="text-3xl font-bold">Support</h1>
-        <p>For account, billing, accessibility, privacy, or moderation help, send a message below and we'll get back to you.</p>
+        <p>
+          For account, billing, accessibility, privacy, or moderation help, send a message below and
+          we'll get back to you. You can also email{" "}
+          <a className="text-blue-300 underline" href="mailto:contact@hellogodwit.com">
+            contact@hellogodwit.com
+          </a>
+          .
+        </p>
 
         {status === "sent" ? (
           <div className="rounded border border-emerald-600 bg-emerald-50 p-4 text-sm text-emerald-900">

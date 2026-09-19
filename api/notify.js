@@ -45,8 +45,7 @@ async function handleContactMessage(request, response) {
     return response.status(400).json({ error: "That reply email address doesn't look valid." });
   }
 
-  const supportEmail = process.env.SUPPORT_TO_EMAIL;
-  if (!supportEmail) return response.status(200).json({ sent: false, reason: "support_email_not_configured" });
+  const supportEmail = process.env.SUPPORT_TO_EMAIL || "contact@hellogodwit.com";
 
   try {
     const result = await sendResendEmail({

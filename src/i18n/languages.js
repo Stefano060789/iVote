@@ -4,7 +4,8 @@
 export const SUPPORTED_LANGUAGES = [
   { code: "en", label: "English" },
   { code: "de", label: "Deutsch" },
-  { code: "it", label: "Italiano" }
+  { code: "it", label: "Italiano" },
+  { code: "sl", label: "Slovenščina" }
 ];
 
 export const DEFAULT_LANGUAGE = "en";
