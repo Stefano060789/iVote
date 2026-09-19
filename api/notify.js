@@ -28,7 +28,11 @@ async function sendResendEmail({ to, subject, text }) {
     headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({ from: process.env.REPORT_FROM_EMAIL, to: [to], subject, text })
   });
-  if (!delivery.ok) throw new Error(`Resend request failed (${delivery.status}).`);
+  if (!delivery.ok) {
+    const details = await delivery.json().catch(() => ({}));
+    const providerMessage = String(details?.message || details?.error || "").trim();
+    throw new Error(`Resend request failed (${delivery.status})${providerMessage ? `: ${providerMessage}` : "."}`);
+  }
   return { sent: true };
 }
 
@@ -45,7 +49,9 @@ async function handleContactMessage(request, response) {
     return response.status(400).json({ error: "That reply email address doesn't look valid." });
   }
 
-  const supportEmail = process.env.SUPPORT_TO_EMAIL || "contact@hellogodwit.com";
+  // Resend's unverified testing mode only permits the account's verified recipient.
+  // Set SUPPORT_TO_EMAIL to contact@hellogodwit.com after verifying that domain in Resend.
+  const supportEmail = process.env.SUPPORT_TO_EMAIL || "bonomistefano@outlook.it";
 
   try {
     const result = await sendResendEmail({
@@ -71,7 +77,7 @@ async function handleProductFeedback(request, response) {
     return response.status(400).json({ error: "The feedback author email address is invalid." });
   }
 
-  const supportEmail = process.env.SUPPORT_TO_EMAIL || "contact@hellogodwit.com";
+  const supportEmail = process.env.SUPPORT_TO_EMAIL || "bonomistefano@outlook.it";
 
   try {
     const result = await sendResendEmail({
