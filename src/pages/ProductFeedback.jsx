@@ -29,11 +29,24 @@ export default function ProductFeedback() {
         message: message.trim()
       });
       if (error) throw error;
+      const notification = await fetch("/api/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "product_feedback",
+          message: message.trim(),
+          userEmail: user.email || ""
+        })
+      });
+      const notificationPayload = await notification.json().catch(() => ({}));
+      if (!notification.ok || notificationPayload.sent === false) {
+        throw new Error(notificationPayload.error || "The feedback was saved, but the email notification could not be sent.");
+      }
       setMessage("");
       setStatus("Thank you. Your feedback has been sent to the Godwit team.");
     } catch (error) {
       console.error(error);
-      setStatus("Unable to send feedback right now. Please try again.");
+      setStatus(error.message || "Unable to send feedback right now. Please try again.");
     }
   }
 

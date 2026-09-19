@@ -60,6 +60,32 @@ async function handleContactMessage(request, response) {
   }
 }
 
+async function handleProductFeedback(request, response) {
+  const message = String(request.body?.message || "").trim();
+  const userEmail = String(request.body?.userEmail || "").trim();
+
+  if (!message || message.length > 2000) {
+    return response.status(400).json({ error: "Feedback (up to 2000 characters) is required." });
+  }
+  if (userEmail && !EMAIL_PATTERN.test(userEmail)) {
+    return response.status(400).json({ error: "The feedback author email address is invalid." });
+  }
+
+  const supportEmail = process.env.SUPPORT_TO_EMAIL || "contact@hellogodwit.com";
+
+  try {
+    const result = await sendResendEmail({
+      to: supportEmail,
+      subject: "New Godwit product feedback",
+      text: `${message}\n\n${userEmail ? `From: ${userEmail}` : "From: authenticated Godwit user (email unavailable)."}`
+    });
+    return response.status(200).json(result);
+  } catch (error) {
+    captureError("Product feedback notification failed", error);
+    return response.status(500).json({ error: "Unable to send your feedback right now. Please try again shortly." });
+  }
+}
+
 async function handleContentReport(request, response) {
   const workspaceId = request.body?.workspaceId;
   const reportId = Number(request.body?.reportId);
@@ -145,6 +171,7 @@ export default async function handler(request, response) {
   }
 
   if (request.body?.type === "contact") return handleContactMessage(request, response);
+  if (request.body?.type === "product_feedback") return handleProductFeedback(request, response);
   if (request.body?.type === "translate") return handleTranslation(request, response);
   return handleContentReport(request, response);
 }
