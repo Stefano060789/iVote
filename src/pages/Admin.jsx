@@ -24,6 +24,7 @@ import { loadDonationSettings, saveDonationSettings, startStripeConnectOnboardin
 import { loadLatestReputationSnapshot, refreshReputationSnapshot } from "../lib/reputation";
 import { loadApiKeys, createApiKey, deleteApiKey } from "../lib/apiKeys";
 import { getEntitlements, planLabel, minPlanLabelFor } from "../lib/entitlements";
+import { DONATION_FEATURE_ENABLED } from "../../lib/donationFeature.js";
 import { FLOCK, flockMemberForTab } from "../lib/flock";
 import { PERSONAS, findPersona } from "../lib/personas";
 import {
@@ -835,6 +836,10 @@ export default function Admin() {
   }
 
   async function saveDonationSettingsHandler() {
+    if (!DONATION_FEATURE_ENABLED) {
+      alert(t("admin.engagement.donations.notEnabled"));
+      return;
+    }
     if (donationSettings.is_enabled && !donationSettings.stripe_charges_enabled) {
       alert("Connect and finish onboarding with Stripe before enabling donations.");
       return;
@@ -849,6 +854,10 @@ export default function Admin() {
   }
 
   async function connectStripeHandler() {
+    if (!DONATION_FEATURE_ENABLED) {
+      setStripeConnectError(t("admin.engagement.donations.notEnabled"));
+      return;
+    }
     setStripeConnectError("");
     setStripeConnectBusy(true);
     try {
@@ -1884,8 +1893,8 @@ export default function Admin() {
                 {qrWizardStep === 2 && qrWizardCampaign && (
                   <div className="space-y-3">
                     <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step2Title")}</h3>
-                    <div className="flex gap-2">
-                      <select value={itemPollId} onChange={(event) => setItemPollId(event.target.value)} className="qr-wizard-input flex-1 border p-2 rounded text-black">
+                    <div className="flex min-w-0 gap-2">
+                      <select value={itemPollId} onChange={(event) => setItemPollId(event.target.value)} className="qr-wizard-input min-w-0 flex-1 border p-2 rounded text-black">
                         <option value="">{t("admin.engagement.items.addPollOption")}</option>
                         {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
                       </select>
@@ -1896,6 +1905,38 @@ export default function Admin() {
                     <p className="text-xs text-[#93a3c2]">
                       {t("admin.engagement.wizard.pollsAddedSoFar", { count: itemsForCampaign(qrWizardCampaign.id).filter((item) => item.item_type === "poll").length })}
                     </p>
+                    {(() => {
+                      const pollItems = itemsForCampaign(qrWizardCampaign.id).filter((item) => item.item_type === "poll");
+                      return pollItems.length > 0 && (
+                        <div className="space-y-1.5">
+                          {pollItems.map((item, index, all) => (
+                            <div key={item.id} className="flex min-w-0 items-center justify-between gap-2 rounded border border-[#2c3f66] bg-[#101f39] p-2 text-sm">
+                              <p className="min-w-0 truncate text-[#dbe3f0]">
+                                {polls.find((poll) => poll.id === item.poll_id)?.question || t("admin.engagement.items.unknownPoll")}
+                              </p>
+                              <div className="flex shrink-0 items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => handleMoveItemWithinType(qrWizardCampaign.id, item.id, "poll", "up")}
+                                  disabled={index === 0}
+                                  title="Move poll up"
+                                  aria-label="Move poll up"
+                                  className="rounded border border-[#2c3f66] px-2 py-1 text-[#dbe3f0] disabled:opacity-30"
+                                >↑</button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleMoveItemWithinType(qrWizardCampaign.id, item.id, "poll", "down")}
+                                  disabled={index === all.length - 1}
+                                  title="Move poll down"
+                                  aria-label="Move poll down"
+                                  className="rounded border border-[#2c3f66] px-2 py-1 text-[#dbe3f0] disabled:opacity-30"
+                                >↓</button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
                     <div className="flex gap-2">
                       <button onClick={() => setQrWizardStep(1)} className="qr-wizard-back-button flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
                       <button onClick={handleContinueFromPollStep} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
@@ -1959,7 +2000,7 @@ export default function Admin() {
                     <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step4Title")}</h3>
                     <p className="text-xs text-[#93a3c2]">{t("admin.engagement.items.sectionDonationHint")}</p>
                     {donationSettings.is_enabled ? (
-                      <button onClick={handleAddDonationItemFromWizard} className="w-full rounded bg-[#0f766e] px-4 py-2 font-semibold text-[#f8fafc] hover:bg-[#0d6259]">
+                      <button onClick={handleAddDonationItemFromWizard} disabled={!DONATION_FEATURE_ENABLED} className="w-full rounded bg-[#0f766e] px-4 py-2 font-semibold text-[#f8fafc] hover:bg-[#0d6259] disabled:cursor-not-allowed disabled:opacity-50">
                         {t("admin.engagement.items.addDonationOption")}
                       </button>
                     ) : (
@@ -2231,8 +2272,8 @@ export default function Admin() {
                                     {" - "}{polls.find((poll) => poll.id === item.poll_id)?.question || t("admin.engagement.items.unknownPoll")}
                                   </p>
                                   <div className="flex shrink-0 items-center gap-1">
-                                    <button type="button" onClick={() => handleMoveItemWithinType(campaign.id, item.id, "poll", "up")} disabled={index === 0} className="rounded px-2 py-1 disabled:opacity-30">↑</button>
-                                    <button type="button" onClick={() => handleMoveItemWithinType(campaign.id, item.id, "poll", "down")} disabled={index === all.length - 1} className="rounded px-2 py-1 disabled:opacity-30">↓</button>
+                                    <button type="button" onClick={() => handleMoveItemWithinType(campaign.id, item.id, "poll", "up")} disabled={index === 0} title="Move poll up" aria-label="Move poll up" className="rounded border border-slate-600 px-2 py-1 disabled:opacity-30">↑</button>
+                                    <button type="button" onClick={() => handleMoveItemWithinType(campaign.id, item.id, "poll", "down")} disabled={index === all.length - 1} title="Move poll down" aria-label="Move poll down" className="rounded border border-slate-600 px-2 py-1 disabled:opacity-30">↓</button>
                                     <button type="button" onClick={() => handleRemoveItem(item.id)} className="rounded px-2 py-1 font-semibold text-red-400">{t("admin.engagement.items.remove")}</button>
                                   </div>
                                 </div>
@@ -2245,7 +2286,7 @@ export default function Admin() {
                           <select
                             value={itemFormCampaignId === campaign.id ? itemPollId : ""}
                             onChange={(event) => { setItemFormCampaignId(campaign.id); setItemPollId(event.target.value); }}
-                            className="border p-2 rounded text-black md:col-span-2"
+                            className="w-full min-w-0 border p-2 rounded text-black md:col-span-2"
                           >
                             <option value="">{t("admin.engagement.items.addPollOption")}</option>
                             {polls.map((poll) => <option key={poll.id} value={String(poll.id)}>#{poll.id} - {poll.question}</option>)}
@@ -2273,14 +2314,18 @@ export default function Admin() {
                           );
                         })()}
 
-                        {donationSettings.is_enabled ? (
+                        {DONATION_FEATURE_ENABLED && donationSettings.is_enabled ? (
                           itemsForCampaign(campaign.id).some((item) => item.item_type === "donation") ? null : (
                             <button type="button" onClick={() => handleAddDonationItem(campaign.id)} className="mt-2 bg-amber-500 text-slate-950 px-3 py-2 rounded font-semibold">
                               {t("admin.engagement.items.addDonationOption")}
                             </button>
                           )
                         ) : (
-                          <p className="mt-2 text-xs text-slate-500">{t("admin.engagement.items.enableDonationsNote")}</p>
+                          <p className="mt-2 text-xs text-slate-500">
+                            {DONATION_FEATURE_ENABLED
+                              ? t("admin.engagement.items.enableDonationsNote")
+                              : t("admin.engagement.donations.notEnabled")}
+                          </p>
                         )}
                       </div>
 
@@ -2501,6 +2546,9 @@ export default function Admin() {
       <details id="donation-settings" className="mb-6 border rounded bg-gray-900">
         <summary className="cursor-pointer p-4 text-xl font-bold">{t("admin.engagement.donations.title")}</summary>
         <div className="px-4 pb-4 space-y-3">
+          <div className="rounded border border-amber-700 bg-amber-950/30 p-3 text-sm text-amber-200">
+            {t("admin.engagement.donations.notEnabled")}
+          </div>
           <p className="text-sm text-slate-400">
             {t("admin.engagement.donations.description")}
           </p>
@@ -2511,6 +2559,7 @@ export default function Admin() {
               {t("admin.engagement.donations.categoryLabel")}
               <select
                 value={donationSettings.category || "contribution"}
+                disabled={!DONATION_FEATURE_ENABLED}
                 onChange={(event) => setDonationSettings((current) => ({ ...current, category: event.target.value }))}
                 className="mt-1 w-full border p-2 rounded text-black"
               >
@@ -2534,11 +2583,11 @@ export default function Admin() {
               </>
             )}
             <div className="mt-3 flex flex-wrap gap-2">
-              <button onClick={connectStripeHandler} disabled={stripeConnectBusy} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
+              <button onClick={connectStripeHandler} disabled={!DONATION_FEATURE_ENABLED || stripeConnectBusy} className="bg-violet-600 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
                 {donationSettings.stripe_account_id ? t("admin.engagement.donations.continueSetup") : t("admin.engagement.donations.connectStripe")}
               </button>
               {donationSettings.stripe_account_id && (
-                <button onClick={refreshStripeStatusHandler} disabled={stripeConnectBusy} className="bg-slate-700 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
+                <button onClick={refreshStripeStatusHandler} disabled={!DONATION_FEATURE_ENABLED || stripeConnectBusy} className="bg-slate-700 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">
                   {t("admin.engagement.donations.refreshStatus")}
                 </button>
               )}
@@ -2550,7 +2599,7 @@ export default function Admin() {
             <input
               type="checkbox"
               checked={donationSettings.is_enabled}
-              disabled={!donationSettings.stripe_charges_enabled}
+              disabled={!DONATION_FEATURE_ENABLED || !donationSettings.stripe_charges_enabled}
               onChange={(event) => setDonationSettings((current) => ({ ...current, is_enabled: event.target.checked }))}
             />
             <span>{t("admin.engagement.donations.acceptDonations")}{!donationSettings.stripe_charges_enabled && ` ${t("admin.engagement.donations.connectFirst")}`}</span>
@@ -2561,6 +2610,7 @@ export default function Admin() {
               {t("admin.engagement.donations.currency")}
               <input
                 value={donationSettings.currency || "EUR"}
+                disabled={!DONATION_FEATURE_ENABLED}
                 onChange={(event) => setDonationSettings((current) => ({ ...current, currency: event.target.value }))}
                 maxLength={3}
                 className="mt-1 w-full border p-2 rounded text-black uppercase"
@@ -2574,6 +2624,7 @@ export default function Admin() {
                 min="0"
                 step="0.01"
                 value={donationSettings.suggested_amount || ""}
+                disabled={!DONATION_FEATURE_ENABLED}
                 onChange={(event) => setDonationSettings((current) => ({ ...current, suggested_amount: event.target.value }))}
                 className="mt-1 w-full border p-2 rounded text-black"
                 placeholder="5.00"
@@ -2582,13 +2633,14 @@ export default function Admin() {
           </div>
           <textarea
             value={donationSettings.message || ""}
+            disabled={!DONATION_FEATURE_ENABLED}
             onChange={(event) => setDonationSettings((current) => ({ ...current, message: event.target.value }))}
             maxLength={300}
             rows="2"
             className="w-full border p-2 rounded text-black"
             placeholder={t("admin.engagement.donations.messagePlaceholder")}
           />
-          <button onClick={saveDonationSettingsHandler} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">{t("admin.engagement.donations.saveButton")}</button>
+          <button onClick={saveDonationSettingsHandler} disabled={!DONATION_FEATURE_ENABLED} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold disabled:opacity-60">{t("admin.engagement.donations.saveButton")}</button>
           <p className="text-xs text-slate-500">
             {t("admin.engagement.donations.feeNote")}
           </p>

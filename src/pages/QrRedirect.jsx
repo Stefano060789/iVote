@@ -5,7 +5,9 @@ import { getPollBranding } from "../lib/pollBranding";
 import { reassignManagedCampaignPoll, resolveManagedQrToken } from "../lib/qrManage";
 import DonationCard from "../components/DonationCard";
 import InlinePollVote from "../components/InlinePollVote";
+import OrganizerMessageCard from "../components/OrganizerMessageCard";
 import { accessibilityTagIcon, accessibilityTagLabel } from "../lib/accessibilityTags";
+import { DONATION_FEATURE_ENABLED } from "../../lib/donationFeature.js";
 
 export default function QrRedirect() {
   const navigate = useNavigate();
@@ -40,27 +42,38 @@ export default function QrRedirect() {
       const { data: items, error: itemsError } = await supabase
         .rpc("get_public_qr_campaign_items", { target_token: token });
 
-      if (!itemsError && Array.isArray(items) && items.length > 0) {
-        await supabase.rpc("record_qr_scan", { target_campaign_id: items[0].campaign_id });
+      const visibleItems = DONATION_FEATURE_ENABLED
+        ? items
+        : (items || []).filter((item) => item.item_type !== "donation");
+
+      if (!itemsError && Array.isArray(visibleItems) && visibleItems.length > 0) {
+        await supabase.rpc("record_qr_scan", { target_campaign_id: visibleItems[0].campaign_id });
 
         // If this QR code carries just one poll and nothing else (no info card, donation, or
         // reward), skip the intermediate "menu" screen entirely - land directly on the
         // question with answer options ready to tap, instead of an extra "Share feedback"
         // click. Only collapse when there's truly one thing to show; a poll alongside other
         // items still needs the menu so those other items remain visible.
-        if (items.length === 1 && items[0].item_type === "poll") {
-          navigate(`/vote/${items[0].poll_id}?campaign=${items[0].campaign_id}`, { replace: true });
+        let singlePollHasMessage = false;
+        if (visibleItems.length === 1 && visibleItems[0].item_type === "poll") {
+          const { data: singlePoll } = await supabase
+            .rpc("get_public_poll", { target_poll_id: visibleItems[0].poll_id })
+            .single();
+          singlePollHasMessage = singlePoll?.allow_organizer_messages !== false;
+        }
+        if (visibleItems.length === 1 && visibleItems[0].item_type === "poll" && !singlePollHasMessage) {
+          navigate(`/vote/${visibleItems[0].poll_id}?campaign=${visibleItems[0].campaign_id}`, { replace: true });
           return;
         }
 
-        const firstPollItem = items.find((item) => item.item_type === "poll");
+        const firstPollItem = visibleItems.find((item) => item.item_type === "poll");
         const branding = getPollBranding(firstPollItem ? {
           brand_name: firstPollItem.poll_brand_name,
           brand_logo_url: firstPollItem.poll_brand_logo_url,
           brand_primary_color: firstPollItem.poll_brand_primary_color,
           brand_accent_color: firstPollItem.poll_brand_accent_color
         } : null);
-        setMenu({ campaignId: items[0].campaign_id, portalTitle: items[0].portal_title, portalMessage: items[0].portal_message, items, branding });
+        setMenu({ campaignId: visibleItems[0].campaign_id, portalTitle: visibleItems[0].portal_title, portalMessage: visibleItems[0].portal_message, items: visibleItems, branding });
         return;
       }
 
@@ -70,11 +83,13 @@ export default function QrRedirect() {
 
       if (!campaignError && campaign?.poll_id) {
         await supabase.rpc("record_qr_scan", { target_campaign_id: campaign.campaign_id });
-        // Same idea as above: a campaign with just a default poll and no extra items has
-        // nothing else to show - go straight to the question instead of a "Share your
-        // feedback" click-through screen.
-        navigate(`/vote/${campaign.poll_id}?campaign=${campaign.campaign_id}`, { replace: true });
-        return;
+        const { data: campaignPoll } = await supabase
+          .rpc("get_public_poll", { target_poll_id: campaign.poll_id })
+          .single();
+        if (campaignPoll?.allow_organizer_messages === false) {
+          navigate(`/vote/${campaign.poll_id}?campaign=${campaign.campaign_id}`, { replace: true });
+          return;
+        }
       }
 
       const stableShortUrl = `${window.location.origin}/qr/${token}`;
@@ -212,6 +227,17 @@ export default function QrRedirect() {
                 </div>
               );
             })}
+            {(() => {
+              const messagePoll = items.find((item) => item.item_type === "poll");
+              return messagePoll ? (
+                <OrganizerMessageCard
+                  key="organizer-message"
+                  pollId={messagePoll.poll_id}
+                  campaignId={messagePoll.campaign_id}
+                  branding={branding}
+                />
+              ) : null;
+            })()}
           </div>
         </section>
       </main>

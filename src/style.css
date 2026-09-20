@@ -226,6 +226,10 @@ textarea {
   cursor: default;
 }
 
+.qr-portal-menu-message {
+  cursor: default;
+}
+
 .qr-portal-poll-answers {
   display: grid;
   gap: 8px;

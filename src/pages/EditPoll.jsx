@@ -18,6 +18,7 @@ export default function EditPoll() {
   const [answers, setAnswers] = useState([""]);
   const [multipleChoice, setMultipleChoice] = useState(false);
   const [allowUserAnswers, setAllowUserAnswers] = useState(false);
+  const [allowOrganizerMessages, setAllowOrganizerMessages] = useState(true);
   const [templateKey, setTemplateKey] = useState("blank");
   const [locationName, setLocationName] = useState("");
   const [startsAt, setStartsAt] = useState("");
@@ -59,6 +60,7 @@ export default function EditPoll() {
       setQuestion(data.question ?? "");
       setMultipleChoice(Boolean(data.multiple_choice));
       setAllowUserAnswers(Boolean(data.allow_user_answers));
+      setAllowOrganizerMessages(data.allow_organizer_messages !== false);
       setTemplateKey(data.template_key ?? pollMeta.template_key ?? "blank");
       setLocationName(data.location_name ?? pollMeta.location_name ?? "");
       setStartsAt(data.starts_at ? new Date(data.starts_at).toISOString().slice(0, 16) : pollMeta.starts_at ? new Date(pollMeta.starts_at).toISOString().slice(0, 16) : "");
@@ -154,7 +156,8 @@ export default function EditPoll() {
         question: question.trim(),
         answers: cleanedAnswers,
         multiple_choice: multipleChoice,
-        allow_user_answers: allowUserAnswers
+        allow_user_answers: allowUserAnswers,
+        allow_organizer_messages: allowOrganizerMessages
       })
       .eq("id", pollId)
       .eq("creator_id", user.id);
@@ -254,6 +257,15 @@ export default function EditPoll() {
               onChange={(e) => setAllowUserAnswers(e.target.checked)}
             />
             <span>{t("admin.pollForm.customAnswers")}</span>
+          </label>
+          <label className="mt-3 flex items-start gap-2">
+            <input
+              type="checkbox"
+              checked={allowOrganizerMessages}
+              onChange={(e) => setAllowOrganizerMessages(e.target.checked)}
+              className="mt-0.5"
+            />
+            <span>{t("admin.pollForm.organizerMessages")}</span>
           </label>
         </div>
       </details>

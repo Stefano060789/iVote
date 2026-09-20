@@ -639,7 +639,7 @@ export default function Vote() {
           </label>
         </div>
 
-        <details className="mt-4 border-t border-slate-600 pt-4">
+        {poll.allow_organizer_messages !== false && <details className="mt-4 border-t border-slate-600 pt-4">
           <summary className="cursor-pointer text-sm font-semibold">{t("vote.messageToOrganizer")}</summary>
           <p className="mt-2 text-xs text-slate-300">{t("vote.messageOptionalNote")}</p>
           <textarea
@@ -667,7 +667,7 @@ export default function Vote() {
             placeholder={t("vote.messageReplyEmailPlaceholder")}
           />
           {messageReplyEmailError && <p id="message-reply-email-error" className="mt-1 text-xs text-red-400" role="alert">{messageReplyEmailError}</p>}
-        </details>
+        </details>}
       </div>
     </Layout>
   );

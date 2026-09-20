@@ -22,6 +22,7 @@ export default function CreatePoll() {
   const [answers, setAnswers] = useState([""]);
   const [multipleChoice, setMultipleChoice] = useState(false);
   const [allowUserAnswers, setAllowUserAnswers] = useState(false);
+  const [allowOrganizerMessages, setAllowOrganizerMessages] = useState(true);
   const [templateKey, setTemplateKey] = useState("blank");
   const [startsAt, setStartsAt] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
@@ -141,6 +142,7 @@ export default function CreatePoll() {
         answers: cleanedAnswers,
         multiple_choice: multipleChoice,
         allow_user_answers: allowUserAnswers,
+        allow_organizer_messages: allowOrganizerMessages,
         creator_id: user.id
       })
       .select()
@@ -316,6 +318,15 @@ export default function CreatePoll() {
                 onChange={(e) => setAllowUserAnswers(e.target.checked)}
               />
               <span>{t("admin.pollForm.customAnswers")}</span>
+            </label>
+            <label className="mt-3 flex items-start gap-2">
+              <input
+                type="checkbox"
+                checked={allowOrganizerMessages}
+                onChange={(e) => setAllowOrganizerMessages(e.target.checked)}
+                className="mt-0.5"
+              />
+              <span>{t("admin.pollForm.organizerMessages")}</span>
             </label>
           </div>
         </details>
