@@ -59,7 +59,7 @@ export default function QrRedirect() {
           const { data: singlePoll } = await supabase
             .rpc("get_public_poll", { target_poll_id: visibleItems[0].poll_id })
             .single();
-          singlePollHasMessage = singlePoll?.allow_organizer_messages !== false;
+          singlePollHasMessage = singlePoll?.allow_organizer_messages === true;
         }
         if (visibleItems.length === 1 && visibleItems[0].item_type === "poll" && !singlePollHasMessage) {
           navigate(`/vote/${visibleItems[0].poll_id}?campaign=${visibleItems[0].campaign_id}`, { replace: true });
@@ -86,7 +86,7 @@ export default function QrRedirect() {
         const { data: campaignPoll } = await supabase
           .rpc("get_public_poll", { target_poll_id: campaign.poll_id })
           .single();
-        if (campaignPoll?.allow_organizer_messages === false) {
+        if (campaignPoll?.allow_organizer_messages !== true) {
           navigate(`/vote/${campaign.poll_id}?campaign=${campaign.campaign_id}`, { replace: true });
           return;
         }

@@ -22,7 +22,7 @@ export default function CreatePoll() {
   const [answers, setAnswers] = useState([""]);
   const [multipleChoice, setMultipleChoice] = useState(false);
   const [allowUserAnswers, setAllowUserAnswers] = useState(false);
-  const [allowOrganizerMessages, setAllowOrganizerMessages] = useState(true);
+  const [allowOrganizerMessages, setAllowOrganizerMessages] = useState(false);
   const [templateKey, setTemplateKey] = useState("blank");
   const [startsAt, setStartsAt] = useState("");
   const [expiresAt, setExpiresAt] = useState("");

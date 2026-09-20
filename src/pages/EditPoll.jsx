@@ -18,7 +18,7 @@ export default function EditPoll() {
   const [answers, setAnswers] = useState([""]);
   const [multipleChoice, setMultipleChoice] = useState(false);
   const [allowUserAnswers, setAllowUserAnswers] = useState(false);
-  const [allowOrganizerMessages, setAllowOrganizerMessages] = useState(true);
+  const [allowOrganizerMessages, setAllowOrganizerMessages] = useState(false);
   const [templateKey, setTemplateKey] = useState("blank");
   const [locationName, setLocationName] = useState("");
   const [startsAt, setStartsAt] = useState("");
@@ -60,7 +60,7 @@ export default function EditPoll() {
       setQuestion(data.question ?? "");
       setMultipleChoice(Boolean(data.multiple_choice));
       setAllowUserAnswers(Boolean(data.allow_user_answers));
-      setAllowOrganizerMessages(data.allow_organizer_messages !== false);
+      setAllowOrganizerMessages(Boolean(data.allow_organizer_messages));
       setTemplateKey(data.template_key ?? pollMeta.template_key ?? "blank");
       setLocationName(data.location_name ?? pollMeta.location_name ?? "");
       setStartsAt(data.starts_at ? new Date(data.starts_at).toISOString().slice(0, 16) : pollMeta.starts_at ? new Date(pollMeta.starts_at).toISOString().slice(0, 16) : "");

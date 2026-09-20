@@ -252,7 +252,7 @@
       "responseOptionsHint": "Choose how people can respond to this poll.",
       "multipleAnswers": "Allow more than one answer",
       "customAnswers": "Let people add their own answer",
-      "organizerMessages": "Let voters send a private message to the poll creator",
+      "organizerMessages": "Allow voters to send a private message directly to the poll creator",
       "schedule": "Schedule this poll",
       "scheduleHint": "Leave these blank to open the poll immediately and keep it open until you close it.",
       "startsAt": "Starts at",

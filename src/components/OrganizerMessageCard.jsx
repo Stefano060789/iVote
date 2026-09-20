@@ -17,7 +17,7 @@ export default function OrganizerMessageCard({ pollId, campaignId, branding }) {
 
     async function loadPoll() {
       const { data, error } = await supabase.rpc("get_public_poll", { target_poll_id: Number(pollId) }).single();
-      if (!cancelled && !error) setEnabled(data?.allow_organizer_messages !== false);
+      if (!cancelled && !error) setEnabled(data?.allow_organizer_messages === true);
     }
 
     loadPoll();
