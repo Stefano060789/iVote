@@ -27,7 +27,8 @@ ChartJS.register(
 export default function Results() {
   const { pollId } = useParams();
   const [poll, setPoll] = useState(null);
-  const [votes, setVotes] = useState([]);
+  const [voteCountsByAnswer, setVoteCountsByAnswer] = useState({});
+  const [timeline, setTimeline] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalVotes, setTotalVotes] = useState(0);
   const [votesToday, setVotesToday] = useState(0);
@@ -48,20 +49,25 @@ export default function Results() {
     }
 
     async function fetchVotes() {
-      const { data, error } = await supabase
-        .rpc("get_public_poll_votes", { target_poll_id: Number(pollId) });
+      const [{ data: summary, error: summaryError }, { data: timelineRows, error: timelineError }] = await Promise.all([
+        supabase.rpc("get_public_poll_vote_summary", { target_poll_id: Number(pollId) }),
+        supabase.rpc("get_public_poll_vote_timeline", { target_poll_id: Number(pollId) })
+      ]);
 
-      if (error) {
-        console.error(error);
+      if (summaryError || timelineError) {
+        console.error(summaryError || timelineError);
         return;
       }
 
-      setVotes(data);
-      const total = data.length;
-      const today = new Date().toISOString().split("T")[0];
-      const todayVotes = data.filter((v) => v.created_at?.startsWith(today)).length;
-      setTotalVotes(total);
-      setVotesToday(todayVotes);
+      const nextCounts = {};
+      (summary || []).forEach((row) => {
+        nextCounts[row.answer] = Number(row.vote_count || 0);
+      });
+      const totals = summary?.[0];
+      setVoteCountsByAnswer(nextCounts);
+      setTimeline(timelineRows || []);
+      setTotalVotes(Number(totals?.total_votes || 0));
+      setVotesToday(Number(totals?.votes_today || 0));
       setLoading(false);
     }
 
@@ -74,7 +80,7 @@ export default function Results() {
 
     const interval = setInterval(() => {
       fetchVotes();
-    }, 2000);
+    }, 10000);
 
     return () => clearInterval(interval);
   }, [pollId]);
@@ -85,9 +91,7 @@ export default function Results() {
     return <Layout><p className="text-center p-6">Error: Poll answers are invalid.</p></Layout>;
   }
 
-  const voteCounts = poll.answers.map((answer) => {
-    return votes.filter((v) => v.answer === answer).length;
-  });
+  const voteCounts = poll.answers.map((answer) => voteCountsByAnswer[answer] || 0);
   const percentageTotalVotes = voteCounts.reduce((a, b) => a + b, 0);
   const percentages = voteCounts.map((count) =>
     percentageTotalVotes === 0 ? 0 : Number(((count / percentageTotalVotes) * 100).toFixed(1))
@@ -101,14 +105,8 @@ export default function Results() {
   );
   const borderColors = barColors.map((c) => c.replace("0.6", "1").replace("0.8", "1"));
 
-  const timeline = {};
-  votes.forEach((v) => {
-    const minute = v.created_at?.substring(0, 16);
-    if (!minute) return;
-    timeline[minute] = (timeline[minute] || 0) + 1;
-  });
-  const timelineLabels = Object.keys(timeline).sort();
-  const timelineCounts = timelineLabels.map((label) => timeline[label]);
+  const timelineLabels = timeline.map((row) => row.minute);
+  const timelineCounts = timeline.map((row) => Number(row.vote_count || 0));
 
   const chartData = {
     labels: poll.answers.map((a, i) => `${a} (${percentages[i]}%)`),

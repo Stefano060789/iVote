@@ -47,10 +47,10 @@ function getPollStatusInfo(poll) {
 export default function AdminAnalytics() {
   const navigate = useNavigate();
   const [polls, setPolls] = useState([]);
-  const [votes, setVotes] = useState([]);
+  const [voteCounts, setVoteCounts] = useState([]);
+  const [voteTimeline, setVoteTimeline] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
-  const [scans, setScans] = useState([]);
-  const [leads, setLeads] = useState([]);
+  const [campaignMetrics, setCampaignMetrics] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -74,37 +74,40 @@ export default function AdminAnalytics() {
       return;
     }
 
-    const { data: pollsData, error: pollsError } = await supabase.from("polls").select("*");
-    const { data: votesData, error: votesError } = await supabase.from("votes").select("*");
+    const { data: pollsData, error: pollsError } = await supabase
+      .from("polls")
+      .select("id, question, status, starts_at, expires_at, closed_at, location_name, brand_name, template_key");
 
-    if (pollsError || votesError) {
-      console.error(pollsError || votesError);
+    const [voteCountsResult, voteTimelineResult, campaignResult, campaignMetricsResult] = await Promise.all([
+      supabase.rpc("get_workspace_vote_counts"),
+      supabase.rpc("get_workspace_vote_timeline"),
+      supabase.from("qr_campaigns").select("id, name, poll_id, token, is_active, placement_label, variant_label"),
+      supabase.rpc("get_workspace_campaign_metrics")
+    ]);
+
+    if (pollsError || voteCountsResult.error || voteTimelineResult.error) {
+      console.error(pollsError || voteCountsResult.error || voteTimelineResult.error);
       setLoading(false);
       return;
     }
 
     setPolls((pollsData ?? []).filter((poll) => Boolean(poll?.id)));
-    setVotes(votesData || []);
-    const [campaignResult, scanResult, leadResult] = await Promise.all([
-      supabase.from("qr_campaigns").select("id, name, poll_id, token, is_active, placement_label, variant_label"),
-      supabase.from("qr_scan_events").select("campaign_id"),
-      supabase.from("voter_leads").select("campaign_id")
-    ]);
-    if (campaignResult.error || scanResult.error || leadResult.error) {
-      console.warn("ROI campaign metrics are unavailable until the ROI migration is applied.", campaignResult.error || scanResult.error || leadResult.error);
+    setVoteCounts(voteCountsResult.data || []);
+    setVoteTimeline(voteTimelineResult.data || []);
+    if (campaignResult.error || campaignMetricsResult.error) {
+      console.warn("ROI campaign metrics are unavailable until the ROI migration is applied.", campaignResult.error || campaignMetricsResult.error);
     } else {
       setCampaigns(campaignResult.data || []);
-      setScans(scanResult.data || []);
-      setLeads(leadResult.data || []);
+      setCampaignMetrics(campaignMetricsResult.data || []);
     }
     setLoading(false);
   }
 
   const analytics = useMemo(() => {
     const votesByPoll = {};
-    votes.forEach((vote) => {
-      const key = String(vote.poll_id);
-      votesByPoll[key] = (votesByPoll[key] || 0) + 1;
+    voteCounts.forEach((row) => {
+      const key = String(row.poll_id);
+      votesByPoll[key] = (votesByPoll[key] || 0) + Number(row.vote_count || 0);
     });
 
     const statuses = { active: 0, scheduled: 0, expired: 0, closed: 0 };
@@ -143,23 +146,17 @@ export default function AdminAnalytics() {
     });
 
     const sortedPollRows = [...pollRows].sort((a, b) => b.voteCount - a.voteCount);
-    const avgVotesPerPoll = polls.length > 0 ? Number((votes.length / polls.length).toFixed(2)) : 0;
+    const totalVotes = voteCounts.reduce((sum, row) => sum + Number(row.vote_count || 0), 0);
+    const avgVotesPerPoll = polls.length > 0 ? Number((totalVotes / polls.length).toFixed(2)) : 0;
     const topLocation = Object.entries(locationMap).sort((a, b) => b[1] - a[1])[0] ?? null;
     const topBrand = Object.entries(brandMap).sort((a, b) => b[1] - a[1])[0] ?? null;
-    const scanCounts = {};
-    const responseCounts = {};
-    const leadCounts = {};
-    scans.forEach((scan) => { scanCounts[String(scan.campaign_id)] = (scanCounts[String(scan.campaign_id)] || 0) + 1; });
-    votes.forEach((vote) => {
-      if (vote.campaign_id) responseCounts[String(vote.campaign_id)] = (responseCounts[String(vote.campaign_id)] || 0) + 1;
-    });
-    leads.forEach((lead) => {
-      if (lead.campaign_id) leadCounts[String(lead.campaign_id)] = (leadCounts[String(lead.campaign_id)] || 0) + 1;
-    });
+    const campaignMetricById = {};
+    campaignMetrics.forEach((metric) => { campaignMetricById[String(metric.campaign_id)] = metric; });
     const campaignRows = campaigns.map((campaign) => {
-      const scanCount = scanCounts[String(campaign.id)] || 0;
-      const responseCount = responseCounts[String(campaign.id)] || 0;
-      return { ...campaign, scanCount, responseCount, leadCount: leadCounts[String(campaign.id)] || 0, conversion: scanCount ? Number(((responseCount / scanCount) * 100).toFixed(1)) : 0 };
+      const metric = campaignMetricById[String(campaign.id)] || {};
+      const scanCount = Number(metric.scan_count || 0);
+      const responseCount = Number(metric.response_count || 0);
+      return { ...campaign, scanCount, responseCount, leadCount: Number(metric.lead_count || 0), conversion: scanCount ? Number(((responseCount / scanCount) * 100).toFixed(1)) : 0 };
     }).sort((a, b) => b.scanCount - a.scanCount);
 
     return {
@@ -173,17 +170,17 @@ export default function AdminAnalytics() {
       sortedPollRows,
       votesByPoll,
       campaignRows,
-      totalScans: scans.length,
-      totalLeads: leads.length,
+      totalScans: campaignMetrics.reduce((sum, metric) => sum + Number(metric.scan_count || 0), 0),
+      totalLeads: campaignMetrics.reduce((sum, metric) => sum + Number(metric.lead_count || 0), 0),
       attributedResponses: campaignRows.reduce((sum, campaign) => sum + campaign.responseCount, 0)
     };
-  }, [campaigns, leads, polls, scans, votes]);
+  }, [campaignMetrics, campaigns, polls, voteCounts]);
 
   function exportAnalyticsCsv() {
     const rows = [
       ["metric", "value"],
       ["total_polls", String(polls.length)],
-      ["total_votes", String(votes.length)],
+      ["total_votes", String(voteCounts.reduce((sum, row) => sum + Number(row.vote_count || 0), 0))],
       ["active_polls", String(analytics.statuses.active)],
       ["scheduled_polls", String(analytics.statuses.scheduled)],
       ["expired_polls", String(analytics.statuses.expired)],
@@ -239,14 +236,8 @@ export default function AdminAnalytics() {
     ]
   };
 
-  const timelineByHour = {};
-  votes.forEach((vote) => {
-    const hour = vote.created_at?.substring(0, 13);
-    if (!hour) return;
-    timelineByHour[hour] = (timelineByHour[hour] || 0) + 1;
-  });
-  const timelineLabels = Object.keys(timelineByHour).sort();
-  const timelineCounts = timelineLabels.map((label) => timelineByHour[label]);
+  const timelineLabels = voteTimeline.map((row) => row.hour);
+  const timelineCounts = voteTimeline.map((row) => Number(row.vote_count || 0));
   const lineData = {
     labels: timelineLabels,
     datasets: [
@@ -300,7 +291,7 @@ export default function AdminAnalytics() {
         </div>
         <div className="border rounded p-3 bg-gray-900">
           <p className="text-gray-400 text-sm">Total votes</p>
-          <p className="text-2xl font-bold">{votes.length}</p>
+          <p className="text-2xl font-bold">{voteCounts.reduce((sum, row) => sum + Number(row.vote_count || 0), 0)}</p>
         </div>
         <div className="border rounded p-3 bg-gray-900">
           <p className="text-gray-400 text-sm">Avg votes/poll</p>
