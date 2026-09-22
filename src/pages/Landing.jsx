@@ -55,7 +55,7 @@ export default function Landing() {
       <section className="landing-hero">
         <div className="landing-hero-content">
           <p className="landing-eyebrow">{t("eyebrow")}</p>
-          <h1>{t("title")}</h1>
+          <h1 className="landing-hero-title">{t("title")}</h1>
           <p className="landing-lede">{t("lede")}</p>
           {isSignedIn ? (
             <div className="landing-actions">

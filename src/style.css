@@ -1204,6 +1204,10 @@ textarea {
   text-wrap: balance;
 }
 
+.landing-hero-title {
+  white-space: pre-line;
+}
+
 .landing-lede {
   max-width: 600px;
   margin: 24px 0;
