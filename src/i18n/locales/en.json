@@ -13,7 +13,8 @@
     "lightTheme": "Use light theme",
     "darkTheme": "Use dark theme",
     "dashboard": "Dashboard",
-    "getStarted": "Get started"
+    "getStarted": "Get started",
+    "woodpecker": "Woodpecker tasks"
   },
   "donationCategories": {
     "tip": "Tip",
@@ -227,6 +228,20 @@
       "webhooks": "Webhooks",
       "apiAccess": "Developer API access"
     }
+  },
+  "woodpecker": {
+    "loading": "Loading Woodpecker...",
+    "signIn": "Sign in to open Woodpecker.",
+    "eyebrow": "Woodpecker · task portal",
+    "title": "Tasks that keep moving",
+    "subtitle": "Assign work to a QR campaign and let your team share progress from the place where the work happens.",
+    "createTitle": "Create a task",
+    "taskTitle": "What needs doing?",
+    "description": "Add context (optional)",
+    "chooseCampaign": "Choose a QR campaign",
+    "create": "Create task",
+    "empty": "No tasks yet. Create one for a QR campaign.",
+    "openPortal": "Open public task portal"
   },
   "admin": {
     "dashboardTitle": "Dashboard",
@@ -652,9 +667,13 @@
         "createAndContinue": "Create and continue",
         "step2Title": "2. Add one or more polls (optional)",
         "pollsAddedSoFar": "{{count}} poll(s) added so far",
-        "step3Title": "3. Choose public review links (optional)",
-        "step4Title": "4. Venue-support payments (not enabled yet)",
-        "step5Title": "5. Print your QR code",
+        "step3Title": "3. Add a Woodpecker task (optional)",
+        "step4Title": "4. Choose public review links (optional)",
+        "step5Title": "5. Venue-support payments (not enabled yet)",
+        "step6Title": "6. Print your QR code",
+        "taskHint": "Create a task assigned to this QR code. Visitors can later share updates and mark it complete from the task portal.",
+        "taskTitle": "What needs doing?",
+        "taskDescription": "Add task instructions or context (optional)",
         "previewTitle": "Preview: what a scanner will see",
         "customerContentTitle": "What the visitor will see",
         "customerContentHint": "This welcome information appears on the QR page before the visitor reaches the polls. The QR name and placement are for your workspace only.",

@@ -20,6 +20,7 @@ import magpieImage from "../assets/birds/magpie.svg";
 import redshankImage from "../assets/birds/redshank.svg";
 import owlImage from "../assets/birds/owl.svg";
 import waxwingImage from "../assets/birds/waxwing.svg";
+import woodpeckerImage from "../assets/birds/woodpecker.svg";
 
 export const FLOCK = [
   {
@@ -99,6 +100,18 @@ export const FLOCK = [
     colorDeep: "#b7771e",
     tab: null,
     route: "/admin/analytics"
+  },
+  {
+    key: "woodpecker",
+    name: "Woodpecker",
+    role: "Turns feedback into action",
+    detail: "Keeps QR-linked tasks moving: share the work, hear updates, and mark each fix complete.",
+    icon: "🪵",
+    image: woodpeckerImage,
+    color: "#d08b35",
+    colorDeep: "#8a531e",
+    tab: null,
+    route: "/admin/woodpecker"
   }
 ];
 

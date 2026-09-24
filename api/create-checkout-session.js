@@ -11,6 +11,7 @@
 //     application fee to the platform account.
 
 import { captureError } from "../lib/errorReporting.js";
+import { DONATION_FEATURE_ENABLED } from "../lib/donationFeature.js";
 
 const PLANS = {
   starter: { priceEnv: "STRIPE_PRICE_STARTER", label: "Starter" },
@@ -191,6 +192,7 @@ async function handleSubscriptionCheckout(request, response) {
 // Links expire quickly, and re-running account creation for an existing account id is a
 // no-op on Stripe's side (we just skip straight to a new Account Link).
 async function handleConnectOnboarding(request, response) {
+  if (!DONATION_FEATURE_ENABLED) return response.status(503).json({ error: "Donations are not enabled yet." });
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
   const appUrl = process.env.APP_URL || request.headers.origin;
   const user = await getAuthenticatedUser(readBearerToken(request));
@@ -245,6 +247,7 @@ async function handleConnectOnboarding(request, response) {
 // primary source of truth (see api/stripe-webhook.js), but an admin returning from Stripe's
 // hosted onboarding shouldn't have to wait for webhook delivery to see an accurate status.
 async function handleConnectStatus(request, response) {
+  if (!DONATION_FEATURE_ENABLED) return response.status(503).json({ error: "Donations are not enabled yet." });
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
   const user = await getAuthenticatedUser(readBearerToken(request));
   if (!user) return response.status(401).json({ error: "Sign in to check Stripe status." });
@@ -288,6 +291,7 @@ async function handleConnectStatus(request, response) {
 // charge" - the platform account is charged, a 9% application fee stays with the platform,
 // and the rest transfers straight to the workspace's connected account.
 async function handleDonationCheckout(request, response) {
+  if (!DONATION_FEATURE_ENABLED) return response.status(503).json({ error: "Donations are not enabled yet." });
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
   const appUrl = process.env.APP_URL || request.headers.origin;
   const campaignToken = String(request.body?.campaignToken || "").trim();

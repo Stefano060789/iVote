@@ -106,6 +106,8 @@ export default function Admin() {
   const [qrWizardOpen, setQrWizardOpen] = useState(false);
   const [qrWizardStep, setQrWizardStep] = useState(1);
   const [qrWizardCampaign, setQrWizardCampaign] = useState(null);
+  const [qrWizardTaskTitle, setQrWizardTaskTitle] = useState("");
+  const [qrWizardTaskDescription, setQrWizardTaskDescription] = useState("");
   const [invitingMember, setInvitingMember] = useState(false);
   const [redeemCode, setRedeemCode] = useState("");
   const [redeemMessage, setRedeemMessage] = useState("");
@@ -447,6 +449,8 @@ export default function Admin() {
     setQrWizardCampaign(null);
     setQrWizardStep(1);
     setSelectedQrReviewPlatforms([]);
+    setQrWizardTaskTitle("");
+    setQrWizardTaskDescription("");
     setQrWizardOpen(true);
   }
 
@@ -454,6 +458,8 @@ export default function Admin() {
     setQrWizardOpen(false);
     setQrWizardCampaign(null);
     setQrWizardStep(1);
+    setQrWizardTaskTitle("");
+    setQrWizardTaskDescription("");
   }
 
   async function handleCreateCampaignFromWizard() {
@@ -507,6 +513,31 @@ export default function Admin() {
     setQrWizardStep(3);
   }
 
+  async function handleContinueFromTaskStep() {
+    if (qrWizardCampaign && qrWizardTaskTitle.trim()) {
+      try {
+        const { data: task, error } = await supabase
+          .from("woodpecker_tasks")
+          .insert({
+            workspace_id: workspaceUserId,
+            campaign_id: qrWizardCampaign.id,
+            title: qrWizardTaskTitle.trim(),
+            description: qrWizardTaskDescription.trim() || null
+          })
+          .select()
+          .single();
+        if (error) throw error;
+        if (!task) throw new Error("The task was not created.");
+        setQrWizardTaskTitle("");
+        setQrWizardTaskDescription("");
+      } catch (error) {
+        alert(error.message || "Unable to create the Woodpecker task.");
+        return;
+      }
+    }
+    setQrWizardStep(4);
+  }
+
   async function handleContinueFromReviewStep() {
     if (!qrWizardCampaign) return;
     const selected = (workspaceProfile.reviewPlatforms || [])
@@ -523,7 +554,7 @@ export default function Admin() {
       }
       if (reviewItems.length > 0) setQrCampaignItems((current) => [...current, ...reviewItems]);
       setSelectedQrReviewPlatforms([]);
-      setQrWizardStep(4);
+      setQrWizardStep(5);
     } catch (error) {
       alert(error.message);
     }
@@ -540,7 +571,7 @@ export default function Admin() {
     if (qrWizardCampaign && itemRewardTitle.trim()) {
       await handleAddRewardItem(qrWizardCampaign.id);
     }
-    setQrWizardStep(5);
+    setQrWizardStep(6);
   }
 
   async function handleAddDonationItemFromWizard() {
@@ -1437,6 +1468,8 @@ export default function Admin() {
           <FlockAvatar bird={flockMemberForTab("overview")} size={32} />
           <span className="text-lg font-bold">{t("admin.overview.robinGuideTitle")}</span>
         </div>
+        <p className="mt-2 text-sm text-slate-300">Robin says: when feedback becomes a fix, Woodpecker keeps the work visible. Create a QR-linked task, share updates, and mark it complete from the task portal.</p>
+        <Link to="/admin/woodpecker" className="mt-3 inline-block rounded bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950">Open Woodpecker</Link>
 
         {!onboardingDismissed && (
           <div className="mt-3 rounded border border-slate-700 bg-slate-950 p-3">
@@ -1853,7 +1886,7 @@ export default function Admin() {
               >
                 <div className="mb-4 flex items-center justify-between">
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#f2c744]">
-                    {t("admin.engagement.wizard.stepOf", { step: qrWizardStep, total: 5 })}
+                    {t("admin.engagement.wizard.stepOf", { step: qrWizardStep, total: 6 })}
                   </p>
                   <button
                     type="button"
@@ -1947,6 +1980,32 @@ export default function Admin() {
                 {qrWizardStep === 3 && qrWizardCampaign && (
                   <div className="space-y-3">
                     <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step3Title")}</h3>
+                    <p className="text-xs text-[#93a3c2]">{t("admin.engagement.wizard.taskHint")}</p>
+                    <input
+                      value={qrWizardTaskTitle}
+                      onChange={(event) => setQrWizardTaskTitle(event.target.value)}
+                      className="qr-wizard-input w-full border p-2 rounded text-black"
+                      placeholder={t("admin.engagement.wizard.taskTitle")}
+                      maxLength={200}
+                    />
+                    <textarea
+                      value={qrWizardTaskDescription}
+                      onChange={(event) => setQrWizardTaskDescription(event.target.value)}
+                      className="qr-wizard-input w-full border p-2 rounded text-black"
+                      placeholder={t("admin.engagement.wizard.taskDescription")}
+                      rows="3"
+                      maxLength={2000}
+                    />
+                    <div className="flex gap-2">
+                      <button onClick={() => setQrWizardStep(2)} className="qr-wizard-back-button flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
+                      <button onClick={handleContinueFromTaskStep} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
+                    </div>
+                  </div>
+                )}
+
+                {qrWizardStep === 4 && qrWizardCampaign && (
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step4Title")}</h3>
                     <p className="text-xs text-[#93a3c2]">{t("admin.engagement.items.reviewSitesHint")}</p>
                     {(workspaceProfile.reviewPlatforms || []).length === 0 ? (
                       <p className="rounded border border-amber-700 bg-amber-950/40 p-3 text-xs text-amber-300">{t("admin.engagement.items.reviewSitesEmpty")}</p>
@@ -1989,15 +2048,15 @@ export default function Admin() {
                     </div>
                     <p className="text-xs text-[#93a3c2]">{t("admin.engagement.items.reviewSitesSelectionNote")}</p>
                     <div className="flex gap-2">
-                      <button onClick={() => setQrWizardStep(2)} className="qr-wizard-back-button flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
+                      <button onClick={() => setQrWizardStep(3)} className="qr-wizard-back-button flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
                       <button onClick={handleContinueFromReviewStep} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
                     </div>
                   </div>
                 )}
 
-                {qrWizardStep === 4 && qrWizardCampaign && (
+                {qrWizardStep === 5 && qrWizardCampaign && (
                   <div className="space-y-3">
-                    <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step4Title")}</h3>
+                    <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step5Title")}</h3>
                     <p className="text-xs text-[#93a3c2]">{t("admin.engagement.items.sectionDonationHint")}</p>
                     {donationSettings.is_enabled ? (
                       <button onClick={handleAddDonationItemFromWizard} disabled={!DONATION_FEATURE_ENABLED} className="w-full rounded bg-[#0f766e] px-4 py-2 font-semibold text-[#f8fafc] hover:bg-[#0d6259] disabled:cursor-not-allowed disabled:opacity-50">
@@ -2009,17 +2068,17 @@ export default function Admin() {
                       </p>
                     )}
                     <div className="flex gap-2">
-                      <button onClick={() => setQrWizardStep(3)} className="qr-wizard-back-button flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
-                      <button onClick={() => setQrWizardStep(5)} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
+                      <button onClick={() => setQrWizardStep(4)} className="qr-wizard-back-button flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
+                      <button onClick={() => setQrWizardStep(6)} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
                     </div>
                   </div>
                 )}
 
-                {qrWizardStep === 5 && qrWizardCampaign && (() => {
+                {qrWizardStep === 6 && qrWizardCampaign && (() => {
                   const wizardUrl = `${window.location.origin}/qr/${qrWizardCampaign.token}`;
                   return (
                     <div className="space-y-3 text-center">
-                      <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step5Title")}</h3>
+                      <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step6Title")}</h3>
                       <div className="flex justify-center">
                         <img src={getCampaignQrImageUrl(wizardUrl, 220)} alt={t("admin.engagement.campaigns.qrAlt", { name: qrWizardCampaign.name })} className="h-40 w-40 rounded border border-[#24345c] bg-white p-2" />
                       </div>

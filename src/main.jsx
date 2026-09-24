@@ -30,6 +30,8 @@ const Support = lazy(() => import("./pages/Support"));
 const ProductFeedback = lazy(() => import("./pages/ProductFeedback"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const Essentials = lazy(() => import("./pages/Essentials"));
+const Woodpecker = lazy(() => import("./pages/Woodpecker"));
+const QrTasks = lazy(() => import("./pages/QrTasks"));
 
 import "./style.css";
 import { applyTheme, readTheme } from "./lib/theme";
@@ -76,6 +78,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/analytics" element={<AdminAnalytics />} />
         <Route path="/admin/billing" element={<Billing />} />
+        <Route path="/admin/woodpecker" element={<Woodpecker />} />
+        <Route path="/qr/:token/tasks" element={<QrTasks />} />
         {/* Content moderation moved into the Admin dashboard's Feedback tab (Redshank's area,
             since it already "catches trouble early") - redirect old bookmarks/links there. */}
         <Route path="/admin/moderation" element={<Navigate to="/admin?tab=feedback" replace />} />

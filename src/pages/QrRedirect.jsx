@@ -45,6 +45,9 @@ export default function QrRedirect() {
       const visibleItems = DONATION_FEATURE_ENABLED
         ? items
         : (items || []).filter((item) => item.item_type !== "donation");
+      const { data: woodpeckerTasks, error: woodpeckerError } = await supabase
+        .rpc("get_public_woodpecker_portal", { target_token: token });
+      const hasWoodpeckerTasks = !woodpeckerError && Array.isArray(woodpeckerTasks) && woodpeckerTasks.length > 0;
 
       if (!itemsError && Array.isArray(visibleItems) && visibleItems.length > 0) {
         await supabase.rpc("record_qr_scan", { target_campaign_id: visibleItems[0].campaign_id });
@@ -61,7 +64,7 @@ export default function QrRedirect() {
             .single();
           singlePollHasMessage = singlePoll?.allow_organizer_messages === true;
         }
-        if (visibleItems.length === 1 && visibleItems[0].item_type === "poll" && !singlePollHasMessage) {
+        if (visibleItems.length === 1 && visibleItems[0].item_type === "poll" && !singlePollHasMessage && !hasWoodpeckerTasks) {
           navigate(`/vote/${visibleItems[0].poll_id}?campaign=${visibleItems[0].campaign_id}`, { replace: true });
           return;
         }
@@ -73,7 +76,19 @@ export default function QrRedirect() {
           brand_primary_color: firstPollItem.poll_brand_primary_color,
           brand_accent_color: firstPollItem.poll_brand_accent_color
         } : null);
-        setMenu({ campaignId: visibleItems[0].campaign_id, portalTitle: visibleItems[0].portal_title, portalMessage: visibleItems[0].portal_message, items: visibleItems, branding });
+        setMenu({
+          campaignId: visibleItems[0].campaign_id,
+          portalTitle: visibleItems[0].portal_title,
+          portalMessage: visibleItems[0].portal_message,
+          items: visibleItems,
+          branding,
+          hasWoodpeckerTasks
+        });
+        return;
+      }
+
+      if (hasWoodpeckerTasks) {
+        navigate(`/qr/${token}/tasks`, { replace: true });
         return;
       }
 
@@ -159,7 +174,7 @@ export default function QrRedirect() {
   }
 
   if (menu) {
-    const { portalTitle, portalMessage, items, branding } = menu;
+    const { portalTitle, portalMessage, items, branding, hasWoodpeckerTasks } = menu;
     return (
       <main className="qr-portal" style={{ backgroundColor: branding.accentColor }}>
         <section className="qr-portal-card qr-portal-menu">
@@ -227,6 +242,21 @@ export default function QrRedirect() {
                 </div>
               );
             })}
+            {hasWoodpeckerTasks && (
+              <Link
+                to={`/qr/${token}/tasks`}
+                className="qr-portal-menu-item qr-portal-menu-info"
+              >
+                <span className="qr-portal-menu-item-title">Woodpecker tasks</span>
+                <p className="qr-portal-menu-item-body">See open tasks, share an update, or mark a task complete.</p>
+                <span
+                  className="qr-portal-menu-item-cta"
+                  style={{ backgroundColor: branding.primaryColor }}
+                >
+                  Open tasks
+                </span>
+              </Link>
+            )}
             {(() => {
               const messagePoll = items.find((item) => item.item_type === "poll");
               return messagePoll ? (

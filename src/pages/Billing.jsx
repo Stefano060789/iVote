@@ -53,6 +53,7 @@ export default function Billing() {
   const checkoutState = searchParams.get("checkout");
   const trialJustStarted = checkoutState === "success" && searchParams.get("trial") === "1";
 
+
   useEffect(() => {
     async function loadCurrentPlan() {
       const { data: { user } } = await supabase.auth.getUser();
