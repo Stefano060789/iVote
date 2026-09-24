@@ -1417,6 +1417,7 @@ export default function Admin() {
 
   const quickActions = [
     { key: "polls", icon: "\ud83d\udcca", bird: flockMemberForTab("polls"), label: t("admin.quickActions.polls.label"), description: t("admin.quickActions.polls.description"), onSelect: () => setActiveTab("polls") },
+    { key: "woodpecker", icon: "🪵", bird: FLOCK.find((member) => member.key === "woodpecker"), label: t("admin.quickActions.woodpecker.label"), description: t("admin.quickActions.woodpecker.description"), onSelect: () => navigate("/admin/woodpecker") },
     { key: "engagement", icon: "\u2728", bird: flockMemberForTab("engagement"), label: t("admin.quickActions.engagement.label"), description: t("admin.quickActions.engagement.description"), onSelect: () => setActiveTab("engagement") },
     { key: "connection", icon: "\ud83e\udd1d", bird: flockMemberForTab("connection"), label: t("admin.quickActions.connection.label"), description: t("admin.quickActions.connection.description"), onSelect: () => setActiveTab("connection") },
     { key: "analytics", icon: "\ud83d\udcca", bird: FLOCK.find((member) => member.key === "waxwing"), label: t("admin.quickActions.analytics.label"), description: t("admin.quickActions.analytics.description"), onSelect: () => navigate("/admin/analytics") },

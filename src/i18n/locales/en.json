@@ -241,7 +241,12 @@
     "chooseCampaign": "Choose a QR campaign",
     "create": "Create task",
     "empty": "No tasks yet. Create one for a QR campaign.",
-    "openPortal": "Open public task portal"
+    "openPortal": "Open public task portal",
+    "notificationsTitle": "Task notifications",
+    "notificationsHint": "Choose which real-time updates should notify you while you monitor this workspace.",
+    "notifyMessages": "Notify me when someone adds a task message",
+    "notifyCompletions": "Notify me when a task is completed",
+    "enableBrowserNotifications": "Enable browser notifications"
   },
   "admin": {
     "dashboardTitle": "Dashboard",
@@ -347,6 +352,7 @@
     },
     "quickActions": {
       "polls": { "label": "Polls", "description": "Create a new poll, then search, filter, and see how each one performs." },
+      "woodpecker": { "label": "Woodpecker tasks", "description": "Create QR-linked tasks, monitor progress, and manage task notifications." },
       "engagement": { "label": "Build a QR code", "description": "Combine polls, info cards, and venue-support payments under one printed code." },
       "connection": { "label": "Customer connection", "description": "Collect emails, invite honest reviews, and manage rewards." },
       "analytics": { "label": "View analytics", "description": "See trends across every poll and location." },
