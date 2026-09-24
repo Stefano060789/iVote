@@ -27,6 +27,7 @@ import { getEntitlements, planLabel, minPlanLabelFor } from "../lib/entitlements
 import { DONATION_FEATURE_ENABLED } from "../../lib/donationFeature.js";
 import { FLOCK, flockMemberForTab } from "../lib/flock";
 import { PERSONAS, findPersona } from "../lib/personas";
+import Woodpecker from "./Woodpecker";
 import {
   getCurrentUserRole,
   getPermissionSet,
@@ -46,7 +47,7 @@ export default function Admin() {
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(() => {
-    const validTabs = ["overview", "polls", "connection", "engagement", "feedback", "settings"];
+    const validTabs = ["overview", "polls", "woodpecker", "connection", "engagement", "feedback", "settings"];
     const tabParam = new URLSearchParams(window.location.search).get("tab");
     return validTabs.includes(tabParam) ? tabParam : "overview";
   });
@@ -1400,6 +1401,7 @@ export default function Admin() {
   const adminTabs = [
     { key: "overview", label: t("admin.nav.overview") },
     { key: "polls", label: t("admin.nav.polls") },
+    { key: "woodpecker", label: t("admin.nav.woodpecker") },
     { key: "engagement", label: t("admin.nav.engagement") },
     { key: "connection", label: t("admin.nav.connection") },
     { key: "feedback", label: t("admin.nav.feedback") },
@@ -1409,6 +1411,7 @@ export default function Admin() {
   const adminTabDescriptions = {
     overview: t("admin.tabDescriptions.overview"),
     polls: t("admin.tabDescriptions.polls"),
+    woodpecker: t("admin.tabDescriptions.woodpecker"),
     engagement: t("admin.tabDescriptions.engagement"),
     connection: t("admin.tabDescriptions.connection"),
     feedback: t("admin.tabDescriptions.feedback"),
@@ -1417,7 +1420,6 @@ export default function Admin() {
 
   const quickActions = [
     { key: "polls", icon: "\ud83d\udcca", bird: flockMemberForTab("polls"), label: t("admin.quickActions.polls.label"), description: t("admin.quickActions.polls.description"), onSelect: () => setActiveTab("polls") },
-    { key: "woodpecker", icon: "🪵", bird: FLOCK.find((member) => member.key === "woodpecker"), label: t("admin.quickActions.woodpecker.label"), description: t("admin.quickActions.woodpecker.description"), onSelect: () => navigate("/admin/woodpecker") },
     { key: "engagement", icon: "\u2728", bird: flockMemberForTab("engagement"), label: t("admin.quickActions.engagement.label"), description: t("admin.quickActions.engagement.description"), onSelect: () => setActiveTab("engagement") },
     { key: "connection", icon: "\ud83e\udd1d", bird: flockMemberForTab("connection"), label: t("admin.quickActions.connection.label"), description: t("admin.quickActions.connection.description"), onSelect: () => setActiveTab("connection") },
     { key: "analytics", icon: "\ud83d\udcca", bird: FLOCK.find((member) => member.key === "waxwing"), label: t("admin.quickActions.analytics.label"), description: t("admin.quickActions.analytics.description"), onSelect: () => navigate("/admin/analytics") },
@@ -1470,7 +1472,6 @@ export default function Admin() {
           <span className="text-lg font-bold">{t("admin.overview.robinGuideTitle")}</span>
         </div>
         <p className="mt-2 text-sm text-slate-300">Robin says: when feedback becomes a fix, Woodpecker keeps the work visible. Create a QR-linked task, share updates, and mark it complete from the task portal.</p>
-        <Link to="/admin/woodpecker" className="mt-3 inline-block rounded bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950">Open Woodpecker</Link>
 
         {!onboardingDismissed && (
           <div className="mt-3 rounded border border-slate-700 bg-slate-950 p-3">
@@ -1586,6 +1587,8 @@ export default function Admin() {
 
       </>
       )}
+
+      {activeTab === "woodpecker" && <Woodpecker embedded />}
 
       {activeTab === "connection" && (
       <section className="space-y-6">

@@ -337,6 +337,7 @@
     "nav": {
       "overview": "First Guide",
       "polls": "Polls",
+      "woodpecker": "Woodpecker",
       "engagement": "QR codes",
       "connection": "Customer connection",
       "feedback": "Feedback",
@@ -345,6 +346,7 @@
     "tabDescriptions": {
       "overview": "A snapshot of your workspace: quick actions, this week's activity, and key numbers.",
       "polls": "Search, share, and manage every question you've created.",
+      "woodpecker": "Create, monitor, and manage QR-linked tasks and their notifications.",
       "engagement": "A QR code is more than one poll: bundle polls, info cards, and a venue-support payment under one code.",
       "connection": "Turn a QR scan into an ongoing customer relationship.",
       "feedback": "Voter messages, review claims, sentiment, and recovery tasks.",

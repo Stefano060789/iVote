@@ -110,8 +110,7 @@ export const FLOCK = [
     image: woodpeckerImage,
     color: "#d08b35",
     colorDeep: "#8a531e",
-    tab: null,
-    route: "/admin/woodpecker"
+    tab: "woodpecker"
   }
 ];
 

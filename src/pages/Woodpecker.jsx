@@ -7,7 +7,7 @@ import { loadQrCampaigns } from "../lib/qrCampaigns";
 import woodpecker from "../assets/birds/woodpecker.svg";
 import { loadWoodpeckerTasks } from "../lib/woodpecker";
 
-export default function Woodpecker() {
+export default function Woodpecker({ embedded = false }) {
   const { t } = useTranslation();
   const [workspace, setWorkspace] = useState(null);
   const [campaigns, setCampaigns] = useState([]);
@@ -83,9 +83,9 @@ export default function Woodpecker() {
     setForm({ title: "", description: "", campaignId: "" });
   }
 
-  if (error) return <main className="workspace-page mx-auto max-w-3xl p-6" role="alert">{error}</main>;
-  if (!workspace) return <main className="workspace-page p-6 text-center">{t("woodpecker.loading")}</main>;
-  return <main className="workspace-page mx-auto max-w-3xl p-6">
+  if (error) return <section className={embedded ? "p-0" : "workspace-page mx-auto max-w-3xl p-6"} role="alert">{error}</section>;
+  if (!workspace) return <section className={embedded ? "p-6 text-center" : "workspace-page p-6 text-center"}>{t("woodpecker.loading")}</section>;
+  return <section className={embedded ? "p-0" : "workspace-page mx-auto max-w-3xl p-6"}>
     <div className="mb-6 flex items-center gap-3"><img src={woodpecker} alt="" width="64" height="64" /><div><p className="text-xs uppercase tracking-wide text-amber-300">{t("woodpecker.eyebrow")}</p><h1 className="text-3xl font-bold">{t("woodpecker.title")}</h1><p className="text-sm text-slate-400">{t("woodpecker.subtitle")}</p></div></div>
     <form onSubmit={createTask} className="mb-8 rounded border border-slate-700 bg-slate-900 p-4">
       <h2 className="mb-3 text-lg font-bold">{t("woodpecker.createTitle")}</h2>
@@ -110,5 +110,5 @@ export default function Woodpecker() {
       {notificationStatus && <p className="mt-2 text-xs text-slate-400" role="status">{notificationStatus}</p>}
     </section>
     <div className="space-y-3">{tasks.length === 0 && <p className="text-slate-400">{t("woodpecker.empty")}</p>}{tasks.map((task) => <article key={task.id} className="rounded border border-slate-700 bg-slate-900 p-4"><div className="flex justify-between gap-3"><div><h2 className="font-bold">{task.title}</h2><p className="text-xs text-slate-400">{task.qr_campaigns?.name}</p>{task.description && <p className="mt-2 text-sm text-slate-300">{task.description}</p>}</div><span className="text-xs uppercase text-amber-300">{task.status}</span></div><Link className="mt-3 inline-block text-sm text-teal-300 underline" to={`/qr/${task.qr_campaigns?.token}/tasks`}>{t("woodpecker.openPortal")}</Link></article>)}</div>
-  </main>;
+  </section>;
 }
