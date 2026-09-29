@@ -524,16 +524,22 @@ export default function Admin() {
   async function handleContinueFromTaskStep() {
     if (qrWizardCampaign && qrWizardActionId) {
       try {
-        const { data: task, error } = await supabase
-          .from("woodpecker_tasks")
-          .update({ campaign_id: qrWizardCampaign.id })
-          .eq("id", qrWizardActionId)
-          .eq("workspace_id", workspaceUserId)
-          .select()
-          .single();
+        const { error } = await supabase
+          .from("woodpecker_task_campaigns")
+          .upsert({
+            task_id: Number(qrWizardActionId),
+            campaign_id: qrWizardCampaign.id
+          }, { onConflict: "task_id,campaign_id" });
         if (error) throw error;
-        if (!task) throw new Error("The Action was not attached.");
-        setActionTasks((current) => current.map((item) => item.id === task.id ? task : item));
+        setActionTasks((current) => current.map((item) => item.id === Number(qrWizardActionId)
+          ? {
+              ...item,
+              woodpecker_task_campaigns: [
+                ...(item.woodpecker_task_campaigns || []).filter((link) => Number(link.campaign_id) !== Number(qrWizardCampaign.id)),
+                { campaign_id: qrWizardCampaign.id, qr_campaigns: { name: qrWizardCampaign.name, token: qrWizardCampaign.token } }
+              ]
+            }
+          : item));
       } catch (error) {
         alert(error.message || "Unable to attach the Action.");
         return;
