@@ -14,7 +14,7 @@
     "darkTheme": "Use dark theme",
     "dashboard": "Dashboard",
     "getStarted": "Get started",
-    "woodpecker": "Woodpecker tasks"
+    "woodpecker": "Actions"
   },
   "donationCategories": {
     "tip": "Tip",
@@ -230,15 +230,17 @@
     }
   },
   "woodpecker": {
-    "loading": "Loading Woodpecker...",
-    "signIn": "Sign in to open Woodpecker.",
-    "eyebrow": "Woodpecker · task portal",
+    "loading": "Loading Actions...",
+    "signIn": "Sign in to open Actions.",
+    "eyebrow": "Actions · task portal",
     "title": "Tasks that keep moving",
     "subtitle": "Assign work to a QR campaign and let your team share progress from the place where the work happens.",
     "createTitle": "Create a task",
     "taskTitle": "What needs doing?",
     "description": "Add context (optional)",
     "chooseCampaign": "Choose a QR campaign",
+    "completeManually": "Complete manually",
+    "completeByScan": "Complete the task by scanning this QR code",
     "create": "Create task",
     "empty": "No tasks yet. Create one for a QR campaign.",
     "openPortal": "Open public task portal",
@@ -337,7 +339,7 @@
     "nav": {
       "overview": "First Guide",
       "polls": "Polls",
-      "woodpecker": "Woodpecker",
+      "woodpecker": "Actions",
       "engagement": "QR codes",
       "connection": "Customer connection",
       "feedback": "Feedback",
@@ -346,7 +348,7 @@
     "tabDescriptions": {
       "overview": "A snapshot of your workspace: quick actions, this week's activity, and key numbers.",
       "polls": "Search, share, and manage every question you've created.",
-      "woodpecker": "Create, monitor, and manage QR-linked tasks and their notifications.",
+      "woodpecker": "Create, monitor, and manage Actions attached to QR codes.",
       "engagement": "A QR code is more than one poll: bundle polls, info cards, and a venue-support payment under one code.",
       "connection": "Turn a QR scan into an ongoing customer relationship.",
       "feedback": "Voter messages, review claims, sentiment, and recovery tasks.",
@@ -354,7 +356,7 @@
     },
     "quickActions": {
       "polls": { "label": "Polls", "description": "Create a new poll, then search, filter, and see how each one performs." },
-      "woodpecker": { "label": "Woodpecker tasks", "description": "Create QR-linked tasks, monitor progress, and manage task notifications." },
+      "woodpecker": { "label": "Actions", "description": "Create Actions attached to QR codes, track progress, and let scans complete them automatically." },
       "engagement": { "label": "Build a QR code", "description": "Combine polls, info cards, and venue-support payments under one printed code." },
       "connection": { "label": "Customer connection", "description": "Collect emails, invite honest reviews, and manage rewards." },
       "analytics": { "label": "View analytics", "description": "See trends across every poll and location." },
@@ -391,11 +393,14 @@
         "heading": "Your first steps",
         "dismiss": "Dismiss",
         "newHerePrefix": "New here?",
-        "readGuide": "Read the 3-step simple guide",
+        "readGuide": "Read the simple guide",
         "newHereSuffix": "everything else on this page is optional.",
+        "explanation": "Start with a poll to collect a clear answer. Then create an Action and attach it to a QR code - for example, ask your team to check a table, restock an item, or resolve a follow-up. You can also add helpful information to that same QR code, so visitors get polls, Actions, and shared info in one simple scan.",
         "createFirstPoll": "Create your first poll",
         "createPollCta": "Create a poll",
-        "shareQr": "Print or share your QR code",
+        "createFirstAction": "Create your first Action",
+        "createActionCta": "Create an Action",
+        "shareQr": "Build and share your QR code with polls, Actions, or info",
         "goToPolls": "Go to your polls",
         "getFirstVote": "Get your first vote"
       },
@@ -511,7 +516,15 @@
         "aiBackgroundReady": "AI background ready for preview and printing.",
         "removeImage": "Remove image",
         "downloadQr": "Download QR",
-        "printQr": "Print QR"
+        "printQr": "Print QR",
+        "modifyQr": "Modify QR",
+        "modifyQrHint": "Add a message and generate an AI-inspired background before downloading or printing.",
+        "modifyQrText": "Text on the QR poster",
+        "modifyQrTextPlaceholder": "Scan to share your feedback",
+        "aiBackgroundStyle": "AI background style",
+        "aiBackgroundPrompt": "Describe the AI background",
+        "aiBackgroundPlaceholder": "Warm abstract shapes for a welcoming café survey",
+        "generateAiBackground": "Generate AI background"
       }
     },
     "connection": {
@@ -675,7 +688,7 @@
         "createAndContinue": "Create and continue",
         "step2Title": "2. Add one or more polls (optional)",
         "pollsAddedSoFar": "{{count}} poll(s) added so far",
-        "step3Title": "3. Add a Woodpecker task (optional)",
+        "step3Title": "3. Add an Action (optional)",
         "step4Title": "4. Choose public review links (optional)",
         "step5Title": "5. Venue-support payments (not enabled yet)",
         "step6Title": "6. Print your QR code",

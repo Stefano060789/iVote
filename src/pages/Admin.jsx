@@ -89,6 +89,7 @@ export default function Admin() {
   const [newMemberRole, setNewMemberRole] = useState("viewer");
   const [qrCampaigns, setQrCampaigns] = useState([]);
   const [qrCampaignItems, setQrCampaignItems] = useState([]);
+  const [actionTasks, setActionTasks] = useState([]);
   const [itemFormCampaignId, setItemFormCampaignId] = useState(null);
   const [itemPollId, setItemPollId] = useState("");
   const [itemTitle, setItemTitle] = useState("");
@@ -109,6 +110,7 @@ export default function Admin() {
   const [qrWizardCampaign, setQrWizardCampaign] = useState(null);
   const [qrWizardTaskTitle, setQrWizardTaskTitle] = useState("");
   const [qrWizardTaskDescription, setQrWizardTaskDescription] = useState("");
+  const [qrModifier, setQrModifier] = useState(null);
   const [invitingMember, setInvitingMember] = useState(false);
   const [redeemCode, setRedeemCode] = useState("");
   const [redeemMessage, setRedeemMessage] = useState("");
@@ -241,13 +243,14 @@ export default function Admin() {
         setTeamMembers(await readWorkspaceMembers(profile.id));
         setQrCampaigns(await loadQrCampaigns());
         setQrCampaignItems(await loadQrCampaignItems());
-        const [rulesResult, alertsResult, tasksResult, reportsResult, messagesResult, contentReportsResult] = await Promise.all([
+        const [rulesResult, alertsResult, tasksResult, reportsResult, messagesResult, contentReportsResult, actionTasksResult] = await Promise.all([
           supabase.from("feedback_alert_rules").select("*").order("created_at", { ascending: false }),
           supabase.from("feedback_alerts").select("*").order("created_at", { ascending: false }).limit(30),
           supabase.from("feedback_recovery_tasks").select("*").order("created_at", { ascending: false }).limit(30),
           supabase.from("weekly_report_settings").select("recipient_email, is_enabled").eq("workspace_id", profile.id).maybeSingle(),
           supabase.from("organizer_messages").select("*").order("created_at", { ascending: false }).limit(30),
-          supabase.from("content_reports").select("*").order("created_at", { ascending: false })
+          supabase.from("content_reports").select("*").order("created_at", { ascending: false }),
+          supabase.from("woodpecker_tasks").select("id").eq("workspace_id", profile.id).limit(1)
         ]);
         if (!rulesResult.error) setAlertRules(rulesResult.data || []);
         if (!alertsResult.error) setFeedbackAlerts(alertsResult.data || []);
@@ -255,6 +258,7 @@ export default function Admin() {
         if (!reportsResult.error && reportsResult.data) setReportSettings(reportsResult.data);
         if (!messagesResult.error) setOrganizerMessages(messagesResult.data || []);
         if (!contentReportsResult.error) setContentReports(contentReportsResult.data || []);
+        if (!actionTasksResult.error) setActionTasks(actionTasksResult.data || []);
 
         setNurtureSettings(await loadLeadNurtureSettings(profile.id));
         setWinbackSettings(await loadWinbackSettings(profile.id));
@@ -532,7 +536,7 @@ export default function Admin() {
         setQrWizardTaskTitle("");
         setQrWizardTaskDescription("");
       } catch (error) {
-        alert(error.message || "Unable to create the Woodpecker task.");
+        alert(error.message || "Unable to create the Action.");
         return;
       }
     }
@@ -1227,6 +1231,7 @@ export default function Admin() {
       background: presetOverride === "premium"
         ? `linear-gradient(135deg, ${first} 0%, ${second} 48%, ${fourth} 100%)`
         : `radial-gradient(circle at top left, ${first} 0%, ${second} 32%, ${third} 62%, ${fourth} 100%)`,
+      colors: [first, second, third, fourth],
       shadow: `0 20px 45px rgba(15, 23, 42, 0.18)`
     };
   }
@@ -1241,39 +1246,101 @@ export default function Admin() {
     return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(url)}`;
   }
 
-  function downloadCampaignQr(campaign, url) {
+  function openQrModifier(campaign, url) {
+    setQrModifier({
+      campaign,
+      url,
+      text: campaign.name || "",
+      prompt: campaign.name || "",
+      preset: "brand",
+      seed: 1,
+      backgroundImage: "",
+      generating: false,
+      error: ""
+    });
+  }
+
+  async function generateQrBackground() {
+    if (!qrModifier?.prompt.trim()) return;
+    setQrModifier((current) => ({ ...current, generating: true, error: "" }));
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch("/api/generate-qr-poster", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {})
+        },
+        body: JSON.stringify({ description: qrModifier.prompt })
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Unable to generate an AI background.");
+      setQrModifier((current) => ({ ...current, backgroundImage: payload.imageUrl, generating: false }));
+    } catch (error) {
+      setQrModifier((current) => ({ ...current, generating: false, error: error.message }));
+    }
+  }
+
+  function downloadCampaignQr(campaign, url, design = {}) {
+    const generatedStyle = generateAiQrStyle(design.seed || 1, design.preset || "brand");
+    const customText = (design.text || "").trim();
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
       const framePadding = 42;
       const footerHeight = 54;
+      const textHeight = customText ? 54 : 0;
       const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth + framePadding * 2;
-      canvas.height = img.naturalHeight + framePadding * 2 + footerHeight;
+      canvas.width = img.naturalWidth + framePadding * 2 + 80;
+      canvas.height = img.naturalHeight + framePadding * 2 + footerHeight + textHeight;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = "#0b1a33";
-      ctx.lineWidth = 18;
-      ctx.strokeRect(9, 9, canvas.width - 18, canvas.height - 18);
-      ctx.drawImage(img, framePadding, framePadding);
-      ctx.fillStyle = "#0b1a33";
-      ctx.font = "700 22px Arial, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("hellogodwit.com", canvas.width / 2, canvas.height - 18);
-      const link = document.createElement("a");
-      link.download = `${(campaign.name || "qr-campaign").replace(/[^a-z0-9-]+/gi, "-").toLowerCase()}-qr.png`;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
+      const paint = (backgroundImage) => {
+        if (backgroundImage) ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+        else {
+          const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+          gradient.addColorStop(0, generatedStyle.colors[0]);
+          gradient.addColorStop(0.5, generatedStyle.colors[1]);
+          gradient.addColorStop(1, generatedStyle.colors[3]);
+          ctx.fillStyle = gradient;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        ctx.strokeStyle = "#0b1a33";
+        ctx.lineWidth = 18;
+        ctx.strokeRect(9, 9, canvas.width - 18, canvas.height - 18);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(framePadding, framePadding, img.naturalWidth, img.naturalHeight);
+        ctx.drawImage(img, framePadding, framePadding);
+        if (customText) {
+          ctx.fillStyle = "#0f172a";
+          ctx.font = "700 24px Arial, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(customText.slice(0, 80), canvas.width / 2, img.naturalHeight + framePadding + 36);
+        }
+        ctx.fillStyle = "#0b1a33";
+        ctx.font = "700 22px Arial, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("hellogodwit.com", canvas.width / 2, canvas.height - 18);
+        const link = document.createElement("a");
+        link.download = `${(campaign.name || "qr-campaign").replace(/[^a-z0-9-]+/gi, "-").toLowerCase()}-qr.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      };
+      if (design.backgroundImage) {
+        const backgroundImage = new Image();
+        backgroundImage.onload = () => paint(backgroundImage);
+        backgroundImage.onerror = () => paint(null);
+        backgroundImage.src = design.backgroundImage;
+      } else paint(null);
     };
     img.onerror = () => console.error("Unable to load QR image for download.");
     img.src = getCampaignQrImageUrl(url, 600);
   }
 
-  function printCampaignQr(campaign, url) {
+  function printCampaignQr(campaign, url, design = {}) {
     const formatConfig = getQrPrintFormatConfig();
-    const generatedStyle = generateAiQrStyle(1, "brand");
+    const generatedStyle = generateAiQrStyle(design.seed || 1, design.preset || "brand");
+    const customText = (design.text || "").trim().replace(/[<>&"']/g, "");
     const logoMarkup = workspaceProfile.logoUrl
       ? `<img src="${workspaceProfile.logoUrl}" alt="Brand logo" style="max-height: 56px; max-width: 160px; object-fit: contain; margin-right: 16px;" />`
       : "";
@@ -1308,7 +1375,7 @@ export default function Admin() {
               flex-direction: column;
               justify-content: center;
               align-items: center;
-              background: ${generatedStyle.background};
+              background: ${design.backgroundImage ? `url("${design.backgroundImage}") center / cover, ${generatedStyle.background}` : generatedStyle.background};
               border-radius: 20px;
               box-shadow: ${generatedStyle.shadow};
               padding: 36px;
@@ -1320,6 +1387,7 @@ export default function Admin() {
             .qr-box img { display: block; width: 260px; height: 260px; object-fit: contain; }
             .qr-mark { position: absolute; right: 0; bottom: 8px; left: 0; color: #0b1a33; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-align: center; }
             .title { margin-top: 18px; font-size: 20px; font-weight: 700; text-align: center; max-width: 620px; }
+            .custom-text { margin-top: 16px; font-size: 22px; font-weight: 700; text-align: center; max-width: 620px; color: #0f172a; }
             .subtitle { margin-top: 8px; font-size: 14px; text-align: center; letter-spacing: 0.08em; text-transform: uppercase; color: #334155; }
             .godwit-footer { margin-top: 22px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 10px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #475569; }
             .godwit-footer img { display: block; width: 16px; height: 16px; border-radius: 50%; }
@@ -1336,6 +1404,7 @@ export default function Admin() {
               <div class="qr-mark">hellogodwit.com</div>
             </div>
             <div class="subtitle">${t("admin.engagement.campaigns.scanToView")}</div>
+            ${customText ? `<div class="custom-text">${customText}</div>` : ""}
             <div class="title">${campaignName}</div>
             <div class="godwit-footer">
               <img src="${window.location.origin}/favicon.svg" alt="" />
@@ -1420,6 +1489,7 @@ export default function Admin() {
 
   const quickActions = [
     { key: "polls", icon: "\ud83d\udcca", bird: flockMemberForTab("polls"), label: t("admin.quickActions.polls.label"), description: t("admin.quickActions.polls.description"), onSelect: () => setActiveTab("polls") },
+    { key: "woodpecker", icon: "\u2705", bird: flockMemberForTab("woodpecker"), label: t("admin.quickActions.woodpecker.label"), description: t("admin.quickActions.woodpecker.description"), onSelect: () => setActiveTab("woodpecker") },
     { key: "engagement", icon: "\u2728", bird: flockMemberForTab("engagement"), label: t("admin.quickActions.engagement.label"), description: t("admin.quickActions.engagement.description"), onSelect: () => setActiveTab("engagement") },
     { key: "connection", icon: "\ud83e\udd1d", bird: flockMemberForTab("connection"), label: t("admin.quickActions.connection.label"), description: t("admin.quickActions.connection.description"), onSelect: () => setActiveTab("connection") },
     { key: "analytics", icon: "\ud83d\udcca", bird: FLOCK.find((member) => member.key === "waxwing"), label: t("admin.quickActions.analytics.label"), description: t("admin.quickActions.analytics.description"), onSelect: () => navigate("/admin/analytics") },
@@ -1471,7 +1541,7 @@ export default function Admin() {
           <FlockAvatar bird={flockMemberForTab("overview")} size={32} />
           <span className="text-lg font-bold">{t("admin.overview.robinGuideTitle")}</span>
         </div>
-        <p className="mt-2 text-sm text-slate-300">Robin says: when feedback becomes a fix, Woodpecker keeps the work visible. Create a QR-linked task, share updates, and mark it complete from the task portal.</p>
+        <p className="mt-2 text-sm text-slate-300">{t("admin.overview.firstSteps.explanation")}</p>
 
         {!onboardingDismissed && (
           <div className="mt-3 rounded border border-slate-700 bg-slate-950 p-3">
@@ -1486,6 +1556,10 @@ export default function Admin() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className={polls.length > 0 ? "text-emerald-300" : "text-slate-300"}>{polls.length > 0 ? "\u2713" : "\u25cb"} {t("admin.overview.firstSteps.createFirstPoll")}</p>
                 {polls.length === 0 && <Link to="/create" className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">{t("admin.overview.firstSteps.createPollCta")}</Link>}
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className={actionTasks.length > 0 ? "text-emerald-300" : "text-slate-300"}>{actionTasks.length > 0 ? "\u2713" : "\u25cb"} {t("admin.overview.firstSteps.createFirstAction")}</p>
+                {actionTasks.length === 0 && <button onClick={() => setActiveTab("woodpecker")} className="shrink-0 rounded bg-teal-500 px-3 py-1.5 text-xs font-semibold text-slate-950">{t("admin.overview.firstSteps.createActionCta")}</button>}
               </div>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className={qrShared ? "text-emerald-300" : "text-slate-300"}>{qrShared ? "\u2713" : "\u25cb"} {t("admin.overview.firstSteps.shareQr")}</p>
@@ -2107,6 +2181,9 @@ export default function Admin() {
                         <button onClick={() => printCampaignQr(qrWizardCampaign, wizardUrl)} className="rounded bg-[#0f766e] px-4 py-2 font-semibold text-[#f8fafc] hover:bg-[#0d6259]">
                           {t("admin.polls.card.printQr")}
                         </button>
+                        <button onClick={() => openQrModifier(qrWizardCampaign, wizardUrl)} className="rounded bg-violet-600 px-4 py-2 font-semibold text-white hover:bg-violet-700">
+                          {t("admin.polls.card.modifyQr")}
+                        </button>
                       </div>
 
                       <div className="border-t border-[#24345c] pt-3">
@@ -2164,6 +2241,9 @@ export default function Admin() {
                       </button>
                       <button onClick={() => printCampaignQr(campaign, url)} className="bg-violet-600 text-white px-3 py-1.5 rounded text-sm font-semibold">
                         {t("admin.polls.card.printQr")}
+                      </button>
+                      <button onClick={() => openQrModifier(campaign, url)} className="bg-fuchsia-600 text-white px-3 py-1.5 rounded text-sm font-semibold">
+                        {t("admin.polls.card.modifyQr")}
                       </button>
                     </div>
                   </div>
@@ -2477,6 +2557,83 @@ export default function Admin() {
         )}
       </div>
       )}
+
+      {qrModifier && (() => {
+        const generatedStyle = generateAiQrStyle(qrModifier.seed, qrModifier.preset);
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4" role="dialog" aria-modal="true" aria-labelledby="modify-qr-title">
+            <div className="max-h-[calc(100vh-2rem)] w-full max-w-3xl overflow-y-auto rounded-xl border border-slate-700 bg-[#0b1a33] p-5 text-white shadow-2xl">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h2 id="modify-qr-title" className="text-xl font-bold">{t("admin.polls.card.modifyQr")}</h2>
+                  <p className="mt-1 text-sm text-slate-300">{t("admin.polls.card.modifyQrHint")}</p>
+                </div>
+                <button type="button" onClick={() => setQrModifier(null)} className="rounded border border-slate-600 px-3 py-1 text-sm text-slate-200 hover:bg-slate-800">
+                  {t("admin.polls.card.cancel")}
+                </button>
+              </div>
+              <div className="mt-5 grid gap-5 md:grid-cols-[minmax(0,1fr)_260px]">
+                <div className="space-y-4">
+                  <label className="block text-sm font-semibold">
+                    {t("admin.polls.card.modifyQrText")}
+                    <textarea
+                      value={qrModifier.text}
+                      maxLength={120}
+                      onChange={(event) => setQrModifier({ ...qrModifier, text: event.target.value })}
+                      className="mt-1 w-full rounded border border-slate-600 bg-white p-2 text-black"
+                      rows="3"
+                      placeholder={t("admin.polls.card.modifyQrTextPlaceholder")}
+                    />
+                  </label>
+                  <label className="block text-sm font-semibold">
+                    {t("admin.polls.card.aiBackgroundStyle")}
+                    <select
+                      value={qrModifier.preset}
+                      onChange={(event) => setQrModifier({ ...qrModifier, preset: event.target.value, seed: qrModifier.seed + 1 })}
+                      className="mt-1 w-full rounded border border-slate-600 bg-white p-2 text-black"
+                    >
+                      <option value="brand">{t("admin.polls.card.styles.brand")}</option>
+                      <option value="celebration">{t("admin.polls.card.styles.celebration")}</option>
+                      <option value="fresh">{t("admin.polls.card.styles.fresh")}</option>
+                      <option value="premium">{t("admin.polls.card.styles.premium")}</option>
+                    </select>
+                  </label>
+                  <label className="block text-sm font-semibold">
+                    {t("admin.polls.card.aiBackgroundPrompt")}
+                    <textarea
+                      value={qrModifier.prompt}
+                      maxLength={280}
+                      onChange={(event) => setQrModifier({ ...qrModifier, prompt: event.target.value })}
+                      className="mt-1 w-full rounded border border-slate-600 bg-white p-2 text-black"
+                      rows="3"
+                      placeholder={t("admin.polls.card.aiBackgroundPlaceholder")}
+                    />
+                  </label>
+                  <button type="button" onClick={generateQrBackground} disabled={qrModifier.generating || !qrModifier.prompt.trim()} className="rounded bg-fuchsia-600 px-4 py-2 font-semibold hover:bg-fuchsia-700 disabled:cursor-not-allowed disabled:opacity-50">
+                    {qrModifier.generating ? t("admin.polls.card.creatingImage") : t("admin.polls.card.generateAiBackground")}
+                  </button>
+                  {qrModifier.error && <p role="alert" className="text-sm text-rose-300">{qrModifier.error}</p>}
+                </div>
+                <div className="rounded-xl bg-cover bg-center p-4 text-center shadow-lg" style={{ backgroundImage: qrModifier.backgroundImage ? `url("${qrModifier.backgroundImage}")` : generatedStyle.background }}>
+                  <p className="mb-3 text-sm font-bold text-slate-900">{qrModifier.text || qrModifier.campaign.name}</p>
+                  <div className="mx-auto w-fit rounded-xl border-8 border-[#0b1a33] bg-white p-3 shadow-lg">
+                    <img src={getCampaignQrImageUrl(qrModifier.url, 220)} alt={t("admin.engagement.campaigns.qrAlt", { name: qrModifier.campaign.name })} className="h-44 w-44" />
+                  </div>
+                  <p className="mt-3 text-xs font-bold uppercase tracking-wide text-slate-900">{qrModifier.campaign.name}</p>
+                </div>
+              </div>
+              <div className="mt-5 flex flex-wrap justify-end gap-2 border-t border-slate-700 pt-4">
+                <button type="button" onClick={() => downloadCampaignQr(qrModifier.campaign, qrModifier.url, qrModifier)} className="rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">
+                  {t("admin.polls.card.downloadQr")}
+                </button>
+                <button type="button" onClick={() => printCampaignQr(qrModifier.campaign, qrModifier.url, qrModifier)} className="rounded bg-[#0f766e] px-4 py-2 font-semibold text-white hover:bg-[#0d6259]">
+                  {t("admin.polls.card.printQr")}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {scannerOpen && <QrScanner onDecode={handleScanDecode} onClose={() => setScannerOpen(false)} />}
 

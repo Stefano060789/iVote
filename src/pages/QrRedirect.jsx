@@ -88,6 +88,10 @@ export default function QrRedirect() {
       }
 
       if (hasWoodpeckerTasks) {
+        const taskCampaignId = woodpeckerTasks[0]?.campaign_id;
+        if (taskCampaignId) {
+          await supabase.rpc("record_qr_scan", { target_campaign_id: taskCampaignId });
+        }
         navigate(`/qr/${token}/tasks`, { replace: true });
         return;
       }
