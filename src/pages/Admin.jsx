@@ -251,7 +251,7 @@ export default function Admin() {
           supabase.from("weekly_report_settings").select("recipient_email, is_enabled").eq("workspace_id", profile.id).maybeSingle(),
           supabase.from("organizer_messages").select("*").order("created_at", { ascending: false }).limit(30),
           supabase.from("content_reports").select("*").order("created_at", { ascending: false }),
-          supabase.from("woodpecker_tasks").select("*, qr_campaigns(name)").eq("workspace_id", profile.id).order("created_at", { ascending: false })
+          supabase.from("woodpecker_tasks").select("*, qr_campaigns!woodpecker_tasks_campaign_id_fkey(name)").eq("workspace_id", profile.id).order("created_at", { ascending: false })
         ]);
         if (!rulesResult.error) setAlertRules(rulesResult.data || []);
         if (!alertsResult.error) setFeedbackAlerts(alertsResult.data || []);

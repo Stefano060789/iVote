@@ -80,7 +80,7 @@ export default function Woodpecker({ embedded = false }) {
       description: form.description.trim() || null,
       completion_mode: form.responseMode === "scan" ? "scan" : "manual",
       response_mode: form.responseMode
-    }).select("*, qr_campaigns(name, token)").single();
+    }).select().single();
     if (insertError) { setError(insertError.message); return; }
     setTasks((current) => [data, ...current]);
     setForm({ title: "", description: "", responseMode: "scan" });
