@@ -522,7 +522,12 @@
           "brand": "Brand colors",
           "celebration": "Celebration",
           "fresh": "Fresh and energetic",
-          "premium": "Premium and minimal"
+          "premium": "Premium and minimal",
+          "lavender": "Lavender calm",
+          "terracotta": "Terracotta warmth",
+          "aurora": "Aurora glow",
+          "coastal": "Coastal breeze",
+          "citrus": "Citrus morning"
         },
         "tryAnotherStyle": "Try another poster style",
         "previewNote": "The preview changes immediately and is used when you print.",

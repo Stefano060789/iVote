@@ -1251,7 +1251,12 @@ export default function Admin() {
       sunset: ["#ffedd5", "#fb923c", "#e11d48", "#7c2d12", "#fef3c7", "#c2410c"],
       botanical: ["#ecfccb", "#65a30d", "#15803d", "#14532d", "#f0fdf4", "#a7f3d0"],
       midnight: ["#dbeafe", "#4f46e5", "#312e81", "#111827", "#c4b5fd", "#0f172a"],
-      paper: ["#fff7ed", "#fed7aa", "#fef3c7", "#f8fafc", "#e7e5e4", "#d6d3d1"]
+      paper: ["#fff7ed", "#fed7aa", "#fef3c7", "#f8fafc", "#e7e5e4", "#d6d3d1"],
+      lavender: ["#f5f3ff", "#c4b5fd", "#8b5cf6", "#4c1d95", "#fdf4ff", "#e9d5ff"],
+      terracotta: ["#fff7ed", "#fdba74", "#c2410c", "#7c2d12", "#fef2f2", "#fb7185"],
+      aurora: ["#cffafe", "#2dd4bf", "#6366f1", "#312e81", "#f0fdf4", "#a7f3d0"],
+      coastal: ["#ecfeff", "#67e8f9", "#0e7490", "#164e63", "#eff6ff", "#93c5fd"],
+      citrus: ["#fefce8", "#fde047", "#f97316", "#c2410c", "#ecfccb", "#84cc16"]
     };
     const selectedPalette = presetPalettes[presetOverride] || palette;
     const first = selectedPalette[hash % selectedPalette.length];
@@ -2621,6 +2626,11 @@ export default function Admin() {
                       <option value="celebration">{t("admin.polls.card.templates.celebration")}</option>
                       <option value="fresh">{t("admin.polls.card.templates.fresh")}</option>
                       <option value="premium">{t("admin.polls.card.templates.premium")}</option>
+                      <option value="lavender">{t("admin.polls.card.templates.lavender")}</option>
+                      <option value="terracotta">{t("admin.polls.card.templates.terracotta")}</option>
+                      <option value="aurora">{t("admin.polls.card.templates.aurora")}</option>
+                      <option value="coastal">{t("admin.polls.card.templates.coastal")}</option>
+                      <option value="citrus">{t("admin.polls.card.templates.citrus")}</option>
                     </select>
                   </label>
                   <p className="text-xs text-slate-300">{t("admin.polls.card.backgroundTemplateHint")}</p>

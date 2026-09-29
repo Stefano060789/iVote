@@ -13,11 +13,11 @@ export default function QrRedirect() {
   const navigate = useNavigate();
   const { token } = useParams();
   const [searchParams] = useSearchParams();
-  // Set by the "preview what a scanner sees" iframe in the QR creation wizard, which is
-  // embedded on the same authenticated admin page - without this flag, getUser() would still
-  // find the logged-in admin session and show the owner's "manage this QR code" view instead
-  // of what an actual anonymous visitor sees.
+  // Set by the "preview what a scanner sees" iframe in the QR creation wizard.
+  // Management is explicit via ?manage=1 so normal QR scans behave like visitor scans,
+  // even when the workspace owner is already signed in.
   const isPreview = searchParams.get("preview") === "1";
+  const isManageMode = searchParams.get("manage") === "1";
   const [menu, setMenu] = useState(null);
   const [manage, setManage] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
@@ -28,7 +28,7 @@ export default function QrRedirect() {
         data: { user }
       } = await supabase.auth.getUser();
 
-      if (user && !isPreview) {
+      if (user && isManageMode && !isPreview) {
         const managed = await resolveManagedQrToken(token);
         if (managed) {
           setManage(managed);
@@ -64,7 +64,7 @@ export default function QrRedirect() {
             .single();
           singlePollHasMessage = singlePoll?.allow_organizer_messages === true;
         }
-        if (visibleItems.length === 1 && visibleItems[0].item_type === "poll" && !singlePollHasMessage && !hasWoodpeckerTasks) {
+        if (visibleItems.length === 1 && visibleItems[0].item_type === "poll" && !singlePollHasMessage) {
           navigate(`/vote/${visibleItems[0].poll_id}?campaign=${visibleItems[0].campaign_id}`, { replace: true });
           return;
         }
