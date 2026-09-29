@@ -97,7 +97,7 @@ export default function Woodpecker({ embedded = false }) {
   }
 
   function exportTask(task) {
-    const rows = [["Action", "Status", "Response type", "Event", "Message", "Created at"]];
+    const rows = [["Task", "Status", "Response type", "Event", "Message", "Created at"]];
     (task.history || []).forEach((event) => rows.push([
       task.title, task.status, task.response_mode || "scan", event.event_type, event.message || "", event.created_at
     ]));
