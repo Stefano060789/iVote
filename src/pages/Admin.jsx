@@ -1973,8 +1973,8 @@ export default function Admin() {
                   <div className="space-y-3">
                     <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step1Title")}</h3>
                     <label className="block text-sm font-semibold text-[#dbe3f0]">
-                      {t("admin.engagement.campaigns.nameLabel")}
-                      <input value={newCampaignName} onChange={(event) => setNewCampaignName(event.target.value)} className="qr-wizard-input mt-1 w-full border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.namePlaceholder")} />
+                      {t("admin.engagement.campaigns.nameLabel")} <span className="text-amber-300">{t("admin.engagement.campaigns.required")}</span>
+                      <input required aria-required="true" value={newCampaignName} onChange={(event) => setNewCampaignName(event.target.value)} className="qr-wizard-input mt-1 w-full border p-2 rounded text-black" placeholder={t("admin.engagement.campaigns.namePlaceholder")} />
                     </label>
                     <label className="block text-sm font-semibold text-[#dbe3f0]">
                       {t("admin.engagement.campaigns.placementLabel")}

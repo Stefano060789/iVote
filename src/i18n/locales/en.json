@@ -672,6 +672,7 @@
         "tip": "Tip: open a printed QR code while signed in to see its name and poll, and change them directly.",
         "namePlaceholder": "Lobby poster, receipt, table tent",
         "nameLabel": "QR code name",
+        "required": "(mandatory)",
         "placementLabel": "Placement",
         "createButton": "Create QR code",
         "placementPlaceholder": "Placement label: lobby, receipt, table",
