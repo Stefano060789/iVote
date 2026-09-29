@@ -1,7 +1,7 @@
 import { supabase } from "./supabase";
 
 export async function loadWoodpeckerTasks(workspaceId) {
-  const { data, error } = await supabase.from("woodpecker_tasks").select("*, qr_campaigns(name, token), woodpecker_task_history(*)").eq("workspace_id", workspaceId).order("created_at", { ascending: false });
+  const { data, error } = await supabase.from("woodpecker_tasks").select("*, woodpecker_task_campaigns(campaign_id, qr_campaigns(name, token)), woodpecker_task_history(*)").eq("workspace_id", workspaceId).order("created_at", { ascending: false });
   if (error) throw error;
   return (data || []).map((task) => ({ ...task, history: task.woodpecker_task_history || [] }));
 }
