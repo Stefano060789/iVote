@@ -88,6 +88,7 @@ export default function Woodpecker({ embedded = false }) {
 
   async function attachTask(taskId, campaignId) {
     if (!campaignId) return;
+    setError("");
     const { error: insertError } = await supabase.from("woodpecker_task_campaigns").upsert({
       task_id: taskId,
       campaign_id: Number(campaignId)
@@ -161,10 +162,27 @@ export default function Woodpecker({ embedded = false }) {
       <div className="mt-4 flex flex-wrap gap-2">
         <button type="button" onClick={() => setExpandedTaskId(expandedTaskId === task.id ? null : task.id)} className="rounded border border-slate-600 px-3 py-2 text-sm">{t("woodpecker.viewResults")}</button>
         <button type="button" onClick={() => exportTask(task)} className="rounded border border-slate-600 px-3 py-2 text-sm">{t("woodpecker.export")}</button>
-        <select defaultValue="" onChange={(event) => attachTask(task.id, event.target.value)} className="rounded border p-2 text-sm text-black" aria-label={t("woodpecker.addToQr")}>
-          <option value="">{t("woodpecker.addToQr")}</option>
-          {campaigns.map((campaign) => <option key={campaign.id} value={campaign.id}>{campaign.name}</option>)}
-        </select>
+        <details className="relative">
+          <summary className="cursor-pointer rounded border border-blue-700 px-3 py-2 text-sm font-semibold text-blue-200">📊 {t("woodpecker.addToQr")}</summary>
+          <div className="absolute left-0 z-10 mt-2 grid min-w-64 gap-1 rounded border border-slate-700 bg-slate-950 p-2 shadow-xl">
+            {campaigns.length === 0 ? (
+              <p className="px-3 py-2 text-xs text-slate-400">{t("woodpecker.noQrCodesYet")}</p>
+            ) : campaigns.map((campaign) => {
+              const alreadyLinked = (task.woodpecker_task_campaigns || []).some((link) => Number(link.campaign_id) === Number(campaign.id));
+              return (
+                <button
+                  key={campaign.id}
+                  type="button"
+                  disabled={alreadyLinked}
+                  onClick={() => attachTask(task.id, campaign.id)}
+                  className="rounded px-3 py-2 text-left text-sm hover:bg-slate-800 disabled:text-slate-500"
+                >
+                  {campaign.name}{alreadyLinked ? ` (${t("woodpecker.alreadyLinked")})` : ""}
+                </button>
+              );
+            })}
+          </div>
+        </details>
         {task.woodpecker_task_campaigns?.[0]?.qr_campaigns?.token && <Link className="rounded bg-teal-500 px-3 py-2 text-sm font-semibold text-slate-950" to={`/qr/${task.woodpecker_task_campaigns[0].qr_campaigns.token}/tasks`}>{t("woodpecker.openPortal")}</Link>}
       </div>
       {expandedTaskId === task.id && <div className="mt-4 rounded border border-slate-700 bg-slate-950 p-3 text-sm"><p className="font-semibold">{t("woodpecker.responses")}: {(task.history || []).filter((event) => event.event_type === "message").length}</p>{(task.history || []).map((event) => <p key={event.id} className="mt-2 text-slate-300"><strong>{event.event_type === "completed" ? "✓ " : ""}</strong>{event.message || event.event_type}</p>)}</div>}

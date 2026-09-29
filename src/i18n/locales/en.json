@@ -257,6 +257,8 @@
     "viewResults": "View results",
     "export": "Export",
     "addToQr": "Add to QR code",
+    "noQrCodesYet": "No QR codes yet.",
+    "alreadyLinked": "Already linked",
     "responses": "Responses",
     "empty": "No tasks yet. Create one for a QR campaign.",
     "openPortal": "Open public task portal",
