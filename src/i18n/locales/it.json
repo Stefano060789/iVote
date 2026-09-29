@@ -371,13 +371,6 @@
         },
         "tryAnotherStyle": "Prova un altro stile di poster",
         "previewNote": "L'anteprima cambia subito e viene usata durante la stampa.",
-        "aiPosterTitle": "Crea uno sfondo per poster con IA",
-        "aiPosterHint": "Descrivi la direzione visiva. Il logo del tuo workspace viene sovrapposto separatamente così resta nitido e il tuo codice QR rimane scansionabile.",
-        "aiPosterPlaceholder": "Moderne luci blu cittadine per un sondaggio su un evento",
-        "creatingImage": "Creazione immagine...",
-        "generateImage": "Genera immagine",
-        "aiBackgroundReady": "Sfondo IA pronto per anteprima e stampa.",
-        "removeImage": "Rimuovi immagine",
         "downloadQr": "Scarica QR",
         "printQr": "Stampa QR"
       }

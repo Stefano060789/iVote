@@ -134,9 +134,6 @@ export async function saveWorkspaceProfile(workspaceId, patch = {}) {
     role: patch.role ?? current.role ?? "owner"
   };
 
-  profiles[key] = next;
-  writeAllProfiles(profiles);
-
   const { reviewPlatforms, ...workspacePatch } = {
     name: next.companyName,
     logo_url: next.logoUrl || null,
@@ -167,6 +164,11 @@ export async function saveWorkspaceProfile(workspaceId, patch = {}) {
     throw new Error("Workspace settings saved, but review sites are unavailable until the review-platforms database migration is applied.");
   }
   if (reviewPlatformsError) throw new Error(`Unable to save review sites: ${reviewPlatformsError.message}`);
+
+  // Cache only after every database update succeeds so a failed save cannot
+  // make a later local read appear newer than the workspace record.
+  profiles[key] = next;
+  writeAllProfiles(profiles);
 
   return next;
 }

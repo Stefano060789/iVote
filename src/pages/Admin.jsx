@@ -108,6 +108,7 @@ export default function Admin() {
   const [qrWizardOpen, setQrWizardOpen] = useState(false);
   const [qrWizardStep, setQrWizardStep] = useState(1);
   const [qrWizardCampaign, setQrWizardCampaign] = useState(null);
+  const [qrWizardActionId, setQrWizardActionId] = useState("");
   const [qrWizardTaskTitle, setQrWizardTaskTitle] = useState("");
   const [qrWizardTaskDescription, setQrWizardTaskDescription] = useState("");
   const [qrModifier, setQrModifier] = useState(null);
@@ -250,7 +251,7 @@ export default function Admin() {
           supabase.from("weekly_report_settings").select("recipient_email, is_enabled").eq("workspace_id", profile.id).maybeSingle(),
           supabase.from("organizer_messages").select("*").order("created_at", { ascending: false }).limit(30),
           supabase.from("content_reports").select("*").order("created_at", { ascending: false }),
-          supabase.from("woodpecker_tasks").select("id").eq("workspace_id", profile.id).limit(1)
+          supabase.from("woodpecker_tasks").select("*, qr_campaigns(name)").eq("workspace_id", profile.id).order("created_at", { ascending: false })
         ]);
         if (!rulesResult.error) setAlertRules(rulesResult.data || []);
         if (!alertsResult.error) setFeedbackAlerts(alertsResult.data || []);
@@ -454,6 +455,7 @@ export default function Admin() {
     setQrWizardCampaign(null);
     setQrWizardStep(1);
     setSelectedQrReviewPlatforms([]);
+    setQrWizardActionId("");
     setQrWizardTaskTitle("");
     setQrWizardTaskDescription("");
     setQrWizardOpen(true);
@@ -463,6 +465,7 @@ export default function Admin() {
     setQrWizardOpen(false);
     setQrWizardCampaign(null);
     setQrWizardStep(1);
+    setQrWizardActionId("");
     setQrWizardTaskTitle("");
     setQrWizardTaskDescription("");
   }
@@ -519,7 +522,23 @@ export default function Admin() {
   }
 
   async function handleContinueFromTaskStep() {
-    if (qrWizardCampaign && qrWizardTaskTitle.trim()) {
+    if (qrWizardCampaign && qrWizardActionId) {
+      try {
+        const { data: task, error } = await supabase
+          .from("woodpecker_tasks")
+          .update({ campaign_id: qrWizardCampaign.id })
+          .eq("id", qrWizardActionId)
+          .eq("workspace_id", workspaceUserId)
+          .select()
+          .single();
+        if (error) throw error;
+        if (!task) throw new Error("The Action was not attached.");
+        setActionTasks((current) => current.map((item) => item.id === task.id ? task : item));
+      } catch (error) {
+        alert(error.message || "Unable to attach the Action.");
+        return;
+      }
+    } else if (qrWizardCampaign && qrWizardTaskTitle.trim()) {
       try {
         const { data: task, error } = await supabase
           .from("woodpecker_tasks")
@@ -533,6 +552,8 @@ export default function Admin() {
           .single();
         if (error) throw error;
         if (!task) throw new Error("The task was not created.");
+        setActionTasks((current) => [task, ...current]);
+        setQrWizardActionId("");
         setQrWizardTaskTitle("");
         setQrWizardTaskDescription("");
       } catch (error) {
@@ -1203,7 +1224,7 @@ export default function Admin() {
     return formatMap[format] || formatMap.a4;
   }
 
-  function generateAiQrStyle(seedOverride = 1, presetOverride = "brand") {
+  function generateQrStyle(seedOverride = 1, presetOverride = "brand") {
     const baseName = `${workspaceProfile.companyName || "Godwit"}-${seedOverride}`;
     const hash = Array.from(baseName).reduce((sum, char) => sum + char.charCodeAt(0), 0);
     const palette = [
@@ -1219,7 +1240,12 @@ export default function Admin() {
       brand: palette,
       celebration: ["#fef3c7", "#fb7185", "#7c3aed", "#f97316", "#fefce8", "#be123c"],
       fresh: ["#ecfeff", "#14b8a6", "#0ea5e9", "#f0fdf4", "#84cc16", "#f8fafc"],
-      premium: ["#f8fafc", "#cbd5e1", "#334155", "#0f172a", "#b08968", "#f5f5f4"]
+      premium: ["#f8fafc", "#cbd5e1", "#334155", "#0f172a", "#b08968", "#f5f5f4"],
+      ocean: ["#cffafe", "#0891b2", "#1d4ed8", "#172554", "#e0f2fe", "#0f766e"],
+      sunset: ["#ffedd5", "#fb923c", "#e11d48", "#7c2d12", "#fef3c7", "#c2410c"],
+      botanical: ["#ecfccb", "#65a30d", "#15803d", "#14532d", "#f0fdf4", "#a7f3d0"],
+      midnight: ["#dbeafe", "#4f46e5", "#312e81", "#111827", "#c4b5fd", "#0f172a"],
+      paper: ["#fff7ed", "#fed7aa", "#fef3c7", "#f8fafc", "#e7e5e4", "#d6d3d1"]
     };
     const selectedPalette = presetPalettes[presetOverride] || palette;
     const first = selectedPalette[hash % selectedPalette.length];
@@ -1228,7 +1254,7 @@ export default function Admin() {
     const fourth = selectedPalette[(hash + 5) % selectedPalette.length];
 
     return {
-      background: presetOverride === "premium"
+      background: ["premium", "paper"].includes(presetOverride)
         ? `linear-gradient(135deg, ${first} 0%, ${second} 48%, ${fourth} 100%)`
         : `radial-gradient(circle at top left, ${first} 0%, ${second} 32%, ${third} 62%, ${fourth} 100%)`,
       colors: [first, second, third, fourth],
@@ -1251,38 +1277,13 @@ export default function Admin() {
       campaign,
       url,
       text: campaign.name || "",
-      prompt: campaign.name || "",
       preset: "brand",
-      seed: 1,
-      backgroundImage: "",
-      generating: false,
-      error: ""
+      seed: 1
     });
   }
 
-  async function generateQrBackground() {
-    if (!qrModifier?.prompt.trim()) return;
-    setQrModifier((current) => ({ ...current, generating: true, error: "" }));
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const response = await fetch("/api/generate-qr-poster", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {})
-        },
-        body: JSON.stringify({ description: qrModifier.prompt })
-      });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Unable to generate an AI background.");
-      setQrModifier((current) => ({ ...current, backgroundImage: payload.imageUrl, generating: false }));
-    } catch (error) {
-      setQrModifier((current) => ({ ...current, generating: false, error: error.message }));
-    }
-  }
-
   function downloadCampaignQr(campaign, url, design = {}) {
-    const generatedStyle = generateAiQrStyle(design.seed || 1, design.preset || "brand");
+    const generatedStyle = generateQrStyle(design.seed || 1, design.preset || "brand");
     const customText = (design.text || "").trim();
     const img = new Image();
     img.crossOrigin = "anonymous";
@@ -1295,16 +1296,13 @@ export default function Admin() {
       canvas.height = img.naturalHeight + framePadding * 2 + footerHeight + textHeight;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      const paint = (backgroundImage) => {
-        if (backgroundImage) ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-        else {
-          const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-          gradient.addColorStop(0, generatedStyle.colors[0]);
-          gradient.addColorStop(0.5, generatedStyle.colors[1]);
-          gradient.addColorStop(1, generatedStyle.colors[3]);
-          ctx.fillStyle = gradient;
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
+      const paint = () => {
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        gradient.addColorStop(0, generatedStyle.colors[0]);
+        gradient.addColorStop(0.5, generatedStyle.colors[1]);
+        gradient.addColorStop(1, generatedStyle.colors[3]);
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.strokeStyle = "#0b1a33";
         ctx.lineWidth = 18;
         ctx.strokeRect(9, 9, canvas.width - 18, canvas.height - 18);
@@ -1326,12 +1324,7 @@ export default function Admin() {
         link.href = canvas.toDataURL("image/png");
         link.click();
       };
-      if (design.backgroundImage) {
-        const backgroundImage = new Image();
-        backgroundImage.onload = () => paint(backgroundImage);
-        backgroundImage.onerror = () => paint(null);
-        backgroundImage.src = design.backgroundImage;
-      } else paint(null);
+      paint();
     };
     img.onerror = () => console.error("Unable to load QR image for download.");
     img.src = getCampaignQrImageUrl(url, 600);
@@ -1339,7 +1332,7 @@ export default function Admin() {
 
   function printCampaignQr(campaign, url, design = {}) {
     const formatConfig = getQrPrintFormatConfig();
-    const generatedStyle = generateAiQrStyle(design.seed || 1, design.preset || "brand");
+    const generatedStyle = generateQrStyle(design.seed || 1, design.preset || "brand");
     const customText = (design.text || "").trim().replace(/[<>&"']/g, "");
     const logoMarkup = workspaceProfile.logoUrl
       ? `<img src="${workspaceProfile.logoUrl}" alt="Brand logo" style="max-height: 56px; max-width: 160px; object-fit: contain; margin-right: 16px;" />`
@@ -1375,7 +1368,7 @@ export default function Admin() {
               flex-direction: column;
               justify-content: center;
               align-items: center;
-              background: ${design.backgroundImage ? `url("${design.backgroundImage}") center / cover, ${generatedStyle.background}` : generatedStyle.background};
+              background: ${generatedStyle.background};
               border-radius: 20px;
               box-shadow: ${generatedStyle.shadow};
               padding: 36px;
@@ -2059,8 +2052,28 @@ export default function Admin() {
                   <div className="space-y-3">
                     <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step3Title")}</h3>
                     <p className="text-xs text-[#93a3c2]">{t("admin.engagement.wizard.taskHint")}</p>
+                    <select
+                      value={qrWizardActionId}
+                      onChange={(event) => {
+                        const actionId = event.target.value;
+                        const action = actionTasks.find((item) => String(item.id) === actionId);
+                        setQrWizardActionId(actionId);
+                        setQrWizardTaskTitle(action ? action.title : "");
+                        setQrWizardTaskDescription(action ? action.description || "" : "");
+                      }}
+                      className="qr-wizard-input w-full border p-2 rounded text-black"
+                    >
+                      <option value="">{t("admin.engagement.wizard.createNewAction")}</option>
+                      {actionTasks.map((action) => (
+                        <option key={action.id} value={action.id}>
+                          {action.title}{action.qr_campaigns?.name ? ` (${action.qr_campaigns.name})` : ""}
+                        </option>
+                      ))}
+                    </select>
+                    {qrWizardActionId && <p className="text-xs text-[#93a3c2]">{t("admin.engagement.wizard.selectedActionHint")}</p>}
                     <input
                       value={qrWizardTaskTitle}
+                      disabled={Boolean(qrWizardActionId)}
                       onChange={(event) => setQrWizardTaskTitle(event.target.value)}
                       className="qr-wizard-input w-full border p-2 rounded text-black"
                       placeholder={t("admin.engagement.wizard.taskTitle")}
@@ -2068,6 +2081,7 @@ export default function Admin() {
                     />
                     <textarea
                       value={qrWizardTaskDescription}
+                      disabled={Boolean(qrWizardActionId)}
                       onChange={(event) => setQrWizardTaskDescription(event.target.value)}
                       className="qr-wizard-input w-full border p-2 rounded text-black"
                       placeholder={t("admin.engagement.wizard.taskDescription")}
@@ -2559,7 +2573,7 @@ export default function Admin() {
       )}
 
       {qrModifier && (() => {
-        const generatedStyle = generateAiQrStyle(qrModifier.seed, qrModifier.preset);
+        const generatedStyle = generateQrStyle(qrModifier.seed, qrModifier.preset);
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4" role="dialog" aria-modal="true" aria-labelledby="modify-qr-title">
             <div className="max-h-[calc(100vh-2rem)] w-full max-w-3xl overflow-y-auto rounded-xl border border-slate-700 bg-[#0b1a33] p-5 text-white shadow-2xl">
@@ -2586,35 +2600,26 @@ export default function Admin() {
                     />
                   </label>
                   <label className="block text-sm font-semibold">
-                    {t("admin.polls.card.aiBackgroundStyle")}
+                    {t("admin.polls.card.backgroundTemplate")}
                     <select
                       value={qrModifier.preset}
                       onChange={(event) => setQrModifier({ ...qrModifier, preset: event.target.value, seed: qrModifier.seed + 1 })}
                       className="mt-1 w-full rounded border border-slate-600 bg-white p-2 text-black"
                     >
-                      <option value="brand">{t("admin.polls.card.styles.brand")}</option>
-                      <option value="celebration">{t("admin.polls.card.styles.celebration")}</option>
-                      <option value="fresh">{t("admin.polls.card.styles.fresh")}</option>
-                      <option value="premium">{t("admin.polls.card.styles.premium")}</option>
+                      <option value="brand">{t("admin.polls.card.templates.brand")}</option>
+                      <option value="ocean">{t("admin.polls.card.templates.ocean")}</option>
+                      <option value="sunset">{t("admin.polls.card.templates.sunset")}</option>
+                      <option value="botanical">{t("admin.polls.card.templates.botanical")}</option>
+                      <option value="midnight">{t("admin.polls.card.templates.midnight")}</option>
+                      <option value="paper">{t("admin.polls.card.templates.paper")}</option>
+                      <option value="celebration">{t("admin.polls.card.templates.celebration")}</option>
+                      <option value="fresh">{t("admin.polls.card.templates.fresh")}</option>
+                      <option value="premium">{t("admin.polls.card.templates.premium")}</option>
                     </select>
                   </label>
-                  <label className="block text-sm font-semibold">
-                    {t("admin.polls.card.aiBackgroundPrompt")}
-                    <textarea
-                      value={qrModifier.prompt}
-                      maxLength={280}
-                      onChange={(event) => setQrModifier({ ...qrModifier, prompt: event.target.value })}
-                      className="mt-1 w-full rounded border border-slate-600 bg-white p-2 text-black"
-                      rows="3"
-                      placeholder={t("admin.polls.card.aiBackgroundPlaceholder")}
-                    />
-                  </label>
-                  <button type="button" onClick={generateQrBackground} disabled={qrModifier.generating || !qrModifier.prompt.trim()} className="rounded bg-fuchsia-600 px-4 py-2 font-semibold hover:bg-fuchsia-700 disabled:cursor-not-allowed disabled:opacity-50">
-                    {qrModifier.generating ? t("admin.polls.card.creatingImage") : t("admin.polls.card.generateAiBackground")}
-                  </button>
-                  {qrModifier.error && <p role="alert" className="text-sm text-rose-300">{qrModifier.error}</p>}
+                  <p className="text-xs text-slate-300">{t("admin.polls.card.backgroundTemplateHint")}</p>
                 </div>
-                <div className="rounded-xl bg-cover bg-center p-4 text-center shadow-lg" style={{ backgroundImage: qrModifier.backgroundImage ? `url("${qrModifier.backgroundImage}")` : generatedStyle.background }}>
+                <div className="rounded-xl bg-cover bg-center p-4 text-center shadow-lg" style={{ backgroundImage: generatedStyle.background }}>
                   <p className="mb-3 text-sm font-bold text-slate-900">{qrModifier.text || qrModifier.campaign.name}</p>
                   <div className="mx-auto w-fit rounded-xl border-8 border-[#0b1a33] bg-white p-3 shadow-lg">
                     <img src={getCampaignQrImageUrl(qrModifier.url, 220)} alt={t("admin.engagement.campaigns.qrAlt", { name: qrModifier.campaign.name })} className="h-44 w-44" />

@@ -371,13 +371,6 @@
         },
         "tryAnotherStyle": "Probar otro estilo de póster",
         "previewNote": "La vista previa cambia al instante y se usa al imprimir.",
-        "aiPosterTitle": "Crear un fondo de póster con IA",
-        "aiPosterHint": "Describe la dirección visual. El logotipo de tu espacio de trabajo se superpone por separado para que se mantenga nítido y tu código QR siga siendo escaneable.",
-        "aiPosterPlaceholder": "Luces azules modernas de ciudad para una encuesta de evento",
-        "creatingImage": "Creando imagen...",
-        "generateImage": "Generar imagen",
-        "aiBackgroundReady": "El fondo con IA está listo para la vista previa y la impresión.",
-        "removeImage": "Quitar imagen",
         "downloadQr": "Descargar QR",
         "printQr": "Imprimir QR"
       }

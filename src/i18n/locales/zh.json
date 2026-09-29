@@ -371,13 +371,6 @@
         },
         "tryAnotherStyle": "尝试另一种海报风格",
         "previewNote": "预览会立即变化，并会用于打印。",
-        "aiPosterTitle": "创建 AI 海报背景",
-        "aiPosterHint": "描述一下视觉方向。您的工作区标志会单独叠加，以保持清晰，同时确保二维码仍可扫描。",
-        "aiPosterPlaceholder": "适合活动投票的现代蓝色城市灯光",
-        "creatingImage": "正在创建图片...",
-        "generateImage": "生成图片",
-        "aiBackgroundReady": "AI 背景已准备好，可用于预览和打印。",
-        "removeImage": "移除图片",
         "downloadQr": "下载 QR",
         "printQr": "打印 QR"
       }

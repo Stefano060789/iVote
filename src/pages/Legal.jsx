@@ -81,7 +81,7 @@ function PrivacyNotice() {
           <li><strong>Stripe</strong> - payment processing for paid plans, and for donations (as a Stripe Connect platform)</li>
           <li><strong>Resend</strong> - delivery of transactional and opted-in follow-up emails</li>
           <li><strong>Sentry</strong> - error monitoring, only if the operator enables it</li>
-          <li><strong>OpenAI</strong> - optional AI features (QR poster images, sentiment tagging), only if the operator enables them</li>
+          <li><strong>OpenAI</strong> - optional sentiment tagging, only if the operator enables it</li>
         </ul>
         <p className="mt-2">Some of these providers may process data outside your country; each maintains its own safeguards for international transfers, such as the EU Standard Contractual Clauses.</p>
       </section>

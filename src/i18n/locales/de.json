@@ -371,13 +371,6 @@
         },
         "tryAnotherStyle": "Anderen Posterstil ausprobieren",
         "previewNote": "Die Vorschau ändert sich sofort und wird beim Drucken verwendet.",
-        "aiPosterTitle": "KI-Hintergrund für Poster erstellen",
-        "aiPosterHint": "Beschreiben Sie die visuelle Richtung. Ihr Workspace-Logo wird separat überlagert, damit es scharf bleibt und Ihr QR-Code weiterhin scanbar ist.",
-        "aiPosterPlaceholder": "Moderne blaue Stadtlichter für eine Veranstaltungsumfrage",
-        "creatingImage": "Bild wird erstellt...",
-        "generateImage": "Bild generieren",
-        "aiBackgroundReady": "KI-Hintergrund ist für Vorschau und Druck bereit.",
-        "removeImage": "Bild entfernen",
         "downloadQr": "QR herunterladen",
         "printQr": "QR drucken"
       }

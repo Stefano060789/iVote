@@ -371,13 +371,6 @@
         },
         "tryAnotherStyle": "Essayer un autre style d'affiche",
         "previewNote": "L'aperçu change immédiatement et sera utilisé à l'impression.",
-        "aiPosterTitle": "Créer un fond d'affiche avec l'IA",
-        "aiPosterHint": "Décrivez la direction visuelle. Le logo de votre espace de travail est superposé séparément pour rester net et votre code QR reste scannable.",
-        "aiPosterPlaceholder": "Lumières urbaines bleues modernes pour un sondage d'événement",
-        "creatingImage": "Création de l'image...",
-        "generateImage": "Générer l'image",
-        "aiBackgroundReady": "Le fond IA est prêt pour l'aperçu et l'impression.",
-        "removeImage": "Retirer l'image",
         "downloadQr": "Télécharger le QR",
         "printQr": "Imprimer le QR"
       }
