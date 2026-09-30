@@ -111,6 +111,7 @@ export default function Admin() {
   const [qrWizardActionId, setQrWizardActionId] = useState("");
   const [qrWizardTaskTitle, setQrWizardTaskTitle] = useState("");
   const [qrWizardTaskDescription, setQrWizardTaskDescription] = useState("");
+  const [qrWizardTaskIds, setQrWizardTaskIds] = useState([]);
   const [qrModifier, setQrModifier] = useState(null);
   const [invitingMember, setInvitingMember] = useState(false);
   const [redeemCode, setRedeemCode] = useState("");
@@ -458,6 +459,7 @@ export default function Admin() {
     setQrWizardActionId("");
     setQrWizardTaskTitle("");
     setQrWizardTaskDescription("");
+    setQrWizardTaskIds([]);
     setQrWizardOpen(true);
   }
 
@@ -468,6 +470,7 @@ export default function Admin() {
     setQrWizardActionId("");
     setQrWizardTaskTitle("");
     setQrWizardTaskDescription("");
+    setQrWizardTaskIds([]);
   }
 
   async function handleCreateCampaignFromWizard() {
@@ -521,7 +524,11 @@ export default function Admin() {
     setQrWizardStep(3);
   }
 
-  async function handleContinueFromTaskStep() {
+  async function handleAddTaskFromWizard() {
+    if (!qrWizardCampaign || (!qrWizardActionId && !qrWizardTaskTitle.trim())) {
+      alert("Choose an existing Task or enter a new Task title.");
+      return false;
+    }
     if (qrWizardCampaign && qrWizardActionId) {
       try {
         const { error } = await supabase
@@ -540,9 +547,13 @@ export default function Admin() {
               ]
             }
           : item));
+        setQrWizardTaskIds((current) => current.includes(Number(qrWizardActionId)) ? current : [...current, Number(qrWizardActionId)]);
+        setQrWizardActionId("");
+        setQrWizardTaskTitle("");
+        setQrWizardTaskDescription("");
       } catch (error) {
         alert(error.message || "Unable to attach the Action.");
-        return;
+        return false;
       }
     } else if (qrWizardCampaign && qrWizardTaskTitle.trim()) {
       try {
@@ -559,13 +570,22 @@ export default function Admin() {
         if (error) throw error;
         if (!task) throw new Error("The task was not created.");
         setActionTasks((current) => [task, ...current]);
+        setQrWizardTaskIds((current) => [...current, Number(task.id)]);
         setQrWizardActionId("");
         setQrWizardTaskTitle("");
         setQrWizardTaskDescription("");
       } catch (error) {
         alert(error.message || "Unable to create the Action.");
-        return;
+        return false;
       }
+    }
+    return true;
+  }
+
+  async function handleContinueFromTaskStep() {
+    if (qrWizardActionId || qrWizardTaskTitle.trim()) {
+      const added = await handleAddTaskFromWizard();
+      if (!added) return;
     }
     setQrWizardStep(4);
   }
@@ -2063,24 +2083,41 @@ export default function Admin() {
                   <div className="space-y-3">
                     <h3 className="text-lg font-bold text-[#f4f7fb]">{t("admin.engagement.wizard.step3Title")}</h3>
                     <p className="text-xs text-[#93a3c2]">{t("admin.engagement.wizard.taskHint")}</p>
-                    <select
-                      value={qrWizardActionId}
-                      onChange={(event) => {
-                        const actionId = event.target.value;
-                        const action = actionTasks.find((item) => String(item.id) === actionId);
-                        setQrWizardActionId(actionId);
-                        setQrWizardTaskTitle(action ? action.title : "");
-                        setQrWizardTaskDescription(action ? action.description || "" : "");
-                      }}
-                      className="qr-wizard-input w-full border p-2 rounded text-black"
-                    >
-                      <option value="">{t("admin.engagement.wizard.createNewAction")}</option>
-                      {actionTasks.map((action) => (
-                        <option key={action.id} value={action.id}>
-                          {action.title}{action.qr_campaigns?.name ? ` (${action.qr_campaigns.name})` : ""}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="flex min-w-0 gap-2">
+                      <select
+                        value={qrWizardActionId}
+                        onChange={(event) => {
+                          const actionId = event.target.value;
+                          const action = actionTasks.find((item) => String(item.id) === actionId);
+                          setQrWizardActionId(actionId);
+                          setQrWizardTaskTitle(action ? action.title : "");
+                          setQrWizardTaskDescription(action ? action.description || "" : "");
+                        }}
+                        className="qr-wizard-input min-w-0 flex-1 border p-2 rounded text-black"
+                      >
+                        <option value="">{t("admin.engagement.wizard.addNewTaskOption")}</option>
+                        {actionTasks.filter((action) => !qrWizardTaskIds.includes(Number(action.id))).map((action) => (
+                          <option key={action.id} value={action.id}>
+                            {action.title}{action.qr_campaigns?.name ? ` (${action.qr_campaigns.name})` : ""}
+                          </option>
+                        ))}
+                      </select>
+                      <button type="button" onClick={handleAddTaskFromWizard} className="shrink-0 rounded bg-[#0f766e] px-4 py-2 font-semibold text-[#f8fafc] hover:bg-[#0d6259]">
+                        {t("admin.engagement.wizard.addTask")}
+                      </button>
+                    </div>
+                    <p className="text-xs text-[#93a3c2]">
+                      {t("admin.engagement.wizard.tasksAddedSoFar", { count: qrWizardTaskIds.length })}
+                    </p>
+                    {qrWizardTaskIds.length > 0 && (
+                      <div className="space-y-1.5">
+                        {qrWizardTaskIds.map((taskId) => (
+                          <div key={taskId} className="rounded border border-[#2c3f66] bg-[#101f39] p-2 text-sm text-[#dbe3f0]">
+                            {actionTasks.find((task) => Number(task.id) === Number(taskId))?.title || t("admin.engagement.items.unknownTask")}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     {qrWizardActionId && <p className="text-xs text-[#93a3c2]">{t("admin.engagement.wizard.selectedActionHint")}</p>}
                     <input
                       value={qrWizardTaskTitle}
@@ -2101,7 +2138,7 @@ export default function Admin() {
                     />
                     <div className="flex gap-2">
                       <button onClick={() => setQrWizardStep(2)} className="qr-wizard-back-button flex-1 rounded border border-[#2c3f66] bg-[#182742] px-4 py-2 font-semibold text-[#dbe3f0] hover:bg-[#1f3252]">{t("admin.engagement.wizard.back")}</button>
-                      <button onClick={handleContinueFromTaskStep} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
+                      <button type="button" onClick={handleContinueFromTaskStep} className="flex-1 rounded bg-[#f2c744] px-4 py-2 font-semibold text-[#0b1a33] hover:bg-[#e3b93c]">{t("admin.engagement.wizard.next")}</button>
                     </div>
                   </div>
                 )}
