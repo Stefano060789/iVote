@@ -1309,22 +1309,25 @@ export default function Admin() {
       url,
       text: campaign.name || "",
       preset: "brand",
-      seed: 1
+      seed: 1,
+      logoUrl: workspaceProfile.logoUrl || ""
     });
   }
 
   function downloadCampaignQr(campaign, url, design = {}) {
     const generatedStyle = generateQrStyle(design.seed || 1, design.preset || "brand");
     const customText = (design.text || "").trim();
+    const logoUrl = (design.logoUrl || "").trim();
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
       const framePadding = 42;
       const footerHeight = 54;
       const textHeight = customText ? 54 : 0;
+      const logoHeight = logoUrl ? 80 : 0;
       const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth + framePadding * 2 + 80;
-      canvas.height = img.naturalHeight + framePadding * 2 + footerHeight + textHeight;
+      canvas.width = Math.max(img.naturalWidth + framePadding * 2 + 80, 520);
+      canvas.height = img.naturalHeight + framePadding * 2 + footerHeight + textHeight + logoHeight;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
       const paint = () => {
@@ -1337,14 +1340,21 @@ export default function Admin() {
         ctx.strokeStyle = "#0b1a33";
         ctx.lineWidth = 18;
         ctx.strokeRect(9, 9, canvas.width - 18, canvas.height - 18);
+        if (logoUrl && logo.naturalWidth > 0) {
+          const scale = Math.min(160 / logo.naturalWidth, 52 / logo.naturalHeight);
+          const logoWidth = logo.naturalWidth * scale;
+          const logoHeight = logo.naturalHeight * scale;
+          ctx.drawImage(logo, (canvas.width - logoWidth) / 2, framePadding + (52 - logoHeight) / 2, logoWidth, logoHeight);
+        }
         ctx.fillStyle = "#ffffff";
-        ctx.fillRect(framePadding, framePadding, img.naturalWidth, img.naturalHeight);
-        ctx.drawImage(img, framePadding, framePadding);
+        const qrTop = framePadding + logoHeight;
+        ctx.fillRect(framePadding, qrTop, img.naturalWidth, img.naturalHeight);
+        ctx.drawImage(img, framePadding, qrTop);
         if (customText) {
           ctx.fillStyle = "#0f172a";
           ctx.font = "700 24px Arial, sans-serif";
           ctx.textAlign = "center";
-          ctx.fillText(customText.slice(0, 80), canvas.width / 2, img.naturalHeight + framePadding + 36);
+          ctx.fillText(customText.slice(0, 80), canvas.width / 2, qrTop + img.naturalHeight + 36);
         }
         ctx.fillStyle = "#0b1a33";
         ctx.font = "700 22px Arial, sans-serif";
@@ -1358,15 +1368,24 @@ export default function Admin() {
       paint();
     };
     img.onerror = () => console.error("Unable to load QR image for download.");
-    img.src = getCampaignQrImageUrl(url, 600);
+    const logo = new Image();
+    logo.crossOrigin = "anonymous";
+    logo.onload = () => img.src = getCampaignQrImageUrl(url, 600);
+    logo.onerror = () => img.src = getCampaignQrImageUrl(url, 600);
+    if (logoUrl) {
+      logo.src = logoUrl;
+    } else {
+      img.src = getCampaignQrImageUrl(url, 600);
+    }
   }
 
   function printCampaignQr(campaign, url, design = {}) {
     const formatConfig = getQrPrintFormatConfig();
     const generatedStyle = generateQrStyle(design.seed || 1, design.preset || "brand");
     const customText = (design.text || "").trim().replace(/[<>&"']/g, "");
-    const logoMarkup = workspaceProfile.logoUrl
-      ? `<img src="${workspaceProfile.logoUrl}" alt="Brand logo" style="max-height: 56px; max-width: 160px; object-fit: contain; margin-right: 16px;" />`
+    const logoUrl = (design.logoUrl || workspaceProfile.logoUrl || "").trim().replace(/[<>&"']/g, "");
+    const logoMarkup = logoUrl
+      ? `<img src="${logoUrl}" alt="Brand logo" style="max-height: 56px; max-width: 160px; object-fit: contain; margin-right: 16px;" />`
       : "";
     const companyName = (workspaceProfile.companyName || "Godwit").replace(/[<>&"']/g, "");
     const campaignName = (campaign?.name || "QR code").replace(/[<>&"']/g, "");
@@ -1441,7 +1460,13 @@ export default function Admin() {
 
     printWindow.document.close();
     printWindow.focus();
-    printWindow.print();
+    const printImages = Array.from(printWindow.document.images);
+    Promise.all(printImages.map((image) => image.complete
+      ? Promise.resolve()
+      : new Promise((resolve) => {
+          image.onload = resolve;
+          image.onerror = resolve;
+        }))).then(() => printWindow.print());
   }
 
   if (loading) return <p className="text-center p-6">Loading polls...</p>;
@@ -2648,6 +2673,29 @@ export default function Admin() {
                     />
                   </label>
                   <label className="block text-sm font-semibold">
+                    {t("admin.polls.card.logo")}
+                    <input
+                      type="text"
+                      value={qrModifier.logoUrl || ""}
+                      onChange={(event) => setQrModifier({ ...qrModifier, logoUrl: event.target.value })}
+                      className="mt-1 w-full rounded border border-slate-600 bg-white p-2 text-black"
+                      placeholder={t("admin.polls.card.logoUrlPlaceholder")}
+                    />
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = () => setQrModifier((current) => ({ ...current, logoUrl: String(reader.result || "") }));
+                        reader.readAsDataURL(file);
+                      }}
+                      className="mt-2 block w-full text-xs text-slate-300 file:mr-3 file:rounded file:border-0 file:bg-slate-700 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white"
+                    />
+                    <span className="mt-1 block text-xs font-normal text-slate-300">{t("admin.polls.card.logoHint")}</span>
+                  </label>
+                  <label className="block text-sm font-semibold">
                     {t("admin.polls.card.backgroundTemplate")}
                     <select
                       value={qrModifier.preset}
@@ -2673,6 +2721,7 @@ export default function Admin() {
                   <p className="text-xs text-slate-300">{t("admin.polls.card.backgroundTemplateHint")}</p>
                 </div>
                 <div className="rounded-xl bg-cover bg-center p-4 text-center shadow-lg" style={{ backgroundImage: generatedStyle.background }}>
+                  {qrModifier.logoUrl && <img src={qrModifier.logoUrl} alt={t("admin.polls.card.logoAlt")} className="mx-auto mb-3 max-h-14 max-w-40 object-contain" />}
                   <p className="mb-3 text-sm font-bold text-slate-900">{qrModifier.text || qrModifier.campaign.name}</p>
                   <div className="mx-auto w-fit rounded-xl border-8 border-[#0b1a33] bg-white p-3 shadow-lg">
                     <img src={getCampaignQrImageUrl(qrModifier.url, 220)} alt={t("admin.engagement.campaigns.qrAlt", { name: qrModifier.campaign.name })} className="h-44 w-44" />

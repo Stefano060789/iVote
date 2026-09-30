@@ -537,6 +537,10 @@
         "modifyQrHint": "Add a message and choose a ready-made background before downloading or printing.",
         "modifyQrText": "Text on the QR poster",
         "modifyQrTextPlaceholder": "Scan to share your feedback",
+        "logo": "Logo (optional)",
+        "logoUrlPlaceholder": "Paste a public logo URL",
+        "logoHint": "Upload a PNG, JPG, WebP, or SVG logo, or paste a public image URL.",
+        "logoAlt": "Logo preview",
         "backgroundTemplate": "Background template",
         "backgroundTemplateHint": "Choose a polished template. These backgrounds are built into Godwit and work without an AI service.",
         "templates": {
