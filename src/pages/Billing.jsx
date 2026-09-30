@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Layout from "../components/Layout";
 import { supabase } from "../lib/supabase";
@@ -41,18 +40,8 @@ function FeatureCell({ value }) {
 
 export default function Billing() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const [loadingPlan, setLoadingPlan] = useState("");
-  const [error, setError] = useState("");
   const [currentPlan, setCurrentPlan] = useState("");
-  const [trialEligible, setTrialEligible] = useState(false);
-  const [trialEndsAt, setTrialEndsAt] = useState("");
-  const [trialDaysRemaining, setTrialDaysRemaining] = useState(null);
-  const [termsAcknowledged, setTermsAcknowledged] = useState(false);
-  const checkoutState = searchParams.get("checkout");
-  const trialJustStarted = checkoutState === "success" && searchParams.get("trial") === "1";
-
+  const [pilotEndDate, setPilotEndDate] = useState("");
 
   useEffect(() => {
     async function loadCurrentPlan() {
@@ -61,17 +50,9 @@ export default function Billing() {
       try {
         const profile = await loadWorkspaceProfile();
         setCurrentPlan(profile.plan || "free");
-        // A workspace only gets a workspace_subscriptions row once its first Stripe
-        // checkout completes, so "no row yet" is exactly "never subscribed before" -
-        // the same rule api/create-checkout-session.js uses to grant the trial.
-        const { data: subscriptionRows } = await supabase
-          .from("workspace_subscriptions")
-          .select("workspace_id,status,current_period_end")
-          .eq("workspace_id", profile.id)
-          .limit(1);
-        setTrialEligible(!subscriptionRows || subscriptionRows.length === 0);
-        const trialSubscription = subscriptionRows?.find((row) => row.status === "trialing" && row.current_period_end);
-        setTrialEndsAt(trialSubscription?.current_period_end || "");
+        const { data: endDate, error: endDateError } = await supabase.rpc("pilot_end_date");
+        if (endDateError) throw endDateError;
+        setPilotEndDate(endDate || "2026-10-01");
       } catch (profileError) {
         console.error(profileError);
       }
@@ -79,79 +60,16 @@ export default function Billing() {
     loadCurrentPlan();
   }, []);
 
-  useEffect(() => {
-    if (!trialEndsAt) {
-      setTrialDaysRemaining(null);
-      return undefined;
-    }
-
-    function updateTrialCountdown() {
-      const millisecondsRemaining = new Date(trialEndsAt).getTime() - Date.now();
-      setTrialDaysRemaining(Math.max(0, Math.ceil(millisecondsRemaining / 86400000)));
-    }
-
-    updateTrialCountdown();
-    const timer = window.setInterval(updateTrialCountdown, 60000);
-    return () => window.clearInterval(timer);
-  }, [trialEndsAt]);
-
-  async function startCheckout(plan) {
-    if (plan.key === "free") return;
-    if (!termsAcknowledged) {
-      setError(t("billing.startAcknowledgmentRequired"));
-      return;
-    }
-    setError("");
-    setLoadingPlan(plan.key);
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.access_token) {
-      navigate("/login");
-      return;
-    }
-    try {
-      const response = await fetch("/api/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ plan: plan.key })
-      });
-      const payload = await response.json();
-      if (!response.ok || !payload.url) throw new Error(payload.error || "Unable to start checkout.");
-      window.location.assign(payload.url);
-    } catch (checkoutError) {
-      setError(checkoutError.message || "Unable to start checkout.");
-      setLoadingPlan("");
-    }
-  }
-
   return (
     <Layout theme="workspace">
       <div className="max-w-5xl mx-auto p-6">
         <h1 className="text-3xl font-bold text-center">{t("billing.title")}</h1>
         <p className="mt-2 text-center text-sm text-slate-400">{t("billing.subtitle")}</p>
-        {trialEligible && <p className="mt-1 text-center text-sm font-semibold text-amber-300">{t("billing.trialBanner")}</p>}
-        {trialDaysRemaining !== null && (
-          <p className="mx-auto mt-3 max-w-xl rounded-lg border border-amber-400/40 bg-amber-400/10 px-4 py-3 text-center text-sm font-semibold text-amber-200">
-            {t("billing.trialCountdown", { count: trialDaysRemaining })}
-          </p>
-        )}
+        <p className="mx-auto mt-3 max-w-xl rounded-lg border border-amber-400/40 bg-amber-400/10 px-4 py-3 text-center text-sm font-semibold text-amber-200">{t("billing.pilotNotice", { date: pilotEndDate ? new Date(`${pilotEndDate}T00:00:00`).toLocaleDateString() : "1 October 2026" })}</p>
         {currentPlan && <p className="mt-2 text-center text-sm text-teal-300">{t("billing.currentPlanNotice", { plan: planLabel(currentPlan) })}</p>}
-        {trialJustStarted && <p className="mt-5 text-center text-emerald-400">{t("billing.trialStarted")}</p>}
-        {checkoutState === "success" && !trialJustStarted && <p className="mt-5 text-center text-emerald-400">{t("billing.checkoutSuccess")}</p>}
-        {checkoutState === "cancelled" && <p className="mt-5 text-center text-amber-300">{t("billing.checkoutCancelled")}</p>}
-        {error && <p className="mt-5 text-center text-red-300">{error}</p>}
-        <label className="mx-auto mt-6 flex max-w-xl items-start gap-2 text-left text-xs text-slate-300">
-          <input
-            type="checkbox"
-            checked={termsAcknowledged}
-            onChange={(event) => { setTermsAcknowledged(event.target.checked); if (event.target.checked) setError(""); }}
-            className="mt-0.5"
-          />
-          <span>{t("billing.startAcknowledgment")}</span>
-        </label>
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           {PLANS.map((plan) => {
             const isCurrent = currentPlan === plan.key;
-            const offersTrial = plan.key !== "free" && trialEligible && !isCurrent;
             const planName = t(`billing.plans.${plan.key}.name`);
             return (
               <section
@@ -163,31 +81,17 @@ export default function Billing() {
                 )}
                 <h2 className="text-xl font-bold">{planName}</h2>
                 <p className="mt-2 text-lg font-semibold text-emerald-300">{plan.amount}{plan.recurring ? ` ${t("billing.perMonth")}` : ""}</p>
-                {offersTrial && (
-                  <p className="mt-1 inline-block rounded-full bg-amber-400/15 px-2.5 py-0.5 text-xs font-bold text-amber-300">{t("billing.freeTrialBadge")}</p>
-                )}
                 <p className="mt-2 min-h-12 text-sm text-slate-300">{t(`billing.plans.${plan.key}.description`)}</p>
-                {offersTrial && (
-                  <p className="mt-2 text-xs leading-relaxed text-slate-400">
-                    {t("billing.trialDisclosure", { amount: plan.amount, plan: planName })}
-                  </p>
-                )}
                 <button
-                  onClick={() => startCheckout(plan)}
-                  disabled={Boolean(loadingPlan) || plan.key === "free" || isCurrent || !termsAcknowledged}
+                 disabled
                   className="mt-4 w-full rounded bg-blue-600 p-3 font-semibold text-white disabled:opacity-60"
                 >
                   {isCurrent
                     ? t("billing.currentPlanButton")
                     : plan.key === "free"
                     ? t("billing.includedByDefault")
-                    : loadingPlan === plan.key
-                    ? t("billing.openingCheckout")
-                    : offersTrial
-                    ? t("billing.startFreeTrial")
-                    : t("billing.chooseThisPlan", { name: planName })}
+                    : t("billing.pilotOnly")}
                 </button>
-                {offersTrial && <p className="mt-2 text-center text-xs text-slate-400">{t("billing.trialFooterNote")}</p>}
               </section>
             );
           })}

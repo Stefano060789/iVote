@@ -128,6 +128,11 @@ export default async function handler(request, response) {
 }
 
 async function handleSubscriptionCheckout(request, response) {
+  // Subscription billing remains disabled during the explicit free pilot. Donation
+  // and Connect modes are separate flows and continue to be handled below.
+  if (process.env.BILLING_ENABLED !== "1") {
+    return response.status(503).json({ error: "Paid subscriptions are unavailable during the free pilot." });
+  }
   const planKey = String(request.body?.plan || "");
   const plan = PLANS[planKey];
   const priceId = plan && process.env[plan.priceEnv];

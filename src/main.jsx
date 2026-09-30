@@ -23,6 +23,7 @@ const Register = lazy(() => import("./pages/Register"));
 const ThankYou = lazy(() => import("./pages/ThankYou"));
 const QrRedirect = lazy(() => import("./pages/QrRedirect"));
 const Billing = lazy(() => import("./pages/Billing"));
+const Creator = lazy(() => import("./pages/Creator"));
 const Landing = lazy(() => import("./pages/Landing"));
 const Account = lazy(() => import("./pages/Account"));
 const Legal = lazy(() => import("./pages/Legal"));
@@ -78,6 +79,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/analytics" element={<AdminAnalytics />} />
         <Route path="/admin/billing" element={<Billing />} />
+        <Route path="/creator" element={<Creator />} />
         <Route path="/admin/woodpecker" element={<Woodpecker />} />
         <Route path="/qr/:token/tasks" element={<QrTasks />} />
         {/* Content moderation moved into the Admin dashboard's Feedback tab (Redshank's area,

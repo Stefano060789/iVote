@@ -5,6 +5,7 @@ import { supabase } from "../lib/supabase";
 import godwitMark from "../assets/godwit-mark.svg";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { applyTheme, readTheme, THEME_EVENT } from "../lib/theme";
+import { isCreatorEmail } from "../lib/creatorAccess";
 
 export default function NavBar() {
   const location = useLocation();
@@ -16,6 +17,7 @@ export default function NavBar() {
   // logged-out nav in that case without touching the real session.
   const isPreview = new URLSearchParams(location.search).get("preview") === "1";
   const displayUser = isPreview ? null : user;
+  const isCreator = isCreatorEmail(displayUser?.email);
   const [menuOpen, setMenuOpen] = useState(false);
   const [installPrompt, setInstallPrompt] = useState(null);
   const [theme, setTheme] = useState(() => readTheme());
@@ -135,6 +137,7 @@ export default function NavBar() {
           <Link to="/admin/woodpecker" onClick={closeMenu}>{t("nav.woodpecker")}</Link>
           <Link to="/feedback" onClick={closeMenu}>{t("nav.shareFeedback")}</Link>
           <Link to="/account" onClick={closeMenu}>{t("nav.account")}</Link>
+          {isCreator && <Link to="/creator" onClick={closeMenu}>Creator overview</Link>}
           <button type="button" onClick={signOut}>{t("nav.signOut")}</button>
         </>}
       </div>
