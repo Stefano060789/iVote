@@ -65,7 +65,7 @@ export default function Billing() {
       <div className="max-w-5xl mx-auto p-6">
         <h1 className="text-3xl font-bold text-center">{t("billing.title")}</h1>
         <p className="mt-2 text-center text-sm text-slate-400">{t("billing.subtitle")}</p>
-        <p className="mx-auto mt-3 max-w-xl rounded-lg border border-amber-400/40 bg-amber-400/10 px-4 py-3 text-center text-sm font-semibold text-amber-200">{t("billing.pilotNotice", { date: pilotEndDate ? new Date(`${pilotEndDate}T00:00:00`).toLocaleDateString() : "1 October 2026" })}</p>
+        <p className="mx-auto mt-3 max-w-xl rounded-lg border border-amber-400/40 bg-amber-400/10 px-4 py-3 text-center text-sm font-semibold text-amber-200">{t("billing.pilotNotice", { date: pilotEndDate ? new Date(`${pilotEndDate}T00:00:00`).toLocaleDateString("en-GB") : "1 October 2026" })}</p>
         {currentPlan && <p className="mt-2 text-center text-sm text-teal-300">{t("billing.currentPlanNotice", { plan: planLabel(currentPlan) })}</p>}
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           {PLANS.map((plan) => {

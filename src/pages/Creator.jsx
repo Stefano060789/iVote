@@ -17,7 +17,7 @@ const METRICS = [
 ];
 
 function formatDate(value) {
-  return value ? new Date(`${value}T00:00:00`).toLocaleDateString() : "Not set";
+  return value ? new Date(`${value}T00:00:00`).toLocaleDateString("en-GB") : "Not set";
 }
 
 export default function Creator() {
