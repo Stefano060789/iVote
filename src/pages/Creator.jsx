@@ -27,6 +27,7 @@ export default function Creator() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [outreachContacts, setOutreachContacts] = useState([]);
+  const [outreachReplies, setOutreachReplies] = useState([]);
   const [outreachLoading, setOutreachLoading] = useState(false);
 
   useEffect(() => {
@@ -61,6 +62,29 @@ export default function Creator() {
       return;
     }
     setOutreachContacts(data || []);
+    const { data: replyData, error: replyError } = await supabase
+    .from("creator_outreach_replies")
+    .select("*, creator_outreach_contacts(company_name, contact_email)")
+    .order("received_at", { ascending: false });
+    if (replyError) {
+    setError(replyError.message);
+    return;
+    }
+    setOutreachReplies(replyData || []);
+  }
+
+  async function reviewOutreachReply(replyId) {
+    setError("");
+    const { data, error: reviewError } = await supabase.rpc("creator_review_outreach_reply", {
+      target_reply_id: replyId
+    });
+    if (reviewError) {
+      setError(reviewError.message);
+      return;
+    }
+    const updated = data?.[0];
+    setOutreachReplies((current) => current.map((reply) => reply.id === replyId ? { ...reply, ...updated } : reply));
+    setMessage("Reply marked as reviewed.");
   }
 
   async function reviewOutreach(contactId, reviewArea, decision) {
@@ -141,6 +165,24 @@ export default function Creator() {
               </div>
               {outreachLoading && <p className="text-sm text-slate-400">Loading outreach queue...</p>}
               {!outreachLoading && outreachContacts.length === 0 && <p className="text-sm text-slate-400">No outreach drafts are waiting for review.</p>}
+              {outreachReplies.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold">Replies needing attention</h3>
+                  {outreachReplies.map((reply) => (
+                    <article key={reply.id} className="rounded-lg border border-amber-400/40 bg-amber-950/20 p-4">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="font-semibold">{reply.creator_outreach_contacts?.company_name || reply.creator_outreach_contacts?.contact_email || "Unknown contact"}</p>
+                          <p className="text-sm text-slate-400">{reply.from_email} · {reply.subject || "No subject"}</p>
+                        </div>
+                        <span className="text-xs text-amber-200">{reply.needs_action ? "Needs action" : "Reviewed"}</span>
+                      </div>
+                      <p className="mt-3 max-h-48 overflow-auto whitespace-pre-wrap text-sm text-slate-300">{reply.text_body || "No plain-text content."}</p>
+                      {reply.needs_action && <button type="button" onClick={() => reviewOutreachReply(reply.id)} className="mt-3 rounded bg-amber-200 px-3 py-2 text-sm font-semibold text-slate-950">Mark reviewed</button>}
+                    </article>
+                  ))}
+                </div>
+              )}
               <div className="space-y-4">
                 {outreachContacts.map((contact) => (
                   <article key={contact.id} className="rounded-lg border border-slate-700 bg-slate-900 p-4">

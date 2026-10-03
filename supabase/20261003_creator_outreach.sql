@@ -30,6 +30,9 @@ create table if not exists public.creator_outreach_contacts (
 alter table public.creator_outreach_contacts
   add column if not exists business_review_status text not null default 'pending',
   add column if not exists message_review_status text not null default 'pending';
+alter table public.creator_outreach_contacts
+  add column if not exists last_reply_at timestamptz,
+  add column if not exists reply_needs_action boolean not null default false;
 
 update public.creator_outreach_contacts
 set business_review_status = case when status in ('approved', 'sent', 'replied') then 'approved' else 'pending' end,
@@ -64,6 +67,20 @@ create table if not exists public.creator_outreach_suppressions (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.creator_outreach_replies (
+  id uuid primary key default gen_random_uuid(),
+  contact_id uuid not null references public.creator_outreach_contacts(id) on delete cascade,
+  gmail_message_id text not null unique,
+  thread_id text,
+  from_email text not null,
+  subject text,
+  text_body text,
+  received_at timestamptz not null,
+  needs_action boolean not null default true,
+  reviewed_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
 create index if not exists idx_creator_outreach_contacts_status
   on public.creator_outreach_contacts (status, approved_at, created_at);
 create index if not exists idx_creator_outreach_delivery_log_sent_at
@@ -91,6 +108,7 @@ for each row execute procedure public.set_creator_outreach_updated_at();
 alter table public.creator_outreach_contacts enable row level security;
 alter table public.creator_outreach_delivery_log enable row level security;
 alter table public.creator_outreach_suppressions enable row level security;
+alter table public.creator_outreach_replies enable row level security;
 
 drop policy if exists "creators can manage outreach contacts" on public.creator_outreach_contacts;
 create policy "creators can manage outreach contacts" on public.creator_outreach_contacts
@@ -103,6 +121,32 @@ for all to authenticated using (public.is_creator()) with check (public.is_creat
 drop policy if exists "creators can manage outreach suppressions" on public.creator_outreach_suppressions;
 create policy "creators can manage outreach suppressions" on public.creator_outreach_suppressions
 for all to authenticated using (public.is_creator()) with check (public.is_creator());
+drop policy if exists "creators can manage outreach replies" on public.creator_outreach_replies;
+create policy "creators can manage outreach replies" on public.creator_outreach_replies
+for all to authenticated using (public.is_creator()) with check (public.is_creator());
+
+create or replace function public.creator_review_outreach_reply(target_reply_id uuid)
+returns setof public.creator_outreach_replies
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.is_creator() then
+    raise exception 'Creator access is required.';
+  end if;
+  update public.creator_outreach_replies
+  set needs_action = false, reviewed_at = now()
+  where id = target_reply_id;
+  update public.creator_outreach_contacts contact
+  set reply_needs_action = exists (
+    select 1 from public.creator_outreach_replies reply
+    where reply.contact_id = contact.id and reply.needs_action
+  )
+  where contact.id = (select contact_id from public.creator_outreach_replies where id = target_reply_id);
+  return query select * from public.creator_outreach_replies where id = target_reply_id;
+end;
+$$;
 
 create or replace function public.creator_approve_outreach_contact(target_contact_id uuid)
 returns setof public.creator_outreach_contacts
@@ -245,3 +289,4 @@ end;
 $$;
 
 grant execute on function public.creator_review_outreach_contact(uuid, text, text) to authenticated;
+grant execute on function public.creator_review_outreach_reply(uuid) to authenticated;

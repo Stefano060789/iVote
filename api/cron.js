@@ -17,6 +17,8 @@ import { runSendWinbackEmails } from "../lib/cron/sendWinbackEmailsJob.js";
 import { runSendOutreachEmails } from "../lib/cron/sendOutreachEmailsJob.js";
 import { runStripeReconciliation } from "../lib/cron/stripeReconciliationJob.js";
 import { runDsarProcessing } from "../lib/cron/dsarJob.js";
+import { runCheckGmailReplies } from "../lib/cron/gmailReplyMonitorJob.js";
+import { runResearchGodwitProspects } from "../lib/cron/researchGodwitProspectsJob.js";
 import { captureError } from "../lib/errorReporting.js";
 
 const JOBS = {
@@ -26,7 +28,9 @@ const JOBS = {
   "send-winback-emails": { run: runSendWinbackEmails, methods: ["GET"] },
   "send-outreach-emails": { run: runSendOutreachEmails, methods: ["GET"] },
   "stripe-reconciliation": { run: runStripeReconciliation, methods: ["GET"] },
-  "process-dsar": { run: runDsarProcessing, methods: ["GET"] }
+  "process-dsar": { run: runDsarProcessing, methods: ["GET"] },
+  "check-gmail-replies": { run: runCheckGmailReplies, methods: ["GET"] },
+  "research-godwit-prospects": { run: runResearchGodwitProspects, methods: ["GET"] }
 };
 
 export default async function handler(request, response) {

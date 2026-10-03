@@ -21,6 +21,14 @@
       "schedule": "0 10 * * *"
     },
     {
+      "path": "/api/cron?job=check-gmail-replies",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron?job=research-godwit-prospects",
+      "schedule": "0 2 * * 0"
+    },
+    {
       "path": "/api/cron?job=stripe-reconciliation",
       "schedule": "0 3 * * *"
     },
