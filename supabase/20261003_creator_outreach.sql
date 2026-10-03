@@ -17,6 +17,8 @@ create table if not exists public.creator_outreach_contacts (
   personalization_note text,
   subject text,
   message text,
+  business_review_status text not null default 'pending' check (business_review_status in ('pending', 'approved', 'rejected')),
+  message_review_status text not null default 'pending' check (message_review_status in ('pending', 'approved', 'rejected')),
   status text not null default 'draft' check (status in ('draft', 'approved', 'sent', 'replied', 'opted_out', 'bounced')),
   approved_at timestamptz,
   sent_at timestamptz,
@@ -24,6 +26,26 @@ create table if not exists public.creator_outreach_contacts (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.creator_outreach_contacts
+  add column if not exists business_review_status text not null default 'pending',
+  add column if not exists message_review_status text not null default 'pending';
+
+update public.creator_outreach_contacts
+set business_review_status = case when status in ('approved', 'sent', 'replied') then 'approved' else 'pending' end,
+    message_review_status = case when status in ('approved', 'sent', 'replied') then 'approved' else 'pending' end
+where business_review_status = 'pending' and message_review_status = 'pending';
+
+alter table public.creator_outreach_contacts
+  drop constraint if exists creator_outreach_contacts_business_review_status_check;
+alter table public.creator_outreach_contacts
+  add constraint creator_outreach_contacts_business_review_status_check
+  check (business_review_status in ('pending', 'approved', 'rejected'));
+alter table public.creator_outreach_contacts
+  drop constraint if exists creator_outreach_contacts_message_review_status_check;
+alter table public.creator_outreach_contacts
+  add constraint creator_outreach_contacts_message_review_status_check
+  check (message_review_status in ('pending', 'approved', 'rejected'));
 
 create table if not exists public.creator_outreach_delivery_log (
   id uuid primary key default gen_random_uuid(),
@@ -178,3 +200,48 @@ $$;
 grant execute on function public.creator_approve_outreach_contact(uuid) to authenticated;
 grant execute on function public.creator_list_outreach_queue(int) to authenticated;
 grant execute on function public.creator_list_outreach_logs(int) to authenticated;
+
+create or replace function public.creator_review_outreach_contact(
+  target_contact_id uuid,
+  review_area text,
+  decision text
+)
+returns setof public.creator_outreach_contacts
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.is_creator() then
+    raise exception 'Creator access is required.';
+  end if;
+  if review_area not in ('business', 'message') then
+    raise exception 'Review area must be business or message.';
+  end if;
+  if decision not in ('approved', 'rejected') then
+    raise exception 'Decision must be approved or rejected.';
+  end if;
+
+  if review_area = 'business' then
+    update public.creator_outreach_contacts
+    set business_review_status = decision,
+        status = case when decision = 'rejected' then 'draft' else status end,
+        last_error = null
+    where id = target_contact_id and status not in ('sent', 'replied');
+  else
+    update public.creator_outreach_contacts
+    set message_review_status = decision,
+        status = case when decision = 'rejected' then 'draft' else status end,
+        last_error = null
+    where id = target_contact_id and status not in ('sent', 'replied');
+  end if;
+
+  if not found then
+    raise exception 'Outreach contact cannot be reviewed.';
+  end if;
+
+  return query select * from public.creator_outreach_contacts where id = target_contact_id;
+end;
+$$;
+
+grant execute on function public.creator_review_outreach_contact(uuid, text, text) to authenticated;

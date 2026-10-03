@@ -26,6 +26,8 @@ export default function Creator() {
   const [pilotEndDate, setPilotEndDate] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [outreachContacts, setOutreachContacts] = useState([]);
+  const [outreachLoading, setOutreachLoading] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -41,9 +43,41 @@ export default function Creator() {
       }
       setOverview(data);
       setPilotEndDate(data?.pilot_end_date || "");
+      await loadOutreach();
     }
     load();
   }, []);
+
+  async function loadOutreach() {
+    setOutreachLoading(true);
+    const { data, error: outreachError } = await supabase
+      .from("creator_outreach_contacts")
+      .select("*")
+      .in("status", ["draft", "approved"])
+      .order("created_at", { ascending: true });
+    setOutreachLoading(false);
+    if (outreachError) {
+      setError(outreachError.message);
+      return;
+    }
+    setOutreachContacts(data || []);
+  }
+
+  async function reviewOutreach(contactId, reviewArea, decision) {
+    setError("");
+    const { data, error: reviewError } = await supabase.rpc("creator_review_outreach_contact", {
+      target_contact_id: contactId,
+      review_area: reviewArea,
+      decision
+    });
+    if (reviewError) {
+      setError(reviewError.message);
+      return;
+    }
+    const updated = data?.[0];
+    setOutreachContacts((current) => current.map((contact) => contact.id === contactId ? { ...contact, ...updated } : contact));
+    setMessage(`${reviewArea === "business" ? "Business" : "Message"} ${decision}.`);
+  }
 
   async function savePilotEndDate(event) {
     event.preventDefault();
@@ -99,6 +133,54 @@ export default function Creator() {
                 <thead className="border-b border-slate-700 bg-slate-900"><tr>{["Venue", "Owner", "Members", "Polls", "Active polls", "QR codes", "Active QR", "Actions", "Open actions"].map((heading) => <th key={heading} className="p-3">{heading}</th>)}</tr></thead>
                 <tbody>{(overview.venue_rows || []).map((venue) => <tr key={venue.id} className="border-b border-slate-800 last:border-0"><td className="p-3 font-semibold">{venue.name}</td><td className="p-3 text-slate-400">{venue.owner_email || "—"}</td><td className="p-3">{venue.member_count}</td><td className="p-3">{venue.poll_count}</td><td className="p-3">{venue.active_poll_count}</td><td className="p-3">{venue.qr_count}</td><td className="p-3">{venue.active_qr_count}</td><td className="p-3">{venue.action_count}</td><td className="p-3">{venue.open_action_count}</td></tr>)}</tbody>
               </table>
+            </section>
+            <section className="space-y-4 rounded-lg border border-slate-700 bg-slate-950/50 p-4">
+              <div>
+                <h2 className="text-xl font-bold">Godwit outreach</h2>
+                <p className="mt-1 text-sm text-slate-400">Review the business and its message separately. An email is sent only when both are approved.</p>
+              </div>
+              {outreachLoading && <p className="text-sm text-slate-400">Loading outreach queue...</p>}
+              {!outreachLoading && outreachContacts.length === 0 && <p className="text-sm text-slate-400">No outreach drafts are waiting for review.</p>}
+              <div className="space-y-4">
+                {outreachContacts.map((contact) => (
+                  <article key={contact.id} className="rounded-lg border border-slate-700 bg-slate-900 p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-lg font-semibold">{contact.company_name || "Unnamed business"}</h3>
+                        <p className="text-sm text-slate-400">{[contact.city, contact.country, contact.business_type].filter(Boolean).join(" · ")}</p>
+                        {contact.website && <a className="text-sm text-teal-300 underline" href={contact.website} target="_blank" rel="noreferrer">{contact.website}</a>}
+                      </div>
+                      <span className="text-xs text-slate-400">Delivery: {contact.status}</span>
+                    </div>
+                    <p className="mt-3 text-sm text-slate-300">{contact.personalization_note || "No research note provided."}</p>
+                    <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                      <div className="rounded border border-slate-700 p-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <h4 className="font-semibold">Business approval</h4>
+                          <span className="text-xs text-slate-400">{contact.business_review_status}</span>
+                        </div>
+                        <p className="mt-2 text-sm text-slate-300">Approve this prospect as a meaningful Godwit target.</p>
+                        <div className="mt-3 flex gap-2">
+                          <button type="button" onClick={() => reviewOutreach(contact.id, "business", "approved")} className="rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950">Approve business</button>
+                          <button type="button" onClick={() => reviewOutreach(contact.id, "business", "rejected")} className="rounded border border-red-400/60 px-3 py-2 text-sm font-semibold text-red-200">Reject</button>
+                        </div>
+                      </div>
+                      <div className="rounded border border-slate-700 p-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <h4 className="font-semibold">Message approval</h4>
+                          <span className="text-xs text-slate-400">{contact.message_review_status}</span>
+                        </div>
+                        <p className="mt-2 font-semibold text-teal-200">{contact.subject || "No subject"}</p>
+                        <p className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap text-sm text-slate-300">{contact.message || "No draft message."}</p>
+                        <div className="mt-3 flex gap-2">
+                          <button type="button" onClick={() => reviewOutreach(contact.id, "message", "approved")} className="rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950">Approve message</button>
+                          <button type="button" onClick={() => reviewOutreach(contact.id, "message", "rejected")} className="rounded border border-red-400/60 px-3 py-2 text-sm font-semibold text-red-200">Reject</button>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
             </section>
           </>
         )}
