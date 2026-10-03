@@ -17,6 +17,10 @@
       "schedule": "0 9 * * *"
     },
     {
+      "path": "/api/cron?job=send-outreach-emails",
+      "schedule": "0 10 * * *"
+    },
+    {
       "path": "/api/cron?job=stripe-reconciliation",
       "schedule": "0 3 * * *"
     },

@@ -1,8 +1,8 @@
-// Consolidates 4 previously-separate cron-only endpoints (weekly-report, check-anomalies,
-// purge-old-votes, send-winback-emails) into one Serverless Function. None of these are
+// Consolidates cron-only endpoints (weekly-report, check-anomalies, purge-old-votes,
+// send-winback-emails, creator outreach) into one Serverless Function. None of these are
 // ever called by name from the browser - only Vercel's own scheduler hits them, on the
 // schedules configured in vercel.json - so merging them costs nothing functionally and
-// buys back 3 of the 12 Serverless Functions the Hobby plan allows per deployment.
+// exposed as browser-callable API routes, keeping the deployment's function count low.
 //
 // Each cron entry in vercel.json points here with a distinguishing `?job=` query param,
 // e.g. "/api/cron?job=weekly-report". The actual job logic lives in lib/cron/ - outside
@@ -14,6 +14,7 @@ import { runWeeklyReport } from "../lib/cron/weeklyReportJob.js";
 import { runAnomalyCheck } from "../lib/cron/anomalyCheckJob.js";
 import { runPurgeOldVotes } from "../lib/cron/purgeOldVotesJob.js";
 import { runSendWinbackEmails } from "../lib/cron/sendWinbackEmailsJob.js";
+import { runSendOutreachEmails } from "../lib/cron/sendOutreachEmailsJob.js";
 import { runStripeReconciliation } from "../lib/cron/stripeReconciliationJob.js";
 import { runDsarProcessing } from "../lib/cron/dsarJob.js";
 import { captureError } from "../lib/errorReporting.js";
@@ -23,6 +24,7 @@ const JOBS = {
   "check-anomalies": { run: runAnomalyCheck, methods: ["GET", "POST"] },
   "purge-old-votes": { run: runPurgeOldVotes, methods: ["GET", "POST"] },
   "send-winback-emails": { run: runSendWinbackEmails, methods: ["GET"] },
+  "send-outreach-emails": { run: runSendOutreachEmails, methods: ["GET"] },
   "stripe-reconciliation": { run: runStripeReconciliation, methods: ["GET"] },
   "process-dsar": { run: runDsarProcessing, methods: ["GET"] }
 };
