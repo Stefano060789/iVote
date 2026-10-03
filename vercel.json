@@ -22,7 +22,7 @@
     },
     {
       "path": "/api/cron?job=check-gmail-replies",
-      "schedule": "*/15 * * * *"
+      "schedule": "0 11 * * *"
     },
     {
       "path": "/api/cron?job=research-godwit-prospects",
