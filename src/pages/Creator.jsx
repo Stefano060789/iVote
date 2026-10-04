@@ -28,6 +28,8 @@ export default function Creator() {
   const [error, setError] = useState("");
   const [outreachContacts, setOutreachContacts] = useState([]);
   const [outreachReplies, setOutreachReplies] = useState([]);
+  const [selectedOutreachIds, setSelectedOutreachIds] = useState([]);
+  const [outreachActionLoading, setOutreachActionLoading] = useState(false);
   const [outreachLoading, setOutreachLoading] = useState(false);
 
   useEffect(() => {
@@ -98,6 +100,59 @@ export default function Creator() {
       setError(reviewError.message);
       return;
     }
+
+    async function runOutreachAction(action, contactId) {
+      setError("");
+      setMessage("");
+      setOutreachActionLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch("/api/creator-outreach", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token || ""}`
+        },
+        body: JSON.stringify({ action, contactId })
+      });
+      const result = await response.json();
+      setOutreachActionLoading(false);
+      if (!response.ok) {
+        setError(result.error || "Outreach action failed.");
+        return;
+      }
+      if (action === "research") {
+        setMessage(`Research complete: ${result.inserted || 0} new drafts added.`);
+        await loadOutreach();
+        return;
+      }
+      setOutreachContacts((current) => current.map((contact) => contact.id === contactId ? { ...contact, message: result.message, message_review_status: "pending", status: "draft" } : contact));
+      setMessage("A new message draft was generated. Review it before approving.");
+    }
+
+    function toggleOutreachSelection(contactId) {
+      setSelectedOutreachIds((current) => current.includes(contactId) ? current.filter((id) => id !== contactId) : [...current, contactId]);
+    }
+
+    async function sendSelectedOutreach() {
+      setError("");
+      setMessage("");
+      setOutreachActionLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch("/api/creator-outreach", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token || ""}` },
+        body: JSON.stringify({ action: "send", contactIds: selectedOutreachIds })
+      });
+      const result = await response.json();
+      setOutreachActionLoading(false);
+      if (!response.ok) {
+        setError(result.error || "Sending failed.");
+        return;
+      }
+      setSelectedOutreachIds([]);
+      setMessage(`Sending complete: ${result.sent || 0} sent, ${result.skipped || 0} skipped.`);
+      await loadOutreach();
+    }
     const updated = data?.[0];
     setOutreachContacts((current) => current.map((contact) => contact.id === contactId ? { ...contact, ...updated } : contact));
     setMessage(`${reviewArea === "business" ? "Business" : "Message"} ${decision}.`);
@@ -162,6 +217,11 @@ export default function Creator() {
               <div>
                 <h2 className="text-xl font-bold">Godwit outreach</h2>
                 <p className="mt-1 text-sm text-slate-400">Review the business and its message separately. An email is sent only when both are approved.</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button type="button" disabled={outreachActionLoading} onClick={() => runOutreachAction("research")} className="rounded bg-teal-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Research businesses</button>
+                  <button type="button" disabled={outreachActionLoading || selectedOutreachIds.length === 0} onClick={sendSelectedOutreach} className="rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Send selected</button>
+                  {selectedOutreachIds.length > 0 && <span className="self-center text-sm text-slate-400">{selectedOutreachIds.length} selected</span>}
+                </div>
               </div>
               {outreachLoading && <p className="text-sm text-slate-400">Loading outreach queue...</p>}
               {!outreachLoading && outreachContacts.length === 0 && <p className="text-sm text-slate-400">No outreach drafts are waiting for review.</p>}
@@ -188,7 +248,10 @@ export default function Creator() {
                   <article key={contact.id} className="rounded-lg border border-slate-700 bg-slate-900 p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
-                        <h3 className="text-lg font-semibold">{contact.company_name || "Unnamed business"}</h3>
+                        <label className="flex items-center gap-2">
+                          <input type="checkbox" checked={selectedOutreachIds.includes(contact.id)} onChange={() => toggleOutreachSelection(contact.id)} />
+                          <span className="text-lg font-semibold">{contact.company_name || "Unnamed business"}</span>
+                        </label>
                         <p className="text-sm text-slate-400">{[contact.city, contact.country, contact.business_type].filter(Boolean).join(" · ")}</p>
                         {contact.website && <a className="text-sm text-teal-300 underline" href={contact.website} target="_blank" rel="noreferrer">{contact.website}</a>}
                       </div>
@@ -215,6 +278,7 @@ export default function Creator() {
                         <p className="mt-2 font-semibold text-teal-200">{contact.subject || "No subject"}</p>
                         <p className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap text-sm text-slate-300">{contact.message || "No draft message."}</p>
                         <div className="mt-3 flex gap-2">
+                          <button type="button" disabled={outreachActionLoading} onClick={() => runOutreachAction("regenerate", contact.id)} className="rounded border border-teal-300/60 px-3 py-2 text-sm font-semibold text-teal-200 disabled:opacity-50">Regenerate</button>
                           <button type="button" onClick={() => reviewOutreach(contact.id, "message", "approved")} className="rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950">Approve message</button>
                           <button type="button" onClick={() => reviewOutreach(contact.id, "message", "rejected")} className="rounded border border-red-400/60 px-3 py-2 text-sm font-semibold text-red-200">Reject</button>
                         </div>
