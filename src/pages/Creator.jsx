@@ -101,7 +101,12 @@ export default function Creator() {
       return;
     }
 
-    async function runOutreachAction(action, contactId) {
+    const updated = data?.[0];
+    setOutreachContacts((current) => current.map((contact) => contact.id === contactId ? { ...contact, ...updated } : contact));
+    setMessage(`${reviewArea === "business" ? "Business" : "Message"} ${decision}.`);
+  }
+
+  async function runOutreachAction(action, contactId) {
       setError("");
       setMessage("");
       setOutreachActionLoading(true);
@@ -129,11 +134,11 @@ export default function Creator() {
       setMessage("A new message draft was generated. Review it before approving.");
     }
 
-    function toggleOutreachSelection(contactId) {
+  function toggleOutreachSelection(contactId) {
       setSelectedOutreachIds((current) => current.includes(contactId) ? current.filter((id) => id !== contactId) : [...current, contactId]);
     }
 
-    async function sendSelectedOutreach() {
+  async function sendSelectedOutreach() {
       setError("");
       setMessage("");
       setOutreachActionLoading(true);
@@ -153,10 +158,6 @@ export default function Creator() {
       setMessage(`Sending complete: ${result.sent || 0} sent, ${result.skipped || 0} skipped.`);
       await loadOutreach();
     }
-    const updated = data?.[0];
-    setOutreachContacts((current) => current.map((contact) => contact.id === contactId ? { ...contact, ...updated } : contact));
-    setMessage(`${reviewArea === "business" ? "Business" : "Message"} ${decision}.`);
-  }
 
   async function savePilotEndDate(event) {
     event.preventDefault();
