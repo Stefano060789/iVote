@@ -8,15 +8,15 @@ function getBearer(request) {
 
 async function requireCreator(request) {
   const token = getBearer(request);
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_ANON_KEY;
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const key = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
   if (!token || !url || !key) throw new Error("Creator authentication is not configured.");
   const result = await fetch(`${url}/auth/v1/user`, {
     headers: { apikey: key, Authorization: `Bearer ${token}` }
   });
   if (!result.ok) throw new Error("Creator authentication failed.");
   const user = await result.json();
-  const allowed = (process.env.CREATOR_EMAILS || "bonomistefano@outlook.it")
+  const allowed = (process.env.CREATOR_EMAILS || process.env.VITE_CREATOR_EMAILS || "bonomistefano@outlook.it")
     .split(",")
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean);
