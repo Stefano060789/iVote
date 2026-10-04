@@ -1,4 +1,6 @@
 import { runResearchGodwitProspects } from "../lib/cron/researchGodwitProspectsJob.js";
+import { createOutreachCopy, OUTREACH_LANGUAGES } from "../lib/cron/outreachCopy.js";
+import { RESEARCH_BUSINESS_TYPES, RESEARCH_COUNTRIES } from "../lib/cron/researchOptions.js";
 import { runSendOutreachEmails } from "../lib/cron/sendOutreachEmailsJob.js";
 import { supabaseGet, supabasePatch } from "../lib/cron/cronHelpers.js";
 
@@ -23,15 +25,6 @@ async function requireCreator(request) {
   if (!allowed.includes(String(user.email || "").toLowerCase())) throw new Error("Creator access is required.");
 }
 
-function draftMessage(contact, variation) {
-  const name = contact.company_name || "your team";
-  const type = contact.business_type || "visitor-facing business";
-  const focus = variation % 2 === 0
-    ? "collect useful feedback at the moment it happens and turn it into practical follow-up"
-    : "understand what guests and visitors value, where their experience can improve, and what deserves follow-up";
-  return `Hello ${name} team,\n\nAs a ${type}, ${name} may benefit from a simple way to ${focus}. Godwit uses QR-based feedback flows that are easy for visitors and straightforward for teams to review.\n\nWe would be happy to offer ${name} a free two-week guided pilot tailored to your visitor experience. Would you be open to a 15-minute online introduction to see whether it could fit your team?\n\nBest,\nStefano`;
-}
-
 export default async function handler(request, response) {
   if (request.method !== "POST") {
     response.setHeader("Allow", "POST");
@@ -40,16 +33,40 @@ export default async function handler(request, response) {
   try {
     await requireCreator(request);
     const action = String(request.body?.action || "");
-    if (action === "research") return response.status(200).json(await runResearchGodwitProspects());
+    if (action === "research") {
+      const language = String(request.body?.language || "auto");
+      const countries = request.body?.countries;
+      const businessTypes = request.body?.businessTypes;
+      if (language !== "auto" && !OUTREACH_LANGUAGES.includes(language)) {
+        return response.status(400).json({ error: "Select a supported outreach language." });
+      }
+      if (
+        (countries !== undefined && (!Array.isArray(countries) || countries.length === 0 ||
+          countries.some((country) => !RESEARCH_COUNTRIES.includes(String(country))))) ||
+        (businessTypes !== undefined && (!Array.isArray(businessTypes) || businessTypes.length === 0 ||
+          businessTypes.some((type) => !RESEARCH_BUSINESS_TYPES.some(({ id }) => id === String(type)))))
+      ) {
+        return response.status(400).json({ error: "Select supported countries and business types." });
+      }
+      return response.status(200).json(await runResearchGodwitProspects({
+        countries,
+        businessTypes,
+        language
+      }));
+    }
     if (action === "regenerate") {
       const contactId = String(request.body?.contactId || "");
+      const language = String(request.body?.language || "auto");
       if (!contactId) return response.status(400).json({ error: "contactId is required." });
-      const contacts = await supabaseGet(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}&select=id,company_name,business_type,message`);
+      if (language !== "auto" && !OUTREACH_LANGUAGES.includes(language)) {
+        return response.status(400).json({ error: "Select a supported outreach language." });
+      }
+      const contacts = await supabaseGet(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}&select=id,company_name,business_type,country`);
       const contact = contacts[0];
       if (!contact) return response.status(404).json({ error: "Outreach draft not found." });
-      const variation = String(contact.message || "").length % 2;
-      const message = draftMessage(contact, variation);
+      const { subject, message } = createOutreachCopy({ ...contact, language });
       await supabasePatch(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}`, {
+        subject,
         message,
         message_review_status: "pending",
         status: "draft",

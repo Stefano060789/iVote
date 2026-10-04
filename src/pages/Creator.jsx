@@ -3,6 +3,13 @@ import { Navigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import { supabase } from "../lib/supabase";
 import { isCreatorEmail } from "../lib/creatorAccess";
+import { getOutreachLanguageLabel, OUTREACH_LANGUAGES } from "../../lib/cron/outreachCopy.js";
+import { RESEARCH_BUSINESS_TYPES, RESEARCH_COUNTRIES } from "../../lib/cron/researchOptions.js";
+
+const LANGUAGE_OPTIONS = [
+  ["auto", "Automatic by country"],
+  ...OUTREACH_LANGUAGES.map((language) => [language, getOutreachLanguageLabel(language)])
+];
 
 const METRICS = [
   ["users", "Registered people"],
@@ -14,6 +21,16 @@ const METRICS = [
   ["active_qr_codes", "Active QR codes"],
   ["actions", "Actions"],
   ["open_actions", "Open actions"]
+];
+
+const VENUE_METRICS = [
+  ["member_count", "Members"],
+  ["poll_count", "Polls"],
+  ["active_poll_count", "Active polls"],
+  ["qr_count", "QR codes"],
+  ["active_qr_count", "Active QR"],
+  ["action_count", "Actions"],
+  ["open_action_count", "Open actions"]
 ];
 
 function formatDate(value) {
@@ -28,8 +45,18 @@ export default function Creator() {
   const [error, setError] = useState("");
   const [outreachContacts, setOutreachContacts] = useState([]);
   const [outreachReplies, setOutreachReplies] = useState([]);
+  const [researchCountries, setResearchCountries] = useState(RESEARCH_COUNTRIES);
+  const [researchBusinessTypes, setResearchBusinessTypes] = useState(RESEARCH_BUSINESS_TYPES.map(({ id }) => id));
+  const [outreachLanguage, setOutreachLanguage] = useState(() => {
+    const storedLanguage = window.localStorage.getItem("godwit-outreach-language");
+    return ["auto", ...OUTREACH_LANGUAGES].includes(storedLanguage) ? storedLanguage : "auto";
+  });
   const [outreachActionLoading, setOutreachActionLoading] = useState(false);
   const [outreachLoading, setOutreachLoading] = useState(false);
+
+  useEffect(() => {
+    window.localStorage.setItem("godwit-outreach-language", outreachLanguage);
+  }, [outreachLanguage]);
 
   useEffect(() => {
     async function load() {
@@ -105,7 +132,7 @@ export default function Creator() {
     setMessage("Draft discarded.");
   }
 
-  async function runOutreachAction(action, contactId) {
+  async function runOutreachAction(action, contactId, options = {}) {
     setError("");
     setMessage("");
     setOutreachActionLoading(true);
@@ -117,7 +144,7 @@ export default function Creator() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session?.access_token || ""}`
         },
-        body: JSON.stringify({ action, contactId })
+        body: JSON.stringify({ action, contactId, ...options })
       });
       const result = await response.json();
       if (!response.ok) {
@@ -125,15 +152,30 @@ export default function Creator() {
         return;
       }
       if (action === "research") {
-        setMessage(`Research complete: ${result.inserted || 0} new drafts added.`);
+        const countryTotals = Object.entries(result.countries || {})
+          .map(([country, count]) => `${country}: ${count}`)
+          .join(", ");
+        setMessage(`Research complete: ${result.inserted || 0} new drafts added${countryTotals ? ` (${countryTotals})` : ""}.`);
         await loadOutreach();
         return;
       }
-      setOutreachContacts((current) => current.map((contact) => contact.id === contactId ? { ...contact, message: result.message, message_review_status: "pending", status: "draft" } : contact));
+      setOutreachContacts((current) => current.map((contact) => contact.id === contactId ? {
+        ...contact,
+        subject: result.subject,
+        message: result.message,
+        message_review_status: "pending",
+        status: "draft"
+      } : contact));
       setMessage("A new message draft was generated. Review it before sending.");
     } finally {
       setOutreachActionLoading(false);
     }
+  }
+
+  function toggleSelection(setSelection, currentSelection, value) {
+    setSelection(currentSelection.includes(value)
+      ? currentSelection.filter((selected) => selected !== value)
+      : [...currentSelection, value]);
   }
 
   async function sendOutreachMessage(contactId) {
@@ -196,10 +238,10 @@ export default function Creator() {
 
   return (
     <Layout theme="workspace">
-      <div className="mx-auto max-w-6xl space-y-6 p-6">
+      <div className="mx-auto max-w-6xl space-y-6 px-3 py-4 sm:p-6">
         <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-teal-300">Creator</p>
-          <h1 className="mt-1 text-3xl font-bold">Godwit overview</h1>
+          <h1 className="mt-1 text-2xl font-bold sm:text-3xl">Godwit overview</h1>
           <p className="mt-2 text-sm text-slate-400">Operational totals across all venues. No guest answer content or payment data is exposed here.</p>
         </div>
         {error && <p className="rounded border border-red-500/50 bg-red-950/30 p-3 text-red-200">{error}</p>}
@@ -209,7 +251,7 @@ export default function Creator() {
               {METRICS.map(([key, label]) => (
                 <section key={key} className="rounded-lg border border-slate-700 bg-slate-900 p-4">
                   <p className="text-sm text-slate-400">{label}</p>
-                  <p className="mt-1 text-3xl font-bold text-teal-300">{overview[key] ?? 0}</p>
+                  <p className="mt-1 break-words text-2xl font-bold text-teal-300 sm:text-3xl">{overview[key] ?? 0}</p>
                 </section>
               ))}
             </div>
@@ -223,18 +265,91 @@ export default function Creator() {
               </div>
               {message && <p className="mt-2 text-sm text-emerald-300">{message}</p>}
             </form>
-            <section className="overflow-x-auto rounded-lg border border-slate-700">
+            <div className="space-y-3 lg:hidden">
+              {(overview.venue_rows || []).map((venue) => (
+                <section key={venue.id} className="min-w-0 rounded-lg border border-slate-700 bg-slate-900 p-3">
+                  <h2 className="break-words font-semibold">{venue.name}</h2>
+                  <p className="break-all text-sm text-slate-400">{venue.owner_email || "—"}</p>
+                  <dl className="mt-3 grid grid-cols-2 gap-3">
+                    {VENUE_METRICS.map(([key, label]) => (
+                      <div key={key} className="min-w-0">
+                        <dt className="text-xs text-slate-400">{label}</dt>
+                        <dd className="break-words font-semibold">{venue[key] ?? 0}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+              ))}
+            </div>
+            <section className="hidden overflow-x-auto rounded-lg border border-slate-700 lg:block">
               <table className="w-full min-w-[900px] text-left text-sm">
-                <thead className="border-b border-slate-700 bg-slate-900"><tr>{["Venue", "Owner", "Members", "Polls", "Active polls", "QR codes", "Active QR", "Actions", "Open actions"].map((heading) => <th key={heading} className="p-3">{heading}</th>)}</tr></thead>
-                <tbody>{(overview.venue_rows || []).map((venue) => <tr key={venue.id} className="border-b border-slate-800 last:border-0"><td className="p-3 font-semibold">{venue.name}</td><td className="p-3 text-slate-400">{venue.owner_email || "—"}</td><td className="p-3">{venue.member_count}</td><td className="p-3">{venue.poll_count}</td><td className="p-3">{venue.active_poll_count}</td><td className="p-3">{venue.qr_count}</td><td className="p-3">{venue.active_qr_count}</td><td className="p-3">{venue.action_count}</td><td className="p-3">{venue.open_action_count}</td></tr>)}</tbody>
+                <thead className="border-b border-slate-700 bg-slate-900"><tr>{["Venue", "Owner", ...VENUE_METRICS.map(([, label]) => label)].map((heading) => <th key={heading} className="p-3">{heading}</th>)}</tr></thead>
+                <tbody>{(overview.venue_rows || []).map((venue) => <tr key={venue.id} className="border-b border-slate-800 last:border-0"><td className="p-3 font-semibold">{venue.name}</td><td className="p-3 text-slate-400">{venue.owner_email || "—"}</td>{VENUE_METRICS.map(([key]) => <td key={key} className="p-3">{venue[key]}</td>)}</tr>)}</tbody>
               </table>
             </section>
-            <section className="space-y-4 rounded-lg border border-slate-700 bg-slate-950/50 p-4">
+            <section className="min-w-0 space-y-4 rounded-lg border border-slate-700 bg-slate-950/50 p-3 sm:p-4">
               <div>
                 <h2 className="text-xl font-bold">Godwit outreach</h2>
                 <p className="mt-1 text-sm text-slate-400">Review each prospect and its draft. Choosing Send message sends that email immediately.</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <button type="button" disabled={outreachActionLoading} onClick={() => runOutreachAction("research")} className="rounded bg-teal-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Research businesses</button>
+                <div className="mt-4 grid min-w-0 gap-4 rounded-lg border border-slate-700 bg-slate-900/70 p-3 sm:p-4 lg:grid-cols-2">
+                  <fieldset>
+                    <legend className="font-semibold">Countries</legend>
+                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
+                      {RESEARCH_COUNTRIES.map((country) => (
+                        <label key={country} className="flex items-center gap-2 text-sm text-slate-300">
+                          <input
+                            type="checkbox"
+                            checked={researchCountries.includes(country)}
+                            onChange={() => toggleSelection(setResearchCountries, researchCountries, country)}
+                          />
+                          {country}
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                  <label className="text-sm font-semibold">
+                    Outreach language
+                    <select
+                      value={outreachLanguage}
+                      onChange={(event) => setOutreachLanguage(event.target.value)}
+                      className="mt-1 block w-full rounded border border-slate-600 bg-slate-950 p-2 text-white"
+                    >
+                      {LANGUAGE_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                    </select>
+                    <span className="mt-1 block font-normal text-slate-400">Automatic uses German for Austria, Italian for Italy, and English for Malaysia. Your choice is saved in this browser and also applies when you regenerate a draft.</span>
+                  </label>
+                  <fieldset className="lg:col-span-2">
+                    <legend className="font-semibold">Business types</legend>
+                    <div className="mt-2 grid max-h-48 gap-2 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3">
+                      {RESEARCH_BUSINESS_TYPES.map(({ id, label }) => (
+                        <label key={id} className="flex min-w-0 items-center gap-2 text-sm text-slate-300">
+                          <input
+                            type="checkbox"
+                            checked={researchBusinessTypes.includes(id)}
+                            onChange={() => toggleSelection(setResearchBusinessTypes, researchBusinessTypes, id)}
+                          />
+                          {label}
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                  <div className="flex flex-wrap items-center gap-3 lg:col-span-2">
+                    <button
+                      type="button"
+                      disabled={outreachActionLoading || researchCountries.length === 0 || researchBusinessTypes.length === 0}
+                      onClick={() => runOutreachAction("research", undefined, {
+                        countries: researchCountries,
+                        businessTypes: researchBusinessTypes,
+                        language: outreachLanguage
+                      })}
+                      className="rounded bg-teal-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50"
+                    >
+                      Research businesses
+                    </button>
+                    {(researchCountries.length === 0 || researchBusinessTypes.length === 0) && (
+                      <span className="text-sm text-amber-200">Select at least one country and one business type.</span>
+                    )}
+                  </div>
                 </div>
               </div>
               {outreachLoading && <p className="text-sm text-slate-400">Loading outreach queue...</p>}
@@ -259,28 +374,28 @@ export default function Creator() {
               )}
               <div className="space-y-4">
                 {outreachContacts.map((contact) => (
-                  <article key={contact.id} className="rounded-lg border border-slate-700 bg-slate-900 p-4">
+                  <article key={contact.id} className="min-w-0 rounded-lg border border-slate-700 bg-slate-900 p-3 sm:p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <p className="text-lg font-semibold">{contact.company_name || "Unnamed business"}</p>
-                        <p className="text-sm text-slate-400">{[contact.city, contact.country, contact.business_type].filter(Boolean).join(" · ")}</p>
-                        {contact.website && <a className="text-sm text-teal-300 underline" href={contact.website} target="_blank" rel="noreferrer">{contact.website}</a>}
+                      <div className="min-w-0 flex-1">
+                        <p className="break-words text-lg font-semibold">{contact.company_name || "Unnamed business"}</p>
+                        <p className="break-words text-sm text-slate-400">{[contact.city, contact.country, contact.business_type].filter(Boolean).join(" · ")}</p>
+                        {contact.website && <a className="break-all text-sm text-teal-300 underline" href={contact.website} target="_blank" rel="noreferrer">{contact.website}</a>}
                       </div>
                       <span className="text-xs text-slate-400">Delivery: {contact.status}</span>
                     </div>
                     <p className="mt-3 text-sm text-slate-300">{contact.personalization_note || "No research note provided."}</p>
-                    <div className="mt-4 rounded border border-slate-700 p-3">
-                        <div className="flex items-center justify-between gap-2">
-                          <h4 className="font-semibold">Message approval</h4>
-                          <span className="text-xs text-slate-400">{contact.message_review_status}</span>
+                    <div className="mt-4 min-w-0 rounded border border-slate-700 p-2 sm:p-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <h4 className="font-semibold">Outreach email draft</h4>
+                          <span className="text-xs text-slate-400">{contact.message_review_status === "pending" ? "Ready for your review" : contact.message_review_status}</span>
                         </div>
-                        <p className="mt-2 text-sm text-slate-400">To: {contact.contact_email || "No verified contact email; this draft cannot be sent yet."}</p>
-                        <p className="mt-2 font-semibold text-teal-200">{contact.subject || "No subject"}</p>
-                        <p className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap text-sm text-slate-300">{contact.message || "No draft message."}</p>
-                        <div className="mt-3 flex gap-2">
-                          <button type="button" disabled={outreachActionLoading} onClick={() => runOutreachAction("regenerate", contact.id)} className="rounded border border-teal-300/60 px-3 py-2 text-sm font-semibold text-teal-200 disabled:opacity-50">Regenerate</button>
-                          <button type="button" disabled={outreachActionLoading || !contact.contact_email || !contact.subject || !contact.message} onClick={() => sendOutreachMessage(contact.id)} className="rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Send message</button>
-                          <button type="button" disabled={outreachActionLoading} onClick={() => discardOutreachDraft(contact.id)} className="rounded border border-red-400/60 px-3 py-2 text-sm font-semibold text-red-200 disabled:opacity-50">Discard draft</button>
+                        <p className="mt-2 break-all text-sm text-slate-400">To: {contact.contact_email || "No verified contact email; this draft cannot be sent yet."}</p>
+                        <p className="mt-2 break-words font-semibold text-teal-200">{contact.subject || "No subject"}</p>
+                        <p className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words text-sm text-slate-300">{contact.message || "No draft message."}</p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <button type="button" disabled={outreachActionLoading} onClick={() => runOutreachAction("regenerate", contact.id, { language: outreachLanguage })} className="flex-1 rounded border border-teal-300/60 px-3 py-2 text-sm font-semibold text-teal-200 disabled:opacity-50">Regenerate</button>
+                          <button type="button" disabled={outreachActionLoading || !contact.contact_email || !contact.subject || !contact.message} onClick={() => sendOutreachMessage(contact.id)} className="flex-1 rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Send message</button>
+                          <button type="button" disabled={outreachActionLoading} onClick={() => discardOutreachDraft(contact.id)} className="flex-1 rounded border border-red-400/60 px-3 py-2 text-sm font-semibold text-red-200 disabled:opacity-50">Discard draft</button>
                         </div>
                     </div>
                   </article>
