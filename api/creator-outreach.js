@@ -103,6 +103,37 @@ export default async function handler(request, response) {
       }
       return response.status(200).json(result);
     }
+    if (action === "find-missing-emails") {
+      const contactIds = Array.isArray(request.body?.contactIds)
+        ? [...new Set(request.body.contactIds.map(String).filter(Boolean))].slice(0, 5)
+        : [];
+      if (contactIds.length === 0) {
+        return response.status(400).json({ error: "Select at least one blank contact email." });
+      }
+      const contacts = await supabaseGet(
+        `creator_outreach_contacts?id=in.(${contactIds.map(encodeURIComponent).join(",")})&status=in.(draft,approved)&select=id,company_name,country,city,website,contact_email,business_review_status`
+      );
+      const results = await Promise.all(contacts.map(async (contact) => {
+        if (contact.contact_email) {
+          return { id: contact.id, email: contact.contact_email, status: "already_found" };
+        }
+        if (contact.business_review_status === "rejected") {
+          return { id: contact.id, email: null, status: "rejected" };
+        }
+        const result = await findPublicBusinessEmail(contact.website, {
+          companyName: contact.company_name,
+          country: contact.country,
+          city: contact.city
+        });
+        if (result.email) {
+          await supabasePatch(`creator_outreach_contacts?id=eq.${encodeURIComponent(contact.id)}`, {
+            contact_email: result.email
+          });
+        }
+        return { id: contact.id, ...result };
+      }));
+      return response.status(200).json({ results });
+    }
     if (action === "send") {
       const contactIds = Array.isArray(request.body?.contactIds)
         ? [...new Set(request.body.contactIds.map(String).filter(Boolean))].slice(0, 5)

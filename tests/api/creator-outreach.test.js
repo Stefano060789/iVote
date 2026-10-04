@@ -128,4 +128,92 @@ describe("creator-outreach regenerate action", () => {
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual({ email: "office@example.com", status: "found" });
   });
+
+  it("searches and persists a bounded batch of blank contact emails", async () => {
+    process.env.SUPABASE_URL = "https://supabase.test";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "service-role";
+    process.env.SUPABASE_ANON_KEY = "anon-key";
+    process.env.CREATOR_EMAILS = "bonomistefano@outlook.it";
+    vi.mocked(findPublicBusinessEmail)
+      .mockResolvedValueOnce({ email: "office@example.com", status: "found", source: "web_search" })
+      .mockResolvedValueOnce({ email: null, status: "not_found", websiteStatus: "website_unavailable" });
+
+    vi.stubGlobal("fetch", vi.fn(async (url, options = {}) => {
+      const href = String(url);
+      const method = options.method || "GET";
+      if (href.includes("/auth/v1/user")) {
+        return jsonResponse({ email: "bonomistefano@outlook.it" });
+      }
+      if (href.includes("/rest/v1/creator_outreach_contacts?id=in.") && method === "GET") {
+        return jsonResponse([
+          {
+            id: "contact-1",
+            company_name: "Example Business",
+            country: "Malaysia",
+            city: "Kuala Lumpur",
+            website: null,
+            contact_email: null,
+            business_review_status: "pending"
+          },
+          {
+            id: "contact-2",
+            company_name: "Another Business",
+            country: "Malaysia",
+            city: "Kuala Lumpur",
+            website: "https://another.example",
+            contact_email: null,
+            business_review_status: "pending"
+          }
+        ]);
+      }
+      if (href.includes("/rest/v1/creator_outreach_contacts?id=eq.contact-1") && method === "PATCH") {
+        return new Response(null, { status: 204 });
+      }
+      throw new Error(`Unexpected request: ${method} ${href}`);
+    }));
+
+    const req = makeRequest({
+      body: { action: "find-missing-emails", contactIds: ["contact-1", "contact-2", "contact-1"] }
+    });
+    const res = makeResponse();
+    await handler(req, res);
+
+    expect(findPublicBusinessEmail).toHaveBeenCalledTimes(2);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.results).toEqual([
+      { id: "contact-1", email: "office@example.com", status: "found", source: "web_search" },
+      { id: "contact-2", email: null, status: "not_found", websiteStatus: "website_unavailable" }
+    ]);
+  });
+
+  it("caps blank-email batch requests at five contacts", async () => {
+    process.env.SUPABASE_URL = "https://supabase.test";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "service-role";
+    process.env.SUPABASE_ANON_KEY = "anon-key";
+    process.env.CREATOR_EMAILS = "bonomistefano@outlook.it";
+    const rows = Array.from({ length: 6 }, (_, index) => ({
+      id: `contact-${index}`,
+      company_name: `Business ${index}`,
+      website: null,
+      contact_email: null,
+      business_review_status: "pending"
+    }));
+    vi.mocked(findPublicBusinessEmail).mockResolvedValue({ email: null, status: "no_website" });
+    vi.stubGlobal("fetch", vi.fn(async (url, options = {}) => {
+      const href = String(url);
+      const method = options.method || "GET";
+      if (href.includes("/auth/v1/user")) return jsonResponse({ email: "bonomistefano@outlook.it" });
+      if (href.includes("/rest/v1/creator_outreach_contacts?id=in.") && method === "GET") return jsonResponse(rows.slice(0, 5));
+      throw new Error(`Unexpected request: ${method} ${href}`);
+    }));
+
+    const req = makeRequest({
+      body: { action: "find-missing-emails", contactIds: rows.map(({ id }) => id) }
+    });
+    const res = makeResponse();
+    await handler(req, res);
+
+    expect(findPublicBusinessEmail).toHaveBeenCalledTimes(5);
+    expect(res.body.results).toHaveLength(5);
+  });
 });

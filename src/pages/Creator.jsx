@@ -51,6 +51,7 @@ export default function Creator() {
   const [outreachContacts, setOutreachContacts] = useState([]);
   const [outreachFeedback, setOutreachFeedback] = useState({});
   const [recipientEmails, setRecipientEmails] = useState({});
+  const [searchedEmailContactIds, setSearchedEmailContactIds] = useState(() => new Set());
   const [outreachReplies, setOutreachReplies] = useState([]);
   const [researchCountries, setResearchCountries] = useState(RESEARCH_COUNTRIES);
   const [researchBusinessTypes, setResearchBusinessTypes] = useState(RESEARCH_BUSINESS_TYPES.map(({ id }) => id));
@@ -199,6 +200,54 @@ export default function Creator() {
           isError: true
         }
       }));
+    } finally {
+      setOutreachActionLoading(false);
+    }
+  }
+
+  async function findMissingOutreachEmails() {
+    const contacts = outreachContacts
+      .filter((contact) => !contact.contact_email && !searchedEmailContactIds.has(contact.id))
+      .slice(0, 5);
+    if (contacts.length === 0) {
+      setMessage("All blank business emails in the current queue have been checked.");
+      return;
+    }
+    setError("");
+    setMessage("");
+    setOutreachActionLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch("/api/creator-outreach", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `****** || ""}`
+        },
+        body: JSON.stringify({
+          action: "find-missing-emails",
+          contactIds: contacts.map((contact) => contact.id)
+        })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Business email search failed.");
+      const results = Array.isArray(result.results) ? result.results : [];
+      const found = results.filter((item) => item.email);
+      const foundById = new Map(found.map((item) => [item.id, item.email]));
+      setSearchedEmailContactIds((current) => new Set([
+        ...current,
+        ...results.map((item) => item.id)
+      ]));
+      setRecipientEmails((current) => ({ ...current, ...Object.fromEntries(foundById) }));
+      setOutreachContacts((current) => current.map((contact) => foundById.has(contact.id)
+        ? { ...contact, contact_email: foundById.get(contact.id) }
+        : contact));
+      if (results.some((item) => item.searchStatus === "not_configured")) {
+        throw new Error("Public web search is not configured in the deployed API. Confirm SERPAPI_API_KEY is set for Production and redeploy.");
+      }
+      setMessage(`Checked ${results.length} blank business email${results.length === 1 ? "" : "s"}; found ${found.length}. Search another batch to continue.`);
+    } catch (searchError) {
+      setError(searchError instanceof Error ? searchError.message : "Business email search failed.");
     } finally {
       setOutreachActionLoading(false);
     }
@@ -475,6 +524,16 @@ export default function Creator() {
                     >
                       Research businesses
                     </button>
+                    {outreachContacts.some((contact) => !contact.contact_email && !searchedEmailContactIds.has(contact.id)) && (
+                      <button
+                        type="button"
+                        disabled={outreachActionLoading}
+                        onClick={findMissingOutreachEmails}
+                        className="rounded border border-teal-300/60 px-3 py-2 text-sm font-semibold text-teal-200 disabled:opacity-50"
+                      >
+                        Search next 5 blank emails
+                      </button>
+                    )}
                     {(researchCountries.length === 0 || researchBusinessTypes.length === 0) && (
                       <span className="text-sm text-amber-200">Select at least one country and one business type.</span>
                     )}
@@ -534,8 +593,8 @@ export default function Creator() {
                           />
                           {!contact.contact_email && (
                             <span className="mt-1 flex flex-wrap items-center justify-between gap-2 text-xs font-normal text-slate-400">
-                              <span>The agent checks the official website, contact links, and common contact-page addresses. It leaves this blank rather than guessing if no email is public.</span>
-                              <button type="button" disabled={outreachActionLoading} onClick={() => findOutreachEmail(contact.id)} className="font-semibold text-teal-300 underline disabled:opacity-50">Search official site</button>
+                              <span>The agent checks the listed website and relevant public search results. It leaves this blank rather than guessing if no email is published.</span>
+                              <button type="button" disabled={outreachActionLoading} onClick={() => findOutreachEmail(contact.id)} className="font-semibold text-teal-300 underline disabled:opacity-50">Search for email</button>
                             </span>
                           )}
                         </label>
