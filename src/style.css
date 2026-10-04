@@ -1792,3 +1792,45 @@ textarea {
     width: 100%;
   }
 }
+
+.creator-outreach .creator-research-panel {
+  background: #eef2f7 !important;
+  border-color: #cbd5e1 !important;
+  color: #1e293b !important;
+}
+
+.creator-outreach .creator-research-panel label,
+.creator-outreach .creator-research-panel legend,
+.creator-outreach .creator-research-panel .text-slate-300,
+.creator-outreach .creator-research-panel .text-slate-400 {
+  color: #334155 !important;
+}
+
+.creator-outreach .creator-research-panel input[type="checkbox"] {
+  accent-color: #0f766e;
+}
+
+.creator-outreach .creator-research-panel select {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #172b4b !important;
+}
+
+[data-theme="dark"] .creator-outreach .creator-research-panel {
+  background: #172b46 !important;
+  border-color: #415674 !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .creator-outreach .creator-research-panel label,
+[data-theme="dark"] .creator-outreach .creator-research-panel legend,
+[data-theme="dark"] .creator-outreach .creator-research-panel .text-slate-300,
+[data-theme="dark"] .creator-outreach .creator-research-panel .text-slate-400 {
+  color: #dbe5f2 !important;
+}
+
+[data-theme="dark"] .creator-outreach .creator-research-panel select {
+  background: #10223e !important;
+  border-color: #60799e !important;
+  color: #f1f5f9 !important;
+}

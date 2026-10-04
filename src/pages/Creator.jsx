@@ -44,6 +44,7 @@ export default function Creator() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [outreachContacts, setOutreachContacts] = useState([]);
+  const [recipientEmails, setRecipientEmails] = useState({});
   const [outreachReplies, setOutreachReplies] = useState([]);
   const [researchCountries, setResearchCountries] = useState(RESEARCH_COUNTRIES);
   const [researchBusinessTypes, setResearchBusinessTypes] = useState(RESEARCH_BUSINESS_TYPES.map(({ id }) => id));
@@ -178,7 +179,7 @@ export default function Creator() {
       : [...currentSelection, value]);
   }
 
-  async function sendOutreachMessage(contactId) {
+  async function sendOutreachMessage(contactId, recipientEmail) {
     setError("");
     setMessage("");
     setOutreachActionLoading(true);
@@ -190,7 +191,7 @@ export default function Creator() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session?.access_token || ""}`
         },
-        body: JSON.stringify({ action: "send", contactIds: [contactId] })
+        body: JSON.stringify({ action: "send", contactIds: [contactId], recipientEmail })
       });
       const result = await response.json();
       if (!response.ok) {
@@ -198,13 +199,13 @@ export default function Creator() {
         return;
       }
       if (result.disabled) {
-        setError("Email sending is not configured. Please check the outreach SMTP settings.");
+        setError("Email sending is not configured. Set OUTREACH_SMTP_USER to hellogodwit@gmail.com and add that account's Google app password as OUTREACH_SMTP_PASSWORD in Vercel.");
       } else if (result.remaining === 0 && result.sent === 0 && result.attempted === 0) {
         setError("The daily outreach sending limit has been reached. Try again tomorrow.");
       } else if (result.sent > 0) {
         setMessage("Message sent successfully.");
       } else if (result.errors > 0) {
-        setError("The email could not be delivered. Check the outreach email settings and try again.");
+        setError("The email could not be delivered. Confirm the Vercel SMTP settings use hellogodwit@gmail.com and that account's Google app password.");
       } else if (result.skipped > 0) {
         setError("This message was not sent. The contact may have an invalid or suppressed email address.");
       } else {
@@ -287,11 +288,11 @@ export default function Creator() {
                 <tbody>{(overview.venue_rows || []).map((venue) => <tr key={venue.id} className="border-b border-slate-800 last:border-0"><td className="p-3 font-semibold">{venue.name}</td><td className="p-3 text-slate-400">{venue.owner_email || "—"}</td>{VENUE_METRICS.map(([key]) => <td key={key} className="p-3">{venue[key]}</td>)}</tr>)}</tbody>
               </table>
             </section>
-            <section className="min-w-0 space-y-4 rounded-lg border border-slate-700 bg-slate-950/50 p-3 sm:p-4">
+            <section className="creator-outreach min-w-0 space-y-4 rounded-lg border border-slate-700 bg-slate-950/50 p-3 sm:p-4">
               <div>
                 <h2 className="text-xl font-bold">Godwit outreach</h2>
                 <p className="mt-1 text-sm text-slate-400">Review each prospect and its draft. Choosing Send message sends that email immediately.</p>
-                <div className="mt-4 grid min-w-0 gap-4 rounded-lg border border-slate-700 bg-slate-900/70 p-3 sm:p-4 lg:grid-cols-2">
+                <div className="creator-research-panel mt-4 grid min-w-0 gap-4 rounded-lg border border-slate-700 bg-slate-900/70 p-3 sm:p-4 lg:grid-cols-2">
                   <fieldset>
                     <legend className="font-semibold">Countries</legend>
                     <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
@@ -378,7 +379,7 @@ export default function Creator() {
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
                         <p className="break-words text-lg font-semibold">{contact.company_name || "Unnamed business"}</p>
-                        <p className="break-words text-sm text-slate-400">{[contact.city, contact.country, contact.business_type].filter(Boolean).join(" · ")}</p>
+                        <p className="break-words text-sm text-slate-400">City: {contact.city || "Not available"} · {contact.country || "Country unknown"} · {contact.business_type || "Business type unknown"}</p>
                         {contact.website && <a className="break-all text-sm text-teal-300 underline" href={contact.website} target="_blank" rel="noreferrer">{contact.website}</a>}
                       </div>
                       <span className="text-xs text-slate-400">Delivery: {contact.status}</span>
@@ -389,12 +390,26 @@ export default function Creator() {
                           <h4 className="font-semibold">Outreach email draft</h4>
                           <span className="text-xs text-slate-400">{contact.message_review_status === "pending" ? "Ready for your review" : contact.message_review_status}</span>
                         </div>
-                        <p className="mt-2 break-all text-sm text-slate-400">To: {contact.contact_email || "No verified contact email; this draft cannot be sent yet."}</p>
+                        <label className="mt-3 block text-sm font-medium text-slate-300">
+                          Business contact email
+                          <input
+                            type="email"
+                            autoComplete="email"
+                            value={recipientEmails[contact.id] ?? contact.contact_email ?? ""}
+                            onChange={(event) => setRecipientEmails((current) => ({
+                              ...current,
+                              [contact.id]: event.target.value
+                            }))}
+                            placeholder="name@business.com"
+                            className="mt-1 block w-full rounded border border-slate-600 bg-slate-950 p-2 text-white"
+                          />
+                          {!contact.contact_email && <span className="mt-1 block text-xs font-normal text-slate-400">Enter the business email address to enable sending. It will be saved with this prospect.</span>}
+                        </label>
                         <p className="mt-2 break-words font-semibold text-teal-200">{contact.subject || "No subject"}</p>
                         <p className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words text-sm text-slate-300">{contact.message || "No draft message."}</p>
                         <div className="mt-3 flex flex-wrap gap-2">
                           <button type="button" disabled={outreachActionLoading} onClick={() => runOutreachAction("regenerate", contact.id, { language: outreachLanguage })} className="flex-1 rounded border border-teal-300/60 px-3 py-2 text-sm font-semibold text-teal-200 disabled:opacity-50">Regenerate</button>
-                          <button type="button" disabled={outreachActionLoading || !contact.contact_email || !contact.subject || !contact.message} onClick={() => sendOutreachMessage(contact.id)} className="flex-1 rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Send message</button>
+                          <button type="button" disabled={outreachActionLoading || !String(recipientEmails[contact.id] ?? contact.contact_email ?? "").trim() || !contact.subject || !contact.message} onClick={() => sendOutreachMessage(contact.id, String(recipientEmails[contact.id] ?? contact.contact_email ?? "").trim())} className="flex-1 rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Send message</button>
                           <button type="button" disabled={outreachActionLoading} onClick={() => discardOutreachDraft(contact.id)} className="flex-1 rounded border border-red-400/60 px-3 py-2 text-sm font-semibold text-red-200 disabled:opacity-50">Discard draft</button>
                         </div>
                     </div>

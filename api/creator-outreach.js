@@ -1,7 +1,7 @@
 import { runResearchGodwitProspects } from "../lib/cron/researchGodwitProspectsJob.js";
 import { createOutreachCopy, OUTREACH_LANGUAGES } from "../lib/cron/outreachCopy.js";
 import { RESEARCH_BUSINESS_TYPES, RESEARCH_COUNTRIES } from "../lib/cron/researchOptions.js";
-import { runSendOutreachEmails } from "../lib/cron/sendOutreachEmailsJob.js";
+import { isValidOutreachEmail, runSendOutreachEmails } from "../lib/cron/sendOutreachEmailsJob.js";
 import { supabaseGet, supabasePatch } from "../lib/cron/cronHelpers.js";
 
 function getBearer(request) {
@@ -78,7 +78,11 @@ export default async function handler(request, response) {
       const contactIds = Array.isArray(request.body?.contactIds)
         ? [...new Set(request.body.contactIds.map(String).filter(Boolean))].slice(0, 5)
         : [];
+      const recipientEmail = String(request.body?.recipientEmail || "").trim();
       if (contactIds.length === 0) return response.status(400).json({ error: "At least one contact must be selected." });
+      if (recipientEmail && (!isValidOutreachEmail(recipientEmail) || contactIds.length !== 1)) {
+        return response.status(400).json({ error: "Enter one valid business email address to send this message." });
+      }
       const contacts = await supabaseGet(
         `creator_outreach_contacts?id=in.(${contactIds.map(encodeURIComponent).join(",")})&status=in.(draft,approved)&select=id,business_review_status,message_review_status`
       );
@@ -87,6 +91,11 @@ export default async function handler(request, response) {
       }
       if (contacts.some((contact) => contact.business_review_status === "rejected" || contact.message_review_status === "rejected")) {
         return response.status(400).json({ error: "A discarded or rejected draft cannot be sent." });
+      }
+      if (recipientEmail) {
+        await supabasePatch(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactIds[0])}`, {
+          contact_email: recipientEmail.toLowerCase()
+        });
       }
       for (const contactId of contactIds) {
         await supabasePatch(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}&status=in.(draft,approved)`, {
