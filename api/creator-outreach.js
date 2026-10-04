@@ -84,14 +84,18 @@ export default async function handler(request, response) {
       const contactId = String(request.body?.contactId || "");
       if (!contactId) return response.status(400).json({ error: "contactId is required." });
       const contacts = await supabaseGet(
-        `creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}&select=id,website,contact_email`
+        `creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}&select=id,company_name,country,city,website,contact_email`
       );
       const contact = contacts[0];
       if (!contact) return response.status(404).json({ error: "Outreach location not found." });
       if (contact.contact_email) {
         return response.status(200).json({ email: contact.contact_email, status: "found" });
       }
-      const result = await findPublicBusinessEmail(contact.website);
+      const result = await findPublicBusinessEmail(contact.website, {
+        companyName: contact.company_name,
+        country: contact.country,
+        city: contact.city
+      });
       if (result.email) {
         await supabasePatch(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}`, {
           contact_email: result.email

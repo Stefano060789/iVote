@@ -101,7 +101,14 @@ describe("creator-outreach regenerate action", () => {
         return jsonResponse({ email: "bonomistefano@outlook.it" });
       }
       if (href.includes("/rest/v1/creator_outreach_contacts?id=eq.contact-1") && method === "GET") {
-        return jsonResponse([{ id: "contact-1", website: "https://example.com", contact_email: null }]);
+        return jsonResponse([{
+          id: "contact-1",
+          company_name: "Example Business",
+          country: "Malaysia",
+          city: "Kuala Lumpur",
+          website: "https://example.com",
+          contact_email: null
+        }]);
       }
       if (href.includes("/rest/v1/creator_outreach_contacts?id=eq.contact-1") && method === "PATCH") {
         return new Response(null, { status: 204 });
@@ -113,7 +120,11 @@ describe("creator-outreach regenerate action", () => {
     const res = makeResponse();
     await handler(req, res);
 
-    expect(findPublicBusinessEmail).toHaveBeenCalledWith("https://example.com");
+    expect(findPublicBusinessEmail).toHaveBeenCalledWith("https://example.com", {
+      companyName: "Example Business",
+      country: "Malaysia",
+      city: "Kuala Lumpur"
+    });
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual({ email: "office@example.com", status: "found" });
   });

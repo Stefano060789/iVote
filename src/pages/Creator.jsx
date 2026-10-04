@@ -165,20 +165,27 @@ export default function Creator() {
         return;
       }
       if (result.email) {
+        const source = result.source === "web_search" ? " in public web search results" : " on the official website";
         setRecipientEmails((current) => ({ ...current, [contactId]: result.email }));
         setOutreachContacts((current) => current.map((contact) => contact.id === contactId
           ? { ...contact, contact_email: result.email }
           : contact));
         setOutreachFeedback((current) => ({
           ...current,
-          [contactId]: { text: `Found public business email: ${result.email}`, isError: false }
+          [contactId]: { text: `Found public business email${source}: ${result.email}`, isError: false }
         }));
       } else {
-        const text = result.status === "no_website"
-          ? "No official website is listed for this location, so an email could not be checked."
+        const websiteStatus = result.websiteStatus || result.status;
+        const websiteDetail = websiteStatus === "no_website"
+          ? "no website is listed"
+          : websiteStatus === "not_found"
+            ? "no email was found on the listed website"
+            : `the listed website could not be checked (${websiteStatus})`;
+        const text = result.searchStatus === "not_configured"
+          ? `The lookup stopped because ${websiteDetail}; public web search is not configured. Add SERPAPI_API_KEY to the Vercel environment to enable it.`
           : result.status === "not_found"
-            ? "No public business email was found on the official website or its contact pages. The agent won't guess."
-            : `The official website could not be checked (${result.status}).`;
+            ? `No public business email appeared in web search results, and ${websiteDetail}. The agent won't guess.`
+            : `No email was found; ${websiteDetail}.`;
         setOutreachFeedback((current) => ({
           ...current,
           [contactId]: { text, isError: true }
