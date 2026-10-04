@@ -72,7 +72,7 @@ export default async function handler(request, response) {
         status: "draft",
         last_error: null
       });
-      return response.status(200).json({ message });
+      return response.status(200).json({ subject, message });
     }
     if (action === "send") {
       const contactIds = Array.isArray(request.body?.contactIds)

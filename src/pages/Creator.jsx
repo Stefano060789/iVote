@@ -37,6 +37,11 @@ function formatDate(value) {
   return value ? new Date(`${value}T00:00:00`).toLocaleDateString("en-GB") : "Not set";
 }
 
+function isValidRecipientEmail(value) {
+  const email = String(value || "").trim();
+  return email.length <= 320 && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+}
+
 export default function Creator() {
   const [authorized, setAuthorized] = useState(null);
   const [overview, setOverview] = useState(null);
@@ -44,6 +49,7 @@ export default function Creator() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [outreachContacts, setOutreachContacts] = useState([]);
+  const [outreachFeedback, setOutreachFeedback] = useState({});
   const [recipientEmails, setRecipientEmails] = useState({});
   const [outreachReplies, setOutreachReplies] = useState([]);
   const [researchCountries, setResearchCountries] = useState(RESEARCH_COUNTRIES);
@@ -180,8 +186,27 @@ export default function Creator() {
   }
 
   async function sendOutreachMessage(contactId, recipientEmail) {
+    const contact = outreachContacts.find((item) => item.id === contactId);
+    if (!isValidRecipientEmail(recipientEmail)) {
+      setOutreachFeedback((current) => ({
+        ...current,
+        [contactId]: { text: "Enter a valid business contact email above. The message sender is hellogodwit@gmail.com.", isError: true }
+      }));
+      return;
+    }
+    if (!contact?.subject || !contact.message) {
+      setOutreachFeedback((current) => ({
+        ...current,
+        [contactId]: { text: "This draft is missing a subject or message. Regenerate the draft before sending.", isError: true }
+      }));
+      return;
+    }
     setError("");
     setMessage("");
+    setOutreachFeedback((current) => ({
+      ...current,
+      [contactId]: { text: "Sending from hellogodwit@gmail.com…", isError: false }
+    }));
     setOutreachActionLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -195,23 +220,60 @@ export default function Creator() {
       });
       const result = await response.json();
       if (!response.ok) {
-        setError(result.error || "Message sending failed.");
+        setOutreachFeedback((current) => ({
+          ...current,
+          [contactId]: { text: result.error || "Message sending failed.", isError: true }
+        }));
         return;
       }
       if (result.disabled) {
-        setError("Email sending is not configured. Set OUTREACH_SMTP_USER to hellogodwit@gmail.com and add that account's Google app password as OUTREACH_SMTP_PASSWORD in Vercel.");
+        setOutreachFeedback((current) => ({
+          ...current,
+          [contactId]: { text: "Delivery is not configured. Add the Google App Password for hellogodwit@gmail.com as OUTREACH_SMTP_PASSWORD in Vercel.", isError: true }
+        }));
       } else if (result.remaining === 0 && result.sent === 0 && result.attempted === 0) {
-        setError("The daily outreach sending limit has been reached. Try again tomorrow.");
+        setOutreachFeedback((current) => ({
+          ...current,
+          [contactId]: { text: "The daily outreach sending limit has been reached. Try again tomorrow.", isError: true }
+        }));
       } else if (result.sent > 0) {
-        setMessage("Message sent successfully.");
+        setOutreachFeedback((current) => ({
+          ...current,
+          [contactId]: { text: "Message sent from hellogodwit@gmail.com.", isError: false }
+        }));
       } else if (result.errors > 0) {
-        setError("The email could not be delivered. Confirm the Vercel SMTP settings use hellogodwit@gmail.com and that account's Google app password.");
+        const detail = result.deliveryErrors?.[0];
+        setOutreachFeedback((current) => ({
+          ...current,
+          [contactId]: {
+            text: detail
+              ? `Email delivery failed: ${detail}`
+              : "Email delivery failed. Check the Gmail App Password configured in Vercel.",
+            isError: true
+          }
+        }));
       } else if (result.skipped > 0) {
-        setError("This message was not sent. The contact may have an invalid or suppressed email address.");
+        setOutreachFeedback((current) => ({
+          ...current,
+          [contactId]: { text: "Not sent: this contact email is invalid or suppressed.", isError: true }
+        }));
       } else {
-        setError("No email was sent. Check the outreach delivery status and try again.");
+        setOutreachFeedback((current) => ({
+          ...current,
+          [contactId]: { text: "No email was sent. Check the delivery status and try again.", isError: true }
+        }));
       }
       await loadOutreach();
+    } catch (sendError) {
+      setOutreachFeedback((current) => ({
+        ...current,
+        [contactId]: {
+          text: sendError instanceof Error
+            ? `Could not send the message: ${sendError.message}`
+            : "Could not send the message because the request failed.",
+          isError: true
+        }
+      }));
     } finally {
       setOutreachActionLoading(false);
     }
@@ -390,7 +452,8 @@ export default function Creator() {
                           <h4 className="font-semibold">Outreach email draft</h4>
                           <span className="text-xs text-slate-400">{contact.message_review_status === "pending" ? "Ready for your review" : contact.message_review_status}</span>
                         </div>
-                        <label className="mt-3 block text-sm font-medium text-slate-300">
+                        <p className="mt-3 text-sm text-slate-500">From: hellogodwit@gmail.com</p>
+                        <label className="mt-2 block text-sm font-medium text-slate-300">
                           Business contact email
                           <input
                             type="email"
@@ -403,15 +466,20 @@ export default function Creator() {
                             placeholder="name@business.com"
                             className="mt-1 block w-full rounded border border-slate-600 bg-slate-950 p-2 text-white"
                           />
-                          {!contact.contact_email && <span className="mt-1 block text-xs font-normal text-slate-400">Enter the business email address to enable sending. It will be saved with this prospect.</span>}
+                          {!contact.contact_email && <span className="mt-1 block text-xs font-normal text-slate-400">Google Places doesn’t provide contact emails. Enter the business’s destination address here; the message always sends from hellogodwit@gmail.com.</span>}
                         </label>
                         <p className="mt-2 break-words font-semibold text-teal-200">{contact.subject || "No subject"}</p>
                         <p className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words text-sm text-slate-300">{contact.message || "No draft message."}</p>
                         <div className="mt-3 flex flex-wrap gap-2">
                           <button type="button" disabled={outreachActionLoading} onClick={() => runOutreachAction("regenerate", contact.id, { language: outreachLanguage })} className="flex-1 rounded border border-teal-300/60 px-3 py-2 text-sm font-semibold text-teal-200 disabled:opacity-50">Regenerate</button>
-                          <button type="button" disabled={outreachActionLoading || !String(recipientEmails[contact.id] ?? contact.contact_email ?? "").trim() || !contact.subject || !contact.message} onClick={() => sendOutreachMessage(contact.id, String(recipientEmails[contact.id] ?? contact.contact_email ?? "").trim())} className="flex-1 rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Send message</button>
+                          <button type="button" disabled={outreachActionLoading} onClick={() => sendOutreachMessage(contact.id, String(recipientEmails[contact.id] ?? contact.contact_email ?? "").trim())} className="flex-1 rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Send message</button>
                           <button type="button" disabled={outreachActionLoading} onClick={() => discardOutreachDraft(contact.id)} className="flex-1 rounded border border-red-400/60 px-3 py-2 text-sm font-semibold text-red-200 disabled:opacity-50">Discard draft</button>
                         </div>
+                        {outreachFeedback[contact.id] && (
+                          <p role="status" aria-live="polite" className={`creator-send-feedback mt-3 ${outreachFeedback[contact.id].isError ? "is-error" : "is-success"}`}>
+                            {outreachFeedback[contact.id].text}
+                          </p>
+                        )}
                     </div>
                   </article>
                 ))}

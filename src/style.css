@@ -1810,6 +1810,27 @@ textarea {
   accent-color: #0f766e;
 }
 
+.creator-send-feedback {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.creator-send-feedback.is-error {
+  color: #b42318;
+}
+
+.creator-send-feedback.is-success {
+  color: #067647;
+}
+
+[data-theme="dark"] .creator-send-feedback.is-error {
+  color: #fda29b;
+}
+
+[data-theme="dark"] .creator-send-feedback.is-success {
+  color: #6ce9a6;
+}
+
 .creator-outreach .creator-research-panel select {
   background: #ffffff !important;
   border-color: #94a3b8 !important;
