@@ -19,7 +19,14 @@ async function requireCreator(request) {
   });
   if (!result.ok) throw new Error("Creator authentication failed.");
   const user = await result.json();
-  const allowed = (process.env.CREATOR_EMAILS || process.env.VITE_CREATOR_EMAILS || "bonomistefano@outlook.it")
+  const allowed = [
+    "bonomistefano@outlook.it",
+    "afelix470@gmail.com",
+    process.env.CREATOR_EMAILS,
+    process.env.VITE_CREATOR_EMAILS
+  ]
+    .filter(Boolean)
+    .join(",")
     .split(",")
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean);

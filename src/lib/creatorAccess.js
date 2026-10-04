@@ -1,5 +1,8 @@
-export const CREATOR_EMAILS = (import.meta.env.VITE_CREATOR_EMAILS || "bonomistefano@outlook.it")
-  .split(",")
+export const CREATOR_EMAILS = [
+  "bonomistefano@outlook.it",
+  "afelix470@gmail.com",
+  ...(import.meta.env.VITE_CREATOR_EMAILS || "").split(",")
+]
   .map((email) => email.trim().toLowerCase())
   .filter(Boolean);
 

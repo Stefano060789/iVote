@@ -84,6 +84,40 @@ describe("creator-outreach regenerate action", () => {
     expect(res.body.subject).not.toContain("your team");
   });
 
+  it("allows the additional Creator account through server-side authorization", async () => {
+    process.env.SUPABASE_URL = "https://supabase.test";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "service-role";
+    process.env.SUPABASE_ANON_KEY = "anon-key";
+    process.env.CREATOR_EMAILS = "bonomistefano@outlook.it";
+
+    vi.stubGlobal("fetch", vi.fn(async (url, options = {}) => {
+      const href = String(url);
+      const method = options.method || "GET";
+      if (href.includes("/auth/v1/user")) {
+        return jsonResponse({ email: "afelix470@gmail.com" });
+      }
+      if (href.includes("/rest/v1/creator_outreach_contacts?id=eq.contact-1") && method === "GET") {
+        return jsonResponse([{
+          id: "contact-1",
+          company_name: "House of Ble",
+          business_type: "hotel",
+          country: "Austria"
+        }]);
+      }
+      if (href.includes("/rest/v1/creator_outreach_contacts?id=eq.contact-1") && method === "PATCH") {
+        return new Response(null, { status: 204 });
+      }
+      throw new Error(`Unexpected request: ${method} ${href}`);
+    }));
+
+    const req = makeRequest({ body: { action: "regenerate", contactId: "contact-1", language: "de" } });
+    const res = makeResponse();
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.subject).toContain("House of Ble");
+  });
+
   it("stores a public email found by an on-demand official-site lookup", async () => {
     process.env.SUPABASE_URL = "https://supabase.test";
     process.env.SUPABASE_SERVICE_ROLE_KEY = "service-role";
