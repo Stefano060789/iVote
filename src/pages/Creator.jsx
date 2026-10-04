@@ -51,6 +51,7 @@ export default function Creator() {
   const [outreachContacts, setOutreachContacts] = useState([]);
   const [outreachFeedback, setOutreachFeedback] = useState({});
   const [recipientEmails, setRecipientEmails] = useState({});
+  const [subjectEdits, setSubjectEdits] = useState({});
   const [searchedEmailContactIds, setSearchedEmailContactIds] = useState(() => new Set());
   const [outreachReplies, setOutreachReplies] = useState([]);
   const [researchCountries, setResearchCountries] = useState(RESEARCH_COUNTRIES);
@@ -150,6 +151,83 @@ export default function Creator() {
     }
     setOutreachContacts((current) => current.filter((contact) => contact.id !== contactId));
     setMessage("Location discarded; it will be excluded from future research.");
+  }
+
+  async function saveOutreachSubject(contactId) {
+    const subject = String(subjectEdits[contactId] ?? "").trim();
+    if (!subject || subject.length > 120) {
+      setOutreachFeedback((current) => ({
+        ...current,
+        [contactId]: { text: "Subject must contain 1 to 120 characters.", isError: true }
+      }));
+      return;
+    }
+    setOutreachActionLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch("/api/creator-outreach", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `****** || ""}`
+        },
+        body: JSON.stringify({ action: "save-subject", contactId, subject })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Could not save the subject.");
+      setOutreachContacts((current) => current.map((contact) => contact.id === contactId
+        ? { ...contact, subject: result.subject }
+        : contact));
+      setSubjectEdits((current) => {
+        const next = { ...current };
+        delete next[contactId];
+        return next;
+      });
+      setOutreachFeedback((current) => ({
+        ...current,
+        [contactId]: { text: "Email subject saved. Review the message before sending.", isError: false }
+      }));
+    } catch (saveError) {
+      setOutreachFeedback((current) => ({
+        ...current,
+        [contactId]: {
+          text: saveError instanceof Error ? saveError.message : "Could not save the subject.",
+          isError: true
+        }
+      }));
+    } finally {
+      setOutreachActionLoading(false);
+    }
+  }
+
+  async function clearOutreachResearch() {
+    if (!window.confirm("Clear all unsent outreach drafts? Sent emails and discarded locations will be kept. You can research them again afterward.")) return;
+    setError("");
+    setMessage("");
+    setOutreachActionLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch("/api/creator-outreach", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `****** || ""}`
+        },
+        body: JSON.stringify({ action: "clear-research" })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Could not clear outreach drafts.");
+      setOutreachContacts([]);
+      setRecipientEmails({});
+      setSubjectEdits({});
+      setOutreachFeedback({});
+      setSearchedEmailContactIds(new Set());
+      setMessage("Unsent drafts cleared. Sent and discarded locations were kept; run research again to create fresh drafts.");
+    } catch (clearError) {
+      setError(clearError instanceof Error ? clearError.message : "Could not clear outreach drafts.");
+    } finally {
+      setOutreachActionLoading(false);
+    }
   }
 
   async function findOutreachEmail(contactId) {
@@ -290,6 +368,11 @@ export default function Creator() {
         await loadOutreach();
         return;
       }
+      setSubjectEdits((current) => {
+        const next = { ...current };
+        delete next[contactId];
+        return next;
+      });
       setOutreachContacts((current) => current.map((contact) => contact.id === contactId ? {
         ...contact,
         subject: result.subject,
@@ -557,6 +640,14 @@ export default function Creator() {
                     >
                       Research businesses
                     </button>
+                    <button
+                      type="button"
+                      disabled={outreachActionLoading || !outreachContacts.length}
+                      onClick={clearOutreachResearch}
+                      className="rounded border border-amber-300/60 px-3 py-2 text-sm font-semibold text-amber-200 disabled:opacity-50"
+                    >
+                      Clear unsent research
+                    </button>
                     {outreachContacts.some((contact) => !contact.contact_email && !searchedEmailContactIds.has(contact.id)) && (
                       <button
                         type="button"
@@ -631,11 +722,34 @@ export default function Creator() {
                             </span>
                           )}
                         </label>
-                        <p className="mt-2 break-words font-semibold text-teal-200">{contact.subject || "No subject"}</p>
+                        <label className="mt-2 block text-sm font-medium text-slate-300">
+                          Email subject
+                          <input
+                            type="text"
+                            maxLength={120}
+                            value={subjectEdits[contact.id] ?? contact.subject ?? ""}
+                            onChange={(event) => setSubjectEdits((current) => ({
+                              ...current,
+                              [contact.id]: event.target.value
+                            }))}
+                            className="mt-1 block w-full rounded border border-slate-600 bg-slate-950 p-2 text-white"
+                          />
+                          {subjectEdits[contact.id] !== undefined && subjectEdits[contact.id] !== (contact.subject || "") && (
+                            <span className="mt-1 block text-xs font-normal text-amber-200">Save the subject before sending.</span>
+                          )}
+                        </label>
                         <p className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words text-sm text-slate-300">{contact.message || "No draft message."}</p>
                         <div className="mt-3 flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            disabled={outreachActionLoading || subjectEdits[contact.id] === undefined}
+                            onClick={() => saveOutreachSubject(contact.id)}
+                            className="flex-1 rounded border border-teal-300/60 px-3 py-2 text-sm font-semibold text-teal-200 disabled:opacity-50"
+                          >
+                            Save subject
+                          </button>
                           <button type="button" disabled={outreachActionLoading} onClick={() => runOutreachAction("regenerate", contact.id, { language: outreachLanguage })} className="flex-1 rounded border border-teal-300/60 px-3 py-2 text-sm font-semibold text-teal-200 disabled:opacity-50">Regenerate</button>
-                          <button type="button" disabled={outreachActionLoading} onClick={() => sendOutreachMessage(contact.id, String(recipientEmails[contact.id] ?? contact.contact_email ?? "").trim())} className="flex-1 rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Send message</button>
+                          <button type="button" disabled={outreachActionLoading || (subjectEdits[contact.id] !== undefined && subjectEdits[contact.id] !== (contact.subject || ""))} onClick={() => sendOutreachMessage(contact.id, String(recipientEmails[contact.id] ?? contact.contact_email ?? "").trim())} className="flex-1 rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Send message</button>
                           <button type="button" disabled={outreachActionLoading} onClick={() => discardOutreachLocation(contact.id)} className="flex-1 rounded border border-red-400/60 px-3 py-2 text-sm font-semibold text-red-200 disabled:opacity-50">Discard location</button>
                         </div>
                         {outreachFeedback[contact.id] && (

@@ -3,7 +3,7 @@ import { createOutreachCopy, OUTREACH_LANGUAGES } from "../lib/cron/outreachCopy
 import { findPublicBusinessEmail } from "../lib/cron/publicBusinessEmail.js";
 import { RESEARCH_BUSINESS_TYPES, RESEARCH_COUNTRIES } from "../lib/cron/researchOptions.js";
 import { isValidOutreachEmail, runSendOutreachEmails } from "../lib/cron/sendOutreachEmailsJob.js";
-import { supabaseGet, supabasePatch } from "../lib/cron/cronHelpers.js";
+import { supabaseDelete, supabaseGet, supabasePatch } from "../lib/cron/cronHelpers.js";
 
 function getBearer(request) {
   return request.headers.authorization?.replace(/^Bearer\s+/i, "").trim();
@@ -82,6 +82,32 @@ export default async function handler(request, response) {
         last_error: null
       });
       return response.status(200).json({ subject, message });
+    }
+    if (action === "save-subject") {
+      const contactId = String(request.body?.contactId || "");
+      const subject = String(request.body?.subject || "").trim();
+      if (!contactId) return response.status(400).json({ error: "contactId is required." });
+      if (!subject || subject.length > 120) {
+        return response.status(400).json({ error: "Subject must contain 1 to 120 characters." });
+      }
+      const contacts = await supabaseGet(
+        `creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}&status=in.(draft,approved)&select=id,business_review_status`
+      );
+      const contact = contacts[0];
+      if (!contact || contact.business_review_status === "rejected") {
+        return response.status(404).json({ error: "Outreach draft not found." });
+      }
+      await supabasePatch(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}`, {
+        subject,
+        message_review_status: "pending"
+      });
+      return response.status(200).json({ subject });
+    }
+    if (action === "clear-research") {
+      await supabaseDelete(
+        "creator_outreach_contacts?status=in.(draft,approved)&business_review_status=neq.rejected"
+      );
+      return response.status(200).json({ cleared: true });
     }
     if (action === "find-email") {
       const contactId = String(request.body?.contactId || "");

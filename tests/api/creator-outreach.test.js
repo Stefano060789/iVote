@@ -239,4 +239,65 @@ describe("creator-outreach regenerate action", () => {
     expect(res.body.error).toContain("total from 1 to 100");
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
+
+  it("saves a reviewed subject only for an active unsent draft", async () => {
+    process.env.SUPABASE_URL = "https://supabase.test";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "service-role";
+    process.env.SUPABASE_ANON_KEY = "anon-key";
+    process.env.CREATOR_EMAILS = "bonomistefano@outlook.it";
+    const requests = [];
+    vi.stubGlobal("fetch", vi.fn(async (url, options = {}) => {
+      const href = String(url);
+      const method = options.method || "GET";
+      requests.push({ href, method, body: options.body ? JSON.parse(options.body) : null });
+      if (href.includes("/auth/v1/user")) return jsonResponse({ email: "bonomistefano@outlook.it" });
+      if (href.includes("/rest/v1/creator_outreach_contacts?id=eq.contact-1") && method === "GET") {
+        return jsonResponse([{ id: "contact-1", business_review_status: "pending" }]);
+      }
+      if (href.includes("/rest/v1/creator_outreach_contacts?id=eq.contact-1") && method === "PATCH") {
+        return new Response(null, { status: 204 });
+      }
+      throw new Error(`Unexpected request: ${method} ${href}`);
+    }));
+
+    const req = makeRequest({
+      body: { action: "save-subject", contactId: "contact-1", subject: "A visitor feedback idea for Luna" }
+    });
+    const res = makeResponse();
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({ subject: "A visitor feedback idea for Luna" });
+    expect(requests.some(({ method, body }) =>
+      method === "PATCH" && body.subject === "A visitor feedback idea for Luna" && body.message_review_status === "pending"
+    )).toBe(true);
+  });
+
+  it("clears unsent outreach drafts while preserving sent and rejected locations", async () => {
+    process.env.SUPABASE_URL = "https://supabase.test";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "service-role";
+    process.env.SUPABASE_ANON_KEY = "anon-key";
+    process.env.CREATOR_EMAILS = "bonomistefano@outlook.it";
+    const requests = [];
+    vi.stubGlobal("fetch", vi.fn(async (url, options = {}) => {
+      const href = String(url);
+      const method = options.method || "GET";
+      requests.push({ href, method });
+      if (href.includes("/auth/v1/user")) return jsonResponse({ email: "bonomistefano@outlook.it" });
+      if (href.includes("/rest/v1/creator_outreach_contacts?") && method === "DELETE") {
+        return new Response(null, { status: 204 });
+      }
+      throw new Error(`Unexpected request: ${method} ${href}`);
+    }));
+
+    const req = makeRequest({ body: { action: "clear-research" } });
+    const res = makeResponse();
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({ cleared: true });
+    const deleteRequest = requests.find(({ method }) => method === "DELETE");
+    expect(deleteRequest.href).toContain("status=in.(draft,approved)");
+    expect(deleteRequest.href).toContain("business_review_status=neq.rejected");
+  });
 });

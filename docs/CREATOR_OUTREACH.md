@@ -7,3 +7,5 @@ Set `SERPAPI_API_KEY` as a server-only Vercel environment variable, then redeplo
 The agent only stores an email explicitly present in a relevant search result; it does not construct or guess addresses. Without the key, website-only lookup continues and the UI reports that public web search is not configured.
 
 Existing outreach drafts are not reprocessed automatically when the key is added. In the Creator queue, use **Search next 5 blank emails** to backfill existing records in small batches. Newly researched locations are checked automatically.
+
+Generated email subjects are concise and can be edited and saved on each draft. **Clear unsent research** removes the current draft queue while preserving sent messages and rejected locations, so a fresh research run can create new drafts without losing duplicate-prevention history.
