@@ -162,7 +162,8 @@ export default function Creator() {
         const countryTotals = Object.entries(result.countries || {})
           .map(([country, count]) => `${country}: ${count}`)
           .join(", ");
-        setMessage(`Research complete: ${result.inserted || 0} new drafts added${countryTotals ? ` (${countryTotals})` : ""}.`);
+        const emailCount = Number(result.emailsFound || 0);
+        setMessage(`Research complete: ${result.inserted || 0} new drafts added, ${emailCount} public contact email${emailCount === 1 ? "" : "s"} found${countryTotals ? ` (${countryTotals})` : ""}.`);
         await loadOutreach();
         return;
       }
@@ -466,7 +467,7 @@ export default function Creator() {
                             placeholder="name@business.com"
                             className="mt-1 block w-full rounded border border-slate-600 bg-slate-950 p-2 text-white"
                           />
-                          {!contact.contact_email && <span className="mt-1 block text-xs font-normal text-slate-400">Google Places doesn’t provide contact emails. Enter the business’s destination address here; the message always sends from hellogodwit@gmail.com.</span>}
+                          {!contact.contact_email && <span className="mt-1 block text-xs font-normal text-slate-400">Research checks the business website and contact pages for a public email. If none is listed, enter one here. Messages always send from hellogodwit@gmail.com.</span>}
                         </label>
                         <p className="mt-2 break-words font-semibold text-teal-200">{contact.subject || "No subject"}</p>
                         <p className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words text-sm text-slate-300">{contact.message || "No draft message."}</p>
