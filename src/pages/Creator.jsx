@@ -55,6 +55,11 @@ export default function Creator() {
   const [outreachReplies, setOutreachReplies] = useState([]);
   const [researchCountries, setResearchCountries] = useState(RESEARCH_COUNTRIES);
   const [researchBusinessTypes, setResearchBusinessTypes] = useState(RESEARCH_BUSINESS_TYPES.map(({ id }) => id));
+  const [researchTargetTotal, setResearchTargetTotal] = useState(() => {
+    const storedTarget = window.localStorage.getItem("godwit-outreach-research-total") || "";
+    const parsedTarget = Number(storedTarget);
+    return Number.isInteger(parsedTarget) && parsedTarget >= 1 && parsedTarget <= 100 ? storedTarget : "10";
+  });
   const [outreachLanguage, setOutreachLanguage] = useState(() => {
     const storedLanguage = window.localStorage.getItem("godwit-outreach-language");
     return ["auto", ...OUTREACH_LANGUAGES].includes(storedLanguage) ? storedLanguage : "auto";
@@ -65,6 +70,10 @@ export default function Creator() {
   useEffect(() => {
     window.localStorage.setItem("godwit-outreach-language", outreachLanguage);
   }, [outreachLanguage]);
+
+  useEffect(() => {
+    window.localStorage.setItem("godwit-outreach-research-total", researchTargetTotal);
+  }, [researchTargetTotal]);
 
   useEffect(() => {
     async function load() {
@@ -511,13 +520,37 @@ export default function Creator() {
                       ))}
                     </div>
                   </fieldset>
-                  <div className="flex flex-wrap items-center gap-3 lg:col-span-2">
+                  <div className="flex flex-wrap items-end gap-3 lg:col-span-2">
+                    <label className="text-sm font-semibold">
+                      Total businesses to research
+                      <input
+                        type="number"
+                        min="1"
+                        max="100"
+                        step="1"
+                        value={researchTargetTotal}
+                        onChange={(event) => {
+                          setResearchTargetTotal(event.target.value);
+                        }}
+                        className="mt-1 block w-36 rounded border border-slate-600 bg-slate-950 p-2 text-white"
+                        aria-describedby="research-target-help"
+                      />
+                      <span id="research-target-help" className="mt-1 block max-w-xs font-normal text-slate-400">This total is shared as evenly as possible across selected countries. Maximum 100 per research run.</span>
+                    </label>
                     <button
                       type="button"
-                      disabled={outreachActionLoading || researchCountries.length === 0 || researchBusinessTypes.length === 0}
+                      disabled={
+                        outreachActionLoading ||
+                        researchCountries.length === 0 ||
+                        researchBusinessTypes.length === 0 ||
+                        !/^\d+$/.test(researchTargetTotal) ||
+                        Number(researchTargetTotal) < 1 ||
+                        Number(researchTargetTotal) > 100
+                      }
                       onClick={() => runOutreachAction("research", undefined, {
                         countries: researchCountries,
                         businessTypes: researchBusinessTypes,
+                        targetTotal: Number(researchTargetTotal),
                         language: outreachLanguage
                       })}
                       className="rounded bg-teal-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50"

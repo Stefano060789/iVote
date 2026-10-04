@@ -38,6 +38,7 @@ export default async function handler(request, response) {
       const language = String(request.body?.language || "auto");
       const countries = request.body?.countries;
       const businessTypes = request.body?.businessTypes;
+      const targetTotal = request.body?.targetTotal;
       if (language !== "auto" && !OUTREACH_LANGUAGES.includes(language)) {
         return response.status(400).json({ error: "Select a supported outreach language." });
       }
@@ -45,13 +46,15 @@ export default async function handler(request, response) {
         (countries !== undefined && (!Array.isArray(countries) || countries.length === 0 ||
           countries.some((country) => !RESEARCH_COUNTRIES.includes(String(country))))) ||
         (businessTypes !== undefined && (!Array.isArray(businessTypes) || businessTypes.length === 0 ||
-          businessTypes.some((type) => !RESEARCH_BUSINESS_TYPES.some(({ id }) => id === String(type)))))
+          businessTypes.some((type) => !RESEARCH_BUSINESS_TYPES.some(({ id }) => id === String(type))))) ||
+        (targetTotal !== undefined && (!Number.isInteger(targetTotal) || targetTotal < 1 || targetTotal > 100))
       ) {
-        return response.status(400).json({ error: "Select supported countries and business types." });
+        return response.status(400).json({ error: "Select supported countries, business types, and a total from 1 to 100 businesses." });
       }
       return response.status(200).json(await runResearchGodwitProspects({
         countries,
         businessTypes,
+        targetTotal,
         language
       }));
     }

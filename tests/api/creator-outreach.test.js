@@ -216,4 +216,27 @@ describe("creator-outreach regenerate action", () => {
     expect(findPublicBusinessEmail).toHaveBeenCalledTimes(5);
     expect(res.body.results).toHaveLength(5);
   });
+
+  it("rejects a research total outside the allowed range", async () => {
+    process.env.SUPABASE_URL = "https://supabase.test";
+    process.env.SUPABASE_ANON_KEY = "anon-key";
+    process.env.CREATOR_EMAILS = "bonomistefano@outlook.it";
+    const fetchMock = vi.fn(async (url) => {
+      if (String(url).includes("/auth/v1/user")) {
+        return jsonResponse({ email: "bonomistefano@outlook.it" });
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const req = makeRequest({
+      body: { action: "research", countries: ["Malaysia"], businessTypes: ["hotel"], targetTotal: 101 }
+    });
+    const res = makeResponse();
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toContain("total from 1 to 100");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
 });
