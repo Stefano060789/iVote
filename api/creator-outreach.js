@@ -59,9 +59,18 @@ export default async function handler(request, response) {
     }
     if (action === "send") {
       const contactIds = Array.isArray(request.body?.contactIds)
-        ? request.body.contactIds.map(String).filter(Boolean).slice(0, 5)
+        ? [...new Set(request.body.contactIds.map(String).filter(Boolean))].slice(0, 5)
         : [];
       if (contactIds.length === 0) return response.status(400).json({ error: "At least one contact must be selected." });
+      const contacts = await supabaseGet(
+        `creator_outreach_contacts?id=in.(${contactIds.map(encodeURIComponent).join(",")})&status=in.(draft,approved)&select=id,business_review_status,message_review_status`
+      );
+      if (contacts.length !== contactIds.length) {
+        return response.status(400).json({ error: "One or more drafts are no longer available to send." });
+      }
+      if (contacts.some((contact) => contact.business_review_status === "rejected" || contact.message_review_status === "rejected")) {
+        return response.status(400).json({ error: "A discarded or rejected draft cannot be sent." });
+      }
       for (const contactId of contactIds) {
         await supabasePatch(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}&status=in.(draft,approved)`, {
           status: "approved",

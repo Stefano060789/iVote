@@ -28,7 +28,6 @@ export default function Creator() {
   const [error, setError] = useState("");
   const [outreachContacts, setOutreachContacts] = useState([]);
   const [outreachReplies, setOutreachReplies] = useState([]);
-  const [selectedOutreachIds, setSelectedOutreachIds] = useState([]);
   const [outreachActionLoading, setOutreachActionLoading] = useState(false);
   const [outreachLoading, setOutreachLoading] = useState(false);
 
@@ -57,6 +56,7 @@ export default function Creator() {
       .from("creator_outreach_contacts")
       .select("*")
       .in("status", ["draft", "approved"])
+      .neq("message_review_status", "rejected")
       .order("created_at", { ascending: true });
     setOutreachLoading(false);
     if (outreachError) {
@@ -89,27 +89,27 @@ export default function Creator() {
     setMessage("Reply marked as reviewed.");
   }
 
-  async function reviewOutreach(contactId, reviewArea, decision) {
+  async function discardOutreachDraft(contactId) {
     setError("");
-    const { data, error: reviewError } = await supabase.rpc("creator_review_outreach_contact", {
+    setMessage("");
+    const { error: reviewError } = await supabase.rpc("creator_review_outreach_contact", {
       target_contact_id: contactId,
-      review_area: reviewArea,
-      decision
+      review_area: "message",
+      decision: "rejected"
     });
     if (reviewError) {
       setError(reviewError.message);
       return;
     }
-
-    const updated = data?.[0];
-    setOutreachContacts((current) => current.map((contact) => contact.id === contactId ? { ...contact, ...updated } : contact));
-    setMessage(`${reviewArea === "business" ? "Business" : "Message"} ${decision}.`);
+    setOutreachContacts((current) => current.filter((contact) => contact.id !== contactId));
+    setMessage("Draft discarded.");
   }
 
   async function runOutreachAction(action, contactId) {
-      setError("");
-      setMessage("");
-      setOutreachActionLoading(true);
+    setError("");
+    setMessage("");
+    setOutreachActionLoading(true);
+    try {
       const { data: { session } } = await supabase.auth.getSession();
       const response = await fetch("/api/creator-outreach", {
         method: "POST",
@@ -120,7 +120,6 @@ export default function Creator() {
         body: JSON.stringify({ action, contactId })
       });
       const result = await response.json();
-      setOutreachActionLoading(false);
       if (!response.ok) {
         setError(result.error || "Outreach action failed.");
         return;
@@ -131,33 +130,49 @@ export default function Creator() {
         return;
       }
       setOutreachContacts((current) => current.map((contact) => contact.id === contactId ? { ...contact, message: result.message, message_review_status: "pending", status: "draft" } : contact));
-      setMessage("A new message draft was generated. Review it before approving.");
+      setMessage("A new message draft was generated. Review it before sending.");
+    } finally {
+      setOutreachActionLoading(false);
     }
+  }
 
-  function toggleOutreachSelection(contactId) {
-      setSelectedOutreachIds((current) => current.includes(contactId) ? current.filter((id) => id !== contactId) : [...current, contactId]);
-    }
-
-  async function sendSelectedOutreach() {
-      setError("");
-      setMessage("");
-      setOutreachActionLoading(true);
+  async function sendOutreachMessage(contactId) {
+    setError("");
+    setMessage("");
+    setOutreachActionLoading(true);
+    try {
       const { data: { session } } = await supabase.auth.getSession();
       const response = await fetch("/api/creator-outreach", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token || ""}` },
-        body: JSON.stringify({ action: "send", contactIds: selectedOutreachIds })
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token || ""}`
+        },
+        body: JSON.stringify({ action: "send", contactIds: [contactId] })
       });
       const result = await response.json();
-      setOutreachActionLoading(false);
       if (!response.ok) {
-        setError(result.error || "Sending failed.");
+        setError(result.error || "Message sending failed.");
         return;
       }
-      setSelectedOutreachIds([]);
-      setMessage(`Sending complete: ${result.sent || 0} sent, ${result.skipped || 0} skipped.`);
+      if (result.disabled) {
+        setError("Email sending is not configured. Please check the outreach SMTP settings.");
+      } else if (result.remaining === 0 && result.sent === 0 && result.attempted === 0) {
+        setError("The daily outreach sending limit has been reached. Try again tomorrow.");
+      } else if (result.sent > 0) {
+        setMessage("Message sent successfully.");
+      } else if (result.errors > 0) {
+        setError("The email could not be delivered. Check the outreach email settings and try again.");
+      } else if (result.skipped > 0) {
+        setError("This message was not sent. The contact may have an invalid or suppressed email address.");
+      } else {
+        setError("No email was sent. Check the outreach delivery status and try again.");
+      }
       await loadOutreach();
+    } finally {
+      setOutreachActionLoading(false);
     }
+  }
 
   async function savePilotEndDate(event) {
     event.preventDefault();
@@ -217,11 +232,9 @@ export default function Creator() {
             <section className="space-y-4 rounded-lg border border-slate-700 bg-slate-950/50 p-4">
               <div>
                 <h2 className="text-xl font-bold">Godwit outreach</h2>
-                <p className="mt-1 text-sm text-slate-400">Review the business and its message separately. An email is sent only when both are approved.</p>
+                <p className="mt-1 text-sm text-slate-400">Review each prospect and its draft. Choosing Send message sends that email immediately.</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button type="button" disabled={outreachActionLoading} onClick={() => runOutreachAction("research")} className="rounded bg-teal-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Research businesses</button>
-                  <button type="button" disabled={outreachActionLoading || selectedOutreachIds.length === 0} onClick={sendSelectedOutreach} className="rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Send selected</button>
-                  {selectedOutreachIds.length > 0 && <span className="self-center text-sm text-slate-400">{selectedOutreachIds.length} selected</span>}
                 </div>
               </div>
               {outreachLoading && <p className="text-sm text-slate-400">Loading outreach queue...</p>}
@@ -249,41 +262,26 @@ export default function Creator() {
                   <article key={contact.id} className="rounded-lg border border-slate-700 bg-slate-900 p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
-                        <label className="flex items-center gap-2">
-                          <input type="checkbox" checked={selectedOutreachIds.includes(contact.id)} onChange={() => toggleOutreachSelection(contact.id)} />
-                          <span className="text-lg font-semibold">{contact.company_name || "Unnamed business"}</span>
-                        </label>
+                        <p className="text-lg font-semibold">{contact.company_name || "Unnamed business"}</p>
                         <p className="text-sm text-slate-400">{[contact.city, contact.country, contact.business_type].filter(Boolean).join(" · ")}</p>
                         {contact.website && <a className="text-sm text-teal-300 underline" href={contact.website} target="_blank" rel="noreferrer">{contact.website}</a>}
                       </div>
                       <span className="text-xs text-slate-400">Delivery: {contact.status}</span>
                     </div>
                     <p className="mt-3 text-sm text-slate-300">{contact.personalization_note || "No research note provided."}</p>
-                    <div className="mt-4 grid gap-4 lg:grid-cols-2">
-                      <div className="rounded border border-slate-700 p-3">
-                        <div className="flex items-center justify-between gap-2">
-                          <h4 className="font-semibold">Business approval</h4>
-                          <span className="text-xs text-slate-400">{contact.business_review_status}</span>
-                        </div>
-                        <p className="mt-2 text-sm text-slate-300">Approve this prospect as a meaningful Godwit target.</p>
-                        <div className="mt-3 flex gap-2">
-                          <button type="button" onClick={() => reviewOutreach(contact.id, "business", "approved")} className="rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950">Approve business</button>
-                          <button type="button" onClick={() => reviewOutreach(contact.id, "business", "rejected")} className="rounded border border-red-400/60 px-3 py-2 text-sm font-semibold text-red-200">Reject</button>
-                        </div>
-                      </div>
-                      <div className="rounded border border-slate-700 p-3">
+                    <div className="mt-4 rounded border border-slate-700 p-3">
                         <div className="flex items-center justify-between gap-2">
                           <h4 className="font-semibold">Message approval</h4>
                           <span className="text-xs text-slate-400">{contact.message_review_status}</span>
                         </div>
+                        <p className="mt-2 text-sm text-slate-400">To: {contact.contact_email || "No verified contact email; this draft cannot be sent yet."}</p>
                         <p className="mt-2 font-semibold text-teal-200">{contact.subject || "No subject"}</p>
                         <p className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap text-sm text-slate-300">{contact.message || "No draft message."}</p>
                         <div className="mt-3 flex gap-2">
                           <button type="button" disabled={outreachActionLoading} onClick={() => runOutreachAction("regenerate", contact.id)} className="rounded border border-teal-300/60 px-3 py-2 text-sm font-semibold text-teal-200 disabled:opacity-50">Regenerate</button>
-                          <button type="button" onClick={() => reviewOutreach(contact.id, "message", "approved")} className="rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950">Approve message</button>
-                          <button type="button" onClick={() => reviewOutreach(contact.id, "message", "rejected")} className="rounded border border-red-400/60 px-3 py-2 text-sm font-semibold text-red-200">Reject</button>
+                          <button type="button" disabled={outreachActionLoading || !contact.contact_email || !contact.subject || !contact.message} onClick={() => sendOutreachMessage(contact.id)} className="rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Send message</button>
+                          <button type="button" disabled={outreachActionLoading} onClick={() => discardOutreachDraft(contact.id)} className="rounded border border-red-400/60 px-3 py-2 text-sm font-semibold text-red-200 disabled:opacity-50">Discard draft</button>
                         </div>
-                      </div>
                     </div>
                   </article>
                 ))}
