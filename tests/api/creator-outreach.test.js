@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import handler from "./creator-outreach.js";
+import handler from "../../api/creator-outreach.js";
 
 const originalEnv = { ...process.env };
 
