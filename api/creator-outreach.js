@@ -64,7 +64,12 @@ export default async function handler(request, response) {
       const contacts = await supabaseGet(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}&select=id,company_name,business_type,country`);
       const contact = contacts[0];
       if (!contact) return response.status(404).json({ error: "Outreach draft not found." });
-      const { subject, message } = createOutreachCopy({ ...contact, language });
+      const { subject, message } = createOutreachCopy({
+        companyName: contact.company_name,
+        businessType: contact.business_type,
+        country: contact.country,
+        language
+      });
       await supabasePatch(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}`, {
         subject,
         message,

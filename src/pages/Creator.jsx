@@ -91,7 +91,7 @@ export default function Creator() {
       .select("*")
       .in("status", ["draft", "approved"])
       .neq("message_review_status", "rejected")
-      .order("created_at", { ascending: true });
+      .order("created_at", { ascending: false });
     setOutreachLoading(false);
     if (outreachError) {
       setError(outreachError.message);
