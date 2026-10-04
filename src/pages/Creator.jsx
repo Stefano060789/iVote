@@ -90,6 +90,7 @@ export default function Creator() {
       .from("creator_outreach_contacts")
       .select("*")
       .in("status", ["draft", "approved"])
+      .neq("business_review_status", "rejected")
       .neq("message_review_status", "rejected")
       .order("created_at", { ascending: false });
     setOutreachLoading(false);
@@ -123,12 +124,14 @@ export default function Creator() {
     setMessage("Reply marked as reviewed.");
   }
 
-  async function discardOutreachDraft(contactId) {
+  async function discardOutreachLocation(contactId) {
+    const contact = outreachContacts.find((item) => item.id === contactId);
+    if (!window.confirm(`Discard ${contact?.company_name || "this location"}? It will be excluded from future research.`)) return;
     setError("");
     setMessage("");
     const { error: reviewError } = await supabase.rpc("creator_review_outreach_contact", {
       target_contact_id: contactId,
-      review_area: "message",
+      review_area: "business",
       decision: "rejected"
     });
     if (reviewError) {
@@ -136,7 +139,62 @@ export default function Creator() {
       return;
     }
     setOutreachContacts((current) => current.filter((contact) => contact.id !== contactId));
-    setMessage("Draft discarded.");
+    setMessage("Location discarded; it will be excluded from future research.");
+  }
+
+  async function findOutreachEmail(contactId) {
+    setError("");
+    setMessage("");
+    setOutreachActionLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch("/api/creator-outreach", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: ["Bearer", session?.access_token || ""].join(" ")
+        },
+        body: JSON.stringify({ action: "find-email", contactId })
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        setOutreachFeedback((current) => ({
+          ...current,
+          [contactId]: { text: result.error || "Email lookup failed.", isError: true }
+        }));
+        return;
+      }
+      if (result.email) {
+        setRecipientEmails((current) => ({ ...current, [contactId]: result.email }));
+        setOutreachContacts((current) => current.map((contact) => contact.id === contactId
+          ? { ...contact, contact_email: result.email }
+          : contact));
+        setOutreachFeedback((current) => ({
+          ...current,
+          [contactId]: { text: `Found public business email: ${result.email}`, isError: false }
+        }));
+      } else {
+        const text = result.status === "no_website"
+          ? "No official website is listed for this location, so an email could not be checked."
+          : result.status === "not_found"
+            ? "No public business email was found on the official website or its contact pages. The agent won't guess."
+            : `The official website could not be checked (${result.status}).`;
+        setOutreachFeedback((current) => ({
+          ...current,
+          [contactId]: { text, isError: true }
+        }));
+      }
+    } catch (lookupError) {
+      setOutreachFeedback((current) => ({
+        ...current,
+        [contactId]: {
+          text: lookupError instanceof Error ? lookupError.message : "Email lookup failed.",
+          isError: true
+        }
+      }));
+    } finally {
+      setOutreachActionLoading(false);
+    }
   }
 
   async function runOutreachAction(action, contactId, options = {}) {
@@ -467,14 +525,19 @@ export default function Creator() {
                             placeholder="name@business.com"
                             className="mt-1 block w-full rounded border border-slate-600 bg-slate-950 p-2 text-white"
                           />
-                          {!contact.contact_email && <span className="mt-1 block text-xs font-normal text-slate-400">Research checks the business website and contact pages for a public email. If none is listed, enter one here. Messages always send from hellogodwit@gmail.com.</span>}
+                          {!contact.contact_email && (
+                            <span className="mt-1 flex flex-wrap items-center justify-between gap-2 text-xs font-normal text-slate-400">
+                              <span>The agent checks the official website, contact links, and common contact-page addresses. It leaves this blank rather than guessing if no email is public.</span>
+                              <button type="button" disabled={outreachActionLoading} onClick={() => findOutreachEmail(contact.id)} className="font-semibold text-teal-300 underline disabled:opacity-50">Search official site</button>
+                            </span>
+                          )}
                         </label>
                         <p className="mt-2 break-words font-semibold text-teal-200">{contact.subject || "No subject"}</p>
                         <p className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words text-sm text-slate-300">{contact.message || "No draft message."}</p>
                         <div className="mt-3 flex flex-wrap gap-2">
                           <button type="button" disabled={outreachActionLoading} onClick={() => runOutreachAction("regenerate", contact.id, { language: outreachLanguage })} className="flex-1 rounded border border-teal-300/60 px-3 py-2 text-sm font-semibold text-teal-200 disabled:opacity-50">Regenerate</button>
                           <button type="button" disabled={outreachActionLoading} onClick={() => sendOutreachMessage(contact.id, String(recipientEmails[contact.id] ?? contact.contact_email ?? "").trim())} className="flex-1 rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Send message</button>
-                          <button type="button" disabled={outreachActionLoading} onClick={() => discardOutreachDraft(contact.id)} className="flex-1 rounded border border-red-400/60 px-3 py-2 text-sm font-semibold text-red-200 disabled:opacity-50">Discard draft</button>
+                          <button type="button" disabled={outreachActionLoading} onClick={() => discardOutreachLocation(contact.id)} className="flex-1 rounded border border-red-400/60 px-3 py-2 text-sm font-semibold text-red-200 disabled:opacity-50">Discard location</button>
                         </div>
                         {outreachFeedback[contact.id] && (
                           <p role="status" aria-live="polite" className={`creator-send-feedback mt-3 ${outreachFeedback[contact.id].isError ? "is-error" : "is-success"}`}>

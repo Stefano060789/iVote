@@ -1,5 +1,6 @@
 import { runResearchGodwitProspects } from "../lib/cron/researchGodwitProspectsJob.js";
 import { createOutreachCopy, OUTREACH_LANGUAGES } from "../lib/cron/outreachCopy.js";
+import { findPublicBusinessEmail } from "../lib/cron/publicBusinessEmail.js";
 import { RESEARCH_BUSINESS_TYPES, RESEARCH_COUNTRIES } from "../lib/cron/researchOptions.js";
 import { isValidOutreachEmail, runSendOutreachEmails } from "../lib/cron/sendOutreachEmailsJob.js";
 import { supabaseGet, supabasePatch } from "../lib/cron/cronHelpers.js";
@@ -78,6 +79,25 @@ export default async function handler(request, response) {
         last_error: null
       });
       return response.status(200).json({ subject, message });
+    }
+    if (action === "find-email") {
+      const contactId = String(request.body?.contactId || "");
+      if (!contactId) return response.status(400).json({ error: "contactId is required." });
+      const contacts = await supabaseGet(
+        `creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}&select=id,website,contact_email`
+      );
+      const contact = contacts[0];
+      if (!contact) return response.status(404).json({ error: "Outreach location not found." });
+      if (contact.contact_email) {
+        return response.status(200).json({ email: contact.contact_email, status: "found" });
+      }
+      const result = await findPublicBusinessEmail(contact.website);
+      if (result.email) {
+        await supabasePatch(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}`, {
+          contact_email: result.email
+        });
+      }
+      return response.status(200).json(result);
     }
     if (action === "send") {
       const contactIds = Array.isArray(request.body?.contactIds)
