@@ -87,7 +87,7 @@ describe("creator-outreach regenerate action", () => {
     expect(res.body.subject).toContain("House of Ble Immobilien");
     expect(res.body.message).toContain("House of Ble Immobilien");
     expect(res.body.message).toContain("Immobilienplakat");
-    expect(res.body.message).toContain("Über einen QR-Code können Besucher");
+    expect(res.body.message).toContain("Wenn der Pilot hilfreiche Erkenntnisse liefert");
     expect(res.body.message).toContain("Wer ausdrücklich einwilligt");
     expect(res.body.message).toContain("in Vienna");
     expect(res.body.message).not.toBe("An earlier draft that should be replaced.");
