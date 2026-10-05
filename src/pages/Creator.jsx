@@ -384,7 +384,7 @@ export default function Creator() {
           .map(([country, count]) => `${country}: ${count}`)
           .join(", ");
         const emailCount = Number(result.emailsFound || 0);
-        setMessage(`Research complete: ${result.inserted || 0} new drafts added, ${emailCount} public contact email${emailCount === 1 ? "" : "s"} found${countryTotals ? ` (${countryTotals})` : ""}.`);
+        setMessage(`Research complete: ${result.inserted || 0} new prospects added, ${emailCount} public contact email${emailCount === 1 ? "" : "s"} found${countryTotals ? ` (${countryTotals})` : ""}.`);
         await loadOutreach();
         return;
       }
@@ -630,6 +630,9 @@ export default function Creator() {
                         </label>
                       ))}
                     </div>
+                    <p className="mt-2 text-xs font-normal text-slate-400">
+                      Research prioritizes businesses where QR feedback fits real customer touchpoints, then ranks available listings by business type, operating status, and whether an official website is available. Closed businesses are skipped; ranking signals are clues, not claims that a business has a problem.
+                    </p>
                   </fieldset>
                   <div className="flex flex-wrap items-end gap-3 lg:col-span-2">
                     <label className="text-sm font-semibold">
@@ -727,7 +730,7 @@ export default function Creator() {
                     <div className="mt-4 min-w-0 rounded border border-slate-700 p-2 sm:p-3">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <h4 className="font-semibold">Outreach email draft</h4>
-                          <span className="text-xs text-slate-400">{contact.message_review_status === "pending" ? "Ready for your review" : contact.message_review_status}</span>
+                          <span className="text-xs text-slate-400">{!contact.message ? "AI draft not generated" : contact.message_review_status === "pending" ? "Ready for your review" : contact.message_review_status}</span>
                         </div>
                         <p className="mt-3 text-sm text-slate-500">From: hellogodwit@gmail.com</p>
                         <label className="mt-2 block text-sm font-medium text-slate-300">
@@ -766,7 +769,7 @@ export default function Creator() {
                             <span className="mt-1 block text-xs font-normal text-amber-200">Save the subject before sending.</span>
                           )}
                         </label>
-                        <p className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words text-sm text-slate-300">{contact.message || "No draft message."}</p>
+                        <p className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words text-sm text-slate-300">{contact.message || "No AI draft yet. Select Regenerate to create a message based on this business's available information."}</p>
                         <div className="mt-3 flex flex-wrap gap-2">
                           <button
                             type="button"
@@ -777,10 +780,10 @@ export default function Creator() {
                             Save subject
                           </button>
                           <button type="button" disabled={outreachActionLoading} onClick={() => runOutreachAction("regenerate", contact.id, { language: outreachLanguage })} className="flex-1 rounded border border-teal-300/60 px-3 py-2 text-sm font-semibold text-teal-200 disabled:opacity-50">Regenerate</button>
-                          <button type="button" disabled={outreachActionLoading || (subjectEdits[contact.id] !== undefined && subjectEdits[contact.id] !== (contact.subject || ""))} onClick={() => sendOutreachMessage(contact.id, String(recipientEmails[contact.id] ?? contact.contact_email ?? "").trim())} className="flex-1 rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Send message</button>
+                          <button type="button" disabled={outreachActionLoading || !contact.subject || !contact.message || (subjectEdits[contact.id] !== undefined && subjectEdits[contact.id] !== (contact.subject || ""))} onClick={() => sendOutreachMessage(contact.id, String(recipientEmails[contact.id] ?? contact.contact_email ?? "").trim())} className="flex-1 rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Send message</button>
                           <button type="button" disabled={outreachActionLoading} onClick={() => discardOutreachLocation(contact.id)} className="flex-1 rounded border border-red-400/60 px-3 py-2 text-sm font-semibold text-red-200 disabled:opacity-50">Discard location</button>
                         </div>
-                        <p className="mt-2 text-xs text-slate-500">Regenerate creates a fresh version. With OPENAI_API_KEY configured, it also uses details from the business website.</p>
+                        <p className="mt-2 text-xs text-slate-500">Regenerate uses AI to connect details from the business website to a specific feedback opportunity. It does not fall back to templates; configure OPENAI_API_KEY in the deployment environment.</p>
                         {outreachFeedback[contact.id] && (
                           <p role="status" aria-live="polite" className={`creator-send-feedback mt-3 ${outreachFeedback[contact.id].isError ? "is-error" : "is-success"}`}>
                             {outreachFeedback[contact.id].text}

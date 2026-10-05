@@ -1,6 +1,6 @@
 import { runResearchGodwitProspects } from "../lib/cron/researchGodwitProspectsJob.js";
 import { OUTREACH_LANGUAGES } from "../lib/cron/outreachCopy.js";
-import { generatePersonalizedOutreach } from "../lib/cron/personalizedOutreach.js";
+import { generatePersonalizedOutreach, OUTREACH_AI_REQUIRED_ERROR } from "../lib/cron/personalizedOutreach.js";
 import { findPublicBusinessEmail } from "../lib/cron/publicBusinessEmail.js";
 import { RESEARCH_BUSINESS_TYPES, RESEARCH_COUNTRIES } from "../lib/cron/researchOptions.js";
 import { isValidOutreachEmail, runSendOutreachEmails } from "../lib/cron/sendOutreachEmailsJob.js";
@@ -78,6 +78,9 @@ export default async function handler(request, response) {
       if (!contactId) return response.status(400).json({ error: "contactId is required." });
       if (language !== "auto" && !OUTREACH_LANGUAGES.includes(language)) {
         return response.status(400).json({ error: "Select a supported outreach language." });
+      }
+      if (!process.env.OPENAI_API_KEY?.trim()) {
+        return response.status(503).json({ error: OUTREACH_AI_REQUIRED_ERROR });
       }
       const contacts = await supabaseGet(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}&select=id,company_name,business_type,country,city,website,contact_email,message`);
       const contact = contacts[0];
@@ -195,10 +198,13 @@ export default async function handler(request, response) {
         return response.status(400).json({ error: "Enter one valid business email address to send this message." });
       }
       const contacts = await supabaseGet(
-        `creator_outreach_contacts?id=in.(${contactIds.map(encodeURIComponent).join(",")})&status=in.(draft,approved)&select=id,business_review_status,message_review_status`
+        `creator_outreach_contacts?id=in.(${contactIds.map(encodeURIComponent).join(",")})&status=in.(draft,approved)&select=id,business_review_status,message_review_status,subject,message`
       );
       if (contacts.length !== contactIds.length) {
         return response.status(400).json({ error: "One or more drafts are no longer available to send." });
+      }
+      if (contacts.some((contact) => !String(contact.subject || "").trim() || !String(contact.message || "").trim())) {
+        return response.status(400).json({ error: "Generate and review an AI draft before sending." });
       }
       if (contacts.some((contact) => contact.business_review_status === "rejected" || contact.message_review_status === "rejected")) {
         return response.status(400).json({ error: "A discarded or rejected draft cannot be sent." });

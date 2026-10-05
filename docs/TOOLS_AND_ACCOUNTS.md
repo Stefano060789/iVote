@@ -19,7 +19,7 @@ This is an operational handoff for the services used by the iVote/Godwit applica
 | --- | --- | --- | --- |
 | **Stripe** | Subscription checkout, donation payments, and Stripe Connect payouts/webhooks. | Stripe dashboard login is not recorded here. | `STRIPE_SECRET_KEY`, `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_GROWTH`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_CONNECT_WEBHOOK_SECRET`; billing can be gated by `BILLING_ENABLED`. Check the Stripe dashboard and Vercel variables before enabling billing. |
 | **Resend** | Transactional notifications, reports, and consent-based lead follow-up email. | Resend account login is not recorded here. | `RESEND_API_KEY` and verified sender `REPORT_FROM_EMAIL`. This is separate from Gmail Creator outreach. |
-| **OpenAI** | Optional AI-assisted sentiment classification and Creator outreach draft personalization using public business website text. | OpenAI account login is not recorded here. | `OPENAI_API_KEY`. Outreach regeneration uses category-specific variations when it is not configured. |
+| **OpenAI** | Optional AI-assisted sentiment classification; required for Creator outreach drafts, which use available public business information to propose a business-specific feedback opportunity. | OpenAI account login is not recorded here. | `OPENAI_API_KEY`. Research does not create a sendable template; use Regenerate to create each draft. Regeneration returns a setup error if the key is not configured. |
 | **Sentry** | Optional browser and server error monitoring. | Sentry organization/account login is not recorded here. | Client `VITE_SENTRY_DSN`; server `SENTRY_DSN`. |
 
 ## Vercel environment-variable checklist

@@ -1,9 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import handler from "../../api/creator-outreach.js";
-import { findPublicBusinessEmail } from "../../lib/cron/publicBusinessEmail.js";
+import { findPublicBusinessEmail, getPublicBusinessWebsiteContext } from "../../lib/cron/publicBusinessEmail.js";
 
 vi.mock("../../lib/cron/publicBusinessEmail.js", () => ({
-  findPublicBusinessEmail: vi.fn()
+  findPublicBusinessEmail: vi.fn(),
+  getPublicBusinessWebsiteContext: vi.fn()
 }));
 
 const originalEnv = { ...process.env };
@@ -45,6 +46,7 @@ describe("creator-outreach regenerate action", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.mocked(findPublicBusinessEmail).mockReset();
+    vi.mocked(getPublicBusinessWebsiteContext).mockReset();
     process.env = { ...originalEnv };
   });
 
@@ -53,11 +55,26 @@ describe("creator-outreach regenerate action", () => {
     process.env.SUPABASE_SERVICE_ROLE_KEY = "service-role";
     process.env.SUPABASE_ANON_KEY = "anon-key";
     process.env.CREATOR_EMAILS = "bonomistefano@outlook.it";
-    delete process.env.OPENAI_API_KEY;
+    process.env.OPENAI_API_KEY = "test-openai-key";
+    vi.mocked(getPublicBusinessWebsiteContext).mockResolvedValue({
+      text: "Persönliche Immobilienberatung und aktuelle Wohnangebote in Vienna.",
+      status: "found",
+      sourceUrl: "https://example.org"
+    });
+    const generated = {
+      subject: "House of Ble Immobilien: eine Idee für Interessenten",
+      message: "Guten Tag liebes House of Ble Immobilien-Team,\n\nAuf Ihrer Website beschreiben Sie Immobilienberatung in Vienna. Bei Immobilienplakaten könnte ein QR-Code Interessenten fragen, welche Merkmale ihnen wichtig sind und welche Art von Objekt sie suchen. So erkennen Sie, welche Informationen und passende Immobilienangebote besonders relevant sind. Wer ausdrücklich einwilligt, kann anschließend gezielt passende Immobilienangebote erhalten.\n\nWir könnten diese Idee in einem kostenlosen, begleiteten zweiwöchigen Pilot für Sie prüfen. Wenn der Pilot hilfreiche Erkenntnisse liefert, kann ein Abonnement den Feedback-Kreislauf fortsetzen. Hätten Sie Zeit für eine kurze 15-minütige Vorstellung?\n\nhttps://hellogodwit.com\n\nFreundliche Grüße,\nStefano and Mariia",
+      personalizationReason: "Die Website beschreibt Immobilienberatung und Wohnangebote; ein QR-Code auf Immobilienplakaten könnte Interessentenpräferenzen erfassen und passende Immobilienangebote ermöglichen."
+    };
 
     vi.stubGlobal("fetch", vi.fn(async (url, options = {}) => {
       const href = String(url);
       const method = options.method || "GET";
+      if (href === "https://api.openai.com/v1/chat/completions") {
+        return jsonResponse({
+          choices: [{ message: { content: JSON.stringify(generated) } }]
+        });
+      }
       if (href.includes("/auth/v1/user")) {
         return jsonResponse({ email: "bonomistefano@outlook.it" });
       }
@@ -98,7 +115,7 @@ describe("creator-outreach regenerate action", () => {
     expect(JSON.parse(update[1].body).personalization_note).toContain("office@example.com");
   });
 
-  it("allows the additional Creator account through server-side authorization", async () => {
+  it("reports the AI configuration requirement to an authorized Creator", async () => {
     process.env.SUPABASE_URL = "https://supabase.test";
     process.env.SUPABASE_SERVICE_ROLE_KEY = "service-role";
     process.env.SUPABASE_ANON_KEY = "anon-key";
@@ -129,8 +146,8 @@ describe("creator-outreach regenerate action", () => {
     const res = makeResponse();
     await handler(req, res);
 
-    expect(res.statusCode).toBe(200);
-    expect(res.body.subject).toContain("House of Ble");
+    expect(res.statusCode).toBe(503);
+    expect(res.body.error).toContain("OPENAI_API_KEY");
   });
 
   it("stores a public email found by an on-demand official-site lookup", async () => {
@@ -320,6 +337,38 @@ describe("creator-outreach regenerate action", () => {
     expect(requests.some(({ method, body }) =>
       method === "PATCH" && body.subject === "A visitor feedback idea for Luna" && body.message_review_status === "pending"
     )).toBe(true);
+  });
+
+  it("does not approve a prospect without a generated message", async () => {
+    process.env.SUPABASE_URL = "https://supabase.test";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "service-role";
+    process.env.SUPABASE_ANON_KEY = "anon-key";
+    process.env.CREATOR_EMAILS = "bonomistefano@outlook.it";
+    const requests = [];
+    vi.stubGlobal("fetch", vi.fn(async (url, options = {}) => {
+      const href = String(url);
+      const method = options.method || "GET";
+      requests.push({ href, method });
+      if (href.includes("/auth/v1/user")) return jsonResponse({ email: "bonomistefano@outlook.it" });
+      if (href.includes("/rest/v1/creator_outreach_contacts?id=in.") && method === "GET") {
+        return jsonResponse([{
+          id: "contact-1",
+          business_review_status: "pending",
+          message_review_status: "pending",
+          subject: "",
+          message: ""
+        }]);
+      }
+      throw new Error(`Unexpected request: ${method} ${href}`);
+    }));
+
+    const req = makeRequest({ body: { action: "send", contactIds: ["contact-1"] } });
+    const res = makeResponse();
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toContain("Generate and review an AI draft");
+    expect(requests.some(({ method }) => method === "PATCH")).toBe(false);
   });
 
   it("clears unsent outreach drafts while preserving sent and rejected locations", async () => {
