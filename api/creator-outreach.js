@@ -4,7 +4,7 @@ import { generatePersonalizedOutreach } from "../lib/cron/personalizedOutreach.j
 import { findPublicBusinessEmail } from "../lib/cron/publicBusinessEmail.js";
 import { RESEARCH_BUSINESS_TYPES, RESEARCH_COUNTRIES } from "../lib/cron/researchOptions.js";
 import { isValidOutreachEmail, runSendOutreachEmails } from "../lib/cron/sendOutreachEmailsJob.js";
-import { supabaseDelete, supabaseGet, supabasePatch } from "../lib/cron/cronHelpers.js";
+import { supabaseGet, supabasePatch, supabaseRequest } from "../lib/cron/cronHelpers.js";
 
 function getBearer(request) {
   return request.headers.authorization?.replace(/^Bearer\s+/i, "").trim();
@@ -12,8 +12,8 @@ function getBearer(request) {
 
 async function requireCreator(request) {
   const token = getBearer(request);
-  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const key = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+  const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+  const key = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
   if (!token || !url || !key) throw new Error("Creator authentication is not configured.");
   const result = await fetch(`${url}/auth/v1/user`, {
     headers: { apikey: key, Authorization: `Bearer ${token}` }
@@ -118,10 +118,11 @@ export default async function handler(request, response) {
       return response.status(200).json({ subject });
     }
     if (action === "clear-research") {
-      await supabaseDelete(
-        "creator_outreach_contacts?status=in.(draft,approved)&or=(business_review_status.neq.rejected,business_review_status.is.null)"
+      const deletedRows = await supabaseRequest(
+        "creator_outreach_contacts?status=in.(draft,approved)&or=(business_review_status.neq.rejected,business_review_status.is.null)&select=id",
+        { method: "DELETE", prefer: "return=representation" }
       );
-      return response.status(200).json({ cleared: true });
+      return response.status(200).json({ cleared: Array.isArray(deletedRows) ? deletedRows.length : 0 });
     }
     if (action === "find-email") {
       const contactId = String(request.body?.contactId || "");

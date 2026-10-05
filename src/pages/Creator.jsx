@@ -208,7 +208,11 @@ export default function Creator() {
     setMessage("");
     setOutreachActionLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data, error: sessionError } = await supabase.auth.refreshSession();
+      if (sessionError || !data.session?.access_token) {
+        throw new Error("Your Creator session has expired. Sign in again and retry.");
+      }
+      const session = data.session;
       const response = await fetch("/api/creator-outreach", {
         method: "POST",
         headers: {
@@ -224,7 +228,7 @@ export default function Creator() {
       setSubjectEdits({});
       setOutreachFeedback({});
       setSearchedEmailContactIds(new Set());
-      setMessage("Displayed prospects removed. Sent emails and discarded locations were kept.");
+      setMessage(`Removed ${Number(result.cleared) || 0} displayed prospects. Sent emails and discarded locations were kept.`);
     } catch (clearError) {
       setError(clearError instanceof Error ? clearError.message : "Could not clear outreach drafts.");
     } finally {

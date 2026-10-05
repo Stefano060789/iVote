@@ -325,15 +325,17 @@ describe("creator-outreach regenerate action", () => {
     process.env.SUPABASE_URL = "https://supabase.test";
     process.env.SUPABASE_SERVICE_ROLE_KEY = "service-role";
     process.env.SUPABASE_ANON_KEY = "anon-key";
+    process.env.VITE_SUPABASE_URL = "https://client-supabase.test";
+    process.env.VITE_SUPABASE_ANON_KEY = "client-anon-key";
     process.env.CREATOR_EMAILS = "bonomistefano@outlook.it";
     const requests = [];
     vi.stubGlobal("fetch", vi.fn(async (url, options = {}) => {
       const href = String(url);
       const method = options.method || "GET";
-      requests.push({ href, method });
+      requests.push({ href, method, headers: options.headers || {} });
       if (href.includes("/auth/v1/user")) return jsonResponse({ email: "bonomistefano@outlook.it" });
       if (href.includes("/rest/v1/creator_outreach_contacts?") && method === "DELETE") {
-        return new Response(null, { status: 204 });
+        return jsonResponse([{ id: "contact-1" }, { id: "contact-2" }]);
       }
       throw new Error(`Unexpected request: ${method} ${href}`);
     }));
@@ -343,9 +345,14 @@ describe("creator-outreach regenerate action", () => {
     await handler(req, res);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body).toEqual({ cleared: true });
+    expect(res.body).toEqual({ cleared: 2 });
+    const authRequest = requests.find(({ href }) => href.includes("/auth/v1/user"));
+    expect(authRequest.href).toBe("https://client-supabase.test/auth/v1/user");
+    expect(authRequest.headers.apikey).toBe("client-anon-key");
     const deleteRequest = requests.find(({ method }) => method === "DELETE");
     expect(deleteRequest.href).toContain("status=in.(draft,approved)");
     expect(deleteRequest.href).toContain("or=(business_review_status.neq.rejected,business_review_status.is.null)");
+    expect(deleteRequest.href).toContain("select=id");
+    expect(deleteRequest.headers.Prefer).toBe("return=representation");
   });
 });
