@@ -6,6 +6,15 @@ import { isCreatorEmail } from "../lib/creatorAccess";
 import { getOutreachLanguageLabel, OUTREACH_LANGUAGES } from "../../lib/cron/outreachCopy.js";
 import { RESEARCH_BUSINESS_TYPES, RESEARCH_COUNTRIES } from "../../lib/cron/researchOptions.js";
 
+async function getCreatorSession() {
+  const { data, error } = await supabase.auth.refreshSession();
+  if (error) throw error;
+  if (!data.session?.access_token) {
+    throw new Error("Your Creator session has expired. Sign in again and retry.");
+  }
+  return data.session;
+}
+
 const LANGUAGE_OPTIONS = [
   ["auto", "Automatic by country"],
   ...OUTREACH_LANGUAGES.map((language) => [language, getOutreachLanguageLabel(language)])
@@ -166,7 +175,7 @@ export default function Creator() {
     }
     setOutreachActionLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const session = await getCreatorSession();
       const response = await fetch("/api/creator-outreach", {
         method: "POST",
         headers: {
@@ -208,11 +217,7 @@ export default function Creator() {
     setMessage("");
     setOutreachActionLoading(true);
     try {
-      const { data, error: sessionError } = await supabase.auth.refreshSession();
-      if (sessionError || !data.session?.access_token) {
-        throw new Error("Your Creator session has expired. Sign in again and retry.");
-      }
-      const session = data.session;
+      const session = await getCreatorSession();
       const response = await fetch("/api/creator-outreach", {
         method: "POST",
         headers: {
@@ -241,7 +246,7 @@ export default function Creator() {
     setMessage("");
     setOutreachActionLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const session = await getCreatorSession();
       const response = await fetch("/api/creator-outreach", {
         method: "POST",
         headers: {
@@ -310,7 +315,7 @@ export default function Creator() {
     setMessage("");
     setOutreachActionLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const session = await getCreatorSession();
       const response = await fetch("/api/creator-outreach", {
         method: "POST",
         headers: {
@@ -351,7 +356,7 @@ export default function Creator() {
     setMessage("");
     setOutreachActionLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const session = await getCreatorSession();
       const response = await fetch("/api/creator-outreach", {
         method: "POST",
         headers: {
@@ -425,7 +430,7 @@ export default function Creator() {
     }));
     setOutreachActionLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const session = await getCreatorSession();
       const response = await fetch("/api/creator-outreach", {
         method: "POST",
         headers: {
