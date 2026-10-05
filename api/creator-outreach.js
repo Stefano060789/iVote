@@ -12,18 +12,41 @@ function getBearer(request) {
 
 async function requireCreator(request) {
   const token = getBearer(request);
-  const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-  const key = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
-  if (!token || !url || !key) throw new Error("Creator authentication is not configured.");
-  const result = await fetch(`${url}/auth/v1/user`, {
-    headers: { apikey: key, Authorization: `Bearer ${token}` }
-  });
-  if (!result.ok) {
+  if (!token) throw new Error("Creator authentication is not configured.");
+
+  const configs = [
+    [process.env.VITE_SUPABASE_URL, process.env.VITE_SUPABASE_ANON_KEY],
+    [process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY],
+    [process.env.VITE_SUPABASE_URL, process.env.SUPABASE_ANON_KEY],
+    [process.env.SUPABASE_URL, process.env.VITE_SUPABASE_ANON_KEY]
+  ].filter(([url, key], index, all) =>
+    url && key && all.findIndex(([otherUrl, otherKey]) => url === otherUrl && key === otherKey) === index
+  );
+  if (configs.length === 0) throw new Error("Creator authentication is not configured.");
+
+  let user;
+  let lastAuthError;
+  for (const [url, key] of configs) {
+    const result = await fetch(`${url}/auth/v1/user`, {
+      headers: { apikey: key, Authorization: `Bearer ${token}` }
+    });
+    if (result.ok) {
+      user = await result.json();
+      break;
+    }
     const authError = await result.json();
-    const reason = authError.msg || authError.message || authError.error_description || authError.error;
-    throw new Error(`Creator authentication failed (Supabase ${result.status}${reason ? `: ${reason}` : ""}).`);
+    lastAuthError = {
+      status: result.status,
+      reason: authError.msg || authError.message || authError.error_description || authError.error
+    };
+    if (result.status !== 401 && result.status !== 403) break;
   }
-  const user = await result.json();
+  if (!user) {
+    const detail = lastAuthError
+      ? `Supabase ${lastAuthError.status}${lastAuthError.reason ? `: ${lastAuthError.reason}` : ""}`
+      : "Supabase rejected the session.";
+    throw new Error(`Creator authentication failed (${detail}).`);
+  }
   const allowed = [
     "bonomistefano@outlook.it",
     "afelix470@gmail.com",

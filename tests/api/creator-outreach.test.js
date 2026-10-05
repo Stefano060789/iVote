@@ -333,7 +333,11 @@ describe("creator-outreach regenerate action", () => {
       const href = String(url);
       const method = options.method || "GET";
       requests.push({ href, method, headers: options.headers || {} });
-      if (href.includes("/auth/v1/user")) return jsonResponse({ email: "bonomistefano@outlook.it" });
+      if (href.includes("/auth/v1/user")) {
+        return options.headers?.apikey === "client-anon-key"
+          ? jsonResponse({ message: "Invalid JWT" }, 401)
+          : jsonResponse({ email: "bonomistefano@outlook.it" });
+      }
       if (href.includes("/rest/v1/creator_outreach_contacts?") && method === "DELETE") {
         return jsonResponse([{ id: "contact-1" }, { id: "contact-2" }]);
       }
@@ -346,9 +350,12 @@ describe("creator-outreach regenerate action", () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual({ cleared: 2 });
-    const authRequest = requests.find(({ href }) => href.includes("/auth/v1/user"));
-    expect(authRequest.href).toBe("https://client-supabase.test/auth/v1/user");
-    expect(authRequest.headers.apikey).toBe("client-anon-key");
+    const authRequests = requests.filter(({ href }) => href.includes("/auth/v1/user"));
+    expect(authRequests).toHaveLength(2);
+    expect(authRequests[0].href).toBe("https://client-supabase.test/auth/v1/user");
+    expect(authRequests[0].headers.apikey).toBe("client-anon-key");
+    expect(authRequests[1].href).toBe("https://supabase.test/auth/v1/user");
+    expect(authRequests[1].headers.apikey).toBe("anon-key");
     const deleteRequest = requests.find(({ method }) => method === "DELETE");
     expect(deleteRequest.href).toContain("status=in.(draft,approved)");
     expect(deleteRequest.href).toContain("or=(business_review_status.neq.rejected,business_review_status.is.null)");
@@ -359,6 +366,8 @@ describe("creator-outreach regenerate action", () => {
   it("returns the Supabase auth rejection reason for an invalid Creator token", async () => {
     process.env.SUPABASE_URL = "https://supabase.test";
     process.env.SUPABASE_ANON_KEY = "anon-key";
+    delete process.env.VITE_SUPABASE_URL;
+    delete process.env.VITE_SUPABASE_ANON_KEY;
     vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({ message: "Invalid JWT" }, 401)));
 
     const req = makeRequest({ body: { action: "clear-research" } });
