@@ -72,18 +72,21 @@ export default async function handler(request, response) {
       if (language !== "auto" && !OUTREACH_LANGUAGES.includes(language)) {
         return response.status(400).json({ error: "Select a supported outreach language." });
       }
-      const contacts = await supabaseGet(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}&select=id,company_name,business_type,country`);
+      const contacts = await supabaseGet(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}&select=id,company_name,business_type,country,city,contact_email`);
       const contact = contacts[0];
       if (!contact) return response.status(404).json({ error: "Outreach draft not found." });
-      const { subject, message } = createOutreachCopy({
+      const { subject, message, personalizationReason } = createOutreachCopy({
         companyName: contact.company_name,
         businessType: contact.business_type,
         country: contact.country,
+        city: contact.city,
         language
       });
+      const type = String(contact.business_type || "customer-facing business").replaceAll("_", " ");
       await supabasePatch(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}`, {
         subject,
         message,
+        personalization_note: `Google Places category: ${type}${contact.city ? ` in ${contact.city}` : ""}. Tailored outreach angle: ${personalizationReason}${contact.contact_email ? ` Public contact email on file: ${contact.contact_email}.` : ""}`,
         message_review_status: "pending",
         status: "draft",
         last_error: null

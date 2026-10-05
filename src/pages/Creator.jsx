@@ -695,7 +695,7 @@ export default function Creator() {
                       </div>
                       <span className="text-xs text-slate-400">Delivery: {contact.status}</span>
                     </div>
-                    <p className="mt-3 text-sm text-slate-300">{contact.personalization_note || "No research note provided."}</p>
+                    <p className="mt-3 text-sm text-slate-300"><strong>Research and tailored reason:</strong> {contact.personalization_note || "No research note provided."}</p>
                     <div className="mt-4 min-w-0 rounded border border-slate-700 p-2 sm:p-3">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <h4 className="font-semibold">Outreach email draft</h4>

@@ -48,7 +48,7 @@ describe("creator-outreach regenerate action", () => {
     process.env = { ...originalEnv };
   });
 
-  it("addresses the draft to the actual company name, not a snake_case mismatch default", async () => {
+  it("regenerates a localized, property-viewing-specific message and research note", async () => {
     process.env.SUPABASE_URL = "https://supabase.test";
     process.env.SUPABASE_SERVICE_ROLE_KEY = "service-role";
     process.env.SUPABASE_ANON_KEY = "anon-key";
@@ -63,9 +63,11 @@ describe("creator-outreach regenerate action", () => {
       if (href.includes("/rest/v1/creator_outreach_contacts?id=eq.contact-1") && method === "GET") {
         return jsonResponse([{
           id: "contact-1",
-          company_name: "House of Ble",
-          business_type: "hotel",
-          country: "Austria"
+          company_name: "House of Ble Immobilien",
+          business_type: "real_estate_agency",
+          country: "Austria",
+          city: "Vienna",
+          contact_email: "office@example.com"
         }]);
       }
       if (href.includes("/rest/v1/creator_outreach_contacts?id=eq.contact-1") && method === "PATCH") {
@@ -79,9 +81,14 @@ describe("creator-outreach regenerate action", () => {
     await handler(req, res);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.subject).toContain("House of Ble");
-    expect(res.body.message).toContain("House of Ble");
+    expect(res.body.subject).toContain("House of Ble Immobilien");
+    expect(res.body.message).toContain("House of Ble Immobilien");
+    expect(res.body.message).toContain("Kauf- oder Mietinteressenten");
+    expect(res.body.message).toContain("in Vienna");
     expect(res.body.subject).not.toContain("your team");
+    const update = vi.mocked(fetch).mock.calls.find(([, options]) => options?.method === "PATCH");
+    expect(JSON.parse(update[1].body).personalization_note).toContain("Kauf- oder Mietinteressenten");
+    expect(JSON.parse(update[1].body).personalization_note).toContain("office@example.com");
   });
 
   it("allows the additional Creator account through server-side authorization", async () => {
