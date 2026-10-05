@@ -18,7 +18,11 @@ async function requireCreator(request) {
   const result = await fetch(`${url}/auth/v1/user`, {
     headers: { apikey: key, Authorization: `Bearer ${token}` }
   });
-  if (!result.ok) throw new Error("Creator authentication failed.");
+  if (!result.ok) {
+    const authError = await result.json();
+    const reason = authError.msg || authError.message || authError.error_description || authError.error;
+    throw new Error(`Creator authentication failed (Supabase ${result.status}${reason ? `: ${reason}` : ""}).`);
+  }
   const user = await result.json();
   const allowed = [
     "bonomistefano@outlook.it",

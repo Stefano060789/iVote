@@ -355,4 +355,18 @@ describe("creator-outreach regenerate action", () => {
     expect(deleteRequest.href).toContain("select=id");
     expect(deleteRequest.headers.Prefer).toBe("return=representation");
   });
+
+  it("returns the Supabase auth rejection reason for an invalid Creator token", async () => {
+    process.env.SUPABASE_URL = "https://supabase.test";
+    process.env.SUPABASE_ANON_KEY = "anon-key";
+    vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({ message: "Invalid JWT" }, 401)));
+
+    const req = makeRequest({ body: { action: "clear-research" } });
+    const res = makeResponse();
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(401);
+    expect(res.body.error).toContain("Supabase");
+    expect(res.body.error).toContain("Invalid JWT");
+  });
 });
