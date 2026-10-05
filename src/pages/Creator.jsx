@@ -59,6 +59,7 @@ export default function Creator() {
   const [error, setError] = useState("");
   const [outreachContacts, setOutreachContacts] = useState([]);
   const [outreachFeedback, setOutreachFeedback] = useState({});
+  const [outreachVariations, setOutreachVariations] = useState({});
   const [recipientEmails, setRecipientEmails] = useState({});
   const [subjectEdits, setSubjectEdits] = useState({});
   const [searchedEmailContactIds, setSearchedEmailContactIds] = useState(() => new Set());
@@ -356,6 +357,9 @@ export default function Creator() {
     setMessage("");
     setOutreachActionLoading(true);
     try {
+      const variation = action === "regenerate"
+        ? (outreachVariations[contactId] || 0) + 1
+        : undefined;
       const session = await getCreatorSession();
       const response = await fetch("/api/creator-outreach", {
         method: "POST",
@@ -363,7 +367,12 @@ export default function Creator() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session?.access_token || ""}`
         },
-        body: JSON.stringify({ action, contactId, ...options })
+        body: JSON.stringify({
+          action,
+          contactId,
+          ...options,
+          ...(variation === undefined ? {} : { variation })
+        })
       });
       const result = await response.json();
       if (!response.ok) {
@@ -378,6 +387,9 @@ export default function Creator() {
         setMessage(`Research complete: ${result.inserted || 0} new drafts added, ${emailCount} public contact email${emailCount === 1 ? "" : "s"} found${countryTotals ? ` (${countryTotals})` : ""}.`);
         await loadOutreach();
         return;
+      }
+      if (variation !== undefined) {
+        setOutreachVariations((current) => ({ ...current, [contactId]: variation }));
       }
       setSubjectEdits((current) => {
         const next = { ...current };

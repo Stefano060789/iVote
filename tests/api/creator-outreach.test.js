@@ -79,7 +79,7 @@ describe("creator-outreach regenerate action", () => {
       throw new Error(`Unexpected request: ${method} ${href}`);
     }));
 
-    const req = makeRequest({ body: { action: "regenerate", contactId: "contact-1", language: "de" } });
+    const req = makeRequest({ body: { action: "regenerate", contactId: "contact-1", language: "de", variation: 1 } });
     const res = makeResponse();
     await handler(req, res);
 
@@ -87,6 +87,7 @@ describe("creator-outreach regenerate action", () => {
     expect(res.body.subject).toContain("House of Ble Immobilien");
     expect(res.body.message).toContain("House of Ble Immobilien");
     expect(res.body.message).toContain("Immobilienplakat");
+    expect(res.body.message).toContain("Über einen QR-Code können Besucher");
     expect(res.body.message).toContain("Wer ausdrücklich einwilligt");
     expect(res.body.message).toContain("in Vienna");
     expect(res.body.message).not.toBe("An earlier draft that should be replaced.");

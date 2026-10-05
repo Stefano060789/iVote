@@ -89,7 +89,8 @@ export default async function handler(request, response) {
         city: contact.city,
         website: contact.website,
         previousMessage: contact.message,
-        language
+        language,
+        variation: request.body?.variation
       });
       const type = String(contact.business_type || "customer-facing business").replaceAll("_", " ");
       const personalizationNote = `Google Places category: ${type}${contact.city ? ` in ${contact.city}` : ""}. Tailored outreach angle: ${personalizationReason}${contact.contact_email ? ` Public contact email on file: ${contact.contact_email}.` : ""}`;
