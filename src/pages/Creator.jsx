@@ -438,11 +438,6 @@ export default function Creator() {
           ...current,
           [contactId]: { text: "Delivery is not configured. Add the Google App Password for hellogodwit@gmail.com as OUTREACH_SMTP_PASSWORD in Vercel.", isError: true }
         }));
-      } else if (result.remaining === 0 && result.sent === 0 && result.attempted === 0) {
-        setOutreachFeedback((current) => ({
-          ...current,
-          [contactId]: { text: "The daily outreach sending limit has been reached. Try again tomorrow.", isError: true }
-        }));
       } else if (result.sent > 0) {
         setOutreachFeedback((current) => ({
           ...current,

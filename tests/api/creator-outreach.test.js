@@ -48,7 +48,7 @@ describe("creator-outreach regenerate action", () => {
     process.env = { ...originalEnv };
   });
 
-  it("regenerates a localized, property-viewing-specific message and research note", async () => {
+  it("regenerates a localized, property-poster-specific message and research note", async () => {
     process.env.SUPABASE_URL = "https://supabase.test";
     process.env.SUPABASE_SERVICE_ROLE_KEY = "service-role";
     process.env.SUPABASE_ANON_KEY = "anon-key";
@@ -83,11 +83,12 @@ describe("creator-outreach regenerate action", () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.subject).toContain("House of Ble Immobilien");
     expect(res.body.message).toContain("House of Ble Immobilien");
-    expect(res.body.message).toContain("Kauf- oder Mietinteressenten");
+    expect(res.body.message).toContain("Immobilienplakat");
+    expect(res.body.message).toContain("Wer ausdrücklich einwilligt");
     expect(res.body.message).toContain("in Vienna");
     expect(res.body.subject).not.toContain("your team");
     const update = vi.mocked(fetch).mock.calls.find(([, options]) => options?.method === "PATCH");
-    expect(JSON.parse(update[1].body).personalization_note).toContain("Kauf- oder Mietinteressenten");
+    expect(JSON.parse(update[1].body).personalization_note).toContain("passende Immobilienangebote");
     expect(JSON.parse(update[1].body).personalization_note).toContain("office@example.com");
   });
 

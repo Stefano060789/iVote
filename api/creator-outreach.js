@@ -175,7 +175,7 @@ export default async function handler(request, response) {
     }
     if (action === "send") {
       const contactIds = Array.isArray(request.body?.contactIds)
-        ? [...new Set(request.body.contactIds.map(String).filter(Boolean))].slice(0, 5)
+        ? [...new Set(request.body.contactIds.map(String).filter(Boolean))]
         : [];
       const recipientEmail = String(request.body?.recipientEmail || "").trim();
       if (contactIds.length === 0) return response.status(400).json({ error: "At least one contact must be selected." });
