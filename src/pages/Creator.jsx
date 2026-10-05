@@ -55,7 +55,9 @@ export default function Creator() {
   const [searchedEmailContactIds, setSearchedEmailContactIds] = useState(() => new Set());
   const [outreachReplies, setOutreachReplies] = useState([]);
   const [researchCountries, setResearchCountries] = useState(RESEARCH_COUNTRIES);
-  const [researchBusinessTypes, setResearchBusinessTypes] = useState(RESEARCH_BUSINESS_TYPES.map(({ id }) => id));
+  const [researchBusinessTypes, setResearchBusinessTypes] = useState(() =>
+    RESEARCH_BUSINESS_TYPES.map(({ id }) => id)
+  );
   const [researchTargetTotal, setResearchTargetTotal] = useState(() => {
     const storedTarget = window.localStorage.getItem("godwit-outreach-research-total") || "";
     const parsedTarget = Number(storedTarget);
@@ -201,7 +203,7 @@ export default function Creator() {
   }
 
   async function clearOutreachResearch() {
-    if (!window.confirm("Clear all unsent outreach drafts? Sent emails and discarded locations will be kept. You can research them again afterward.")) return;
+    if (!window.confirm("Clean the displayed research list? This removes all unsent outreach drafts. Sent emails and discarded locations will be kept.")) return;
     setError("");
     setMessage("");
     setOutreachActionLoading(true);
@@ -222,7 +224,7 @@ export default function Creator() {
       setSubjectEdits({});
       setOutreachFeedback({});
       setSearchedEmailContactIds(new Set());
-      setMessage("Unsent drafts cleared. Sent and discarded locations were kept; run research again to create fresh drafts.");
+      setMessage("Displayed prospects removed. Sent emails and discarded locations were kept.");
     } catch (clearError) {
       setError(clearError instanceof Error ? clearError.message : "Could not clear outreach drafts.");
     } finally {
@@ -377,10 +379,13 @@ export default function Creator() {
         ...contact,
         subject: result.subject,
         message: result.message,
+        personalization_note: result.personalizationNote || contact.personalization_note,
         message_review_status: "pending",
         status: "draft"
       } : contact));
-      setMessage("A new message draft was generated. Review it before sending.");
+      setMessage("A fresh personalized message was generated. Review it before sending.");
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : "Outreach action failed.");
     } finally {
       setOutreachActionLoading(false);
     }
@@ -585,6 +590,13 @@ export default function Creator() {
                   </label>
                   <fieldset className="lg:col-span-2">
                     <legend className="font-semibold">Business types</legend>
+                    <button
+                      type="button"
+                      onClick={() => setResearchBusinessTypes(RESEARCH_BUSINESS_TYPES.map(({ id }) => id))}
+                      className="mt-1 text-xs font-semibold text-teal-300 underline"
+                    >
+                      Select all types (including real estate agencies)
+                    </button>
                     <div className="mt-2 grid max-h-48 gap-2 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3">
                       {RESEARCH_BUSINESS_TYPES.map(({ id, label }) => (
                         <label key={id} className="flex min-w-0 items-center gap-2 text-sm text-slate-300">
@@ -641,7 +653,7 @@ export default function Creator() {
                       onClick={clearOutreachResearch}
                       className="rounded border border-amber-300/60 px-3 py-2 text-sm font-semibold text-amber-200 disabled:opacity-50"
                     >
-                      Clear unsent research
+                      Clean displayed prospects
                     </button>
                     {outreachContacts.some((contact) => !contact.contact_email && !searchedEmailContactIds.has(contact.id)) && (
                       <button
@@ -747,6 +759,7 @@ export default function Creator() {
                           <button type="button" disabled={outreachActionLoading || (subjectEdits[contact.id] !== undefined && subjectEdits[contact.id] !== (contact.subject || ""))} onClick={() => sendOutreachMessage(contact.id, String(recipientEmails[contact.id] ?? contact.contact_email ?? "").trim())} className="flex-1 rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Send message</button>
                           <button type="button" disabled={outreachActionLoading} onClick={() => discardOutreachLocation(contact.id)} className="flex-1 rounded border border-red-400/60 px-3 py-2 text-sm font-semibold text-red-200 disabled:opacity-50">Discard location</button>
                         </div>
+                        <p className="mt-2 text-xs text-slate-500">Regenerate creates a fresh version. With OPENAI_API_KEY configured, it also uses details from the business website.</p>
                         {outreachFeedback[contact.id] && (
                           <p role="status" aria-live="polite" className={`creator-send-feedback mt-3 ${outreachFeedback[contact.id].isError ? "is-error" : "is-success"}`}>
                             {outreachFeedback[contact.id].text}

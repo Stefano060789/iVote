@@ -1,5 +1,6 @@
 import { runResearchGodwitProspects } from "../lib/cron/researchGodwitProspectsJob.js";
-import { createOutreachCopy, OUTREACH_LANGUAGES } from "../lib/cron/outreachCopy.js";
+import { OUTREACH_LANGUAGES } from "../lib/cron/outreachCopy.js";
+import { generatePersonalizedOutreach } from "../lib/cron/personalizedOutreach.js";
 import { findPublicBusinessEmail } from "../lib/cron/publicBusinessEmail.js";
 import { RESEARCH_BUSINESS_TYPES, RESEARCH_COUNTRIES } from "../lib/cron/researchOptions.js";
 import { isValidOutreachEmail, runSendOutreachEmails } from "../lib/cron/sendOutreachEmailsJob.js";
@@ -72,26 +73,29 @@ export default async function handler(request, response) {
       if (language !== "auto" && !OUTREACH_LANGUAGES.includes(language)) {
         return response.status(400).json({ error: "Select a supported outreach language." });
       }
-      const contacts = await supabaseGet(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}&select=id,company_name,business_type,country,city,contact_email`);
+      const contacts = await supabaseGet(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}&select=id,company_name,business_type,country,city,website,contact_email,message`);
       const contact = contacts[0];
       if (!contact) return response.status(404).json({ error: "Outreach draft not found." });
-      const { subject, message, personalizationReason } = createOutreachCopy({
+      const { subject, message, personalizationReason } = await generatePersonalizedOutreach({
         companyName: contact.company_name,
         businessType: contact.business_type,
         country: contact.country,
         city: contact.city,
+        website: contact.website,
+        previousMessage: contact.message,
         language
       });
       const type = String(contact.business_type || "customer-facing business").replaceAll("_", " ");
+      const personalizationNote = `Google Places category: ${type}${contact.city ? ` in ${contact.city}` : ""}. Tailored outreach angle: ${personalizationReason}${contact.contact_email ? ` Public contact email on file: ${contact.contact_email}.` : ""}`;
       await supabasePatch(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}`, {
         subject,
         message,
-        personalization_note: `Google Places category: ${type}${contact.city ? ` in ${contact.city}` : ""}. Tailored outreach angle: ${personalizationReason}${contact.contact_email ? ` Public contact email on file: ${contact.contact_email}.` : ""}`,
+        personalization_note: personalizationNote,
         message_review_status: "pending",
         status: "draft",
         last_error: null
       });
-      return response.status(200).json({ subject, message });
+      return response.status(200).json({ subject, message, personalizationNote });
     }
     if (action === "save-subject") {
       const contactId = String(request.body?.contactId || "");
@@ -115,7 +119,7 @@ export default async function handler(request, response) {
     }
     if (action === "clear-research") {
       await supabaseDelete(
-        "creator_outreach_contacts?status=in.(draft,approved)&business_review_status=neq.rejected"
+        "creator_outreach_contacts?status=in.(draft,approved)&or=(business_review_status.neq.rejected,business_review_status.is.null)"
       );
       return response.status(200).json({ cleared: true });
     }

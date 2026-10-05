@@ -53,6 +53,7 @@ describe("creator-outreach regenerate action", () => {
     process.env.SUPABASE_SERVICE_ROLE_KEY = "service-role";
     process.env.SUPABASE_ANON_KEY = "anon-key";
     process.env.CREATOR_EMAILS = "bonomistefano@outlook.it";
+    delete process.env.OPENAI_API_KEY;
 
     vi.stubGlobal("fetch", vi.fn(async (url, options = {}) => {
       const href = String(url);
@@ -67,7 +68,9 @@ describe("creator-outreach regenerate action", () => {
           business_type: "real_estate_agency",
           country: "Austria",
           city: "Vienna",
-          contact_email: "office@example.com"
+          website: "https://example.org",
+          contact_email: "office@example.com",
+          message: "An earlier draft that should be replaced."
         }]);
       }
       if (href.includes("/rest/v1/creator_outreach_contacts?id=eq.contact-1") && method === "PATCH") {
@@ -86,6 +89,8 @@ describe("creator-outreach regenerate action", () => {
     expect(res.body.message).toContain("Immobilienplakat");
     expect(res.body.message).toContain("Wer ausdrücklich einwilligt");
     expect(res.body.message).toContain("in Vienna");
+    expect(res.body.message).not.toBe("An earlier draft that should be replaced.");
+    expect(res.body.personalizationNote).toContain("passende Immobilienangebote");
     expect(res.body.subject).not.toContain("your team");
     const update = vi.mocked(fetch).mock.calls.find(([, options]) => options?.method === "PATCH");
     expect(JSON.parse(update[1].body).personalization_note).toContain("passende Immobilienangebote");
@@ -97,6 +102,7 @@ describe("creator-outreach regenerate action", () => {
     process.env.SUPABASE_SERVICE_ROLE_KEY = "service-role";
     process.env.SUPABASE_ANON_KEY = "anon-key";
     process.env.CREATOR_EMAILS = "bonomistefano@outlook.it";
+    delete process.env.OPENAI_API_KEY;
 
     vi.stubGlobal("fetch", vi.fn(async (url, options = {}) => {
       const href = String(url);
@@ -340,6 +346,6 @@ describe("creator-outreach regenerate action", () => {
     expect(res.body).toEqual({ cleared: true });
     const deleteRequest = requests.find(({ method }) => method === "DELETE");
     expect(deleteRequest.href).toContain("status=in.(draft,approved)");
-    expect(deleteRequest.href).toContain("business_review_status=neq.rejected");
+    expect(deleteRequest.href).toContain("or=(business_review_status.neq.rejected,business_review_status.is.null)");
   });
 });
