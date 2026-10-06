@@ -79,6 +79,7 @@ export default function Creator() {
   const [outreachContacts, setOutreachContacts] = useState([]);
   const [hiddenReviewedOutreachIds, setHiddenReviewedOutreachIds] = useState(getHiddenReviewedOutreachIds);
   const [outreachFeedback, setOutreachFeedback] = useState({});
+  const [outreachGeneration, setOutreachGeneration] = useState({});
   const [outreachVariations, setOutreachVariations] = useState({});
   const [recipientEmails, setRecipientEmails] = useState({});
   const [subjectEdits, setSubjectEdits] = useState({});
@@ -394,6 +395,17 @@ export default function Creator() {
       const variation = action === "regenerate"
         ? (outreachVariations[contactId] || 0) + 1
         : undefined;
+      if (action === "regenerate") {
+        setOutreachGeneration((current) => ({ ...current, [contactId]: "generating" }));
+        setOutreachFeedback((current) => {
+          const next = { ...current };
+          delete next[contactId];
+          return next;
+        });
+        setOutreachContacts((current) => current.map((contact) => contact.id === contactId
+          ? { ...contact, subject: "", message: "", aiProvider: null, aiGeneratedAt: null }
+          : contact));
+      }
       const session = await getCreatorSession();
       const response = await fetch("/api/creator-outreach", {
         method: "POST",
@@ -410,6 +422,16 @@ export default function Creator() {
       });
       const result = await response.json();
       if (!response.ok) {
+        if (action === "regenerate") {
+          setOutreachGeneration((current) => ({ ...current, [contactId]: "failed" }));
+          setOutreachFeedback((current) => ({
+            ...current,
+            [contactId]: {
+              text: result.error || "AI draft generation failed. No draft was retained.",
+              isError: true
+            }
+          }));
+        }
         setError(result.error || "Outreach action failed.");
         return;
       }
@@ -438,8 +460,26 @@ export default function Creator() {
         message_review_status: "pending",
         status: "draft"
       } : contact));
+      if (action === "regenerate") {
+        setOutreachGeneration((current) => ({ ...current, [contactId]: "ready" }));
+        setOutreachContacts((current) => current.map((contact) => contact.id === contactId ? {
+          ...contact,
+          aiProvider: result.aiProvider || "AI",
+          aiGeneratedAt: result.aiGeneratedAt || new Date().toISOString()
+        } : contact));
+      }
       setMessage("A fresh personalized message was generated. Review it before sending.");
     } catch (actionError) {
+      if (action === "regenerate") {
+        setOutreachGeneration((current) => ({ ...current, [contactId]: "failed" }));
+        setOutreachFeedback((current) => ({
+          ...current,
+          [contactId]: {
+            text: actionError instanceof Error ? actionError.message : "AI draft generation failed. No draft was retained.",
+            isError: true
+          }
+        }));
+      }
       setError(actionError instanceof Error ? actionError.message : "Outreach action failed.");
     } finally {
       setOutreachActionLoading(false);
@@ -816,7 +856,17 @@ export default function Creator() {
                     <div className="mt-4 min-w-0 rounded border border-slate-700 p-2 sm:p-3">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <h4 className="font-semibold">Outreach email draft</h4>
-                          <span className="text-xs text-slate-400">{!contact.message ? "AI draft not generated" : contact.message_review_status === "pending" ? "Ready for your review" : contact.message_review_status}</span>
+                          <span className="text-xs text-slate-400">
+                            {outreachGeneration[contact.id] === "generating"
+                              ? "Generating personalized draft…"
+                              : outreachGeneration[contact.id] === "failed"
+                                ? "Generation failed"
+                                : !contact.message
+                                  ? "AI draft not generated"
+                                  : contact.message_review_status === "pending"
+                                    ? "Ready for your review"
+                                    : contact.message_review_status}
+                          </span>
                         </div>
                         <p className="mt-3 text-sm text-slate-500">From: hellogodwit@gmail.com</p>
                         <label className="mt-2 block text-sm font-medium text-slate-300">
@@ -855,7 +905,11 @@ export default function Creator() {
                             <span className="mt-1 block text-xs font-normal text-amber-200">Save the subject before sending.</span>
                           )}
                         </label>
-                        <p className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words text-sm text-slate-300">{contact.message || "No AI draft yet. Select Regenerate to create a message based on this business's available information."}</p>
+                        <p className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words text-sm text-slate-300">
+                          {contact.message || (outreachGeneration[contact.id] === "generating"
+                            ? "Generating a new draft from the business's published information…"
+                            : "No AI draft retained. Select Regenerate to create a new personalized message.")}
+                        </p>
                         <div className="mt-3 flex flex-wrap gap-2">
                           <button
                             type="button"
@@ -865,11 +919,16 @@ export default function Creator() {
                           >
                             Save subject
                           </button>
-                          <button type="button" disabled={outreachActionLoading} onClick={() => runOutreachAction("regenerate", contact.id, { language: outreachLanguage })} className="flex-1 rounded border border-teal-300/60 px-3 py-2 text-sm font-semibold text-teal-200 disabled:opacity-50">Regenerate</button>
+                          <button type="button" disabled={outreachActionLoading} onClick={() => runOutreachAction("regenerate", contact.id, { language: outreachLanguage })} className="flex-1 rounded border border-teal-300/60 px-3 py-2 text-sm font-semibold text-teal-200 disabled:opacity-50">{outreachGeneration[contact.id] === "generating" ? "Generating…" : "Regenerate"}</button>
                           <button type="button" disabled={outreachActionLoading || !contact.subject || !contact.message || (subjectEdits[contact.id] !== undefined && subjectEdits[contact.id] !== (contact.subject || ""))} onClick={() => sendOutreachMessage(contact.id, String(recipientEmails[contact.id] ?? contact.contact_email ?? "").trim())} className="flex-1 rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Send message</button>
                           <button type="button" disabled={outreachActionLoading} onClick={() => discardOutreachLocation(contact.id)} className="flex-1 rounded border border-red-400/60 px-3 py-2 text-sm font-semibold text-red-200 disabled:opacity-50">Discard location</button>
                         </div>
                         <p className="mt-2 text-xs text-slate-500">AI-generated from the business's published information. Review the facts, recipient, and wording before sending.</p>
+                        {contact.aiProvider && contact.aiGeneratedAt && (
+                          <p className="mt-1 text-xs text-slate-500">
+                            Generated by {contact.aiProvider} · {new Date(contact.aiGeneratedAt).toLocaleString()}
+                          </p>
+                        )}
                         {outreachFeedback[contact.id] && (
                           <p role="status" aria-live="polite" className={`creator-send-feedback mt-3 ${outreachFeedback[contact.id].isError ? "is-error" : "is-success"}`}>
                             {outreachFeedback[contact.id].text}

@@ -105,7 +105,13 @@ export default async function handler(request, response) {
         status: "draft",
         last_error: null
       });
-      return response.status(200).json({ subject, message, personalizationNote });
+      return response.status(200).json({
+        subject,
+        message,
+        personalizationNote,
+        aiProvider: process.env.GEMINI_API_KEY?.trim() ? "Gemini" : "OpenAI",
+        aiGeneratedAt: new Date().toISOString()
+      });
     }
     if (action === "save-subject") {
       const contactId = String(request.body?.contactId || "");
