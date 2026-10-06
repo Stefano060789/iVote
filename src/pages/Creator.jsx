@@ -5,6 +5,11 @@ import { supabase } from "../lib/supabase";
 import { isCreatorEmail } from "../lib/creatorAccess";
 import { getOutreachLanguageLabel, OUTREACH_LANGUAGES } from "../../lib/cron/outreachCopy.js";
 import { RESEARCH_BUSINESS_TYPES, RESEARCH_COUNTRIES } from "../../lib/cron/researchOptions.js";
+import {
+  filterHiddenOutreachContacts,
+  getReviewedOutreachContactIds,
+  isReviewedOutreachContact
+} from "../lib/outreachDisplay.js";
 
 async function getCreatorSession() {
   const { data, error } = await supabase.auth.refreshSession();
@@ -19,6 +24,19 @@ const LANGUAGE_OPTIONS = [
   ["auto", "Automatic by country"],
   ...OUTREACH_LANGUAGES.map((language) => [language, getOutreachLanguageLabel(language)])
 ];
+
+const HIDDEN_REVIEWED_OUTREACH_KEY = "godwit-hidden-reviewed-outreach";
+
+function getHiddenReviewedOutreachIds() {
+  const saved = window.localStorage.getItem(HIDDEN_REVIEWED_OUTREACH_KEY);
+  if (!saved) return new Set();
+  try {
+    const ids = JSON.parse(saved);
+    return new Set(Array.isArray(ids) ? ids.filter((id) => typeof id === "string") : []);
+  } catch {
+    return new Set();
+  }
+}
 
 const METRICS = [
   ["users", "Registered people"],
@@ -58,6 +76,7 @@ export default function Creator() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [outreachContacts, setOutreachContacts] = useState([]);
+  const [hiddenReviewedOutreachIds, setHiddenReviewedOutreachIds] = useState(getHiddenReviewedOutreachIds);
   const [outreachFeedback, setOutreachFeedback] = useState({});
   const [outreachVariations, setOutreachVariations] = useState({});
   const [recipientEmails, setRecipientEmails] = useState({});
@@ -107,7 +126,7 @@ export default function Creator() {
     load();
   }, []);
 
-  async function loadOutreach() {
+  async function loadOutreach(hiddenIds = hiddenReviewedOutreachIds) {
     setOutreachLoading(true);
     const { data, error: outreachError } = await supabase
       .from("creator_outreach_contacts")
@@ -119,18 +138,19 @@ export default function Creator() {
     setOutreachLoading(false);
     if (outreachError) {
       setError(outreachError.message);
-      return;
+      return false;
     }
-    setOutreachContacts(data || []);
+    setOutreachContacts(filterHiddenOutreachContacts(data || [], hiddenIds));
     const { data: replyData, error: replyError } = await supabase
     .from("creator_outreach_replies")
     .select("*, creator_outreach_contacts(company_name, contact_email)")
     .order("received_at", { ascending: false });
     if (replyError) {
     setError(replyError.message);
-    return;
+    return false;
     }
     setOutreachReplies(replyData || []);
+    return true;
   }
 
   async function reviewOutreachReply(replyId) {
@@ -212,34 +232,38 @@ export default function Creator() {
     }
   }
 
-  async function clearOutreachResearch() {
-    if (!window.confirm("Clean the displayed research list? This removes all unsent outreach drafts. Sent emails and discarded locations will be kept.")) return;
+  function hideReviewedOutreachContacts() {
+    const reviewedIds = getReviewedOutreachContactIds(outreachContacts);
+    if (!reviewedIds.length) return;
+    if (!window.confirm(`Remove ${reviewedIds.length} reviewed prospect${reviewedIds.length === 1 ? "" : "s"} from this display? This only hides them in this browser; it does not delete their records.`)) return;
     setError("");
     setMessage("");
-    setOutreachActionLoading(true);
+    const nextHiddenIds = new Set(hiddenReviewedOutreachIds);
+    reviewedIds.forEach((id) => nextHiddenIds.add(id));
     try {
-      const session = await getCreatorSession();
-      const response = await fetch("/api/creator-outreach", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `****** || ""}`
-        },
-        body: JSON.stringify({ action: "clear-research" })
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Could not clear outreach drafts.");
-      setOutreachContacts([]);
-      setRecipientEmails({});
-      setSubjectEdits({});
-      setOutreachFeedback({});
-      setSearchedEmailContactIds(new Set());
-      setMessage(`Removed ${Number(result.cleared) || 0} displayed prospects. Sent emails and discarded locations were kept.`);
-    } catch (clearError) {
-      setError(clearError instanceof Error ? clearError.message : "Could not clear outreach drafts.");
-    } finally {
-      setOutreachActionLoading(false);
+      window.localStorage.setItem(HIDDEN_REVIEWED_OUTREACH_KEY, JSON.stringify([...nextHiddenIds]));
+    } catch (storageError) {
+      setError(storageError instanceof Error ? `Could not save the display filter: ${storageError.message}` : "Could not save the display filter.");
+      return;
     }
+    setHiddenReviewedOutreachIds(nextHiddenIds);
+    setOutreachContacts((current) => filterHiddenOutreachContacts(current, nextHiddenIds));
+    setMessage(`Removed ${reviewedIds.length} reviewed prospect${reviewedIds.length === 1 ? "" : "s"} from this display. Their records were not deleted.`);
+  }
+
+  async function restoreHiddenReviewedOutreachContacts() {
+    setError("");
+    setMessage("");
+    try {
+      window.localStorage.removeItem(HIDDEN_REVIEWED_OUTREACH_KEY);
+    } catch (storageError) {
+      setError(storageError instanceof Error ? `Could not restore hidden prospects: ${storageError.message}` : "Could not restore hidden prospects.");
+      return;
+    }
+    const noHiddenIds = new Set();
+    if (!await loadOutreach(noHiddenIds)) return;
+    setHiddenReviewedOutreachIds(noHiddenIds);
+    setMessage("Hidden reviewed prospects are visible again.");
   }
 
   async function findOutreachEmail(contactId) {
@@ -673,12 +697,22 @@ export default function Creator() {
                     </button>
                     <button
                       type="button"
-                      disabled={outreachActionLoading || !outreachContacts.length}
-                      onClick={clearOutreachResearch}
+                      disabled={outreachActionLoading || !outreachContacts.some(isReviewedOutreachContact)}
+                      onClick={hideReviewedOutreachContacts}
                       className="rounded border border-amber-300/60 px-3 py-2 text-sm font-semibold text-amber-200 disabled:opacity-50"
                     >
-                      Clean displayed prospects
+                      Hide reviewed prospects
                     </button>
+                    {hiddenReviewedOutreachIds.size > 0 && (
+                      <button
+                        type="button"
+                        disabled={outreachLoading}
+                        onClick={restoreHiddenReviewedOutreachContacts}
+                        className="rounded border border-slate-500 px-3 py-2 text-sm font-semibold text-slate-200 disabled:opacity-50"
+                      >
+                        Show hidden reviewed prospects
+                      </button>
+                    )}
                     {outreachContacts.some((contact) => !contact.contact_email && !searchedEmailContactIds.has(contact.id)) && (
                       <button
                         type="button"
