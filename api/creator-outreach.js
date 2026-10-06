@@ -1,6 +1,7 @@
 import { runResearchGodwitProspects } from "../lib/cron/researchGodwitProspectsJob.js";
 import { OUTREACH_LANGUAGES } from "../lib/cron/outreachCopy.js";
 import { generatePersonalizedOutreach, OUTREACH_AI_REQUIRED_ERROR } from "../lib/cron/personalizedOutreach.js";
+import { createOutreachCopy } from "../lib/cron/outreachCopy.js";
 import { findPublicBusinessEmail } from "../lib/cron/publicBusinessEmail.js";
 import { RESEARCH_BUSINESS_TYPES, RESEARCH_COUNTRIES } from "../lib/cron/researchOptions.js";
 import { isValidOutreachEmail, runSendOutreachEmails } from "../lib/cron/sendOutreachEmailsJob.js";
@@ -79,13 +80,13 @@ export default async function handler(request, response) {
       if (language !== "auto" && !OUTREACH_LANGUAGES.includes(language)) {
         return response.status(400).json({ error: "Select a supported outreach language." });
       }
-      if (!process.env.OPENAI_API_KEY?.trim()) {
+      if (!process.env.GEMINI_API_KEY?.trim() && !process.env.OPENAI_API_KEY?.trim()) {
         return response.status(503).json({ error: OUTREACH_AI_REQUIRED_ERROR });
       }
       const contacts = await supabaseGet(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}&select=id,company_name,business_type,country,city,website,contact_email,message`);
       const contact = contacts[0];
       if (!contact) return response.status(404).json({ error: "Outreach draft not found." });
-      const { subject, message, personalizationReason } = await generatePersonalizedOutreach({
+      const generated = await generatePersonalizedOutreach({
         companyName: contact.company_name,
         businessType: contact.business_type,
         country: contact.country,
@@ -95,6 +96,20 @@ export default async function handler(request, response) {
         language,
         variation: request.body?.variation
       });
+      const fallback = generated.languageValid === false
+        ? {
+            ...createOutreachCopy({
+              companyName: contact.company_name,
+              businessType: contact.business_type,
+              country: contact.country,
+              city: contact.city,
+              language,
+              variation: request.body?.variation
+            }),
+            generationSource: "template"
+          }
+        : null;
+      const { subject, message, personalizationReason, generationSource } = fallback || generated;
       const type = String(contact.business_type || "customer-facing business").replaceAll("_", " ");
       const personalizationNote = `Google Places category: ${type}${contact.city ? ` in ${contact.city}` : ""}. Tailored outreach angle: ${personalizationReason}${contact.contact_email ? ` Public contact email on file: ${contact.contact_email}.` : ""}`;
       await supabasePatch(`creator_outreach_contacts?id=eq.${encodeURIComponent(contactId)}`, {
@@ -109,7 +124,9 @@ export default async function handler(request, response) {
         subject,
         message,
         personalizationNote,
-        aiProvider: process.env.GEMINI_API_KEY?.trim() ? "Gemini" : "OpenAI",
+        aiProvider: generationSource === "template"
+          ? "Template fallback"
+          : process.env.GEMINI_API_KEY?.trim() ? "Gemini" : "OpenAI",
         aiGeneratedAt: new Date().toISOString()
       });
     }
