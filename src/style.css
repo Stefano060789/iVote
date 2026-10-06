@@ -1837,6 +1837,17 @@ textarea {
   color: #172b4b !important;
 }
 
+.creator-outreach .creator-prospect-summary {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #172b4b !important;
+}
+
+.creator-outreach .creator-prospect-summary p,
+.creator-outreach .creator-prospect-summary span {
+  color: #172b4b !important;
+}
+
 [data-theme="dark"] .creator-outreach .creator-research-panel {
   background: #172b46 !important;
   border-color: #415674 !important;
@@ -1853,5 +1864,16 @@ textarea {
 [data-theme="dark"] .creator-outreach .creator-research-panel select {
   background: #10223e !important;
   border-color: #60799e !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .creator-outreach .creator-prospect-summary {
+  background: #172b46 !important;
+  border-color: #60799e !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .creator-outreach .creator-prospect-summary p,
+[data-theme="dark"] .creator-outreach .creator-prospect-summary span {
   color: #f1f5f9 !important;
 }

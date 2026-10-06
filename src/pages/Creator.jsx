@@ -790,7 +790,7 @@ export default function Creator() {
               {outreachLoading && <p className="text-sm text-slate-400">Loading outreach queue...</p>}
               {!outreachLoading && outreachContacts.length === 0 && <p className="text-sm text-slate-400">No prospects are waiting for review. Approved, rejected, and locally hidden prospects are excluded from this queue.</p>}
               {!outreachLoading && outreachContacts.length > 0 && (
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-700 bg-slate-900/60 px-3 py-2 text-sm">
+                <div className="creator-prospect-summary flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-700 bg-slate-900/60 px-3 py-2 text-sm">
                   <p className="text-slate-100">
                     Showing {outreachPageStart + 1}–{Math.min(outreachPageStart + OUTREACH_PAGE_SIZE, outreachContacts.length)} of {outreachContacts.length} active prospect{outreachContacts.length === 1 ? "" : "s"}.
                     <span className="ml-1 text-slate-300">Reviewed and rejected items are removed automatically.</span>
