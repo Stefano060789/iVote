@@ -7,8 +7,8 @@ import { getOutreachLanguageLabel, OUTREACH_LANGUAGES } from "../../lib/cron/out
 import { RESEARCH_BUSINESS_TYPES, RESEARCH_COUNTRIES } from "../../lib/cron/researchOptions.js";
 import {
   filterHiddenOutreachContacts,
-  getReviewedOutreachContactIds,
-  isReviewedOutreachContact
+  getOutreachContactIds,
+  groupOutreachContactsByCountry
 } from "../lib/outreachDisplay.js";
 
 async function getCreatorSession() {
@@ -232,14 +232,14 @@ export default function Creator() {
     }
   }
 
-  function hideReviewedOutreachContacts() {
-    const reviewedIds = getReviewedOutreachContactIds(outreachContacts);
-    if (!reviewedIds.length) return;
-    if (!window.confirm(`Remove ${reviewedIds.length} reviewed prospect${reviewedIds.length === 1 ? "" : "s"} from this display? This only hides them in this browser; it does not delete their records.`)) return;
+  function cleanDisplayedOutreachContacts() {
+    const contactIds = getOutreachContactIds(outreachContacts);
+    if (!contactIds.length) return;
+    if (!window.confirm(`Clean ${contactIds.length} displayed prospect${contactIds.length === 1 ? "" : "s"} from this display? This only hides them in this browser; it does not delete their records.`)) return;
     setError("");
     setMessage("");
     const nextHiddenIds = new Set(hiddenReviewedOutreachIds);
-    reviewedIds.forEach((id) => nextHiddenIds.add(id));
+    contactIds.forEach((id) => nextHiddenIds.add(id));
     try {
       window.localStorage.setItem(HIDDEN_REVIEWED_OUTREACH_KEY, JSON.stringify([...nextHiddenIds]));
     } catch (storageError) {
@@ -248,7 +248,7 @@ export default function Creator() {
     }
     setHiddenReviewedOutreachIds(nextHiddenIds);
     setOutreachContacts((current) => filterHiddenOutreachContacts(current, nextHiddenIds));
-    setMessage(`Removed ${reviewedIds.length} reviewed prospect${reviewedIds.length === 1 ? "" : "s"} from this display. Their records were not deleted.`);
+    setMessage(`Cleaned ${contactIds.length} prospect${contactIds.length === 1 ? "" : "s"} from this display. Their records were not deleted.`);
   }
 
   async function restoreHiddenReviewedOutreachContacts() {
@@ -263,7 +263,7 @@ export default function Creator() {
     const noHiddenIds = new Set();
     if (!await loadOutreach(noHiddenIds)) return;
     setHiddenReviewedOutreachIds(noHiddenIds);
-    setMessage("Hidden reviewed prospects are visible again.");
+    setMessage("Cleaned prospects restored. Reviewed prospects remain hidden.");
   }
 
   async function findOutreachEmail(contactId) {
@@ -551,6 +551,8 @@ export default function Creator() {
   }
   if (!authorized) return <Navigate to="/admin" replace />;
 
+  const outreachGroups = groupOutreachContactsByCountry(outreachContacts);
+
   return (
     <Layout theme="workspace">
       <div className="mx-auto max-w-6xl space-y-6 px-3 py-4 sm:p-6">
@@ -697,11 +699,11 @@ export default function Creator() {
                     </button>
                     <button
                       type="button"
-                      disabled={outreachActionLoading || !outreachContacts.some(isReviewedOutreachContact)}
-                      onClick={hideReviewedOutreachContacts}
+                      disabled={outreachActionLoading || !outreachContacts.length}
+                      onClick={cleanDisplayedOutreachContacts}
                       className="rounded border border-amber-300/60 px-3 py-2 text-sm font-semibold text-amber-200 disabled:opacity-50"
                     >
-                      Hide reviewed prospects
+                      Clean displayed prospects
                     </button>
                     {hiddenReviewedOutreachIds.size > 0 && (
                       <button
@@ -710,7 +712,7 @@ export default function Creator() {
                         onClick={restoreHiddenReviewedOutreachContacts}
                         className="rounded border border-slate-500 px-3 py-2 text-sm font-semibold text-slate-200 disabled:opacity-50"
                       >
-                        Show hidden reviewed prospects
+                        Restore cleaned prospects
                       </button>
                     )}
                     {outreachContacts.some((contact) => !contact.contact_email && !searchedEmailContactIds.has(contact.id)) && (
@@ -730,7 +732,7 @@ export default function Creator() {
                 </div>
               </div>
               {outreachLoading && <p className="text-sm text-slate-400">Loading outreach queue...</p>}
-              {!outreachLoading && outreachContacts.length === 0 && <p className="text-sm text-slate-400">No outreach drafts are waiting for review.</p>}
+              {!outreachLoading && outreachContacts.length === 0 && <p className="text-sm text-slate-400">No prospects are waiting for review. Reviewed prospects are hidden automatically. Use “Restore cleaned prospects” to show items removed with Clean.</p>}
               {outreachReplies.length > 0 && (
                 <div className="space-y-3">
                   <h3 className="text-lg font-semibold">Replies needing attention</h3>
@@ -750,8 +752,11 @@ export default function Creator() {
                 </div>
               )}
               <div className="space-y-4">
-                {outreachContacts.map((contact) => (
-                  <article key={contact.id} className="min-w-0 rounded-lg border border-slate-700 bg-slate-900 p-3 sm:p-4">
+                {outreachGroups.map(({ country, contacts }) => (
+                  <section key={country} aria-labelledby={`outreach-country-${country.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}`} className="space-y-3">
+                    <h3 id={`outreach-country-${country.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}`} className="border-b border-slate-700 pb-2 text-lg font-semibold">{country} <span className="text-sm font-normal text-slate-400">({contacts.length})</span></h3>
+                    {contacts.map((contact) => (
+                    <article key={contact.id} className="min-w-0 rounded-lg border border-slate-700 bg-slate-900 p-3 sm:p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
                         <p className="break-words text-lg font-semibold">{contact.company_name || "Unnamed business"}</p>
@@ -824,7 +829,9 @@ export default function Creator() {
                           </p>
                         )}
                     </div>
-                  </article>
+                    </article>
+                    ))}
+                  </section>
                 ))}
               </div>
             </section>
