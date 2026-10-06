@@ -132,6 +132,8 @@ export default function Creator() {
       .from("creator_outreach_contacts")
       .select("*")
       .in("status", ["draft", "approved"])
+      .neq("business_review_status", "approved")
+      .neq("message_review_status", "approved")
       .neq("business_review_status", "rejected")
       .neq("message_review_status", "rejected")
       .order("created_at", { ascending: false });
