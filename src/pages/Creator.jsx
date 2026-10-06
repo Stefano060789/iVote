@@ -26,6 +26,7 @@ const LANGUAGE_OPTIONS = [
 ];
 
 const HIDDEN_REVIEWED_OUTREACH_KEY = "godwit-hidden-reviewed-outreach";
+const OUTREACH_PAGE_SIZE = 5;
 
 function getHiddenReviewedOutreachIds() {
   const saved = window.localStorage.getItem(HIDDEN_REVIEWED_OUTREACH_KEY);
@@ -98,6 +99,7 @@ export default function Creator() {
   });
   const [outreachActionLoading, setOutreachActionLoading] = useState(false);
   const [outreachLoading, setOutreachLoading] = useState(false);
+  const [outreachPage, setOutreachPage] = useState(1);
 
   useEffect(() => {
     window.localStorage.setItem("godwit-outreach-language", outreachLanguage);
@@ -106,6 +108,11 @@ export default function Creator() {
   useEffect(() => {
     window.localStorage.setItem("godwit-outreach-research-total", researchTargetTotal);
   }, [researchTargetTotal]);
+
+  useEffect(() => {
+    const pageCount = Math.max(1, Math.ceil(outreachContacts.length / OUTREACH_PAGE_SIZE));
+    setOutreachPage((current) => Math.min(current, pageCount));
+  }, [outreachContacts.length]);
 
   useEffect(() => {
     async function load() {
@@ -143,6 +150,7 @@ export default function Creator() {
       return false;
     }
     setOutreachContacts(filterHiddenOutreachContacts(data || [], hiddenIds));
+    setOutreachPage(1);
     const { data: replyData, error: replyError } = await supabase
     .from("creator_outreach_replies")
     .select("*, creator_outreach_contacts(company_name, contact_email)")
@@ -553,7 +561,13 @@ export default function Creator() {
   }
   if (!authorized) return <Navigate to="/admin" replace />;
 
-  const outreachGroups = groupOutreachContactsByCountry(outreachContacts);
+  const outreachPageCount = Math.max(1, Math.ceil(outreachContacts.length / OUTREACH_PAGE_SIZE));
+  const outreachPageStart = (outreachPage - 1) * OUTREACH_PAGE_SIZE;
+  const visibleOutreachContacts = outreachContacts.slice(
+    outreachPageStart,
+    outreachPageStart + OUTREACH_PAGE_SIZE
+  );
+  const outreachGroups = groupOutreachContactsByCountry(visibleOutreachContacts);
 
   return (
     <Layout theme="workspace">
@@ -734,7 +748,38 @@ export default function Creator() {
                 </div>
               </div>
               {outreachLoading && <p className="text-sm text-slate-400">Loading outreach queue...</p>}
-              {!outreachLoading && outreachContacts.length === 0 && <p className="text-sm text-slate-400">No prospects are waiting for review. Reviewed prospects are hidden automatically. Use “Restore cleaned prospects” to show items removed with Clean.</p>}
+              {!outreachLoading && outreachContacts.length === 0 && <p className="text-sm text-slate-400">No prospects are waiting for review. Approved, rejected, and locally hidden prospects are excluded from this queue.</p>}
+              {!outreachLoading && outreachContacts.length > 0 && (
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-700 bg-slate-900/60 px-3 py-2 text-sm">
+                  <p className="text-slate-300">
+                    Showing {outreachPageStart + 1}–{Math.min(outreachPageStart + OUTREACH_PAGE_SIZE, outreachContacts.length)} of {outreachContacts.length} active prospect{outreachContacts.length === 1 ? "" : "s"}.
+                    <span className="ml-1 text-slate-500">Reviewed and rejected items are removed automatically.</span>
+                  </p>
+                  {outreachPageCount > 1 && (
+                    <div className="flex items-center gap-2" aria-label="Prospect pages">
+                      <button
+                        type="button"
+                        disabled={outreachPage === 1}
+                        onClick={() => setOutreachPage((current) => Math.max(1, current - 1))}
+                        className="rounded border border-slate-600 px-3 py-1 text-xs font-semibold text-slate-200 disabled:opacity-40"
+                      >
+                        Previous
+                      </button>
+                      <span className="min-w-20 text-center text-xs text-slate-400">
+                        Page {outreachPage} of {outreachPageCount}
+                      </span>
+                      <button
+                        type="button"
+                        disabled={outreachPage === outreachPageCount}
+                        onClick={() => setOutreachPage((current) => Math.min(outreachPageCount, current + 1))}
+                        className="rounded border border-slate-600 px-3 py-1 text-xs font-semibold text-slate-200 disabled:opacity-40"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
               {outreachReplies.length > 0 && (
                 <div className="space-y-3">
                   <h3 className="text-lg font-semibold">Replies needing attention</h3>
@@ -824,7 +869,7 @@ export default function Creator() {
                           <button type="button" disabled={outreachActionLoading || !contact.subject || !contact.message || (subjectEdits[contact.id] !== undefined && subjectEdits[contact.id] !== (contact.subject || ""))} onClick={() => sendOutreachMessage(contact.id, String(recipientEmails[contact.id] ?? contact.contact_email ?? "").trim())} className="flex-1 rounded bg-emerald-300 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">Send message</button>
                           <button type="button" disabled={outreachActionLoading} onClick={() => discardOutreachLocation(contact.id)} className="flex-1 rounded border border-red-400/60 px-3 py-2 text-sm font-semibold text-red-200 disabled:opacity-50">Discard location</button>
                         </div>
-                        <p className="mt-2 text-xs text-slate-500">Regenerate uses AI to connect details from the business website to a specific feedback opportunity. It does not fall back to templates; configure OPENAI_API_KEY in the deployment environment.</p>
+                        <p className="mt-2 text-xs text-slate-500">AI-generated from the business's published information. Review the facts, recipient, and wording before sending.</p>
                         {outreachFeedback[contact.id] && (
                           <p role="status" aria-live="polite" className={`creator-send-feedback mt-3 ${outreachFeedback[contact.id].isError ? "is-error" : "is-success"}`}>
                             {outreachFeedback[contact.id].text}
