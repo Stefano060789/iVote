@@ -73,6 +73,9 @@ function isValidRecipientEmail(value) {
 export default function Creator() {
   const [authorized, setAuthorized] = useState(null);
   const [overview, setOverview] = useState(null);
+  const [websiteVisits, setWebsiteVisits] = useState(null);
+  const [websiteVisitsError, setWebsiteVisitsError] = useState("");
+  const [websiteVisitsLoading, setWebsiteVisitsLoading] = useState(false);
   const [pilotEndDate, setPilotEndDate] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -121,6 +124,7 @@ export default function Creator() {
       const isAllowed = isCreatorEmail(user?.email);
       setAuthorized(isAllowed);
       if (!isAllowed) return;
+      await loadWebsiteVisits();
 
       const { data, error: overviewError } = await supabase.rpc("creator_overview");
       if (overviewError) {
@@ -133,6 +137,21 @@ export default function Creator() {
     }
     load();
   }, []);
+
+  async function loadWebsiteVisits() {
+    setWebsiteVisitsLoading(true);
+    setWebsiteVisitsError("");
+    try {
+      const { data, error: visitsError } = await supabase.rpc("creator_website_visits");
+      if (visitsError) throw visitsError;
+      if (!data) throw new Error("Website visit totals were not returned.");
+      setWebsiteVisits(data);
+    } catch (visitsError) {
+      setWebsiteVisitsError(visitsError.message || "Unable to load website visits.");
+    } finally {
+      setWebsiteVisitsLoading(false);
+    }
+  }
 
   async function loadOutreach(hiddenIds = hiddenReviewedOutreachIds) {
     setOutreachLoading(true);
@@ -618,6 +637,27 @@ export default function Creator() {
           <p className="mt-2 text-sm text-slate-400">Operational totals across all venues. No guest answer content or payment data is exposed here.</p>
         </div>
         {error && <p className="rounded border border-red-500/50 bg-red-950/30 p-3 text-red-200">{error}</p>}
+        <section className="rounded-lg border border-slate-700 bg-slate-900 p-4" aria-labelledby="website-visits-heading">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 id="website-visits-heading" className="text-lg font-bold">Public website visits</h2>
+            <button type="button" onClick={loadWebsiteVisits} disabled={websiteVisitsLoading} className="rounded border border-slate-600 px-3 py-2 text-sm font-semibold disabled:opacity-50">
+              {websiteVisitsLoading ? "Loading..." : "Refresh visits"}
+            </button>
+          </div>
+          {websiteVisitsError && <p role="alert" className="creator-send-feedback is-error mt-3">Website counter unavailable: {websiteVisitsError} Confirm the website-visits database migration has been applied.</p>}
+          {websiteVisits && (
+            <div className="mt-3 grid gap-3 sm:grid-cols-3">
+              {[["total", "Total visits"], ["today", "Today (UTC)"], ["last_30_days", "Last 30 days"]].map(([key, label]) => (
+                <div key={key}>
+                  <p className="text-sm text-slate-400">{label}</p>
+                  <p className="text-2xl font-bold">{Number(websiteVisits[key]).toLocaleString()}</p>
+                </div>
+              ))}
+            </div>
+          )}
+          <p className="mt-3 text-sm text-slate-400">Consented visits to the homepage, Essentials, privacy, terms, and support pages. Counted once per browser-tab session per UTC day; not unique people. Signed-in users, dashboard activity, and QR voting pages are excluded. Tracking starts after installation; past visits cannot be recovered.</p>
+          {websiteVisits?.since && <p className="mt-1 text-sm text-slate-400">First recorded visit: {websiteVisits.since}.</p>}
+        </section>
         {overview && (
           <>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

@@ -1,4 +1,4 @@
-const STORAGE_KEY = "ivote_cookie_consent";
+const STORAGE_KEY = "ivote_cookie_consent_v2";
 export const COOKIE_CONSENT_EVENT = "ivote:cookie-consent";
 
 // "accepted" | "declined" | null (no choice made yet)

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { getCookieConsent, setCookieConsent } from "../lib/cookieConsent";
 
-// Gates optional, non-essential data flows (currently: Sentry error reporting) behind an
+// Gates optional, non-essential data flows behind an
 // explicit choice, as required for EU/ePrivacy visitors. Voting itself works the same either
 // way - this only affects diagnostics, never the core feedback flow.
 export default function CookieConsent() {
@@ -23,7 +23,7 @@ export default function CookieConsent() {
     >
       <div className="mx-auto flex max-w-3xl flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-slate-300">
-          We use optional error-reporting cookies to catch bugs. Voting works the same whether or not you accept them.{" "}
+          With your permission, we count public website visits using a temporary session identifier and enable optional error reporting. Voting works the same whether or not you accept.{" "}
           <Link to="/privacy" className="underline">Learn more</Link>.
         </p>
         <div className="flex shrink-0 gap-2">

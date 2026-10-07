@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 
 import NavBar from "./components/NavBar";
+import WebsiteVisitTracker from "./components/WebsiteVisitTracker";
 import { getCookieConsent, COOKIE_CONSENT_EVENT } from "./lib/cookieConsent";
 import "./i18n";
 
@@ -64,6 +65,7 @@ function PageLoading() {
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
+    <WebsiteVisitTracker />
     <NavBar />
     <Suspense fallback={<PageLoading />}>
       <Routes>

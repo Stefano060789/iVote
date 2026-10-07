@@ -49,6 +49,7 @@ function PrivacyNotice() {
           <li><strong>Billing data:</strong> handled directly by Stripe. Godwit stores only your plan and subscription status, never full card details.</li>
           <li><strong>Technical/error data:</strong> if the workspace operator has enabled it, basic crash reports (Sentry) that may include a stack trace. IP address collection is switched off by default in our error monitoring configuration.</li>
           <li><strong>Local device storage:</strong> a flag on the voter's own device recording that a given poll was already answered, and a couple of small UI preference flags. Not used for cross-site tracking and not shared with third parties.</li>
+          <li><strong>Optional website visit measurement:</strong> with your consent, we count public website sessions using a random identifier held in session storage. This counter does not store IP addresses, email addresses, or browsing URLs. Signed-in users and QR voting pages are excluded. Temporary identifiers are removed from the database after 30 days when the next visit is recorded; daily aggregate totals are retained.</li>
         </ul>
       </section>
 
